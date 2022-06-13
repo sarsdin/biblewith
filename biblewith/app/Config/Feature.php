@@ -28,6 +28,6 @@ class Feature extends BaseConfig
     /**
      * Use improved new auto routing instead of the default legacy version.
      */
-//    public bool $autoRoutesImproved = false;
-    public bool $autoRoutesImproved = true;
+    public bool $autoRoutesImproved = false;
+//    public bool $autoRoutesImproved = true;
 }
