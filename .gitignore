@@ -44,6 +44,22 @@ $RECYCLE.BIN/
 node_modules
 #!biblewith/*.*
 
+#---- androidclient
+androidclient/*.iml
+androidclient/.gradle
+androidclient/local.properties
+androidclient/.idea/caches
+androidclient/.idea/libraries
+androidclient/.idea/modules.xml
+androidclient/.idea/workspace.xml
+androidclient/.idea/navEditor.xml
+androidclient/.idea/assetWizardSettings.xml
+androidclient/.DS_Store
+androidclient/build
+androidclient/captures
+androidclient/.externalNativeBuild
+androidclient/.cxx
+local.properties
 
 #-------------------------
 # Environment Files
