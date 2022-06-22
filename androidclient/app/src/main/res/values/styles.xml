@@ -1,0 +1,75 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <!--마테리얼 버튼 관련 개별부분 테마 설정-->
+    <style name="Widget.App.Button" parent="Widget.MaterialComponents.Button"> <!--Widget.MaterialComponents.Button.TextButton : 경계없는 버튼, OutLineButton : 경계선만 있는 버튼-->
+        <item name="materialThemeOverlay">@style/ThemeOverlay.App.Button</item> <!--버튼 텍스트색이나 배경색 설정-->
+        <item name="android:textAppearance">@style/customButtonFontStyle</item> <!--버튼의 텍스트폰트,크기 등  설정-->
+        <item name="shapeAppearance">@style/ShapeAppearance.App.SmallComponent</item> <!--버튼의 모양 설정(라운딩,각)-->
+    </style>
+    <!--버튼테마 오버레이하기-->
+    <style name="ThemeOverlay.App.Button" parent="">
+        <item name="colorPrimary">#949292</item>   <!--버튼안 배경색-->
+        <item name="colorOnPrimary">@color/white</item> <!--글자색 오버레이-->
+    </style>
+    <!--버튼모양 변경하기-->
+    <style name="ShapeAppearance.App.SmallComponent" parent="ShapeAppearance.MaterialComponents.SmallComponent">
+        <item name="cornerFamily">rounded</item>
+        <item name="cornerSize">14dp</item>
+    </style>
+    <!--현재 사용안함-->
+    <style name="TextAppearance.App.Button" parent="TextAppearance.MaterialComponents.Button">
+        <item name="fontFamily">@font/binggraetaombold</item>
+        <item name="android:fontFamily">@font/melonabold</item>
+    </style>
+
+
+
+    <style name="Theme.seols.AppBarOverlay" parent="ThemeOverlay.AppCompat.Dark.ActionBar" /> <!--각 액티비티 AppBar 테마속성으로 적용 가능. 덮어쓰기함 -->
+    <style name="Theme.seols.PopupOverlay" parent="ThemeOverlay.AppCompat.Light" /> <!--각 액티비티 toolBar 테마속성으로 적용 가능. 덮어쓰기함 -->
+
+
+
+    <!-- 앱바 마테리얼 테마 오버레이(덮어쓰기) 적용. 전역적으로 적용하고 싶을 때 themes.xml에서 이 style의 name을 이용해서 적용. -->
+    <style name="Widget.seols.TextInputLayout1" parent="">
+        <item name="materialThemeOverlay">@style/ThemeOverlay.seols.TextInputLayout</item>
+<!--        <item name="shapeAppearance">@style/ShapeAppearance.App.SmallComponent</item>-->
+        <!-- 포커싱 됐을 때 라벨(위로 올라가는 글자)의 색       -->
+        <item name="hintTextColor">?attr/colorOnSurface</item>
+    </style>
+
+    <style name="ThemeOverlay.seols.TextInputLayout" parent="Widget.MaterialComponents.TextInputLayout.OutlinedBox">
+        <!--  포커싱 없을 때 테두리색      -->
+        <item name="colorPrimary">@android:color/darker_gray</item>
+        <!--  포커싱 있을 때 테두리색      -->
+        <item name="colorOnSurface">#585858</item>
+        <!--  setError가 작동될 때 색      -->
+        <item name="colorError">#B71C1C</item>
+        <item name="colorOnPrimary">@color/teal_700</item>
+<!--        <item name="textAppearanceSubtitle1">@style/TextAppearance.App.Subtitle1</item>-->
+<!--        <item name="textAppearanceCaption">@style/TextAppearance.App.Caption</item>-->
+<!--        <item name="editTextStyle">@style/Widget.MaterialComponents.TextInputEditText</item>-->
+    </style>
+
+    <style name="TextAppearance.App.Subtitle1" parent="TextAppearance.MaterialComponents.Subtitle1">
+        <item name="fontFamily">@font/binggraetaom</item>
+        <item name="android:fontFamily">@font/binggraetaom</item>
+    </style>
+
+    <style name="TextAppearance.App.Caption" parent="TextAppearance.MaterialComponents.Caption">
+        <item name="fontFamily">@font/binggraebold</item>
+        <item name="android:fontFamily">@font/binggraebold</item>
+    </style>
+
+
+
+
+
+
+
+
+
+
+
+
+</resources>

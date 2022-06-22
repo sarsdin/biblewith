@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="utf-8"?>
+<navigation xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/login_navi"
+    app:startDestination="@id/loginMainFm">
+
+    <fragment
+        android:id="@+id/loginMainFm"
+        android:name="com.example.androidclient.login.LoginMainFm"
+        android:label="login_main_fm"
+        tools:layout="@layout/login_main_fm" >
+        <action
+            android:id="@+id/action_loginMainFm_to_joinFm"
+            app:destination="@id/joinFm"
+            app:enterAnim="@anim/nav_default_enter_anim"
+            app:exitAnim="@anim/nav_default_exit_anim" />
+        <action
+            android:id="@+id/action_loginMainFm_to_findPwFm"
+            app:destination="@id/findPwFm" />
+    </fragment>
+    <fragment
+        android:id="@+id/joinFm"
+        android:name="com.example.androidclient.login.JoinFm"
+        android:label=""
+        tools:layout="@layout/login_join_fm" />
+    <fragment
+        android:id="@+id/findPwFm"
+        android:name="com.example.androidclient.login.FindPwFm"
+        android:label=""
+        tools:layout="@layout/login_find_pw_fm" />
+    <action
+        android:id="@+id/action_global_loginMainFm"
+        app:destination="@id/loginMainFm"
+        app:enterAnim="@anim/nav_default_enter_anim"
+        app:exitAnim="@anim/nav_default_exit_anim" />
+
+</navigation>

@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+
+    <!--  텍스트뷰 폰트 스타일  -->
+    <style name="customTextViewFontStyle" parent="@android:style/Widget.DeviceDefault.TextView"> <!--appbar title font에 적용됨. 고로 앱바제목은 TextView인듯..-->
+        <item name="android:fontFamily">@font/app_font</item> <!-- skd16이전이면 android:fontFamily를 쓰고 그이상이면 app:fontFamily, fontFamily를 쓴다 -->
+    </style>
+
+    <!--  버튼 폰트 스타일  -->
+    <!--@android:style/TextAppearance.DeviceDefault.Widget.Button-->
+    <style name="customButtonFontStyle" parent="">
+        <item name="fontFamily">@font/melonabold</item>
+        <item name="android:textSize">14sp</item>
+        <!--<item name="android:fontFamily">@font/app_font</item>-->
+        <!--<item name="background">@android:color/black</item>-->
+        <item name="android:textColor">@android:color/holo_blue_bright</item>  <!--버튼 테마 오버레이 없을때 적용되는 폰트색-->
+    </style>
+
+    <!--  에디트텍스트 폰트 스타일  -->
+    <style name="customEditTextFontStyle" parent="@android:style/Widget.DeviceDefault.Light.EditText">
+        <item name="android:fontFamily">@font/app_font</item>
+    </style>
+
+    <!--  라디오버튼 폰트 스타일  -->
+    <style name="customRadioButtonFontStyle" parent="@android:style/Widget.DeviceDefault.CompoundButton.RadioButton">
+        <item name="android:fontFamily">@font/app_font</item>
+    </style>
+
+    <!--  체크박스 폰트 스타일  -->
+    <style name="customCheckboxFontStyle" parent="@android:style/Widget.DeviceDefault.CompoundButton.CheckBox">
+        <item name="android:fontFamily">@font/app_font</item>
+    </style>
+
+
+
+
+</resources>

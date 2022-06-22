@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="utf-8"?>
+<font-family xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+
+
+        <font
+            android:font="@font/melona"
+            android:fontStyle="normal"
+            />
+
+        <font
+            android:font="@font/binggrae"
+            android:fontStyle="normal"
+            />
+
+        <font
+            android:font="@font/melonabold"
+            android:fontStyle="normal"
+            />
+
+        <font
+            android:font="@font/binggraebold"
+            android:fontStyle="normal"
+            />
+
+
+
+        <font
+            android:font="@font/binggraetaom"
+            android:fontStyle="normal"
+            />
+        <font
+            android:font="@font/binggraetaombold"
+            android:fontStyle="normal"
+            />
+
+
+
+</font-family>

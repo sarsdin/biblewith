@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <item
+        android:id="@+id/home_fm"
+        android:icon="@drawable/ic_home_black_24dp"
+        android:title="@string/title_home"
+        app:showAsAction="always" />
+
+    <item
+        android:id="@+id/bible_fm"
+        android:icon="@drawable/ic_bible"
+        android:title="@string/bottom_nav_bible"
+        app:showAsAction="always" />
+
+    <item
+        android:id="@+id/group_fm"
+        android:icon="@drawable/ic_group_icon"
+        android:title="모임"
+        app:showAsAction="always" />
+
+    <item
+        android:id="@+id/more_fm"
+        android:icon="@drawable/ic_more_icon"
+        android:title="더보기"
+        app:showAsAction="always" />
+
+</menu>

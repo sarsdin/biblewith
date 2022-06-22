@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="utf-8"?>
+<navigation xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/main_navi"
+    app:startDestination="@+id/home_fm">
+
+    <fragment
+        android:id="@+id/home_fm"
+        android:name="com.example.androidclient.home.HomeFm"
+        android:label=""
+        tools:layout="@layout/home_fm" />
+    <fragment
+        android:id="@+id/bible_fm"
+        android:name="com.example.androidclient.bible.BibleFm"
+        android:label="성경"
+        tools:layout="@layout/bible_fm" />
+    <fragment
+        android:id="@+id/group_fm"
+        android:name="com.example.androidclient.group.GroupFm"
+        android:label=""
+        tools:layout="@layout/group_fm" />
+    <fragment
+        android:id="@+id/more_fm"
+        android:name="com.example.androidclient.moreinfo.MoreFm"
+        android:label="더보기"
+        tools:layout="@layout/more_fm" />
+
+
+</navigation>
