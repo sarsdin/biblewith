@@ -1,7 +1,10 @@
 package com.example.androidclient.util;
 
+import com.example.androidclient.bible.BibleDto;
 import com.example.androidclient.login.LoginDto;
 import com.google.gson.JsonObject;
+
+import java.util.List;
 
 import okhttp3.OkHttpClient;
 import okhttp3.logging.HttpLoggingInterceptor;
@@ -99,7 +102,24 @@ public class Http {
     }
 
 
+    public interface HttpBible{
 
+        //성경책 목록
+        @GET("bible/getBookList")
+        Call<List<BibleDto>> getBookList();
+
+        //장 목록
+        @GET("bible/getChapterList")
+        Call<List<BibleDto>> getChapterList(@Query("book") int book
+                                         );//,@Query("chapter") int chapter
+        //절 목록
+        @GET("bible/getVerseList")
+        Call<List<BibleDto>> getVerseList(@Query("book")int book, @Query("chapter")int chapter);
+
+        //책 검색 목록
+        @GET("bible/getSearchBookList")
+        Call<List<BibleDto>> getSearchBookList(@Query("book_name")String newText);
+    }
 
 
 

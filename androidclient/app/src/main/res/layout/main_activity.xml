@@ -18,12 +18,32 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent">
 
+
         <androidx.appcompat.widget.Toolbar
             android:id="@+id/main_toolbar"
             android:layout_width="match_parent"
             android:layout_height="?attr/actionBarSize"
             android:background="#FFFFFF"
-            app:menu="@menu/main_toolbar_menu" />
+            app:menu="@menu/main_toolbar_menu" >
+
+            <com.google.android.material.textview.MaterialTextView
+                android:id="@+id/main_appbar_bible_tv"
+                android:text=""
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginHorizontal="5dp"
+                />
+            <com.google.android.material.textview.MaterialTextView
+                android:id="@+id/main_appbar_chapter_tv"
+                android:text=""
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginHorizontal="5dp"
+                />
+<!--            <androidx.appcompat.widget.SearchView-->
+<!--                android:layout_width="200dp"-->
+<!--                android:layout_height="match_parent"/>-->
+        </androidx.appcompat.widget.Toolbar>
         <!--        <com.google.android.material.appbar.CollapsingToolbarLayout-->
         <!--            android:layout_width="match_parent"-->
         <!--            android:layout_height="match_parent"-->
@@ -62,7 +82,7 @@
         android:id="@+id/nav_host_fragment_main_activity"
         android:name="androidx.navigation.fragment.NavHostFragment"
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
+        android:layout_height="0dp"
         app:defaultNavHost="true"
         app:layout_constraintBottom_toTopOf="@+id/main_bottom_nav"
         app:layout_constraintEnd_toEndOf="parent"

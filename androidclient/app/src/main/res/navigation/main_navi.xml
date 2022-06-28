@@ -13,7 +13,7 @@
     <fragment
         android:id="@+id/bible_fm"
         android:name="com.example.androidclient.bible.BibleFm"
-        android:label="성경"
+        android:label=""
         tools:layout="@layout/bible_fm" />
     <fragment
         android:id="@+id/group_fm"
@@ -25,6 +25,10 @@
         android:name="com.example.androidclient.moreinfo.MoreFm"
         android:label="더보기"
         tools:layout="@layout/more_fm" />
+    <fragment
+        android:id="@+id/bibleVerseFm"
+        android:name="com.example.androidclient.bible.BibleVerseFm"
+        android:label="" />
 
 
 </navigation>

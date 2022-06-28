@@ -141,10 +141,7 @@ public class LoginMainFm extends Fragment {
                         startActivity(toMain);
                         requireActivity().finish();
                     }
-
-
                 }
-
                 @Override
                 public void onFailure(Call<LoginDto> call, Throwable t) {
                     Log.e("[LoginMainFm]", "로그인클릭 onFailure: "+ t.getMessage() );
