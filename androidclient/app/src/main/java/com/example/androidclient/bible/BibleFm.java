@@ -77,6 +77,7 @@ public class BibleFm extends Fragment  { //implements BibleBookRav.뷰페이저�
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
 
+        //toolbar에 책 제목과 몇장인지 나타내기 위한 옵저버를 생성하고 ui데이터가 바뀔때마다 ui(책제목,장)를 변경해줌.
         bibleVm.live책장번호.observe(getViewLifecycleOwner(), new Observer<int[]>() {
             @Override
             public void onChanged(int[] ints) {

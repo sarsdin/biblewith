@@ -26,14 +26,16 @@ import retrofit2.Retrofit;
 
 public class BibleVm extends ViewModel {
 
-    private String host = "15.165.174.226";
+    public String host = "15.165.174.226";
 
     public MutableLiveData<List<BibleDto>> liveBookL = new MutableLiveData<>();
     public MutableLiveData<List<BibleDto>> liveVerseL = new MutableLiveData<>();
+    public MutableLiveData<List<BibleDto>> liveHighL = new MutableLiveData<>();
     public MutableLiveData<int[]> live책장번호 = new MutableLiveData<>();
     public List<BibleDto> bookL = new ArrayList<BibleDto>(); //책이름목록
     public List<BibleDto> chapterL = new ArrayList<BibleDto>(); //장목록
     public List<BibleDto> verseL = new ArrayList<BibleDto>(); //절목록
+    public List<BibleDto> highL = new ArrayList<BibleDto>(); //유저 하이라이트 목록
 
     public int[] 책장번호 = new int[]{1, 1, 1}; //todo 추후 유저테이블에 3개의 컬럼 추가후 이 데이터(마지막봤던)를 서버로 insert해줌
     public boolean onceExecuted = false; //한번실행 후 스크롤 처리 x - BibleVerseFm
@@ -48,6 +50,7 @@ public class BibleVm extends ViewModel {
 //        절목록가져오기(책장번호[0],책장번호[1]);
     }
 
+    //보던 페이지 정보를 가져옴
     public void 쉐어드에서책장절저장값가져오기(String 저장종류){
         SharedPreferences sp = null;
         if (저장종류.equals("book")) {
@@ -75,7 +78,7 @@ public class BibleVm extends ViewModel {
     //책 홀더 클릭시
     public void 책장번호업데이트(int book) {
         for (BibleDto item: bookL) {
-            if (item.isCurrentItem()) {
+            if (item.getCurrentItem()) {
                 item.setCurrentItem(false); //true 이면 false 으로 바꿈
             }
             if (item.getBook() == book ) {
@@ -93,8 +96,8 @@ public class BibleVm extends ViewModel {
     //장 홀더 클릭시
     public void 장번호업데이트(int chapter) {  //position은 bindholder 인덱스가 0으로 시작하기에 bind()메소드에서 인수를 position+1해서 여기로 넘어옴. -- 다시 변경 그냥 chapter번호로
         for (BibleDto item: chapterL) {
-            if (item.isCurrentItem()) {
-                item.setCurrentItem(false); //true 이면 false 으로 바꿈
+            if (item.getCurrentItem()) {
+                item.setCurrentItem(false); //ui true 이면 false 으로 바꿈
             }
             if (item.getChapter() == chapter ) {
                 item.setCurrentItem(true); //클릭된 포지션을 변화
@@ -110,7 +113,7 @@ public class BibleVm extends ViewModel {
     //절 홀더 클릭시
     public void 절번호업데이트(int verse) {
         for (BibleDto item: verseL) {
-            if (item.isCurrentItem()) {
+            if (item.getCurrentItem()) {
                 item.setCurrentItem(false); //true 이면 false 으로 바꿈
             }
             if (item.getChapter() == verse ) {
@@ -148,6 +151,7 @@ public class BibleVm extends ViewModel {
         spEditor.putString(MyApp.getUserInfo().getUser_email(), save.toString()).apply(); //저장하는 키값을 이메일(id)로 이용
     }
 
+    //MainActivity - onCreateOptionsMenu
     public void 책검색( List<BibleDto> searchL ) {
         bookL = searchL;
         for (BibleDto item: bookL) {
@@ -269,6 +273,17 @@ public class BibleVm extends ViewModel {
         return call;
     }
 
+///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+// 하이라이트, 노트
+
+
+
+}
+
+
+
+
+
 
 
 //    public Call<List<BibleDto>> 책검색(String newText) {
@@ -298,5 +313,3 @@ public class BibleVm extends ViewModel {
 //        });
 //        return call;
 //    }
-
-}

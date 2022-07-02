@@ -80,7 +80,7 @@ public class BibleChapterRva extends RecyclerView.Adapter<BibleChapterRva.BibleC
             this.mItem = mItem;
             binding.chapterNumber.setText(String.valueOf(mItem.getChapter()));
 
-            if (mItem.isCurrentItem()) {
+            if (mItem.getCurrentItem()) {
                 binding.chapterNumber.setTypeface(Typeface.DEFAULT_BOLD);
                 binding.chapterNumber.setTextColor(MyApp.getApplication().getColorStateList(R.color.book_rv));
             }

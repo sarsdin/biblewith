@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    >
+&lt;!&ndash;    android:background="#EDEDED"&ndash;&gt;
+    &lt;!&ndash;    android:background="?attr/selectableItemBackground"&ndash;&gt;
+
+&lt;!&ndash;    <androidx.appcompat.widget.AppCompatImageButton&ndash;&gt;
+&lt;!&ndash;        android:id="@+id/my_high_light_bts_vh_iv"&ndash;&gt;
+&lt;!&ndash;        app:shapeAppearanceOverlay="@style/ShapeAppearanceOverlay.App.CornerSize50Percent"&ndash;&gt;
+&lt;!&ndash;        android:layout_width="32dp"&ndash;&gt;
+&lt;!&ndash;        android:layout_height="32dp"&ndash;&gt;
+&lt;!&ndash;        android:layout_marginStart="28dp"&ndash;&gt;
+&lt;!&ndash;        android:layout_marginTop="24dp"&ndash;&gt;
+&lt;!&ndash;        android:adjustViewBounds="false"&ndash;&gt;
+&lt;!&ndash;        android:background="#FFD3D3"&ndash;&gt;
+&lt;!&ndash;        android:scaleType="fitCenter"&ndash;&gt;
+&lt;!&ndash;        android:tint="#FFFFFF"&ndash;&gt;
+&lt;!&ndash;        />&ndash;&gt;
+
+</androidx.constraintlayout.widget.ConstraintLayout>-->
+
+    <com.google.android.material.imageview.ShapeableImageView
+        xmlns:android="http://schemas.android.com/apk/res/android"
+        xmlns:app="http://schemas.android.com/apk/res-auto"
+        xmlns:tools="http://schemas.android.com/tools"
+        android:id="@+id/my_high_light_bts_vh_iv"
+        app:shapeAppearanceOverlay="@style/ShapeAppearanceOverlay.App.CornerSize50Percent"
+        android:layout_width="32dp"
+        android:layout_height="32dp"
+        android:layout_margin="5dp"
+        android:adjustViewBounds="false"
+        android:background="#FFD3D3"
+        android:scaleType="fitCenter"
+        android:tint="#FFFFFF"
+        />

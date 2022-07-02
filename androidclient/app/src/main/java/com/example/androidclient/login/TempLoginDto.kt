@@ -8,12 +8,12 @@ data class TempLoginDto(var user_no:Int, var user_email:String, var user_pwd:Str
 //    var user_no:Int = 0
 //    var user_nick:String = ""
 //    var user_name:String = ""
-
+//
 //    constructor(user_email:String, user_pwd:String, user_autologin:Boolean) : this(user_email) {//user_email은 기본 생성자(최상단의)로부터 위임받음.
 //        this.user_pwd = user_pwd
 //        this.user_autologin = user_autologin
 //    }
-
+//
 //    ) : this(user_email, user_pwd, user_autologin) //기본 생성자(최상단의)로부터 위임받음.
 
 

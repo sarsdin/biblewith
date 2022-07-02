@@ -8,6 +8,7 @@ import android.os.Bundle;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
+import android.view.View;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
@@ -16,6 +17,7 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.SearchView;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.navigation.NavController;
+import androidx.navigation.NavDestination;
 import androidx.navigation.Navigation;
 import androidx.navigation.ui.AppBarConfiguration;
 import androidx.navigation.ui.NavigationUI;
@@ -48,6 +50,7 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
 
         binding = MainActivityBinding.inflate(getLayoutInflater());
+//        DataBindingUtil.setContentView(this, R.layout.main_activity).invalidateAll();//
         setContentView(binding.getRoot());
         setSupportActionBar(binding.mainToolbar);
         쉐어드에서책정보불러오기(); //JsonArray bibleinfo 에 저장
@@ -63,11 +66,42 @@ public class MainActivity extends AppCompatActivity {
         NavigationUI.setupWithNavController(binding.mainBottomNav, navController);
 
 
+        //bibleFm안에서 책제목,몇장인지 나타내는 텍스트뷰 표시 제어
+        navController.addOnDestinationChangedListener(new NavController.OnDestinationChangedListener() {
+            @Override
+            public void onDestinationChanged(@NonNull NavController navController, @NonNull NavDestination navDestination, @Nullable Bundle bundle) {
+                if (navDestination.getId() == R.id.bible_fm) {
+//                    binding.mainAppbarTvGroup.setVisibility(View.VISIBLE);
+                    //네비게이션뷰, 앱레이아웃에서는 그룹이 안먹히네? 왜 그렇지? - main_activity.xml 안에 이유 설명되어 있음 - 컨스트레인레이아웃 스코프 문제임.
+                    binding.mainAppbarBibleTv.setVisibility(View.VISIBLE);
+                    binding.mainAppbarChapterTv.setVisibility(View.VISIBLE);
+                } else {
+                    binding.mainAppbarBibleTv.setVisibility(View.GONE);
+                    binding.mainAppbarChapterTv.setVisibility(View.GONE);
+                    //검색이 메뉴항목(수직...)에서도 숨겨짐. 바로가기로 표시되는 경우(툴바에표시)에는 안숨겨짐. 이때는 setEnabled(false)로 숨겨야함. 둘다 구분되어 작동
+                    //다만, navigation이 시작되는 startDestination에 지정된 Fm에서는 액티비티의 MenuInflate가 이루어지기 전인 onCreate 때 fm가 붙어버리기에
+                    //MenuInflate 이 후에 적용될 수 있는 옵션인 setVisible(false) 같은 경우 적용되지 않는다. 다음 onDestinationChanged 가 이루어지면 동작한다.
+                    //그렇기에 startDestination 에 setVisible(false)을 적용시키고 싶다면 activity의 onCreateOptionsMenu()에서 MenuInflate 이후 메소드를 쓴다.
+                    binding.mainToolbar.getMenu().findItem(R.id.app_bar_search).setVisible(false);
+//                    binding.mainToolbar.setVisibility(View.GONE);  // << 이것이 위와 달리 적용되는 이유는 toolbar는 menu가 아니고 상위 액티비티 레이아웃
+                    //에 소속한 view 이기 때문에 onCreate()에서 이미 inflate 되었기 때문에 작동하는 것!
+                }
+            }
+        });
+
+
 
 
 
     }
 
+    @Override
+    protected void onResume() {
+        super.onResume();
+        binding.mainToolbar.getMenu().findItem(R.id.app_bar_search).setShowAsAction(MenuItem.SHOW_AS_ACTION_ALWAYS);
+    }
+
+    //로컬db에서 책제목 정보 불러와서 사용. 원격db에서 불러오는 것과 비슷한 용도.
     void 쉐어드에서책정보불러오기(){
         SharedPreferences sp = MyApp.getApplication().getSharedPreferences("bookinfo", Context.MODE_PRIVATE);
 //        SharedPreferences.Editor spEditor = sp.edit();
@@ -78,12 +112,17 @@ public class MainActivity extends AppCompatActivity {
     }
 
 
+
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {//툴바에 메뉴 객체화세팅
 //        return super.onCreateOptionsMenu(menu);
         MenuInflater menuInflater = getMenuInflater();
         menuInflater.inflate(R.menu.main_toolbar_menu, menu);
-        SearchView searchView = (SearchView)menu.findItem(R.id.app_bar_search).getActionView();
+        //메뉴 인플레이트가 되고 난 뒤에야 toolbar의 기능이 인식된다. onCreate 등에서 binding.mainToolbar가 먼저 안먹히는것은 순서상 onCreateOptionMenu가
+        //onCreate보다 늦게 시작되기 때문이다. 그리고, 앞서 말한대로 메뉴인플레이트가 이루어져야 toolbar의 기능이 동작하게 된다.
+//        binding.mainToolbar.getMenu().findItem(R.id.app_bar_search).setVisible(false); // << 이것과
+        menu.findItem(R.id.app_bar_search).setVisible(false);                         // << 이것은 같다. binding.mainToolbar == menu 참조위치가 같은 객체임. 인플레이트 시기에 따라 활성화가 안되는 것도 같음.
+        SearchView searchView = (SearchView)menu.findItem(R.id.app_bar_search).getActionView(); //searchView를 찾아서 반환
         searchView.setMaxWidth(600);
 //        binding.mainToolbar.getMenu().findItem(R.id.app_bar_search).getActionView();
 //        searchView.setSubmitButtonEnabled(true); //검색창 확인버튼 활성화
@@ -156,3 +195,20 @@ public class MainActivity extends AppCompatActivity {
     }
 
 }
+
+
+/*    private void 바텀네비동작설정() { //이건 NavigationHost를 사용하면 동작안하는 듯. 예전 방식이면 가능
+        binding.mainBottomNav.setOnItemSelectedListener(new NavigationBarView.OnItemSelectedListener() {
+            @Override
+            public boolean onNavigationItemSelected(@NonNull MenuItem item) {
+                if (item.getItemId() == R.id.bible_fm) {
+                    binding.mainAppbarBibleTv.setVisibility(View.VISIBLE);
+                    binding.mainAppbarChapterTv.setVisibility(View.VISIBLE);
+                } else {
+                    binding.mainAppbarBibleTv.setVisibility(View.GONE);
+                    binding.mainAppbarChapterTv.setVisibility(View.GONE);
+                }
+                return true;
+            }
+        });
+    }*/

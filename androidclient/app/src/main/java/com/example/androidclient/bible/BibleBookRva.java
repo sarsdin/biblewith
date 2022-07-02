@@ -95,7 +95,7 @@ public class BibleBookRva extends RecyclerView.Adapter<BibleBookRva.BibleBookVh>
             this.mItem = mItem;
             binding.bookName.setText(mItem.getBook_name());
             binding.bookCategory.setText(mItem.getBook_category());
-            if (mItem.isCurrentItem()) {
+            if (mItem.getCurrentItem()) {
                 binding.bookName.setTypeface(Typeface.DEFAULT_BOLD);
                 binding.bookName.setTextColor(MyApp.getApplication().getColorStateList(R.color.book_rv));
                 binding.bookCategory.setTypeface(Typeface.DEFAULT_BOLD);
@@ -115,7 +115,7 @@ public class BibleBookRva extends RecyclerView.Adapter<BibleBookRva.BibleBookVh>
                         ((BibleVerseFm) ( bibleBookFm.getParentFragmentManager().findFragmentById(0))).binding.bibleVerseFmProgressbar.setVisibility(View.VISIBLE);
                         bibleVm.책장번호업데이트( mItem.getBook()); //position == mItem.book-1  -- position 은 0부터 인덱스가 시작이기 때문 book은 창세기가 1부터 시작임.
 
-                        Log.e("[BibleBookRav]", "position 클릭시: "+ position + ", "+ bibleVm.책장번호[0] +" , "+ mItem.getBook()+" , "+ mItem.getBook_name()+ " , "+ mItem.isCurrentItem() );
+                        Log.e("[BibleBookRav]", "position 클릭시: "+ position + ", "+ bibleVm.책장번호[0] +" , "+ mItem.getBook()+" , "+ mItem.getBook_name()+ " , "+ mItem.getCurrentItem() );
 //                        listener.바인딩가져오기().bibleTabLayoutViewpager.setCurrentItem(1); //장 페이지로 넘김  ..인터페이스 작동x
 //                        bibleFmBinding.bibleTabLayoutViewpager.setCurrentItem(1); x
 //                        Navigation.findNavController(v).getContext().getPackageManager(). x

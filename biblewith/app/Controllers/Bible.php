@@ -3,6 +3,7 @@
 namespace App\Controllers;
 
 use App\Models\Book;
+use App\Models\HighLight;
 use App\Models\User;
 use CodeIgniter\Database\Exceptions\DataException;
 use CodeIgniter\HTTP\ResponseInterface;
@@ -146,7 +147,36 @@ class Bible extends \CodeIgniter\Controller
     }
 
 
+    // 유저 하이라이트 정보 반환
+    public function getHlList() : ResponseInterface
+    {
+        $book = new Book();
+        $hl = new HighLight();
+        $bible = new \App\Models\Bible();
+        $req = $this->request;
+        $res = $this->response;
+        $data = $req->getVar();
+        log_message("debug", "[Bible] getHlList \$data: ". print_r($data, true));
 
+        $sql = " select * from bible_korHRV b 
+                    join HighLight hl on b.bible_no = hl.bible_no 
+                    join book k on b.book = k.book_no 
+                    where user_no = ? ";
+        try {
+            $result = $hl->join('bible_korHRV', 'bible_korHRV.bible_no = HighLight.bible_no')
+                ->join('book', 'bible_korHRV.book = book.book_no')
+                ->where("user_no", $data['user_no'])->findAll();
+//            $result = $hl->db->query($sql, $data['user_no']);
+//            $result = $result->getResultArray();
+            log_message("debug", "[Bible] getHlList \$result: ". print_r($result, true));
+
+            return $res->setJSON($result);
+            //배열로 반환되면 클라이언트에서 Dto객체로 변환이 안된다. Dto는 Object 타입이기때문. arrayL라면 arrayL 로 변환되어야함.
+
+        } catch (\ReflectionException | DataException $e){
+            return $res->setJSON($e->getMessage());
+        }
+    }
 
 
 }

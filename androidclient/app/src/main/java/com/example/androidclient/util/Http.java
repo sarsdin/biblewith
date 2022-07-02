@@ -119,6 +119,11 @@ public class Http {
         //책 검색 목록
         @GET("bible/getSearchBookList")
         Call<List<BibleDto>> getSearchBookList(@Query("book_name")String newText);
+
+        //유저 하이라이트 목록
+        @GET("bible/getHlList")
+        Call<List<BibleDto>> getHlList(@Query("user_no")int user_no );
+
     }
 
 

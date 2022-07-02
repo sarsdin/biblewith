@@ -1,4 +1,4 @@
-package com.example.androidclient.bible.placeholder;
+package com.example.androidclient.moreinfo.placeholder;
 
 import java.util.ArrayList;
 import java.util.HashMap;

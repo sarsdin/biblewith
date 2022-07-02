@@ -79,6 +79,7 @@ public class BibleBookFm extends Fragment {
         super.onResume();
         MainActivity mainA = ((MainActivity)requireActivity());
         mainA.binding.mainToolbar.getMenu().findItem(R.id.app_bar_search).setShowAsAction(MenuItem.SHOW_AS_ACTION_ALWAYS); //검색메뉴 보이기
+        mainA.binding.mainToolbar.getMenu().findItem(R.id.app_bar_search).setVisible(true);
         rva.notifyDataSetChanged(); //책 리사이클러뷰 갱신
 
     }
@@ -87,7 +88,8 @@ public class BibleBookFm extends Fragment {
     public void onPause() {
         super.onPause();
         MainActivity mainA = ((MainActivity)requireActivity());
-        mainA.binding.mainToolbar.getMenu().findItem(R.id.app_bar_search).setShowAsAction(0); //감추기
+        mainA.binding.mainToolbar.getMenu().findItem(R.id.app_bar_search).setShowAsAction(0); //검색메뉴 감추기
+        mainA.binding.mainToolbar.getMenu().findItem(R.id.app_bar_search).setVisible(false);
     }
 
     @Override

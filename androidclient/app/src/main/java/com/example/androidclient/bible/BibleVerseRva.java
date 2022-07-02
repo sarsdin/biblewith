@@ -5,8 +5,10 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
 
+import androidx.navigation.Navigation;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.example.androidclient.R;
 import com.example.androidclient.databinding.BibleVerseFmVhBinding;
 
 import java.util.List;
@@ -33,7 +35,8 @@ public class BibleVerseRva extends RecyclerView.Adapter<BibleVerseRva.BibleVerse
 
     @Override
     public void onBindViewHolder(final BibleVerseVh holder, int position) {
-        holder.bind(bibleVm.verseL.get(position));
+        int safePosition = holder.getBindingAdapterPosition();
+        holder.bind(bibleVm.verseL.get(safePosition));
 //        Log.e("[BibleVerseRva]", "onBindViewHolder "+ holder.getAbsoluteAdapterPosition());
     }
 
@@ -69,10 +72,12 @@ public class BibleVerseRva extends RecyclerView.Adapter<BibleVerseRva.BibleVerse
                     position = getLayoutPosition();
                     if (position != RecyclerView.NO_POSITION   ) {
                         bibleVm.절번호업데이트( mItem.getVerse() );
+                        Navigation.findNavController(v).navigate(R.id.action_global_myHighLightBts);
 
                         //click event 등 안에 갱신 명령어가 있으면 Cannot call this method while RecyclerView is computing a layout 이 뜨지 않는가?
                         // onbindviewholder() 메소드안에 실행되는 notifyDataSetChanged(); 를 주석처리하면 안뜸.
                         notifyDataSetChanged();
+
                     }
                 }
             });

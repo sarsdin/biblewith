@@ -1,13 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.constraintlayout.widget.ConstraintLayout
-    xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
-    tools:context=".home.MainActivity"
     android:id="@+id/main_container"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    >
+    tools:context=".home.MainActivity">
 
     <com.google.android.material.appbar.AppBarLayout
         android:id="@+id/main_appbar"
@@ -24,25 +22,27 @@
             android:layout_width="match_parent"
             android:layout_height="?attr/actionBarSize"
             android:background="#FFFFFF"
-            app:menu="@menu/main_toolbar_menu" >
+            app:menu="@menu/main_toolbar_menu"
+            >
 
             <com.google.android.material.textview.MaterialTextView
                 android:id="@+id/main_appbar_bible_tv"
-                android:text=""
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginHorizontal="5dp"
-                />
+                android:text="" />
+
             <com.google.android.material.textview.MaterialTextView
                 android:id="@+id/main_appbar_chapter_tv"
-                android:text=""
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginHorizontal="5dp"
-                />
-<!--            <androidx.appcompat.widget.SearchView-->
-<!--                android:layout_width="200dp"-->
-<!--                android:layout_height="match_parent"/>-->
+                android:text="" />
+
+
+            <!--            <androidx.appcompat.widget.SearchView-->
+            <!--                android:layout_width="200dp"-->
+            <!--                android:layout_height="match_parent"/>-->
         </androidx.appcompat.widget.Toolbar>
         <!--        <com.google.android.material.appbar.CollapsingToolbarLayout-->
         <!--            android:layout_width="match_parent"-->
@@ -53,15 +53,15 @@
         <!--        </com.google.android.material.appbar.CollapsingToolbarLayout>-->
     </com.google.android.material.appbar.AppBarLayout>
 
-<!--    <com.google.android.material.bottomnavigation.BottomNavigationView-->
-<!--        android:id="@+id/main_bottom_nav"-->
-<!--        android:layout_width="0dp"-->
-<!--        android:layout_height="wrap_content"-->
-<!--        android:background="?android:attr/windowBackground"-->
-<!--        app:layout_constraintBottom_toBottomOf="parent"-->
-<!--        app:layout_constraintEnd_toEndOf="parent"-->
-<!--        app:layout_constraintStart_toStartOf="parent"-->
-<!--        app:menu="@menu/bottom_nav_menu" />-->
+    <!--    <com.google.android.material.bottomnavigation.BottomNavigationView-->
+    <!--        android:id="@+id/main_bottom_nav"-->
+    <!--        android:layout_width="0dp"-->
+    <!--        android:layout_height="wrap_content"-->
+    <!--        android:background="?android:attr/windowBackground"-->
+    <!--        app:layout_constraintBottom_toBottomOf="parent"-->
+    <!--        app:layout_constraintEnd_toEndOf="parent"-->
+    <!--        app:layout_constraintStart_toStartOf="parent"-->
+    <!--        app:menu="@menu/bottom_nav_menu" />-->
 
 
     <com.google.android.material.bottomnavigation.BottomNavigationView
@@ -71,11 +71,11 @@
         android:background="?android:attr/windowBackground"
         app:itemIconTint="@drawable/bottom_nav_color_selector"
         app:itemTextColor="@drawable/bottom_nav_color_selector"
+        app:labelVisibilityMode="selected"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:labelVisibilityMode="selected"
-        app:menu="@menu/bottom_nav_menu"/>
+        app:menu="@menu/bottom_nav_menu" />
 
 
     <fragment
@@ -92,4 +92,15 @@
         app:navGraph="@navigation/main_navi" />
 
 
+<!--    <androidx.constraintlayout.widget.Group-->
+<!--        android:id="@+id/main_appbar_tv_group"-->
+<!--        android:layout_width="wrap_content"-->
+<!--        android:layout_height="wrap_content"-->
+<!--        android:visibility="gone"-->
+<!--        app:constraint_referenced_ids="main_appbar_bible_tv,main_appbar_chapter_tv" />-->
+            <!-- 앱레이아웃안의 텍스트뷰들이 그룹으로써 작동을 안하는 이유
+                 스코프가 달라서임. 그룹은 constraintlayout의 자식으로써
+                 동작하는데, 앱레이아웃은 또다른 별개의 레이아웃이기때문에
+                 스코프가 별개로 취급되서 그룹이 안먹히는 것!
+            -->
 </androidx.constraintlayout.widget.ConstraintLayout>
