@@ -67,13 +67,26 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="16dp"
-                android:layout_marginEnd="16dp"
-                android:textSize="14sp"
-                android:text="@{dto.highlight_date}"
+                android:layout_marginEnd="12dp"
+                android:text=""
                 android:textAppearance="?attr/textAppearanceListItem"
-                app:layout_constraintEnd_toEndOf="parent"
+                android:textSize="14sp"
+                app:layout_constraintEnd_toStartOf="@+id/my_high_light_fm_vh_menu_ibt"
                 app:layout_constraintTop_toTopOf="parent"
                 tools:text="2022-6-29 00:00:11" />
+
+            <ImageButton
+                android:id="@+id/my_high_light_fm_vh_menu_ibt"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="14dp"
+                android:layout_marginEnd="16dp"
+                android:background="#FFFFFF"
+                android:scaleType="centerInside"
+                android:src="@drawable/ic_baseline_more_vert_24"
+                android:visibility="gone"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintTop_toTopOf="parent" />
 
         </androidx.constraintlayout.widget.ConstraintLayout>
 

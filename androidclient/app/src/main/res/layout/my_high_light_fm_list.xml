@@ -6,6 +6,7 @@
     android:name="com.example.androidclient.moreinfo.MyHighLightFm"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:background="#48DCDCDC"
     app:layoutManager="LinearLayoutManager"
     tools:context=".moreinfo.MyHighLightFm"
     tools:listitem="@layout/my_high_light_fm_vh" />

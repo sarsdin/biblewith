@@ -53,4 +53,16 @@ public class MoreFm extends Fragment {
         super.onDestroyView();
         binding = null;
     }
+    @Override
+    public void onDetach() {
+        super.onDetach();
+    }
+
+
+    @Override
+    public void onDestroy() {
+        super.onDestroy();
+    }
+
+
 }

@@ -9,7 +9,7 @@
     </style>
     <!--버튼테마 오버레이하기-->
     <style name="ThemeOverlay.App.Button" parent="">
-        <item name="colorPrimary">#949292</item>   <!--버튼안 배경색-->
+        <item name="colorPrimary">#CACACA</item>   <!--버튼안 배경색-->
         <item name="colorOnPrimary">@color/white</item> <!--글자색 오버레이-->
     </style>
     <!--버튼모양 변경하기-->

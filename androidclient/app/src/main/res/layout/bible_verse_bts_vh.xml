@@ -22,18 +22,31 @@
 &lt;!&ndash;        />&ndash;&gt;
 
 </androidx.constraintlayout.widget.ConstraintLayout>-->
+<layout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    >
+    <data>
+        <variable
+            name="dto"
+            type="com.example.androidclient.bible.BibleBtsDto" />
+
+    </data>
 
     <com.google.android.material.imageview.ShapeableImageView
-        xmlns:android="http://schemas.android.com/apk/res/android"
-        xmlns:app="http://schemas.android.com/apk/res-auto"
-        xmlns:tools="http://schemas.android.com/tools"
         android:id="@+id/my_high_light_bts_vh_iv"
-        app:shapeAppearanceOverlay="@style/ShapeAppearanceOverlay.App.CornerSize50Percent"
-        android:layout_width="32dp"
-        android:layout_height="32dp"
+        android:layout_width="52dp"
+        android:layout_height="42dp"
+        android:minHeight="60dp"
         android:layout_margin="5dp"
         android:adjustViewBounds="false"
-        android:background="#FFD3D3"
-        android:scaleType="fitCenter"
-        android:tint="#FFFFFF"
-        />
+        android:background="@{dto.highlight_color}"
+        android:scaleType="centerInside"
+        app:shapeAppearanceOverlay="@style/ShapeAppearanceOverlay.App.CornerSize50Percent"
+        app:tint="@android:color/holo_red_dark" />
+<!--        app:srcCompat="@drawable/ic_highlight_icon"-->
+<!--        android:background="#DC8383"-->
+
+
+</layout>

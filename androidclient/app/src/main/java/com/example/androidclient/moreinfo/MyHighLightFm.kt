@@ -36,7 +36,7 @@ class MyHighLightFm : Fragment() {
         mbinding = MyHighLightFmListBinding.inflate(inflater, container, false)
 //          DataBindingUtil.inflate<ViewDataBinding>(inflater, R.layout.my_high_light_fm_list, container, false)
 //        val bmbinding = DataBindingUtil.bind<ViewDataBinding>(mbinding!!.root)
-        하이라이트목록가져오기()
+        bibleVm.하이라이트목록가져오기()
 
         recyclerView = binding.myHighLightFmList
         recyclerView.layoutManager = LinearLayoutManager(binding.root.context)

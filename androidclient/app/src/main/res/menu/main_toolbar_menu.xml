@@ -8,9 +8,10 @@
         android:icon="@drawable/ic_baseline_search_24"
         android:title="검색"
         app:actionViewClass="androidx.appcompat.widget.SearchView"
-        app:showAsAction="never" />
+         />
+<!--        app:showAsAction="always"-->
+<!--        android:visible="true"-->
 <!--   메뉴항목에서 숨길지 말지 결정하는 속성. -->
-<!--        android:visible="false"-->
     <item
         android:id="@+id/main_toolbar_menu_logout"
         android:icon="@drawable/ic_earth"

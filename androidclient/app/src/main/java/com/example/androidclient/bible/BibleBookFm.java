@@ -1,6 +1,7 @@
 package com.example.androidclient.bible;
 
 import android.os.Bundle;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.MenuItem;
 import android.view.View;
@@ -55,7 +56,7 @@ public class BibleBookFm extends Fragment {
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
-        //todo 리사이클러뷰 갱신 dataset~
+        //todo 리사이클러뷰 갱신 dataset~ 책이름 검색으로인한 화면 갱신할때 쓰임
         bibleVm.liveBookL.observe(getViewLifecycleOwner(), new Observer<List<BibleDto>>() {
             @Override
             public void onChanged(List<BibleDto> bibleDtos) {
@@ -69,10 +70,10 @@ public class BibleBookFm extends Fragment {
         super.onStart();
     }
 
-    @Override
+/*    @Override
     public void onViewStateRestored(@Nullable Bundle savedInstanceState) {
         super.onViewStateRestored(savedInstanceState);
-    }
+    }*/
 
     @Override
     public void onResume() {
@@ -80,7 +81,9 @@ public class BibleBookFm extends Fragment {
         MainActivity mainA = ((MainActivity)requireActivity());
         mainA.binding.mainToolbar.getMenu().findItem(R.id.app_bar_search).setShowAsAction(MenuItem.SHOW_AS_ACTION_ALWAYS); //검색메뉴 보이기
         mainA.binding.mainToolbar.getMenu().findItem(R.id.app_bar_search).setVisible(true);
+        Log.e("오류태그", "북 리쥼 ");
         rva.notifyDataSetChanged(); //책 리사이클러뷰 갱신
+        Log.e("오류태그", "북 리쥼 after notifydata");
 
     }
 
@@ -90,10 +93,18 @@ public class BibleBookFm extends Fragment {
         MainActivity mainA = ((MainActivity)requireActivity());
         mainA.binding.mainToolbar.getMenu().findItem(R.id.app_bar_search).setShowAsAction(0); //검색메뉴 감추기
         mainA.binding.mainToolbar.getMenu().findItem(R.id.app_bar_search).setVisible(false);
+        Log.e("오류태그", "북 퍼즈 ");
     }
 
     @Override
     public void onStop() {
         super.onStop();
+
+    }
+
+    @Override
+    public void onDestroyView() {
+        super.onDestroyView();
+        binding = null;
     }
 }

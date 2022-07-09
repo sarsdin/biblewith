@@ -271,7 +271,9 @@ class Home extends BaseController
 
             } else {
                 log_message("debug", "[Home] login \$result is null: ". print_r($result, true));
-                return $res->setJSON($result[0]);
+                return $res->setJSON([
+                    "user_email" => ""
+                ]);
             }
 
         } catch (\ReflectionException | DataException $e){
