@@ -122,24 +122,29 @@ public class LoginMainFm extends Fragment {
                 public void onResponse(Call<LoginDto> call, Response<LoginDto> response) {
                     if (response.isSuccessful()) {
                         LoginDto res = response.body();
+                        if(res.getUser_email() != null || !res.getUser_email().equals("")){
+                            MyApp.setUserInfo(res); //사용자 정보 MyApp 클래스에 저장
+                            Log.e("[LoginMainFm]", "로그인클릭 onResponse: "+ MyApp.getUserInfo() );
 
-                        MyApp.setUserInfo(res); //사용자 정보 MyApp 클래스에 저장
-                        Log.e("[LoginMainFm]", "로그인클릭 onResponse: "+ MyApp.getUserInfo() );
+                            Log.e("[LoginMainFm]", "로그인클릭 loginDto: "+ loginDto );
+                            //자동로그인 체크라면 쉐어드에 자신의 이메일을 등록한다.
+                            if (loginDto.isUser_autologin()) {
+                                SharedPreferences sp = MyApp.getApplication().getSharedPreferences("autologin", Context.MODE_PRIVATE);
+                                SharedPreferences.Editor spEditor = sp.edit();
+                                sp.getString("user_email", "");
+                                spEditor.putString("user_email", loginDto.getUser_email());
+                                spEditor.apply();
+                                Log.e("[LoginMainFm]", "로그인클릭 자동로그인 쉐어드 유저이메일: "+ sp.getString("user_email", "") );
+                            }
+                            Toast.makeText(getActivity(), "로그인하였습니다.", Toast.LENGTH_SHORT).show();
+                            Intent toMain = new Intent(MyApp.getApplication(), MainActivity.class);
+                            startActivity(toMain);
+                            requireActivity().finish();
 
-                        Log.e("[LoginMainFm]", "로그인클릭 loginDto: "+ loginDto );
-                        //자동로그인 체크라면 쉐어드에 자신의 이메일을 등록한다.
-                        if (loginDto.isUser_autologin()) {
-                            SharedPreferences sp = MyApp.getApplication().getSharedPreferences("autologin", Context.MODE_PRIVATE);
-                            SharedPreferences.Editor spEditor = sp.edit();
-                            sp.getString("user_email", "");
-                            spEditor.putString("user_email", loginDto.getUser_email());
-                            spEditor.apply();
-                            Log.e("[LoginMainFm]", "로그인클릭 자동로그인 쉐어드 유저이메일: "+ sp.getString("user_email", "") );
+                        } else {
+                            Toast.makeText(getActivity(), "로그인에 실패하였습니다. 아이디/비밀번호를 다시 확인해주세요.", Toast.LENGTH_SHORT).show();
+
                         }
-                        Toast.makeText(getActivity(), "로그인하였습니다.", Toast.LENGTH_SHORT).show();
-                        Intent toMain = new Intent(MyApp.getApplication(), MainActivity.class);
-                        startActivity(toMain);
-                        requireActivity().finish();
                     }
                 }
                 @Override

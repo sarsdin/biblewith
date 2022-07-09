@@ -1,8 +1,12 @@
-class Main(var name : String) : Test(33) {
+data class Main(var name : String): Test(33) { //
 //    var name: String = ""
-//    var age: Int = 0
+    var age: Int = 0
 
-//    constructor(name: String, age: Int ) : super(33) {
+//    constructor(name: String, ) : this(name) {
+//        this.name = "d";
+//    }
+
+//    constructor(name: String, age: Int ) :this(name)  { //super(33)
 //        println(name)
 //    }
 

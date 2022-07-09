@@ -9,7 +9,7 @@
     </style>
     <!--버튼테마 오버레이하기-->
     <style name="ThemeOverlay.App.Button" parent="">
-        <item name="colorPrimary">#949292</item>   <!--버튼안 배경색-->
+        <item name="colorPrimary">#CACACA</item>   <!--버튼안 배경색-->
         <item name="colorOnPrimary">@color/white</item> <!--글자색 오버레이-->
     </style>
     <!--버튼모양 변경하기-->
@@ -22,7 +22,10 @@
         <item name="fontFamily">@font/binggraetaombold</item>
         <item name="android:fontFamily">@font/melonabold</item>
     </style>
-
+    <!--이미지뷰 Radius모서리둥글게 설정-->
+    <style name="ShapeAppearanceOverlay.App.CornerSize50Percent" parent="">
+        <item name="cornerSize">50%</item>
+    </style>
 
 
     <style name="Theme.seols.AppBarOverlay" parent="ThemeOverlay.AppCompat.Dark.ActionBar" /> <!--각 액티비티 AppBar 테마속성으로 적용 가능. 덮어쓰기함 -->

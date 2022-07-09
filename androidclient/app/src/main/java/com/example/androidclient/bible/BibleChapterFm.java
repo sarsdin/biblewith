@@ -68,4 +68,10 @@ public class BibleChapterFm extends Fragment {
         rva.notifyDataSetChanged();
     }
 
+    @Override
+    public void onDestroyView() {
+        super.onDestroyView();
+        binding = null;
+    }
+
 }

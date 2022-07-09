@@ -1,8 +1,9 @@
+/*
 package com.example.androidclient.bible;
 
 import com.google.gson.annotations.SerializedName;
 
-public class BibleDto {
+public class BibleDtob {
 
     private int bible_no;
     private String book_category;
@@ -130,3 +131,4 @@ public class BibleDto {
         this.currentItem = currentItem;
     }
 }
+*/

@@ -1,4 +1,5 @@
 package com.example.androidclient.home;
+import android.util.Log;
 
 import android.annotation.SuppressLint;
 import android.content.Context;
@@ -8,6 +9,7 @@ import android.os.Bundle;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
+import android.view.View;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
@@ -16,6 +18,7 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.SearchView;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.navigation.NavController;
+import androidx.navigation.NavDestination;
 import androidx.navigation.Navigation;
 import androidx.navigation.ui.AppBarConfiguration;
 import androidx.navigation.ui.NavigationUI;
@@ -26,6 +29,8 @@ import com.example.androidclient.bible.BibleDto;
 import com.example.androidclient.bible.BibleVm;
 import com.example.androidclient.databinding.MainActivityBinding;
 import com.example.androidclient.login.LoginActivity;
+import com.google.android.material.bottomnavigation.BottomNavigationView;
+import com.google.android.material.navigation.NavigationBarView;
 import com.google.gson.Gson;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
@@ -48,10 +53,14 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
 
         binding = MainActivityBinding.inflate(getLayoutInflater());
+//        DataBindingUtil.setContentView(this, R.layout.main_activity).invalidateAll();//
         setContentView(binding.getRoot());
         setSupportActionBar(binding.mainToolbar);
-        쉐어드에서책정보불러오기(); //JsonArray bibleinfo 에 저장
+//        쉐어드에서책정보불러오기(); //JsonArray bibleinfo 에 저장 -- 7/9 쉐어드까지 배포가 안되므로 결국 서버에서 데이터를 로딩해오는 방식으로 가야함
         bibleVm = new ViewModelProvider(this).get(BibleVm.class);
+//        Gson gson = new Gson();
+        //책 제목 정보 vm에 초기화넣어주기 - 노트목록가져오기 뷰홀더 where_tv에서 참조함 - notefm: vm에서 미리 로딩하는게 되더라..createView에서 안하고 vm안에서 비동기통신하니깐 미리 로딩되어있더라
+//        bibleVm.bookL = gson.fromJson(bookinfo, new TypeToken<ArrayList<BibleDto>>(){}.getType()); 
 
         // Passing each menu ID as a set of Ids because each
         // menu should be considered as top level destinations.
@@ -63,11 +72,72 @@ public class MainActivity extends AppCompatActivity {
         NavigationUI.setupWithNavController(binding.mainBottomNav, navController);
 
 
+        //네비게이션 컨트롤러 이벤트 제어 - Navigation navigate()로 목적지 화면으로 이동할때 목적지가 변함을 감지하고 그에 따라 이벤트를 발동하는 이벤트 리스너.
+        //bibleFm안에서 책제목,몇장인지 나타내는 텍스트뷰 표시 제어
+        navController.addOnDestinationChangedListener(new NavController.OnDestinationChangedListener() {
+            @Override
+            public void onDestinationChanged(@NonNull NavController navController, @NonNull NavDestination navDestination, @Nullable Bundle bundle) {
+                if (navDestination.getId() == R.id.bible_fm) {
+//                    binding.mainAppbarTvGroup.setVisibility(View.VISIBLE);
+                    //네비게이션뷰, 앱레이아웃에서는 그룹이 안먹히네? 왜 그렇지? - main_activity.xml 안에 이유 설명되어 있음 - 컨스트레인레이아웃 스코프 문제임.
+                    binding.mainAppbarBibleTv.setVisibility(View.VISIBLE);
+                    binding.mainAppbarChapterTv.setVisibility(View.VISIBLE);
+                    Log.e("오류태그", "create if");
+                } else {
+                    Log.e("오류태그", "create else");
+                    binding.mainAppbarBibleTv.setVisibility(View.GONE);
+                    binding.mainAppbarChapterTv.setVisibility(View.GONE);
+                    //검색이 메뉴항목(수직...)에서도 숨겨짐. 바로가기로 표시되는 경우(툴바에표시)에는 안숨겨짐. 이때는 setEnabled(false)로 숨겨야함. 둘다 구분되어 작동
+                    //다만, navigation이 시작되는 startDestination에 지정된 Fm에서는 액티비티의 MenuInflate가 이루어지기 전인 onCreate 때 fm가 붙어버리기에
+                    //MenuInflate 이 후에 적용될 수 있는 옵션인 setVisible(false) 같은 경우 적용되지 않는다. 다음 onDestinationChanged 가 이루어지면 동작한다.
+                    //그렇기에 startDestination 에 setVisible(false)을 적용시키고 싶다면 activity의 onCreateOptionsMenu()에서 MenuInflate 이후 메소드를 쓴다.
+                    binding.mainToolbar.getMenu().findItem(R.id.app_bar_search).setVisible(false);
+//                    binding.mainToolbar.setVisibility(View.GONE);  // << 이것이 위와 달리 적용되는 이유는 toolbar는 menu가 아니고 상위 액티비티 레이아웃
+                    //에 소속한 view 이기 때문에 onCreate()에서 이미 inflate 되었기 때문에 작동하는 것!
+                }
+
+                //노트 추가 화면으로 이동시 바텀 네비게이션 숨김
+                switch(navDestination.getId()){
+                    case  R.id.myNoteFmAdd:
+                        binding.mainBottomNav.setVisibility(View.GONE);
+                        binding.mainAppbarNoteAddBt.setVisibility(View.VISIBLE);
+                        break;
+                    case  R.id.myNoteFmUpdate:
+                        binding.mainBottomNav.setVisibility(View.GONE);
+                        binding.mainAppbarNoteUpdateBt.setVisibility(View.VISIBLE);
+                        break;
+                    default:
+                        binding.mainBottomNav.setVisibility(View.VISIBLE);
+                        binding.mainAppbarNoteAddBt.setVisibility(View.GONE);
+                        binding.mainAppbarNoteUpdateBt.setVisibility(View.GONE);
+                        break;
+                }
+
+            }
+        });
+
+        // Add your own reselected listener 다중백스택관련 navigation 2.4.0 rc1
+//        binding.mainBottomNav.setOnItemReselectedListener(new NavigationBarView.OnItemReselectedListener() {
+//            @Override
+//            public void onNavigationItemReselected(@NonNull MenuItem item) {
+//                int reselectedDestinationId = item.getItemId();
+//                navController.popBackStack(reselectedDestinationId, false, false);
+//            }
+//        });
 
 
 
     }
 
+    @Override
+    protected void onResume() {
+        super.onResume();
+        //일단 검색버튼이 계속 보여야함 안그러면 ui갱신이 안되더라..버근가?
+//        binding.mainToolbar.getMenu().findItem(R.id.app_bar_search).setShowAsAction(MenuItem.SHOW_AS_ACTION_ALWAYS);
+    }
+
+    //로컬db에서 책제목 정보 불러와서 사용. 원격db에서 불러오는 것과 비슷한 용도.
+    // -- 7/9 쉐어드는 일회용 임시 데이터라 배포단계까지가면 같이 앱에 데이터를 포함해서 배포가 안되니깐 영구데이터는 쓰기 어려운듯 - 쓸수있는 수단이 있으면 가능하지만.. 아직 모르겠다.
     void 쉐어드에서책정보불러오기(){
         SharedPreferences sp = MyApp.getApplication().getSharedPreferences("bookinfo", Context.MODE_PRIVATE);
 //        SharedPreferences.Editor spEditor = sp.edit();
@@ -78,12 +148,17 @@ public class MainActivity extends AppCompatActivity {
     }
 
 
+
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {//툴바에 메뉴 객체화세팅
 //        return super.onCreateOptionsMenu(menu);
         MenuInflater menuInflater = getMenuInflater();
         menuInflater.inflate(R.menu.main_toolbar_menu, menu);
-        SearchView searchView = (SearchView)menu.findItem(R.id.app_bar_search).getActionView();
+        //메뉴 인플레이트가 되고 난 뒤에야 toolbar의 기능이 인식된다. onCreate 등에서 binding.mainToolbar가 먼저 안먹히는것은 순서상 onCreateOptionMenu가
+        //onCreate보다 늦게 시작되기 때문이다. 그리고, 앞서 말한대로 메뉴인플레이트가 이루어져야 toolbar의 기능이 동작하게 된다.
+//        binding.mainToolbar.getMenu().findItem(R.id.app_bar_search).setVisible(false); // << 이것과
+//        menu.findItem(R.id.app_bar_search).setVisible(false);                         // << 이것은 같다. binding.mainToolbar == menu 참조위치가 같은 객체임. 인플레이트 시기에 따라 활성화가 안되는 것도 같음.
+        SearchView searchView = (SearchView)menu.findItem(R.id.app_bar_search).getActionView(); //searchView를 찾아서 반환
         searchView.setMaxWidth(600);
 //        binding.mainToolbar.getMenu().findItem(R.id.app_bar_search).getActionView();
 //        searchView.setSubmitButtonEnabled(true); //검색창 확인버튼 활성화
@@ -97,17 +172,21 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public boolean onQueryTextChange(String newText) {
                 //todo 검색 텍스트 변할때 마다 수행 할 작업 - bookL 에 검색버튼에 입력한 텍스트에 해당하는 책들만 출력해야함.
-//                List<BibleDto> searchList = new ArrayList<BibleDto>();
-                Gson gson = new Gson();
-                JsonArray searchList = new JsonArray();
-                for (JsonElement item:  bookinfo ) {
-                    if (item.getAsJsonObject().get("book_name").getAsString().contains(newText)) {
+                List<BibleDto> searchList = new ArrayList<BibleDto>();
+//                Gson gson = new Gson();
+//                JsonArray searchList = new JsonArray();
+//                for (JsonElement item:  bookinfo ) {
+//                    if (item.getAsJsonObject().get("book_name").getAsString().contains(newText)) {
+//                        searchList.add(item);
+//                    }
+//                }
+//                List<BibleDto> searchL = gson.fromJson(searchList, new TypeToken<ArrayList<BibleDto>>(){}.getType());
+                for (BibleDto item:  bibleVm.bookL ) {
+                    if (item.getBook_name().contains(newText)) {
                         searchList.add(item);
                     }
                 }
-                List<BibleDto> searchL = gson.fromJson(searchList, new TypeToken<ArrayList<BibleDto>>(){}.getType());
-//                bibleVm.책검색(bookinfo, newText);
-                bibleVm.책검색(searchL);
+                bibleVm.책검색(searchList);
 
                 return true;
             }
@@ -156,3 +235,20 @@ public class MainActivity extends AppCompatActivity {
     }
 
 }
+
+
+/*    private void 바텀네비동작설정() { //이건 NavigationHost를 사용하면 동작안하는 듯. 예전 방식이면 가능
+        binding.mainBottomNav.setOnItemSelectedListener(new NavigationBarView.OnItemSelectedListener() {
+            @Override
+            public boolean onNavigationItemSelected(@NonNull MenuItem item) {
+                if (item.getItemId() == R.id.bible_fm) {
+                    binding.mainAppbarBibleTv.setVisibility(View.VISIBLE);
+                    binding.mainAppbarChapterTv.setVisibility(View.VISIBLE);
+                } else {
+                    binding.mainAppbarBibleTv.setVisibility(View.GONE);
+                    binding.mainAppbarChapterTv.setVisibility(View.GONE);
+                }
+                return true;
+            }
+        });
+    }*/

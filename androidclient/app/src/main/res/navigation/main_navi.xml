@@ -3,7 +3,7 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/main_navi"
-    app:startDestination="@+id/home_fm">
+    app:startDestination="@id/home_fm">
 
     <fragment
         android:id="@+id/home_fm"
@@ -29,6 +29,51 @@
         android:id="@+id/bibleVerseFm"
         android:name="com.example.androidclient.bible.BibleVerseFm"
         android:label="" />
+    <action android:id="@+id/action_global_bibleVerseFm"
+        app:destination="@id/bibleVerseFm"/>
+    <fragment
+        android:id="@+id/myNoteFm"
+        android:name="com.example.androidclient.moreinfo.MyNoteFm"
+        android:label="나의 노트"
+        tools:layout="@layout/my_note_fm_list" />
+    <fragment
+        android:id="@+id/myHighLightFm"
+        android:name="com.example.androidclient.moreinfo.MyHighLightFm"
+        android:label="하이라이트"
+        tools:layout="@layout/my_high_light_fm_list" />
+    <action
+        android:id="@+id/action_global_myHighLightFm"
+        app:destination="@id/myHighLightFm"
+        app:enterAnim="@anim/nav_default_enter_anim"
+        app:exitAnim="@anim/nav_default_exit_anim" />
+    <action
+        android:id="@+id/action_global_myNoteFm"
+        app:destination="@id/myNoteFm"
+        app:enterAnim="@anim/nav_default_enter_anim"
+        app:exitAnim="@anim/nav_default_exit_anim" />
+    <fragment
+        android:id="@+id/myNoteFmAdd"
+        android:name="com.example.androidclient.moreinfo.MyNoteFmAdd"
+        android:label="노트 추가"
+        tools:layout="@layout/my_note_fm_add" />
+    <action
+        android:id="@+id/action_global_myNoteFmAdd"
+        app:destination="@id/myNoteFmAdd"
+        app:enterAnim="@anim/nav_default_enter_anim"
+        app:exitAnim="@anim/nav_default_exit_anim"
+        app:popEnterAnim="@anim/nav_default_pop_enter_anim"
+        app:popExitAnim="@anim/nav_default_pop_exit_anim" />
+    <fragment
+        android:id="@+id/myNoteFmUpdate"
+        android:name="com.example.androidclient.moreinfo.MyNoteFmUpdate"
+        android:label="노트 수정" />
+    <action
+        android:id="@+id/action_global_myNoteFmUpdate"
+        app:destination="@id/myNoteFmUpdate"
+        app:enterAnim="@anim/nav_default_enter_anim"
+        app:exitAnim="@anim/nav_default_exit_anim" />
+    <action android:id="@+id/action_global_bible_fm" app:destination="@id/bible_fm"/>
+
 
 
 </navigation>

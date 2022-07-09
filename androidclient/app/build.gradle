@@ -32,6 +32,7 @@ android {
     }
     buildFeatures {
         viewBinding true
+        dataBinding true
     }
 }
 
@@ -41,12 +42,17 @@ dependencies {
     implementation 'com.google.android.material:material:1.6.1'
     implementation 'androidx.annotation:annotation:1.4.0'
     implementation 'androidx.constraintlayout:constraintlayout:2.1.4'
-    implementation 'androidx.lifecycle:lifecycle-livedata-ktx:2.4.1'
-    implementation 'androidx.lifecycle:lifecycle-viewmodel-ktx:2.4.1'
-    implementation 'androidx.navigation:navigation-fragment-ktx:2.4.2'
-    implementation 'androidx.navigation:navigation-runtime-ktx:2.4.2'
-    implementation 'androidx.navigation:navigation-ui-ktx:2.4.2'
-    implementation 'androidx.fragment:fragment-ktx:1.4.1'
+    implementation 'androidx.lifecycle:lifecycle-livedata-ktx:2.5.0'
+    implementation 'androidx.lifecycle:lifecycle-viewmodel-ktx:2.5.0'
+    //navigation backstack 의 상태 저장이 자동으로 이루어지는 문제(2.4.0 rc1이상) 때문에 좀더 공부해보고 사용해야할듯. 그전까지는 이전버전으로 사용
+    implementation 'androidx.navigation:navigation-fragment-ktx:2.3.5'
+    implementation 'androidx.navigation:navigation-runtime-ktx:2.3.5'
+    implementation 'androidx.navigation:navigation-ui-ktx:2.3.5'
+//    implementation 'androidx.navigation:navigation-fragment-ktx:2.5.0'
+//    implementation 'androidx.navigation:navigation-runtime-ktx:2.5.0'
+//    implementation 'androidx.navigation:navigation-ui-ktx:2.5.0'
+
+    implementation 'androidx.fragment:fragment-ktx:1.5.0'
     implementation files('libs\\additionnal.jar')
     implementation files('libs\\mail.jar')
     implementation files('libs\\activation.jar')

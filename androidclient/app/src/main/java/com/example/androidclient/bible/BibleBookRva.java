@@ -95,7 +95,7 @@ public class BibleBookRva extends RecyclerView.Adapter<BibleBookRva.BibleBookVh>
             this.mItem = mItem;
             binding.bookName.setText(mItem.getBook_name());
             binding.bookCategory.setText(mItem.getBook_category());
-            if (mItem.isCurrentItem()) {
+            if (mItem.getCurrentItem()) {
                 binding.bookName.setTypeface(Typeface.DEFAULT_BOLD);
                 binding.bookName.setTextColor(MyApp.getApplication().getColorStateList(R.color.book_rv));
                 binding.bookCategory.setTypeface(Typeface.DEFAULT_BOLD);
@@ -112,16 +112,16 @@ public class BibleBookRva extends RecyclerView.Adapter<BibleBookRva.BibleBookVh>
                     position = getLayoutPosition();
                     if (position != RecyclerView.NO_POSITION   ) {
                         //로딩바 보이기
+                        Log.e("오류태그", "");
                         ((BibleVerseFm) ( bibleBookFm.getParentFragmentManager().findFragmentById(0))).binding.bibleVerseFmProgressbar.setVisibility(View.VISIBLE);
                         bibleVm.책장번호업데이트( mItem.getBook()); //position == mItem.book-1  -- position 은 0부터 인덱스가 시작이기 때문 book은 창세기가 1부터 시작임.
 
-                        Log.e("[BibleBookRav]", "position 클릭시: "+ position + ", "+ bibleVm.책장번호[0] +" , "+ mItem.getBook()+" , "+ mItem.getBook_name()+ " , "+ mItem.isCurrentItem() );
+                        Log.e("[BibleBookRav]", "position 클릭시: "+ position + ", "+ bibleVm.책장번호[0] +" , "+ mItem.getBook()+" , "+ mItem.getBook_name()+ " , "+ mItem.getCurrentItem() );
 //                        listener.바인딩가져오기().bibleTabLayoutViewpager.setCurrentItem(1); //장 페이지로 넘김  ..인터페이스 작동x
 //                        bibleFmBinding.bibleTabLayoutViewpager.setCurrentItem(1); x
 //                        Navigation.findNavController(v).getContext().getPackageManager(). x
 //                        bibleBookFm.getParentFragmentManager().findFragmentById()
 
-                        //+1을 안해주면 서버에서 없는 데이터를 줄거임. book번호가 1부터 시작인데 창세기 책장번호[0]은 position 0 값이 저장되기 때문에 0은 db에 없는 번호기때문임
                         bibleVm.장목록가져오기(bibleVm.책장번호[0], "BibleBookVh");
                         bibleVm.절목록가져오기(bibleVm.책장번호[0], bibleVm.책장번호[1]);
                         //홀더 클릭시 장탭으로 넘어가기

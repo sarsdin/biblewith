@@ -1,6 +1,7 @@
 package com.example.androidclient.home;
 
 import android.os.Bundle;
+import android.text.Html;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -32,7 +33,15 @@ public class HomeFm extends Fragment {
         View root = binding.getRoot();
 
         final TextView textView = binding.textHome;
-        homeVm.getText().observe(getViewLifecycleOwner(), textView::setText);
+//        homeVm.getText().observe(getViewLifecycleOwner(), textView::setText);
+        homeVm.getText().observe(getViewLifecycleOwner(), s -> {
+//            Spannable WordtoSpan = new SpannableString(s);
+//            WordtoSpan.setSpan(new ForegroundColorSpan(Color.BLUE), 1, 2, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
+//            textView.setText(WordtoSpan);
+            String reText = "<span style='background-color:#B7FFC4'>"+ s + "</span>";
+            textView.setText(Html.fromHtml(reText,Html.FROM_HTML_MODE_LEGACY));
+
+        });
         return root;
     }
 
@@ -40,6 +49,18 @@ public class HomeFm extends Fragment {
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
         handleOnBackPressed(); //뒤로가기 종료 구현부
+
+
+    }
+
+    @Override
+    public void onResume() {
+        super.onResume();
+//        MainActivity mainA = (MainActivity)requireActivity();
+//        ((MainActivity)requireActivity()).binding.mainToolbar.getMenu().findItem(R.id.main_toolbar_menu_logout).setVisible(false);
+//        ((MainActivity)requireActivity()).binding.mainToolbar.getMenu().findItem(R.id.app_bar_search).setEnabled(false);
+//        ((SearchView) mainA.binding.mainToolbar.getMenu().findItem(R.id.app_bar_search).getActionView()).setVisibility(View.GONE);
+//        Log.e("test", "test: "+((MainActivity)requireActivity()).binding.mainToolbar.getMenu().findItem(R.id.app_bar_search).setVisible(false));
 
     }
 
@@ -66,7 +87,6 @@ public class HomeFm extends Fragment {
                     }
                 });
     }
-
     private void 뒤로가기종료(){
         if(System.currentTimeMillis() > backKeyPressedTime + 2000){
             backKeyPressedTime = System.currentTimeMillis();

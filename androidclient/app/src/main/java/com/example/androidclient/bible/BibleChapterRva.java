@@ -80,7 +80,8 @@ public class BibleChapterRva extends RecyclerView.Adapter<BibleChapterRva.BibleC
             this.mItem = mItem;
             binding.chapterNumber.setText(String.valueOf(mItem.getChapter()));
 
-            if (mItem.isCurrentItem()) {
+            //chapter 페이지에서 클릭되어서 retrofit2 onResponse 에서 true로 설정되었을때 여기서 현재 rv의 vh의 Ui를 표시되게 함.
+            if (mItem.getCurrentItem()) {
                 binding.chapterNumber.setTypeface(Typeface.DEFAULT_BOLD);
                 binding.chapterNumber.setTextColor(MyApp.getApplication().getColorStateList(R.color.book_rv));
             }
@@ -96,7 +97,6 @@ public class BibleChapterRva extends RecyclerView.Adapter<BibleChapterRva.BibleC
                         //로딩바 보이기
                         ((BibleVerseFm) ( bibleChapterFm.getParentFragmentManager().findFragmentById(0))).binding.bibleVerseFmProgressbar.setVisibility(View.VISIBLE);
                         bibleVm.장번호업데이트( mItem.getChapter());
-
 
                         bibleVm.절목록가져오기(bibleVm.책장번호[0], bibleVm.책장번호[1]);
                         //홀더 클릭시 절탭으로 넘어가기

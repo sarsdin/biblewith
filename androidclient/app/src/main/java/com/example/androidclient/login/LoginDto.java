@@ -1,7 +1,7 @@
 package com.example.androidclient.login;
 
 public class LoginDto {
-    private String user_no;
+    private int user_no;
     private String user_email;
     private String user_pwd;
     private boolean user_autologin;
@@ -14,7 +14,7 @@ public class LoginDto {
         this.user_autologin = user_autologin;
     }
 
-    public LoginDto(String user_no, String user_email, String user_pwd, boolean user_autologin, String user_nick, String user_name) {
+    public LoginDto(int user_no, String user_email, String user_pwd, boolean user_autologin, String user_nick, String user_name) {
         this.user_no = user_no;
         this.user_email = user_email;
         this.user_pwd = user_pwd;
@@ -35,11 +35,11 @@ public class LoginDto {
                 '}';
     }
 
-    public String getUser_no() {
+    public int getUser_no() {
         return user_no;
     }
 
-    public void setUser_no(String user_no) {
+    public void setUser_no(int user_no) {
         this.user_no = user_no;
     }
 

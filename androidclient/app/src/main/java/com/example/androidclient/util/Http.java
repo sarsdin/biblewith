@@ -2,16 +2,23 @@ package com.example.androidclient.util;
 
 import com.example.androidclient.bible.BibleDto;
 import com.example.androidclient.login.LoginDto;
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
+import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 
 import java.util.List;
+import java.util.Map;
 
 import okhttp3.OkHttpClient;
 import okhttp3.logging.HttpLoggingInterceptor;
 import retrofit2.Call;
 import retrofit2.Retrofit;
 import retrofit2.converter.gson.GsonConverterFactory;
+import retrofit2.http.Body;
 import retrofit2.http.GET;
+import retrofit2.http.Headers;
+import retrofit2.http.POST;
 import retrofit2.http.Query;
 
 public class Http {
@@ -33,7 +40,7 @@ public class Http {
 
 
     public static Retrofit getRetrofitInstance(String host){
-//        Gson gson = new GsonBuilder().setLenient().create();
+        Gson gson = new GsonBuilder().setLenient().create(); // RFC 4627만을 허용할정도로 엄격한 parse 규칙을 사용하지만 setLenient 를 적용하여 완화해줌. (오류전문)--> Use JsonReader.setLenient(true) to accept malformed JSON at line 1 column 1 path $
 
         // 로그를 중간에 가로채서 로그캣에 보여줌
         HttpLoggingInterceptor interceptor = new HttpLoggingInterceptor();
@@ -44,7 +51,7 @@ public class Http {
         Retrofit retrofit = new Retrofit.Builder()
                 .baseUrl(BASE_URL + host + "/")
                 .client(client)
-                .addConverterFactory(GsonConverterFactory.create())
+                .addConverterFactory(GsonConverterFactory.create(gson))
                 .build();
         return retrofit;
     }
@@ -52,11 +59,6 @@ public class Http {
 
     //retrofit2 service interface 설정
     public interface HttpLogin{
-        @GET("search")
-        Call<JsonObject> getSearch(@Query("key") String key, @Query("part") String part, @Query("maxResults") int maxResults,
-                                   @Query("order") String order, @Query("publishedAfter") String publishedAfter,
-                                   @Query("q") String q, @Query("type") String type, @Query("videoEmbeddable") boolean videoEmbeddable);
-
 
         // 이메일 중복확인 통신
         @GET("home/isEmailRedundant")
@@ -83,7 +85,6 @@ public class Http {
                                                @Query("name") String name,
                                                @Query("email") String email
         );
-
 
         //새 비밀번호 설정 완료 버튼 클릭시
         @GET("home/findpwNewPw")
@@ -119,6 +120,45 @@ public class Http {
         //책 검색 목록
         @GET("bible/getSearchBookList")
         Call<List<BibleDto>> getSearchBookList(@Query("book_name")String newText);
+
+        //유저 하이라이트 목록
+        @GET("bible/getHlList")
+        Call<List<BibleDto>> getHlList(@Query("user_no")int user_no );
+
+        //유저 하이라이트 업데이트 목록
+        @Headers("content-type: application/json")
+//        @FormUrlEncoded
+        @POST("bible/getHlUpdate")
+        Call<List<BibleDto>> getHlUpdate(@Body Map<String, Object> map);
+//        Call<List<BibleDto>> getHlUpdate(@Field("user_no") int user_no, @Field("tmpHighL") List<BibleDto> tmpHighL,
+//                                         @Field("delHighL") List<Integer> delHighL);
+
+        //유저 하이라이트 삭제
+        @Headers("content-type: application/json")
+        @POST("bible/getHlDelete")
+        Call<List<BibleDto>> getHlDelete(@Body Map<String, Object> map);
+
+
+        //유저 노트 목록 가져오기
+//        @Headers("content-type: application/json")
+        @GET("bible/getNoteList")
+        Call<JsonArray> getNoteList(@Query("user_no") int user_no);
+
+        //유저 노트 추가
+        @Headers("content-type: application/json")
+        @POST("bible/getNoteAdd")
+        Call<JsonObject> getNoteAdd(@Body JsonObject noteinfo);
+
+        //유저 노트 수정
+        @Headers("content-type: application/json")
+        @POST("bible/getNoteUpdate")
+        Call<JsonObject> getNoteUpdate(@Body JsonObject noteinfo);
+
+
+        //유저 노트 삭제
+        @Headers("content-type: application/json")
+        @POST("bible/deleteNote")
+        Call<JsonObject> deleteNote(@Query("note_no") int note_no);
     }
 
 

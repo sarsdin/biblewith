@@ -10,7 +10,7 @@ import java.util.List;
 
 public class BibleVpa extends FragmentStateAdapter {
 
-    List<Fragment> pageFmList;
+    public List<Fragment> pageFmList;
 
 //    public BibleVpa(@NonNull FragmentActivity fragmentActivity) {
 //        super(fragmentActivity);

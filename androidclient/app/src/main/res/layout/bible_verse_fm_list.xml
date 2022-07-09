@@ -1,35 +1,203 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.constraintlayout.widget.ConstraintLayout
+<androidx.coordinatorlayout.widget.CoordinatorLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:id="@+id/constraintLayout"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+        <!--    android:id="@+id/bible_verse_fm"-->
+
+        <androidx.recyclerview.widget.RecyclerView
+            android:id="@+id/bible_verse_fm_list"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:clipToPadding="false"
+            android:paddingBottom="250dp"
+            app:layoutManager="LinearLayoutManager"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            tools:listitem="@layout/bible_verse_fm_vh" />
+        <!--        tools:context=".bible.BibleVerseFm"-->
+
+        <ProgressBar
+            android:id="@+id/bible_verse_fm_progressbar"
+            android:layout_width="match_parent"
+            android:layout_height="106dp"
+            android:visibility="gone"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintHorizontal_bias="0.498"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintVertical_bias="0.449" />
+
+        <com.google.android.material.floatingactionbutton.FloatingActionButton
+            android:id="@+id/bible_verse_fm_pre_fab"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="8dp"
+            android:clickable="true"
+            app:backgroundTint="#DDDDDD"
+            app:fabSize="mini"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintHorizontal_bias="0.0"
+            app:layout_constraintStart_toStartOf="parent"
+            app:maxImageSize="17dp"
+            app:srcCompat="@drawable/ic_baseline_arrow_back_ios_new_10"
+            app:tint="#3E3D3D"
+            tools:ignore="SpeakableTextPresentCheck" />
+
+        <com.google.android.material.floatingactionbutton.FloatingActionButton
+            android:id="@+id/bible_verse_fm_next_fab"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="8dp"
+            android:clickable="true"
+            app:backgroundTint="#DDDDDD"
+            app:fabSize="mini"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintHorizontal_bias="1.0"
+            app:layout_constraintStart_toStartOf="parent"
+            app:maxImageSize="17dp"
+            app:srcCompat="@drawable/ic_baseline_arrow_forward_ios_10"
+            app:tint="#3E3D3D" />
+
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
+
+
+    <include
+        android:id="@+id/include_layout"
+        layout="@layout/bible_verse_bts_list" />
+
+</androidx.coordinatorlayout.widget.CoordinatorLayout>
+
+
+<!--
+
+<androidx.constraintlayout.widget.ConstraintLayout
+android:id="@+id/constraintLayout"
+android:layout_width="match_parent"
+android:layout_height="match_parent">
+&lt;!&ndash;    android:id="@+id/bible_verse_fm"&ndash;&gt;
+
+<androidx.recyclerview.widget.RecyclerView
+    android:id="@+id/bible_verse_fm_list"
+    android:layout_width="match_parent"
     android:layout_height="match_parent"
-    >
-<!--    android:id="@+id/bible_verse_fm"-->
+    app:layoutManager="LinearLayoutManager"
+    app:layout_constraintBottom_toBottomOf="parent"
+    app:layout_constraintEnd_toEndOf="parent"
+    app:layout_constraintStart_toStartOf="parent"
+    app:layout_constraintTop_toTopOf="parent"
+    tools:listitem="@layout/bible_verse_fm_vh" />
+&lt;!&ndash;        tools:context=".bible.BibleVerseFm"&ndash;&gt;
 
-    <androidx.recyclerview.widget.RecyclerView
-        android:id="@+id/bible_verse_fm_list"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        app:layoutManager="LinearLayoutManager"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
-        tools:listitem="@layout/bible_verse_fm_vh" />
-<!--        tools:context=".bible.BibleVerseFm"-->
+<ProgressBar
+    android:id="@+id/bible_verse_fm_progressbar"
+    android:layout_width="match_parent"
+    android:layout_height="106dp"
+    android:visibility="gone"
+    app:layout_constraintBottom_toBottomOf="parent"
+    app:layout_constraintEnd_toEndOf="parent"
+    app:layout_constraintHorizontal_bias="0.498"
+    app:layout_constraintStart_toStartOf="parent"
+    app:layout_constraintTop_toTopOf="parent"
+    app:layout_constraintVertical_bias="0.449" />
 
-    <ProgressBar
-        android:id="@+id/bible_verse_fm_progressbar"
-        android:layout_width="match_parent"
-        android:layout_height="106dp"
-        android:visibility="gone"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.498"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintVertical_bias="0.449" />
+<com.google.android.material.floatingactionbutton.FloatingActionButton
+    android:id="@+id/bible_verse_fm_pre_fab"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    android:layout_marginBottom="8dp"
+    android:clickable="true"
+    app:backgroundTint="#DDDDDD"
+    app:fabSize="mini"
+    app:layout_constraintBottom_toBottomOf="parent"
+    app:layout_constraintEnd_toEndOf="parent"
+    app:layout_constraintHorizontal_bias="0.0"
+    app:layout_constraintStart_toStartOf="parent"
+    app:maxImageSize="17dp"
+    app:srcCompat="@drawable/ic_baseline_arrow_back_ios_new_10"
+    app:tint="#3E3D3D"
+    tools:ignore="SpeakableTextPresentCheck" />
+
+<com.google.android.material.floatingactionbutton.FloatingActionButton
+    android:id="@+id/bible_verse_fm_next_fab"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    android:layout_marginBottom="8dp"
+    android:clickable="true"
+    app:backgroundTint="#DDDDDD"
+    app:fabSize="mini"
+    app:layout_constraintBottom_toBottomOf="parent"
+    app:layout_constraintEnd_toEndOf="parent"
+    app:layout_constraintHorizontal_bias="1.0"
+    app:layout_constraintStart_toStartOf="parent"
+    app:maxImageSize="17dp"
+    app:srcCompat="@drawable/ic_baseline_arrow_forward_ios_10"
+    app:tint="#3E3D3D" />
+
 
 </androidx.constraintlayout.widget.ConstraintLayout>
+-->
+
+
+<!--
+
+<FrameLayout
+android:id="@+id/constraintLayout"
+android:layout_width="match_parent"
+android:layout_height="match_parent">
+&lt;!&ndash;    android:id="@+id/bible_verse_fm"&ndash;&gt;
+
+<androidx.recyclerview.widget.RecyclerView
+    android:id="@+id/bible_verse_fm_list"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    app:layoutManager="LinearLayoutManager"
+    tools:listitem="@layout/bible_verse_fm_vh" />
+&lt;!&ndash;        tools:context=".bible.BibleVerseFm"&ndash;&gt;
+
+<ProgressBar
+    android:id="@+id/bible_verse_fm_progressbar"
+    android:layout_width="match_parent"
+    android:layout_height="106dp"
+    android:visibility="gone"
+    />
+
+<com.google.android.material.floatingactionbutton.FloatingActionButton
+    android:id="@+id/bible_verse_fm_pre_fab"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    android:layout_marginBottom="8dp"
+    android:clickable="true"
+    app:backgroundTint="#DDDDDD"
+    app:fabSize="mini"
+    app:maxImageSize="17dp"
+    app:srcCompat="@drawable/ic_baseline_arrow_back_ios_new_10"
+    app:tint="#3E3D3D"
+    tools:ignore="SpeakableTextPresentCheck" />
+
+<com.google.android.material.floatingactionbutton.FloatingActionButton
+    android:id="@+id/bible_verse_fm_next_fab"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    android:layout_marginTop="80dp"
+    android:clickable="true"
+    app:backgroundTint="#DDDDDD"
+    app:fabSize="mini"
+    app:maxImageSize="17dp"
+    app:srcCompat="@drawable/ic_baseline_arrow_forward_ios_10"
+    app:tint="#3E3D3D" />
+</FrameLayout>-->
