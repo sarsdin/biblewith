@@ -18,39 +18,14 @@
     <fragment
         android:id="@+id/group_fm"
         android:name="com.example.androidclient.group.GroupFm"
-        android:label=""
+        android:label="모임"
         tools:layout="@layout/group_fm" />
-    <fragment
-        android:id="@+id/more_fm"
-        android:name="com.example.androidclient.moreinfo.MoreFm"
-        android:label="더보기"
-        tools:layout="@layout/more_fm" />
     <fragment
         android:id="@+id/bibleVerseFm"
         android:name="com.example.androidclient.bible.BibleVerseFm"
         android:label="" />
     <action android:id="@+id/action_global_bibleVerseFm"
         app:destination="@id/bibleVerseFm"/>
-    <fragment
-        android:id="@+id/myNoteFm"
-        android:name="com.example.androidclient.moreinfo.MyNoteFm"
-        android:label="나의 노트"
-        tools:layout="@layout/my_note_fm_list" />
-    <fragment
-        android:id="@+id/myHighLightFm"
-        android:name="com.example.androidclient.moreinfo.MyHighLightFm"
-        android:label="하이라이트"
-        tools:layout="@layout/my_high_light_fm_list" />
-    <action
-        android:id="@+id/action_global_myHighLightFm"
-        app:destination="@id/myHighLightFm"
-        app:enterAnim="@anim/nav_default_enter_anim"
-        app:exitAnim="@anim/nav_default_exit_anim" />
-    <action
-        android:id="@+id/action_global_myNoteFm"
-        app:destination="@id/myNoteFm"
-        app:enterAnim="@anim/nav_default_enter_anim"
-        app:exitAnim="@anim/nav_default_exit_anim" />
     <fragment
         android:id="@+id/myNoteFmAdd"
         android:name="com.example.androidclient.moreinfo.MyNoteFmAdd"
@@ -73,7 +48,45 @@
         app:enterAnim="@anim/nav_default_enter_anim"
         app:exitAnim="@anim/nav_default_exit_anim" />
     <action android:id="@+id/action_global_bible_fm" app:destination="@id/bible_fm"/>
+    <action
+        android:id="@+id/action_global_home_fm"
+        app:destination="@id/home_fm" />
 
+    <!--nested navigation 사용시 -navigation이 바뀔때마다
+    setupActionBarWithNavController 로 navController를 계속
+    바꿔줘야해서 귀찮아서 안씀. 써야되는지 알았는데 안써도 구현가능 -->
+   <!-- <navigation android:id="@+id/more_navigation"
+        app:startDestination="@id/more_fm">
+    </navigation>-->
+
+    <fragment
+        android:id="@+id/more_fm"
+        android:name="com.example.androidclient.moreinfo.MoreFm"
+        android:label="더보기"
+        tools:layout="@layout/more_fm">
+        <action
+            android:id="@+id/action_more_fm_to_myNoteFm"
+            app:destination="@id/myNoteFm"
+            app:enterAnim="@anim/nav_default_enter_anim"
+            app:exitAnim="@anim/nav_default_exit_anim"
+            />
+        <action
+            android:id="@+id/action_more_fm_to_myHighLightFm"
+            app:destination="@id/myHighLightFm"
+            app:enterAnim="@anim/nav_default_enter_anim"
+            app:exitAnim="@anim/nav_default_exit_anim" />
+    </fragment>
+<!--            app:restoreState="true"-->
+    <fragment
+        android:id="@+id/myHighLightFm"
+        android:name="com.example.androidclient.moreinfo.MyHighLightFm"
+        android:label="하이라이트"
+        tools:layout="@layout/my_high_light_fm_list" />
+    <fragment
+        android:id="@+id/myNoteFm"
+        android:name="com.example.androidclient.moreinfo.MyNoteFm"
+        android:label="나의 노트"
+        tools:layout="@layout/my_note_fm_list" />
 
 
 </navigation>

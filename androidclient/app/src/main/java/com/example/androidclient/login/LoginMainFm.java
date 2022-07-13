@@ -45,6 +45,9 @@ public class LoginMainFm extends Fragment {
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         binding = LoginMainFmBinding.inflate(inflater, container, false);
         loginVm = new ViewModelProvider(requireActivity()).get(LoginVm.class);
+
+
+
         return binding.getRoot();
     }
 
@@ -57,38 +60,7 @@ public class LoginMainFm extends Fragment {
 //        binding.loginLoginBt.setOnClickListener();
 
 
-        // 로그인 할때 형식 검사
-        TextWatcher emailWatcher = new TextWatcher(){
-            @Override
-            public void beforeTextChanged(CharSequence s, int start, int count, int after) {
-            }
-            @Override
-            public void onTextChanged(CharSequence s, int start, int before, int count) {
-            }
-            @Override
-            public void afterTextChanged(Editable s) {
-                Boolean 이메일형식맞나 = validateEmail();
-            }
-        };
-        TextWatcher pwWatcher = new TextWatcher(){
-            @Override
-            public void beforeTextChanged(CharSequence s, int start, int count, int after) {
-            }
-            @Override
-            public void onTextChanged(CharSequence s, int start, int before, int count) {
-            }
-            @Override
-            public void afterTextChanged(Editable s) {
-                Boolean 비밀번호형식맞나 = validatePw();
-                if ( 비밀번호형식맞나) {
-                    binding.loginLoginBt.setEnabled(true); //로긴폼형식이 전체다 맞으면 로그인버튼 활성
-                } else{
-                    binding.loginLoginBt.setEnabled(false); //아니면 비활성
-                }
-            }
-        };
-        binding.loginMainEmailInput.addTextChangedListener(emailWatcher);
-        binding.loginMainPwdInput.addTextChangedListener(pwWatcher);
+
 
 
         //회원가입 하기 버튼 클릭시
@@ -195,6 +167,43 @@ public class LoginMainFm extends Fragment {
     public void onStart() {
         super.onStart();
         ((AppCompatActivity)requireActivity()).getSupportActionBar().hide(); //액션바 없애기
+    }
+
+    @Override
+    public void onResume() {
+        super.onResume();
+        // 로그인 할때 형식 검사
+        TextWatcher emailWatcher = new TextWatcher(){
+            @Override
+            public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+            }
+            @Override
+            public void onTextChanged(CharSequence s, int start, int before, int count) {
+            }
+            @Override
+            public void afterTextChanged(Editable s) {
+                Boolean 이메일형식맞나 = validateEmail();
+            }
+        };
+        TextWatcher pwWatcher = new TextWatcher(){
+            @Override
+            public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+            }
+            @Override
+            public void onTextChanged(CharSequence s, int start, int before, int count) {
+            }
+            @Override
+            public void afterTextChanged(Editable s) {
+                Boolean 비밀번호형식맞나 = validatePw();
+                if ( 비밀번호형식맞나) {
+                    binding.loginLoginBt.setEnabled(true); //로긴폼형식이 전체다 맞으면 로그인버튼 활성
+                } else{
+                    binding.loginLoginBt.setEnabled(false); //아니면 비활성
+                }
+            }
+        };
+        binding.loginMainEmailInput.addTextChangedListener(emailWatcher);
+        binding.loginMainPwdInput.addTextChangedListener(pwWatcher);
     }
 
     @Override

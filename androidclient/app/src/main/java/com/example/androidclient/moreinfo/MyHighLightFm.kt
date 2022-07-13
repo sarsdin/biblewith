@@ -5,15 +5,20 @@ import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.appcompat.app.AppCompatActivity
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
+import androidx.navigation.Navigation
+import androidx.navigation.ui.NavigationUI
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.example.androidclient.MyApp
+import com.example.androidclient.R
 import com.example.androidclient.bible.BibleDto
 import com.example.androidclient.bible.BibleVm
 import com.example.androidclient.databinding.MyHighLightFmListBinding
+import com.example.androidclient.home.MainActivity
 import com.example.androidclient.util.Http
 import com.example.androidclient.util.Http.HttpBible
 import retrofit2.Call
@@ -54,8 +59,22 @@ class MyHighLightFm : Fragment() {
             //양방향 데이터는 viewModel의 라이브데이터와 @={} 이 기호로 연결되어 사용되며 체크박스를 예로 체크되었다면 중괄호안의 viewModel데이터의 변경을 옵저
             //버가 인식을 하여 즉각적으로 ui를 변경할 수 있게 하는 방법.
         })
+
+        //up버튼 활성화 할려면 nested navigation을 다시 컨트롤러로 지정해야함.. 귀찮음 과정이라 nested navi 는 버리는 걸로..
+//        NavigationUI.setupActionBarWithNavController(requireActivity() as MainActivity, Navigation.findNavController(view));
     }
 
+    override fun onResume() {
+        super.onResume()
+//        (requireActivity() as MainActivity).setNavigation(true)
+    }
+
+    override fun onPause() {
+        super.onPause()
+//        (requireActivity() as MainActivity).setNavigation(false)
+        //up버튼 활성화 할려면 nested navigation을 다시 컨트롤러로 지정해야함.. 귀찮음 과정이라 nested navi 는 버리는 걸로..
+//        NavigationUI.setupActionBarWithNavController(requireActivity() as MainActivity, Navigation.findNavController(requireActivity() as MainActivity, R.id.nav_host_fragment_main_activity),(requireActivity() as MainActivity).appBarConfiguration);
+    }
 
     fun 하이라이트목록가져오기() {
         val retrofit = Http.getRetrofitInstance(bibleVm.host)
@@ -74,6 +93,7 @@ class MyHighLightFm : Fragment() {
             }
         })
     }
+
 
 
     override fun onDestroyView() {

@@ -8,6 +8,7 @@ import android.view.ViewGroup
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
+import androidx.navigation.ui.NavigationUI
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.example.androidclient.bible.BibleVm
@@ -67,6 +68,7 @@ class MyNoteFm : Fragment() {
 //                Log.e("오류태그", "it:${it}")
         })
     }
+
 
     override fun onDestroyView() {
         super.onDestroyView()

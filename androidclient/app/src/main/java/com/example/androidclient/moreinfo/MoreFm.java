@@ -7,12 +7,15 @@ import android.view.ViewGroup;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.appcompat.app.AppCompatActivity;
 import androidx.fragment.app.Fragment;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.navigation.Navigation;
+import androidx.navigation.ui.NavigationUI;
 
 import com.example.androidclient.R;
 import com.example.androidclient.databinding.MoreFmBinding;
+import com.example.androidclient.home.MainActivity;
 
 public class MoreFm extends Fragment {
 
@@ -31,22 +34,31 @@ public class MoreFm extends Fragment {
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
+        //up버튼 활성화 할려면 nested navigation을 다시 컨트롤러로 지정해야함.. 귀찮음 과정이라 nested navi 는 버리는 걸로..
+//        NavigationUI.setupActionBarWithNavController((MainActivity) requireActivity(), Navigation.findNavController(view));
 
-        //하이라이트 클릭시 이동
+        //하이라이트 클릭시 이동 - 그룹핑한 view 들을 아무거나 클릭하면 하이라이트페이지로 가게끔
         int ids[] = binding.moreFmHighlightGroup.getReferencedIds();
         for (int id: ids){
-            binding.getRoot().findViewById(id).setOnClickListener(v -> Navigation.findNavController(v).navigate(R.id.action_global_myHighLightFm));
+            binding.getRoot().findViewById(id).setOnClickListener(v -> Navigation.findNavController(v).navigate(R.id.action_more_fm_to_myHighLightFm));
         }
 
         //노트 클릭시 이동
         for (int id: binding.moreFmNoteGroup.getReferencedIds()){
-            binding.getRoot().findViewById(id).setOnClickListener(v -> Navigation.findNavController(v).navigate(R.id.action_global_myNoteFm));
+            binding.getRoot().findViewById(id).setOnClickListener(v -> Navigation.findNavController(v).navigate(R.id.action_more_fm_to_myNoteFm));
         }
+
+
 
     }
 
 
-
+    @Override
+    public void onPause() {
+        super.onPause();
+        //up버튼 활성화 할려면 nested navigation을 다시 컨트롤러로 지정해야함.. 귀찮음 과정이라 nested navi 는 버리는 걸로..
+//        NavigationUI.setupActionBarWithNavController((MainActivity) requireActivity(), Navigation.findNavController((MainActivity) requireActivity(), R.id.nav_host_fragment_main_activity));
+    }
 
     @Override
     public void onDestroyView() {

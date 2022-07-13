@@ -21,7 +21,7 @@ class MyNoteFmAddRva(val bibleVm: BibleVm, val myNoteFmAdd: MyNoteFmAdd) : Recyc
     }
 
     override fun getItemCount(): Int {
-        newL = bibleVm.verseL.filter{ it.highlight_selected }
+        newL = bibleVm.verseL.filter{ it.highlight_selected == true }
         return newL.size
     }
 
@@ -37,7 +37,7 @@ class MyNoteFmAddRva(val bibleVm: BibleVm, val myNoteFmAdd: MyNoteFmAdd) : Recyc
             binding.dto = mItem
 //            Log.d("디버그태그","$mItem")
             //뷰홀더 하단에 책장절 위치 표시
-            binding.myNoteFmAddVhWhereTv.text = "${bibleVm.bookL[mItem.book - 1].book_name} ${mItem.chapter}장 ${mItem.verse}절"
+            binding.myNoteFmAddVhWhereTv.text = "${bibleVm.bookL[mItem.book!! - 1].book_name} ${mItem.chapter}장 ${mItem.verse}절"
 
 
 

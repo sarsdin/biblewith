@@ -1,19 +1,141 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.coordinatorlayout.widget.CoordinatorLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     tools:context=".group.GroupFm">
+<!--    android:fitsSystemWindows="true"-->
 
-    <TextView
-        android:id="@+id/textView3"
-        android:layout_width="wrap_content"
+    <com.google.android.material.appbar.AppBarLayout
+        android:id="@+id/group_main_appbar"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="모임"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
+        app:elevation="0dp">
+<!--        android:theme="@style/ThemeOverlay.MaterialComponents.Dark.ActionBar"-->
+<!--        android:fitsSystemWindows="true"-->
 
-</androidx.constraintlayout.widget.ConstraintLayout>
+        <com.google.android.material.appbar.CollapsingToolbarLayout
+            android:id="@+id/group_main_collapsing_toolbar"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            app:contentScrim="@color/colorBlue"
+            app:expandedTitleGravity="bottom"
+            app:layout_scrollFlags="scroll|snap|enterAlways|enterAlwaysCollapsed"
+            app:toolbarId="@id/group_main_toolbar">
+<!--            android:fitsSystemWindows="true"-->
+            <!--            android:background="@color/colorBlue"-->
+
+            <com.google.android.material.imageview.ShapeableImageView
+                android:id="@+id/group_main_toolbar_iv"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:contentDescription="성경 사진 입니다."
+                android:scaleType="centerCrop"
+                app:layout_collapseMode="pin"
+                />
+<!--                app:srcCompat="@drawable/biblewith_logo"-->
+<!--                android:fitsSystemWindows="true"-->
+
+            <!--            배경 그라데이션 효과 -->
+            <!--<View
+                android:layout_width="match_parent"
+                android:layout_height="100dp"
+                android:layout_gravity="bottom"
+                android:background="@drawable/title_background" />-->
+
+            <androidx.appcompat.widget.Toolbar
+                android:id="@+id/group_main_toolbar"
+                android:layout_width="match_parent"
+                android:layout_height="40dp"
+                android:background="#FFFFFF"
+                app:layout_collapseMode="pin"
+                >
+<!--                app:popupTheme="@style/ThemeOverlay.MaterialComponents.Light"-->
+<!--                app:contentInsetStart="0dp"-->
+<!--                app:contentInsetStartWithNavigation="0dp"-->
+
+                <com.google.android.material.textview.MaterialTextView
+                    android:id="@+id/group_main_toolbar_tv"
+                    android:layout_width="50dp"
+                    android:layout_height="wrap_content"
+                    android:fontFamily="monospace"
+                    android:text="모임"
+                    android:textSize="20sp"
+                    android:textStyle="bold" />
+            </androidx.appcompat.widget.Toolbar>
+
+        </com.google.android.material.appbar.CollapsingToolbarLayout>
+
+        <com.google.android.material.tabs.TabLayout
+            android:id="@+id/group_main_tab_layout"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent">
+
+            <!--                android:id="@+id/group_main_tab_layout_item1"-->
+            <com.google.android.material.tabs.TabItem
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="모임" />
+
+            <!--                android:id="@+id/group_main_tab_layout_item2"-->
+            <com.google.android.material.tabs.TabItem
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="채팅" />
+
+            <!--                android:id="@+id/group_main_tab_layout_item3"-->
+            <com.google.android.material.tabs.TabItem
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="알림" />
+        </com.google.android.material.tabs.TabLayout>
+
+    </com.google.android.material.appbar.AppBarLayout>
+
+    <androidx.core.widget.NestedScrollView
+        android:id="@+id/group_main_nested_scroll_view"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        app:layout_behavior="@string/appbar_scrolling_view_behavior"
+        >
+        <LinearLayout
+            android:id="@+id/linear_layout"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:orientation="vertical">
+
+            <com.google.android.material.imageview.ShapeableImageView
+                android:id="@+id/group_main_toolbar_iv2"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:scaleType="centerCrop"
+                app:srcCompat="@drawable/biblewith_logo" />
+            <com.google.android.material.imageview.ShapeableImageView
+                android:id="@+id/group_main_toolbar_iv3"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:scaleType="centerCrop"
+                app:srcCompat="@drawable/biblewith_logo" />
+            <com.google.android.material.imageview.ShapeableImageView
+                android:id="@+id/group_main_toolbar_iv4"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:scaleType="centerCrop"
+                app:srcCompat="@drawable/biblewith_logo" />
+            <com.google.android.material.imageview.ShapeableImageView
+                android:id="@+id/group_main_toolbar_iv5"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:scaleType="centerCrop"
+                app:srcCompat="@drawable/biblewith_logo" />
+            <com.google.android.material.imageview.ShapeableImageView
+                android:id="@+id/group_main_toolbar_iv6"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:scaleType="centerCrop"
+                app:srcCompat="@drawable/biblewith_logo" />
+        </LinearLayout>
+    </androidx.core.widget.NestedScrollView>
+
+</androidx.coordinatorlayout.widget.CoordinatorLayout>

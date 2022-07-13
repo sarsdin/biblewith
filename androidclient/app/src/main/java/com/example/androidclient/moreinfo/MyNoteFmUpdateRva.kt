@@ -42,7 +42,7 @@ class MyNoteFmUpdateRva(val bibleVm: BibleVm, val myNoteFmUpdate: MyNoteFmUpdate
             binding.dto = mItem
 //            Log.d("디버그태그","$mItem")
             //뷰홀더 하단에 책장절 위치 표시
-            binding.myNoteFmUpdateVhWhereTv.text = "${bibleVm.bookL[mItem.book - 1].book_name} ${mItem.chapter}장 ${mItem.verse}절"
+            binding.myNoteFmUpdateVhWhereTv.text = "${bibleVm.bookL[mItem.book!! - 1].book_name} ${mItem.chapter}장 ${mItem.verse}절"
 
 
 

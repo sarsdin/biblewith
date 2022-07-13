@@ -74,15 +74,16 @@ public class BibleFm extends Fragment  { //implements BibleBookRav.뷰페이저�
 
 //        ((BibleBookFm)pageFmList.get(0)).rav.bibleFmBinding = binding;
 
-            if(bibleVm.tempObj.get("signal").getAsString().equals("hl_verse_page")){
-                binding.bibleTabLayoutViewpager.setCurrentItem(2);
+        //myhighlight_fm 에서 각 뷰홀더에 링크를 걸어 해당하는 절페이지를 보여주기 위해 Bundle을 이용해 이 fragment에 신호를 보냄. -- Bundle대신 vm(tempObj)을 사용하도록 수정
+        if(bibleVm.tempObj.get("signal").getAsString().equals("hl_verse_page")){
+            binding.bibleTabLayoutViewpager.setCurrentItem(2);
 //                int id = Navigation.findNavController(requireActivity(), R.id.nav_host_fragment_main_activity).getCurrentDestination().getId();
 //                ((BibleVerseFm) ( getParentFragmentManager().findFragmentById(id))).recyclerView.scrollToPosition(0);
 //                binding.bibleTabLayoutViewpager.getAdapter().getItemId(2);
 //                ((BibleVerseFm) pageFmList.get(2)).binding.bibleVerseFmList.scrollToPosition(0); //다른 fragment에서는 먹히지 않는 듯..
 //                Log.e("오류태그", "1: "+((BibleVerseFm) pageFmList.get(2)));
 //                Log.e("오류태그", "2: "+((BibleVpa)binding.bibleTabLayoutViewpager.getAdapter()).pageFmList.get(2));
-            }
+        }
 
         return binding.getRoot();
     }
@@ -100,7 +101,7 @@ public class BibleFm extends Fragment  { //implements BibleBookRav.뷰페이저�
 //        MainActivity mainA = ((MainActivity)requireActivity());
 //        mainA.binding.mainToolbar.getMenu().findItem(R.id.app_bar_search).setShowAsAction(MenuItem.SHOW_AS_ACTION_ALWAYS); //검색메뉴 보이기
 //        mainA.binding.mainToolbar.getMenu().findItem(R.id.app_bar_search).setVisible(true);
-        Log.e("오류태그", "bfm resume");
+        Log.e("오류태그", "biblefm resume");
 
         //toolbar에 책 제목과 몇장인지 나타내기 위한 옵저버를 생성하고 ui데이터가 바뀔때마다 ui(책제목,장)를 변경해줌.
         bibleVm.live책장번호.observe(getViewLifecycleOwner(), new Observer<int[]>() {
@@ -109,7 +110,8 @@ public class BibleFm extends Fragment  { //implements BibleBookRav.뷰페이저�
                 // 책장번호 -1을 해줘야 인덱스 순서가 맞음 창세기의 번호가 1부터 시작이기때문. (적재된 데이터의 시작번호가 0이 아닌 1번부터)
                 MainActivity mainA = ((MainActivity)requireActivity());
 //                ((MainActivity)requireActivity()).binding.mainAppbarBibleTv.setText(mainA.bookinfo.get(bibleVm.책장번호[0]-1).getAsJsonObject().get("book_name").getAsString());
-                ((MainActivity)requireActivity()).binding.mainAppbarBibleTv.setText(bibleVm.bookL.get(bibleVm.책장번호[0]-1).getBook_name());
+                //고정값을 가진 검색용 리스트를 써야 온전한 전체 책제목데이터에서 정확한 값을 가져올 수 있다.
+                ((MainActivity)requireActivity()).binding.mainAppbarBibleTv.setText(bibleVm.bookLForSearch.get(bibleVm.책장번호[0]-1).getBook_name());
                 ((MainActivity)requireActivity()).binding.mainAppbarChapterTv.setText((bibleVm.책장번호[1]) + "장");
 //                mainA.binding.mainAppbarChapterTv.setVisibility(View.GONE);
             }

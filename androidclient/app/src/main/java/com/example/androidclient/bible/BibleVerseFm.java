@@ -52,6 +52,7 @@ public class BibleVerseFm extends Fragment {
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
     }
 
     @Override
@@ -135,8 +136,8 @@ public class BibleVerseFm extends Fragment {
         bibleVm.liveVerseL.observe(getViewLifecycleOwner(), new Observer<List<BibleDto>>() {
             @Override
             public void onChanged(List<BibleDto> bibleDtos) {
-                Log.e("[BibleVerseFm]", "onCreateView liveVerseL observe onChanged 프로그래스바 test: 작동" );
                 binding.bibleVerseFmProgressbar.setVisibility(View.GONE);
+                Log.e("[BibleVerseFm]", "onCreateView liveVerseL observe onChanged 프로그래스바 test: 작동후 오프" );
 //                rva.notifyDataSetChanged();//todo 이걸 키면 보던위치로 자동스크롤이 동작하지 않음.. 왜일까?? -스크롤전에 구조를 바꿔버리니깐 스크롤이 작동안하는 것일듯
             }
         });
@@ -265,7 +266,8 @@ public class BibleVerseFm extends Fragment {
         bibleVm.live책장번호.observe(getViewLifecycleOwner(), new Observer<int[]>() {
             @Override
             public void onChanged(int[] ints) {
-                binding.includeLayout.bibleVerseBtsTv.setText(bibleVm.bookL.get(bibleVm.책장번호[0] - 1).getBook_name() +" "+ bibleVm.chapterL.get(bibleVm.책장번호[1] - 1).getChapter()+"장" );
+                Log.e("오류태그", "biblevm bookl "+ bibleVm.bookL) ;
+                binding.includeLayout.bibleVerseBtsTv.setText(bibleVm.bookLForSearch.get(bibleVm.책장번호[0] - 1).getBook_name() +" "+ bibleVm.chapterL.get(bibleVm.책장번호[1] - 1).getChapter()+"장" );
 //                binding.includeLayout.bibleVerseBtsTvVerse.setText(bibleVm.verseL.get(bibleVm.책장번호[2] - 1).getVerse() +" ");
                 StringBuilder sb = new StringBuilder();
                 for (BibleDto dto : bibleVm.verseL) {
@@ -302,7 +304,7 @@ public class BibleVerseFm extends Fragment {
         binding.includeLayout.getRoot().setOnTouchListener(new View.OnTouchListener() {
             @Override
             public boolean onTouch(View v, MotionEvent event) {
-                //BibleVerseRva의 홀더 클릭시 뷰페이저 스와이프를 off 처리함. 여기서는 접히거나 감춰졌을때 스와이프 다시 가능하게 처리.
+                //BibleVerseRva의 홀더 터치시 뷰페이저 스와이프를 off 처리함. 여기서는 접히거나 감춰졌을때 스와이프 다시 가능하게 처리.
                 if (btsb.getState() == BottomSheetBehavior.STATE_COLLAPSED || btsb.getState() == BottomSheetBehavior.STATE_HIDDEN ) {
 //                if ( event.getAction() == MotionEvent.ACTION_UP) {
 //                    ((BibleFm) BibleVerseFm.this.getParentFragment()).binding.bibleTabLayoutViewpager.requestDisallowInterceptTouchEvent(true);

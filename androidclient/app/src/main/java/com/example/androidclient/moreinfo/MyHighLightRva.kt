@@ -39,9 +39,9 @@ class MyHighLightRva(val bibleVm: BibleVm, val myHighLightFm: MyHighLightFm) : R
             binding.myHighLightFmVhDateTv.text = MyApp.getTime("ui", mItem.highlight_date)
 
             binding.root.setOnClickListener {
-                bibleVm.책장번호[0] = mItem.book
-                bibleVm.책장번호[1] = mItem.chapter
-                bibleVm.책장번호[2] = mItem.verse
+                bibleVm.책장번호[0] = mItem.book!!
+                bibleVm.책장번호[1] = mItem.chapter!!
+                bibleVm.책장번호[2] = mItem.verse!!
                 val crud = Bundle()
                 crud.putString("signal", "hl_verse_page")
                 bibleVm.tempObj.addProperty("signal", "hl_verse_page") //하이라이트된 절 위치로 가기

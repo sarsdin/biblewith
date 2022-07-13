@@ -38,6 +38,7 @@ public class BibleVm extends ViewModel {
     public MutableLiveData<JsonArray> liveNoteL = new MutableLiveData<>();
     public MutableLiveData<int[]> live책장번호 = new MutableLiveData<>();
     public List<BibleDto> bookL = new ArrayList<BibleDto>(); //책이름목록
+    public List<BibleDto> bookLForSearch = new ArrayList<BibleDto>(); //책이름목록 - 툴바 검색용: 변화없이 고정값을 가져야함
     public List<BibleDto> chapterL = new ArrayList<BibleDto>(); //장목록
     public List<BibleDto> verseL = new ArrayList<BibleDto>(); //절목록
     public List<BibleDto> highL = new ArrayList<BibleDto>(); //유저 하이라이트 목록
@@ -48,7 +49,7 @@ public class BibleVm extends ViewModel {
     public int[] 책장번호 = new int[]{1, 1, 1}; //todo 추후 유저테이블에 3개의 컬럼 추가후 이 데이터(마지막봤던)를 서버로 insert해줌
     public boolean onceExecuted = false; //한번실행 후 스크롤 처리 x - BibleVerseFm
     public JsonObject noteUpdateO = new JsonObject(); //노트 수정용 - 구조내용: note table + note_verseL:Array(noteverse & bible_korHRV)
-    public JsonObject tempObj = new JsonObject(); //임시데이터 - 자유롭게 사용가능 - 임시라 1회용 명령에만 쓰임 반드시 작업을 한번에 깔끔히 마무리해야함!
+    public JsonObject tempObj = new JsonObject(); //임시데이터 - 자유롭게 사용가능 - 임시라 1회용 명령에만 쓰임 반드시 작업을 한번에 깔끔히 마무리해야함! - 툴바책검색(bookSearchText)
 
     {
         순차색(); //colorL에 색깔정보 dto 채우기 - 초기화
@@ -62,6 +63,7 @@ public class BibleVm extends ViewModel {
 //        장목록가져오기(책장번호[0], "vmInit");  //가져올때는 창세기의 번호가 1 이니깐 인덱스0번에 +1을 하여 db에서 조회해야함. -- 6/27다시 +1안하게 고침
 //        절목록가져오기(책장번호[0],책장번호[1]);
         tempObj.addProperty("signal", ""); //초기화
+        tempObj.addProperty("bookSearchText", ""); //초기화
     }
 
     //보던 페이지 정보를 가져옴
@@ -103,7 +105,7 @@ public class BibleVm extends ViewModel {
         책장번호[0] = book; //책번호 저장
         책장번호[1] = 1; //장번호 초기화
         책장번호[2] = 1; //절번호 초기화
-        live책장번호.setValue(책장번호); //BibleFm의 observer 로 ui 변경위해 livedata update
+        live책장번호.setValue(책장번호); //BibleFm의 observer 로 title ui 변경위해 livedata update
         쉐어드에책장절저장("book");
     }
 
@@ -165,13 +167,16 @@ public class BibleVm extends ViewModel {
         spEditor.putString(MyApp.getUserInfo().getUser_email(), save.toString()).apply(); //저장하는 키값을 이메일(id)로 이용
     }
 
-    //MainActivity - onCreateOptionsMenu
+    //BibleBookFm - onCreateOptionsMenu
     public void 책검색( List<BibleDto> searchL ) {
         bookL = searchL;
         for (BibleDto item: bookL) {
             if (item.getBook() == 책장번호[0] ) {
-                item.setCurrentItem(true); //클릭된 포지션을 변화
-                Log.e("BibleVm", "책검색(): "+item);
+                item.setCurrentItem(true); //현재 검색된 제목 리스트들 중에 현재 클릭된 책이랑 같은 번호가 있는지 확인후 있으면 그 책아이템을 현재 선택표시되게 해야함
+                Log.e("BibleVm", "책검색() setCurrentItem(true): "+item);
+            } else {
+//                item.setCurrentItem(false); //같은 번호가 아닌 것들은 모두 false 처리해서 색ui 업데이트때 표시안되게 해야함
+//                Log.e("BibleVm", "책검색() setCurrentItem(false): "+item);
             }
         }
         liveBookL.setValue(bookL); //ui 업뎃
@@ -198,7 +203,10 @@ public class BibleVm extends ViewModel {
                     List<BibleDto> res = response.body();
                     //데이터를 불러오면 현재 클릭된 정보를 담는 책장번호[]에 저장된 책번호를 ui 적용위해 체크. 다만, get()처럼 인덱스가 0부터 시작되면 -1해줘야됨 창세기가 1번부터 시작이라 0번 인덱스로 만들어줘야하기때문
 //                    res.get(책장번호[0]-1).setCurrentItem(true);
+
+                    List<BibleDto> tmpL = new ArrayList<BibleDto>();
                     for (BibleDto item: res) {
+                        tmpL.add(new BibleDto(item));//깊은복사로 리스트안의 객체까지 독립객체로 생성. 필수! 중요!!
                         if (item.getBook() == 책장번호[0] ) {
                             item.setCurrentItem(true); // 차후 선택된 아이템의 ui(글자색)을 변경하게 할때 체크된 것만 변경하게함.(ui변경용)
 //                            Log.e("BibleVm", "성경책목록가져오기(): "+item);
@@ -206,6 +214,8 @@ public class BibleVm extends ViewModel {
                     }
                     //책이름 목록에 받은 정보 업데이트
                     bookL = res;
+                Log.e("[BibleVm]", "성경책목록가져오기 tmpL: "+ tmpL );
+                    bookLForSearch = tmpL;
                     liveBookL.setValue(bookL);
 //                    Log.e("[BibleVm]", "성경책목록가져오기 onResponse: "+ res );
                 }

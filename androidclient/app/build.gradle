@@ -42,17 +42,42 @@ dependencies {
     implementation 'com.google.android.material:material:1.6.1'
     implementation 'androidx.annotation:annotation:1.4.0'
     implementation 'androidx.constraintlayout:constraintlayout:2.1.4'
-    implementation 'androidx.lifecycle:lifecycle-livedata-ktx:2.5.0'
-    implementation 'androidx.lifecycle:lifecycle-viewmodel-ktx:2.5.0'
-    //navigation backstack 의 상태 저장이 자동으로 이루어지는 문제(2.4.0 rc1이상) 때문에 좀더 공부해보고 사용해야할듯. 그전까지는 이전버전으로 사용
-    implementation 'androidx.navigation:navigation-fragment-ktx:2.3.5'
-    implementation 'androidx.navigation:navigation-runtime-ktx:2.3.5'
-    implementation 'androidx.navigation:navigation-ui-ktx:2.3.5'
+
+    //테스트 조합 - 실험중
+//    implementation 'androidx.lifecycle:lifecycle-livedata-ktx:2.4.1'
+//    implementation 'androidx.lifecycle:lifecycle-viewmodel-ktx:2.4.1'
+//    implementation 'androidx.navigation:navigation-fragment-ktx:2.3.5'
+//    implementation 'androidx.navigation:navigation-runtime-ktx:2.3.5'
+//    implementation 'androidx.navigation:navigation-ui-ktx:2.3.5'
+//    implementation 'androidx.fragment:fragment-ktx:1.4.1'
+
+    //현재 문제 없는 버전 조합
+    //navigation (multi)backstack 의 상태 저장이 자동으로 이루어지는 문제(2.4.0 rc1이상) 때문에 좀더 공부해보고 사용해야할듯. 그전까지는 이전버전으로 사용
+//    implementation 'androidx.lifecycle:lifecycle-livedata-ktx:2.4.1'
+//    implementation 'androidx.lifecycle:lifecycle-viewmodel-ktx:2.4.1'
+//    implementation 'androidx.navigation:navigation-fragment-ktx:2.3.5'
+//    implementation 'androidx.navigation:navigation-runtime-ktx:2.3.5'
+//    implementation 'androidx.navigation:navigation-ui-ktx:2.3.5'
+//    implementation 'androidx.fragment:fragment-ktx:1.4.1'
+
+    //fragment 1.5.0 + lifecycle 2.5.0 버전으로 올리니 menu의 onCreateOptionsMenu()가 일관성 없게 2번씩 또는 바텀네비게이션클릭시 마다 호출되는 증상이 생김.
+    //원래는 Activity 생성시에만 딱한번 호출되어야함.
+//    implementation 'androidx.lifecycle:lifecycle-livedata-ktx:2.5.0'
+//    implementation 'androidx.lifecycle:lifecycle-viewmodel-ktx:2.5.0'
 //    implementation 'androidx.navigation:navigation-fragment-ktx:2.5.0'
 //    implementation 'androidx.navigation:navigation-runtime-ktx:2.5.0'
 //    implementation 'androidx.navigation:navigation-ui-ktx:2.5.0'
+//    implementation 'androidx.fragment:fragment-ktx:1.5.0'  // << 1.5.0 부터는 menuApi 기본이 menuhost & menu provider로 바껴서 기존의 onCreateOptionMenu가 작동하지 않음.
 
-    implementation 'androidx.fragment:fragment-ktx:1.5.0'
+    //초기버전 - 네비게이션 2.4.2 버전이 멀티 백스택을 자동으로 적용하여 바텀네비게이션의 탭 이동에서 문제가 생김. 정상이동이 안되는 증상.
+    implementation 'androidx.lifecycle:lifecycle-livedata-ktx:2.4.1'
+    implementation 'androidx.lifecycle:lifecycle-viewmodel-ktx:2.4.1'
+    implementation 'androidx.navigation:navigation-fragment-ktx:2.4.2'
+    implementation 'androidx.navigation:navigation-runtime-ktx:2.4.2'
+    implementation 'androidx.navigation:navigation-ui-ktx:2.4.2'
+    implementation 'androidx.fragment:fragment-ktx:1.4.1'
+
+
     implementation files('libs\\additionnal.jar')
     implementation files('libs\\mail.jar')
     implementation files('libs\\activation.jar')
