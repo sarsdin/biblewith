@@ -1,0 +1,132 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.coordinatorlayout.widget.CoordinatorLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    tools:context=".group.GroupCreateFm"
+    >
+
+    <com.google.android.material.appbar.AppBarLayout
+        android:id="@+id/group_create_appbar"
+        android:layout_width="match_parent"
+        android:layout_height="?attr/actionBarSize"
+        app:elevation="0dp">
+<!--        android:background="#00FFFFFF"-->
+
+        <androidx.appcompat.widget.Toolbar
+            android:id="@+id/group_create_toolbar"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:background="#FFFFFF"
+            >
+          <!--  <com.google.android.material.textview.MaterialTextView
+                android:id="@+id/group_main_toolbar_tv"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:fontFamily="monospace"
+                android:text="모임 홈"
+                android:textSize="20sp"
+                android:textStyle="bold" />-->
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/group_create_toolbar_add_bt"
+                style="@style/Widget.Material3.Button.OutlinedButton"
+                android:layout_width="50dp"
+                android:layout_height="40dp"
+                android:layout_gravity="end"
+                android:layout_marginEnd="16dp"
+                android:padding="5dp"
+                android:text="완료"
+                android:textColor="#171717"
+                android:textSize="14sp"
+                android:visibility="visible"
+                app:strokeColor="#9A9A9A"
+                tools:visibility="visible" />
+        </androidx.appcompat.widget.Toolbar>
+    </com.google.android.material.appbar.AppBarLayout>
+
+    <androidx.core.widget.NestedScrollView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="?attr/actionBarSize"
+        >
+<!--        app:layout_behavior="@string/appbar_scrolling_view_behavior"-->
+
+        <androidx.constraintlayout.widget.ConstraintLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            >
+
+            <com.google.android.material.textfield.TextInputLayout
+                android:id="@+id/group_create_group_name_layout"
+                android:layout_width="266dp"
+                android:layout_height="84dp"
+                android:layout_marginTop="72dp"
+                android:hint="모임명을 입력해주세요"
+                app:boxBackgroundMode="outline"
+                app:counterEnabled="true"
+                app:counterMaxLength="10"
+                app:errorEnabled="true"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent">
+
+                <com.google.android.material.textfield.TextInputEditText
+                    android:id="@+id/group_create_group_name_et"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:inputType="textNoSuggestions|textMultiLine" />
+            </com.google.android.material.textfield.TextInputLayout>
+
+            <com.google.android.material.card.MaterialCardView
+                android:id="@+id/group_create_cardview"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="40dp"
+                android:background="#48FB6C6C"
+                app:cardCornerRadius="15dp"
+                app:cardElevation="1dp"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/group_create_group_name_layout">
+
+                <com.google.android.material.imageview.ShapeableImageView
+                    android:id="@+id/group_create_iv"
+                    android:layout_width="184dp"
+                    android:layout_height="153dp"
+                    android:contentDescription="모임 메인 이미지"
+                    android:scaleType="fitXY"
+                    app:layout_collapseMode="pin"
+                    app:srcCompat="@drawable/ic_baseline_add_photo_alternate_24" />
+            </com.google.android.material.card.MaterialCardView>
+                    android:background="#B1B0B0"
+<!--                    android:tint="#FFFFFF"-->
+
+            <com.google.android.material.textfield.TextInputLayout
+                android:id="@+id/group_create_group_desc_layout"
+                android:layout_width="297dp"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="60dp"
+                android:hint="모임 설명을 입력해주세요"
+                app:boxBackgroundMode="outline"
+                app:counterEnabled="true"
+                app:counterMaxLength="100"
+                app:errorEnabled="true"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintHorizontal_bias="0.493"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/group_create_cardview">
+
+                <com.google.android.material.textfield.TextInputEditText
+                    android:id="@+id/group_create_group_desc_et"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:inputType="textNoSuggestions|textMultiLine" />
+            </com.google.android.material.textfield.TextInputLayout>
+
+
+        </androidx.constraintlayout.widget.ConstraintLayout>
+
+    </androidx.core.widget.NestedScrollView>
+</androidx.coordinatorlayout.widget.CoordinatorLayout>

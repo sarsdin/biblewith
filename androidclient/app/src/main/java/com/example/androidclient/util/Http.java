@@ -7,10 +7,15 @@ import com.google.gson.GsonBuilder;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
+
 import java.util.List;
 import java.util.Map;
 
+import okhttp3.MultipartBody;
 import okhttp3.OkHttpClient;
+import okhttp3.RequestBody;
 import okhttp3.logging.HttpLoggingInterceptor;
 import retrofit2.Call;
 import retrofit2.Retrofit;
@@ -18,7 +23,10 @@ import retrofit2.converter.gson.GsonConverterFactory;
 import retrofit2.http.Body;
 import retrofit2.http.GET;
 import retrofit2.http.Headers;
+import retrofit2.http.Multipart;
 import retrofit2.http.POST;
+import retrofit2.http.Part;
+import retrofit2.http.PartMap;
 import retrofit2.http.Query;
 
 public class Http {
@@ -37,6 +45,7 @@ public class Http {
 
     public static final String CHANNEL_ID_LALIGA = "UCTv-XvfzLX3i4IGWAm4sbmA";                             //채널 ID - laliga 공식 채널
     public static final String Q_LALIGA = "highlight";                             //검색어
+    public static final String UPLOADS_URL = "http://15.165.174.226/uploads/";                             //검색어
 
 
     public static Retrofit getRetrofitInstance(String host){
@@ -161,6 +170,36 @@ public class Http {
         Call<JsonObject> deleteNote(@Query("note_no") int note_no);
     }
 
+
+    public interface HttpGroup{
+        //모임 만들기
+        @Multipart
+        @POST("group/createGroup")
+        Call<JsonObject> createGroup(@PartMap Map<String, RequestBody> groupInfo,
+                                     @Part/*("group_main_image")*/ MultipartBody.Part groupImage);
+
+        //모임 목록 가져오기
+        @Headers("content-type: application/json")
+        @POST("group/getGroupL")
+        Call<JsonObject> getGroupL(@Query("user_no") int userNo, @Query("sortState") String sortState);
+
+
+        //모임 상세 가져오기
+        @Headers("content-type: application/json")
+        @POST("group/getGroupIn")
+        Call<JsonObject> getGroupIn(@Query("group_no")int currentGroupIn, @Query("sortStateGroupIn") String sortStateGroupIn);
+
+        //모임 게시물 목록 가져오기
+        @Headers("content-type: application/json")
+        @POST("group/getGroupInL")
+        Call<JsonObject> getGroupInL(@Query("group_no")int currentGroupIn, @Query("sortStateGroupIn") String sortStateGroupIn);
+
+        //모임 글쓰기
+        @Multipart
+        @POST("group/writeGroupIn")
+        Call<JsonObject> writeGroupIn(@PartMap Map<String, RequestBody> writeInfo,
+                                     @Part List<MultipartBody.Part> writeImage);
+    }
 
 
 

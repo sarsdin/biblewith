@@ -16,4 +16,7 @@
     <string name="title_dashboard">Dashboard</string>
     <string name="title_notifications">Notifications</string>
     <string name="bottom_nav_bible">성경</string>
+    <string name="group_name_sort">모임이름순 ▼</string>
+    <string name="group_member_sort">멤버 순 ▼</string>
+    <string name="group_board_sort">게시글 순 ▼</string>
 </resources>

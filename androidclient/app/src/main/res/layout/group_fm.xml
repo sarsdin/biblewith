@@ -12,6 +12,7 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         app:elevation="0dp">
+<!--        android:gravity="center"-->
 <!--        android:theme="@style/ThemeOverlay.MaterialComponents.Dark.ActionBar"-->
 <!--        android:fitsSystemWindows="true"-->
 
@@ -26,16 +27,6 @@
 <!--            android:fitsSystemWindows="true"-->
             <!--            android:background="@color/colorBlue"-->
 
-            <com.google.android.material.imageview.ShapeableImageView
-                android:id="@+id/group_main_toolbar_iv"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:contentDescription="성경 사진 입니다."
-                android:scaleType="centerCrop"
-                app:layout_collapseMode="pin"
-                />
-<!--                app:srcCompat="@drawable/biblewith_logo"-->
-<!--                android:fitsSystemWindows="true"-->
 
             <!--            배경 그라데이션 효과 -->
             <!--<View
@@ -49,6 +40,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="40dp"
                 android:background="#FFFFFF"
+                app:titleTextColor="@color/purple_500"
                 app:layout_collapseMode="pin"
                 >
 <!--                app:popupTheme="@style/ThemeOverlay.MaterialComponents.Light"-->
@@ -57,12 +49,29 @@
 
                 <com.google.android.material.textview.MaterialTextView
                     android:id="@+id/group_main_toolbar_tv"
-                    android:layout_width="50dp"
+                    android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:fontFamily="monospace"
-                    android:text="모임"
+                    android:text="모임 홈"
                     android:textSize="20sp"
                     android:textStyle="bold" />
+                <com.google.android.material.imageview.ShapeableImageView
+                    android:id="@+id/group_main_toolbar_iv"
+                    android:layout_width="20dp"
+                    android:layout_height="20dp"
+                    android:layout_marginEnd="15dp"
+                    android:layout_gravity="end"
+                    android:contentDescription="성경 사진 입니다."
+                    android:scaleType="centerCrop"
+                    android:background="#818080"
+                    android:tint="#FFFFFF"
+                    app:shapeAppearanceOverlay="@style/ShapeAppearanceOverlay.App.CornerSize50Percent"
+                    app:srcCompat="@drawable/ic_baseline_person_24"
+                    app:layout_collapseMode="pin"
+                    />
+                <!--                app:srcCompat="@drawable/biblewith_logo"-->
+                <!--                android:fitsSystemWindows="true"-->
+
             </androidx.appcompat.widget.Toolbar>
 
         </com.google.android.material.appbar.CollapsingToolbarLayout>
@@ -70,7 +79,9 @@
         <com.google.android.material.tabs.TabLayout
             android:id="@+id/group_main_tab_layout"
             android:layout_width="match_parent"
-            android:layout_height="match_parent">
+            android:layout_height="40dp"
+            >
+<!--            app:tabGravity="fill" 디폴트값임 각탭을 가로길이에 맞게 채움 -->
 
             <!--                android:id="@+id/group_main_tab_layout_item1"-->
             <com.google.android.material.tabs.TabItem
@@ -90,9 +101,33 @@
                 android:layout_height="wrap_content"
                 android:text="알림" />
         </com.google.android.material.tabs.TabLayout>
-
     </com.google.android.material.appbar.AppBarLayout>
 
+    <androidx.core.widget.NestedScrollView
+        android:id="@+id/group_main_nested_scroll_view"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="8dp"
+        app:layout_behavior="@string/appbar_scrolling_view_behavior"
+        >
+
+        <androidx.viewpager2.widget.ViewPager2
+            android:id="@+id/group_tab_layout_viewpager"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="10dp"
+            />
+<!--            android:layout_marginRight="10dp"-->
+<!--            android:layout_marginLeft="10dp"-->
+
+    </androidx.core.widget.NestedScrollView>
+
+
+
+</androidx.coordinatorlayout.widget.CoordinatorLayout>
+
+
+<!--
     <androidx.core.widget.NestedScrollView
         android:id="@+id/group_main_nested_scroll_view"
         android:layout_width="match_parent"
@@ -137,5 +172,4 @@
                 app:srcCompat="@drawable/biblewith_logo" />
         </LinearLayout>
     </androidx.core.widget.NestedScrollView>
-
-</androidx.coordinatorlayout.widget.CoordinatorLayout>
+-->

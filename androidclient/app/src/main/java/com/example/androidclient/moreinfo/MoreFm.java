@@ -10,7 +10,9 @@ import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.fragment.app.Fragment;
 import androidx.lifecycle.ViewModelProvider;
+import androidx.navigation.NavController;
 import androidx.navigation.Navigation;
+import androidx.navigation.ui.AppBarConfiguration;
 import androidx.navigation.ui.NavigationUI;
 
 import com.example.androidclient.R;
@@ -21,12 +23,13 @@ public class MoreFm extends Fragment {
 
     private MoreVm moreVm;
     private MoreFmBinding binding;
-
+    public AppBarConfiguration appBarConfiguration;
+    private NavController navController;
 
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         binding = MoreFmBinding.inflate(inflater, container, false);
-        moreVm = new ViewModelProvider(this).get(MoreVm.class);
+        moreVm = new ViewModelProvider(requireActivity()).get(MoreVm.class);
 
         return binding.getRoot();
     }
@@ -36,6 +39,11 @@ public class MoreFm extends Fragment {
         super.onViewCreated(view, savedInstanceState);
         //up버튼 활성화 할려면 nested navigation을 다시 컨트롤러로 지정해야함.. 귀찮음 과정이라 nested navi 는 버리는 걸로..
 //        NavigationUI.setupActionBarWithNavController((MainActivity) requireActivity(), Navigation.findNavController(view));
+
+        //모임 툴바 셋팅
+        appBarConfiguration = new AppBarConfiguration.Builder(R.id.more_fm).build();
+        navController = Navigation.findNavController(view);
+        NavigationUI.setupWithNavController( binding.moreToolbar, navController, appBarConfiguration);
 
         //하이라이트 클릭시 이동 - 그룹핑한 view 들을 아무거나 클릭하면 하이라이트페이지로 가게끔
         int ids[] = binding.moreFmHighlightGroup.getReferencedIds();

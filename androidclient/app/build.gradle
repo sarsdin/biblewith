@@ -114,8 +114,15 @@ dependencies {
 //    implementation 'javax.activation:activation:1.1.1'
 
 
+    //글라이드 이미지 처리
+    implementation 'com.github.bumptech.glide:glide:4.13.2'
+    annotationProcessor 'com.github.bumptech.glide:compiler:4.13.2'
+
+    //이미지, 카메라 픽커 : setting.gradle에도  maven { url "https://jitpack.io" } 추가
+    implementation 'com.github.dhaval2404:imagepicker:2.1'
 
 
-
+    //이미지 편집
+    implementation 'com.burhanrashid52:photoeditor:2.0.0'
 
 }

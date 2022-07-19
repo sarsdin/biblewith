@@ -7,6 +7,11 @@ import android.util.Log;
 
 import com.example.androidclient.login.LoginDto;
 
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
 import java.text.SimpleDateFormat;
 import java.time.LocalDateTime;
 import java.time.ZoneOffset;
@@ -26,6 +31,20 @@ public class MyApp extends Application {
         super.onCreate();
         MyApp.application = this;
     }
+
+    //객체를 깊은 복사하는 메소드 - 데이터주소까지 완전히 다른 객체가 된다
+    public static Object deepCopy(Object o) throws IOException, ClassNotFoundException {
+        ByteArrayOutputStream baos = new ByteArrayOutputStream();
+        ObjectOutputStream oos = new ObjectOutputStream(baos);
+        oos.writeObject(o);
+
+        byte[] buff = baos.toByteArray();
+        ByteArrayInputStream bais = new ByteArrayInputStream(buff);
+        ObjectInputStream os = new ObjectInputStream(bais);
+        Object copy = os.readObject();
+        return copy;
+    }
+
 
     public static SharedPreferences getDefaultSp() {
         return PreferenceManager.getDefaultSharedPreferences(application.getApplicationContext());

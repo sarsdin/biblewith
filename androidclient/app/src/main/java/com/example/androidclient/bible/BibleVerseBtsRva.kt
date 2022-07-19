@@ -56,6 +56,7 @@ class BibleVerseBtsRva( val bibleVm: BibleVm, val bibleVerseFm: BibleVerseFm) : 
             //색깔 클릭시
             vhBinding.root.setOnClickListener {
                 var signalDel = false
+                //색깔 삭제 클릭시(0번홀더)
                 if(absoluteAdapterPosition == 0){
                     signalDel = true    //0번 뷰홀더를 클릭하였다면 삭제 시그널을 주고 삭제 로직을 진행
                     //프로그래스바 비통기 통신 완료 전 까지 온시킴.
@@ -129,7 +130,7 @@ class BibleVerseBtsRva( val bibleVm: BibleVm, val bibleVerseFm: BibleVerseFm) : 
 
 
 
-
+                //색깔 클릭시(나머지홀더)
                 } else {
                     //프로그래스바 비통기 통신 완료 전 까지 온시킴.
                     bibleVerseFm.binding.bibleVerseFmProgressbar.visibility = View.VISIBLE
@@ -197,23 +198,14 @@ class BibleVerseBtsRva( val bibleVm: BibleVm, val bibleVerseFm: BibleVerseFm) : 
                         }
                     })
 
-
-
                 }
 
+            } //색깔 뷰홀더 클릭 종료 부분
 
 
 
 
-
-
-
-            }
-
-
-
-
-        }
+        } //bind() 끝 부분
 
 
     }

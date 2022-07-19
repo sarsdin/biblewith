@@ -64,12 +64,11 @@ public class BibleBookFm extends Fragment {
 //        rva.notifyDataSetChanged();
 
         //메인툴바에 검색뷰 설정
-        MainActivity mainA = ((MainActivity)requireActivity());
-        mainA.binding.mainToolbar.addMenuProvider(new MenuProvider() {
+        ((BibleFm) getParentFragment()).binding.bibleToolbar.addMenuProvider(new MenuProvider() {
             @Override
             public void onCreateMenu(@NonNull Menu menu, @NonNull MenuInflater menuInflater) {
                 menuInflater.inflate(R.menu.toolbar_bible_search_menu, menu);
-                SearchView searchView = (SearchView)menu.findItem(R.id.app_bar_search).getActionView(); //searchView를 찾아서 반환
+                SearchView searchView = (SearchView)menu.findItem(R.id.bible_toolbar_search).getActionView(); //searchView를 찾아서 반환
                 searchView.setMaxWidth(600);
                 //검색아이콘 터치시 이전에 검색했던 텍스트를 저장해놨다가 불러와서 검색텍스트뷰에 넣어준다.
                 searchView.setQuery( bibleVm.tempObj.get("bookSearchText").getAsString(), false);

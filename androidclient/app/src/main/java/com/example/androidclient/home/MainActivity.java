@@ -68,20 +68,19 @@ public class MainActivity extends AppCompatActivity {
 
         // Passing each menu ID as a set of Ids because each
         // menu should be considered as top level destinations.
-        appBarConfiguration = new AppBarConfiguration.Builder(
-                R.id.home_fm, R.id.bible_fm, R.id.group_fm, R.id.more_fm)
-                .build();
+        /*appBarConfiguration = new AppBarConfiguration.Builder(
+                R.id.home_fm, R.id.bible_fm, *//*R.id.group_fm,*//* R.id.more_fm)
+                .build();*/
         navController = Navigation.findNavController(this, R.id.nav_host_fragment_main_activity);
         //appBarConfiguration 은 탑레벨 destinations 를 지정하기위한 appbar의 옵션구성임. 바텀네비게이션은 이미 각 메뉴탭이 최상위레벨로 지정되어 만들어져있는 느낌임.
         //그래서 이옵션을 지정하지 않아도 각 탭이 최상위레벨 destination 으로 작동하는데, 만약 toolBar & navigationDrawerview 를 구성할려면 이 옵션을 이용해 최상위 destination
         //을 설정할 수 있을 것임. 위에서처럼 개별 topLevelDestinationIds를 지정할 수 도있고 해당 view가 속한 navController의 NavGraph를 이용해 전체 네비게이션 그래프를 전달하여
         //설정할 수도 있음. 탑레벨 destination을 지정하면 up버튼 ui를 최상위 destination을 기준으로 표시되게 할 수 있음!
-        // -- 수정사항: 바텀네비에서 각 메뉴탭이 최상위로 지정되있는것은 아닌듯.. new AppBarConfiguration 만들고 최상위레벨 설정해야 지정되는듯.
         // activity에서 네비게이션을 만들든 fragment에서 만들든 new AppBarConfiguration 은 onCreate 또는 onViewCreate에서 반드시 선언되어야 up버튼등이 최상위메뉴 기준으로 설정가능.
 
         // setupActionBarWithNavController는 앱바에 각destination의 label이 표시되고 appBarConfiguration에 따라 up버튼이 동작하는 방식을 설정할 수 있도록 하는 메소드.
 //        NavigationUI.setupActionBarWithNavController(this, navController, appBarConfiguration);
-        NavigationUI.setupWithNavController(binding.mainToolbar, navController, appBarConfiguration);
+//        NavigationUI.setupWithNavController(binding.mainToolbar, navController, appBarConfiguration);
         NavigationUI.setupWithNavController(binding.mainBottomNav, navController);
 
         //바텀네비게이션 메뉴 클릭시
@@ -130,14 +129,14 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onDestinationChanged(@NonNull NavController navController, @NonNull NavDestination navDestination, @Nullable Bundle bundle) {
 //                binding.mainToolbar.getMenu().findItem(R.id.app_bar_search).setVisible(false);
-                if (navDestination.getId() == R.id.bible_fm) {
+                /*if (navDestination.getId() == R.id.bible_fm) {
 //                    binding.mainAppbarTvGroup.setVisibility(View.VISIBLE);
                     //네비게이션뷰, 앱레이아웃에서는 그룹이 안먹히네? 왜 그렇지? - main_activity.xml 안에 이유 설명되어 있음 - 컨스트레인레이아웃 스코프 문제임.
                     binding.mainAppbarBibleTv.setVisibility(View.VISIBLE);
                     binding.mainAppbarChapterTv.setVisibility(View.VISIBLE);
-                    Log.e("오류태그", "create if");
+                    Log.e("[MainActivity]", "onDestinationChanged bible_fm create if");
                 } else {
-                    Log.e("오류태그", "create else");
+                    Log.e("[MainActivity]", "onDestinationChanged bible_fm create else");
                     binding.mainAppbarBibleTv.setVisibility(View.GONE);
                     binding.mainAppbarChapterTv.setVisibility(View.GONE);
                     //검색이 메뉴항목(수직...)에서도 숨겨짐. 바로가기로 표시되는 경우(툴바에표시)에는 안숨겨짐. 이때는 setEnabled(false)로 숨겨야함. 둘다 구분되어 작동
@@ -147,24 +146,32 @@ public class MainActivity extends AppCompatActivity {
 //                    binding.mainToolbar.getMenu().findItem(R.id.app_bar_search).setVisible(false);
 //                    binding.mainToolbar.setVisibility(View.GONE);  // << 이것이 위와 달리 적용되는 이유는 toolbar는 menu가 아니고 상위 액티비티 레이아웃
                     //에 소속한 view 이기 때문에 onCreate()에서 이미 inflate 되었기 때문에 작동하는 것!
-                }
+                }*/
 
                 //노트 추가 화면으로 이동시 바텀 네비게이션 숨김
                 switch(navDestination.getId()){
                     case  R.id.myNoteFmAdd:
-                        binding.mainBottomNav.setVisibility(View.GONE);
-                        binding.mainAppbarNoteAddBt.setVisibility(View.VISIBLE);
-                        break;
+                    case  R.id.groupInFm:
+                    case  R.id.groupInWriteFm:
                     case  R.id.myNoteFmUpdate:
                         binding.mainBottomNav.setVisibility(View.GONE);
-                        binding.mainAppbarNoteUpdateBt.setVisibility(View.VISIBLE);
+//                        binding.mainAppbarNoteAddBt.setVisibility(View.VISIBLE);
                         break;
+//                        binding.mainAppbarNoteUpdateBt.setVisibility(View.VISIBLE);
+                    //                        binding.mainAppbarNoteUpdateBt.setVisibility(View.VISIBLE);
                     default:
                         binding.mainBottomNav.setVisibility(View.VISIBLE);
-                        binding.mainAppbarNoteAddBt.setVisibility(View.GONE);
-                        binding.mainAppbarNoteUpdateBt.setVisibility(View.GONE);
+//                        binding.mainAppbarNoteAddBt.setVisibility(View.GONE);
+//                        binding.mainAppbarNoteUpdateBt.setVisibility(View.GONE);
                         break;
                 }
+
+                //모임탭에서 메인 앱바,툴바 감추기 처리
+                /*if(navDestination.getId() == R.id.group_fm || navDestination.getId() == R.id.groupCreateFm){
+                    binding.mainAppbar.setVisibility(View.GONE);
+                } else {
+                    binding.mainAppbar.setVisibility(View.VISIBLE);
+                }*/
 
             }
         });
@@ -312,11 +319,11 @@ public class MainActivity extends AppCompatActivity {
 
     @Override
     public boolean onSupportNavigateUp() {//up button을 작동하게 함..
-        if(canNavigateUp){
-            return navController.navigateUp() || super.onSupportNavigateUp();
-        } else{
+//        if(canNavigateUp){
+//            return navController.navigateUp() || super.onSupportNavigateUp();
+//        } else{
+//        }
             return NavigationUI.navigateUp(navController, appBarConfiguration) || super.onSupportNavigateUp();
-        }
     }
 
     public void setNavigation(boolean navigationUpEnabled) {

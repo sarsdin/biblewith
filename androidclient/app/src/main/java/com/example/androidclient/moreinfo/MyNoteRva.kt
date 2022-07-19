@@ -64,20 +64,24 @@ class MyNoteRva(val bibleVm: BibleVm, val myNoteFm: MyNoteFm) : RecyclerView.Ada
 
             //노트 팝업 메뉴 클릭시 - 수정, 삭제
             binding.myNoteFmVhMenuIbt.setOnClickListener {
+                //팝업 메뉴 생성 후 각 메뉴에 대한 xml 파일 인플레이트 
                 var notePopupMenu = PopupMenu(MyApp.application, it)
                 myNoteFm.requireActivity().menuInflater.inflate(R.menu.note_popup, notePopupMenu.menu)
+                //각 메뉴항목 클릭했을때의 동작 설정
                 notePopupMenu.setOnMenuItemClickListener { menuItem ->
                     when(menuItem.itemId){
+                        //수정 클릭시
                         R.id.note_popup_update -> {
                             Toast.makeText(myNoteFm.context, "수정클릭",Toast.LENGTH_SHORT).show()
                             bibleVm.noteUpdateO = mItem //수정용 임시 객체
                             Navigation.findNavController(it).navigate(R.id.action_global_myNoteFmUpdate)
                             return@setOnMenuItemClickListener true
                         }
+                        //삭제 클릭시
                         R.id.note_popup_delete -> {
-                            // 다이얼로그 바디
+                            // 다이얼로그 생성 - 삭제 여부를 물음
                             val alertdialog = AlertDialog.Builder(myNoteFm.requireContext())
-                            // 확인버튼
+                            // 확인버튼 클릭시
                             alertdialog.setPositiveButton("확인") { dialog, which ->
                                 // Toast toast = Toast.makeText(getActivity(), "확인 버튼 눌림", Toast.LENGTH_SHORT ).show;
                                 //비동기 정보 가져옴
@@ -109,16 +113,16 @@ class MyNoteRva(val bibleVm: BibleVm, val myNoteFm: MyNoteFm) : RecyclerView.Ada
                                     }
                                 })
                             }
-                            // 취소버튼
+                            // 취소버튼 클릭시
                             alertdialog.setNegativeButton("취소" ) { dialog, which ->
                             }
-                            // 메인 다이얼로그 생성
+                            // 다이얼로그 빌더로 설정한 내용을 이용해 인스턴스 생성
                             val alert = alertdialog.create()
                             // 아이콘 설정
 //                            alert.setIcon(R.drawable.ic_baseline_dashboard_24)
                             // 타이틀
                             alert.setTitle("삭제하시겠습니까?")
-                            // 다이얼로그 보기
+                            // 다이얼로그 띄우기
                             alert.show()
 
                             return@setOnMenuItemClickListener true
@@ -128,6 +132,7 @@ class MyNoteRva(val bibleVm: BibleVm, val myNoteFm: MyNoteFm) : RecyclerView.Ada
                         }
                     }
                 }
+                //위에서 설정된 노트 팝업 메뉴를 화면(해당뷰)에 띄움
                 notePopupMenu.show()
             }
 

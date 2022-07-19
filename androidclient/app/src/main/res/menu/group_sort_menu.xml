@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+    <item
+        android:id="@+id/group_sort_name_popup"
+        android:title="모임이름순" />
+    <item
+        android:id="@+id/group_sort_member_count_popup"
+        android:title="멤버 순" />
+    <item
+        android:id="@+id/group_sort_board_count_popup"
+        android:title="게시글 순" />
+</menu>

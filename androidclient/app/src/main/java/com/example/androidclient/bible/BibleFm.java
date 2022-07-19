@@ -108,12 +108,15 @@ public class BibleFm extends Fragment  { //implements BibleBookRav.뷰페이저�
             @Override
             public void onChanged(int[] ints) {
                 // 책장번호 -1을 해줘야 인덱스 순서가 맞음 창세기의 번호가 1부터 시작이기때문. (적재된 데이터의 시작번호가 0이 아닌 1번부터)
-                MainActivity mainA = ((MainActivity)requireActivity());
+//                MainActivity mainA = ((MainActivity)requireActivity());
 //                ((MainActivity)requireActivity()).binding.mainAppbarBibleTv.setText(mainA.bookinfo.get(bibleVm.책장번호[0]-1).getAsJsonObject().get("book_name").getAsString());
                 //고정값을 가진 검색용 리스트를 써야 온전한 전체 책제목데이터에서 정확한 값을 가져올 수 있다.
-                ((MainActivity)requireActivity()).binding.mainAppbarBibleTv.setText(bibleVm.bookLForSearch.get(bibleVm.책장번호[0]-1).getBook_name());
-                ((MainActivity)requireActivity()).binding.mainAppbarChapterTv.setText((bibleVm.책장번호[1]) + "장");
+//                ((MainActivity)requireActivity()).binding.mainAppbarBibleTv.setText(bibleVm.bookLForSearch.get(bibleVm.책장번호[0]-1).getBook_name());
+//                ((MainActivity)requireActivity()).binding.mainAppbarChapterTv.setText((bibleVm.책장번호[1]) + "장");
 //                mainA.binding.mainAppbarChapterTv.setVisibility(View.GONE);
+
+                binding.bibleToolbarBibleTv.setText(bibleVm.bookLForSearch.get(bibleVm.책장번호[0]-1).getBook_name());
+                binding.bibleToolbarChapterTv.setText((bibleVm.책장번호[1]) + "장");
             }
         });
 
