@@ -4,19 +4,31 @@ import android.R
 import android.content.Context
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
+import android.graphics.drawable.Drawable
 import android.net.Uri
 import android.provider.DocumentsContract
 import android.provider.MediaStore
 import android.util.Log
 import androidx.appcompat.content.res.AppCompatResources.getDrawable
 import androidx.core.graphics.drawable.toBitmap
+import com.bumptech.glide.Glide
+import com.bumptech.glide.load.engine.DiskCacheStrategy
+import com.bumptech.glide.request.target.CustomTarget
+import com.bumptech.glide.request.transition.Transition
+import kotlinx.coroutines.*
 import okhttp3.MediaType.Companion.toMediaTypeOrNull
 import okhttp3.MultipartBody
 import okhttp3.RequestBody
 import okhttp3.RequestBody.Companion.asRequestBody
 import okhttp3.RequestBody.Companion.toRequestBody
+import okhttp3.Response
 import java.io.ByteArrayOutputStream
 import java.io.File
+import java.nio.file.Files.createFile
+import kotlin.coroutines.Continuation
+import kotlin.coroutines.resume
+import kotlin.coroutines.resumeWithException
+import kotlin.coroutines.suspendCoroutine
 
 
 /**
@@ -56,7 +68,7 @@ class FileHelper {
         return MultipartBody.Part.createFormData(formDataKeyName, resUri.lastPathSegment, requestBody)
     }
 
-    //contentProvider 에서 받은 다중 uri 이미지를 요청용 멀티파트 리스트로 만들기
+    //contentProvider 에서 받은 다중 uri 이미지를 요청용 멀티파트 리스트로 만들기. 로컬 uri 파일 전용!
     fun getPartBodyFromUriList(context: Context, uriL: List<Uri>?, formDataKeyName: String): List<MultipartBody.Part> {
         val res = mutableListOf<MultipartBody.Part>()
         val realPathList = mutableListOf<String>()
@@ -73,6 +85,83 @@ class FileHelper {
         return res
     }
 
+     suspend fun 업데이트용멀티파트리스트만들기(context: Context, uriL: List<Uri>?, formDataKeyName: String): List<MultipartBody.Part> {
+//        CoroutineScope(Dispatchers.Main).launch {
+        val res = mutableListOf<MultipartBody.Part>()
+        val realPathList = mutableListOf<String>()
+        //각 Uri 에 담긴 path 를 이용해 실제 경로를 얻고, 그경로의 파일객체를 만들고, 요청용 바디에 담아서 멀티파트 객체로 랩핑한다. 그 각 객체는 리스트에 반복적으로 추가됨.
+            Log.e("[FileHelper]", "list: $uriL")
+            uriL?.forEachIndexed { index, it ->
+                if(it.toString().contains("http://")){ //it.path 는 http://주소 를 제외한 uri의 경로만 리턴하니 주의! 삽질했음..
+
+                    //코루틴을 비동기 콜백안의 resumeWith 실행전까지 잠시 멈춘다.
+                    // - 콜백메소드안의 코드가 모두 실행되고 resume 하는것! 반복문의 비동기 결과들을 순차적으로 만들기 위함
+                    val resp = suspendCoroutine { cont: Continuation<Bitmap> ->
+
+                        //글라이드를 통해 파일 다운로드
+                        Log.e("[FileHelper]", "path: ${it.path}")
+                        val requestManager = Glide.with(context)
+                        val loaded =  requestManager.asBitmap().load(it)
+                            .diskCacheStrategy(DiskCacheStrategy.NONE) //disk cache 전략을 off
+                            .skipMemoryCache(true)
+                        //받은 비트맵을 requestBody 객체로 만듦
+                            .into(object: CustomTarget<Bitmap>(){
+                            override fun onResourceReady(resource: Bitmap, transition: Transition<in Bitmap>?) {
+                                val requestBody = bitmapToRequestBody(resource)
+                                //위의 바디를 파트로 만들고, 임시 멀티파트를 담을 초기화 전용 리스트에 추가
+                                /*gboardImageTmpInitL*/
+    //                        "gboard_image",
+    //                        it2.asJsonObject.get("original_file_name").asString ?:"$index ${System.currentTimeMillis().toString()}",
+
+
+                                    res.add(
+                                        requestBodyToAddMultipart(formDataKeyName,
+                                            "$index ${System.currentTimeMillis().toString()}", requestBody )
+                                    )
+                                    Log.e("[FileHelper]", "$index")
+
+                                //resp 에 결과인 resource 가 담기고 코루틴 재개.
+                                cont.resumeWith(Result.success(resource))
+                            }
+                            override fun onLoadCleared(placeholder: Drawable?) {
+                            }
+                        })
+                    }
+
+                } else {
+                    val realPath = getPathFromURI(context, it)
+                    realPathList.add(realPath)
+                    val fileImage = createFile(realPath)
+                    val requestBody = createRequestBody(fileImage)
+                    res.add(createPart(fileImage, requestBody, formDataKeyName))
+                                    Log.e("오류태그", "else $index")
+                }
+            }
+
+        Log.e("[FileHelper]", "realPathList: $realPathList")
+        Log.e("[FileHelper]", "mutableListOf: $res")
+//        }
+        return res
+    }
+
+    //requestBody 객체를 받아 MultipartBody.Part 로 추가하는 메소드
+    fun requestBodyToAddMultipart(formDataKeyName: String, fileName: String, requestBody: RequestBody):  MultipartBody.Part {
+        val multipartBody = MultipartBody.Part.createFormData(formDataKeyName, fileName, requestBody)
+        return multipartBody
+    }
+
+    //glide 등에서 받아온 bitmap 파일을 requestBody 객체로 만드는 메소드
+    fun bitmapToRequestBody(glideBitmap: Bitmap): RequestBody {
+        val bitmap = glideBitmap /*BitmapFactory.decodeStream(requireActivity().contentResolver.openInputStream(groupMainImageUri!!))*/
+        val byteArrayOutS = ByteArrayOutputStream()
+        bitmap.compress(Bitmap.CompressFormat.JPEG, 80, byteArrayOutS)
+        val requestBody = byteArrayOutS.toByteArray().run {
+            toRequestBody("image/jpeg".toMediaTypeOrNull(),0, size )
+        }
+//        val groupImage = MultipartBody.Part.createFormData("group_main_image", file.name, requestBody)
+        return requestBody
+    }
+    
     private fun createFile(realPath: String): File {
         return File(realPath)
     }

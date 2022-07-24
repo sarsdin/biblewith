@@ -28,7 +28,6 @@ class GroupInFm : Fragment() {
     var mbinding: GroupInFmBinding? = null
     val binding get() = mbinding!! //null체크를 매번 안하게끔 재 선언
 
-    val imageHelper = ImageHelper()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -72,7 +71,7 @@ class GroupInFm : Fragment() {
         // Ui 갱신
         groupVm.liveGroupInfo.observe(viewLifecycleOwner, Observer {
             //모임 이미지 받아오기
-            imageHelper.getImageUsingGlide(requireContext(), groupVm.groupInfo.get("group_main_image").asString
+            ImageHelper.getImageUsingGlide(requireContext(), groupVm.groupInfo.get("group_main_image").asString
                 , binding.groupInCollapsingToolbarIv )
             //모임 이름 적용
             binding.groupInSummaryNameTv.text = groupVm.groupInfo.get("group_name").asString

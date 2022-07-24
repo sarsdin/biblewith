@@ -11,7 +11,8 @@ class GroupBoard extends \CodeIgniter\Model
         'user_no',
         'gboard_title',
         'gboard_content',
-        'create_date'
+        'create_date',
+        'gboard_hit'
     ];
     protected $primaryKey = 'gboard_no';
 }

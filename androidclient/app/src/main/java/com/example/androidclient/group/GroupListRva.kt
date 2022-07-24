@@ -40,9 +40,8 @@ class GroupListRva(val groupVm: GroupVm, val groupListFm: GroupListFm) : Recycle
         //mItem -- 모임목록가져오기()
         fun bind(mItem: JsonObject) {
 //            this.mItem = mItem;
-            val ih =  ImageHelper()
 //            binding.groupIvInCardview.setImageURI(Uri.parse(UPLOADS_URL + mItem.get("group_main_image").asString))
-            ih.getImageUsingGlide(groupListFm.requireContext(), mItem.get("group_main_image").asString, binding.groupIvInCardview)
+            ImageHelper.getImageUsingGlide(groupListFm.requireContext(), mItem.get("group_main_image").asString, binding.groupIvInCardview)
             binding.myNoteFmVhContentTv.text = mItem.get("group_name").asString
 
             //홀더 클릭시 해당하는 모임 상세 페이지로 이동

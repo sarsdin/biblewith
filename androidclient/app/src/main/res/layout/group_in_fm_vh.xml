@@ -78,7 +78,8 @@
             android:layout_marginTop="16dp"
             android:minHeight="50dp"
             android:maxHeight="200dp"
-            android:padding="5dp"
+            android:paddingHorizontal="15dp"
+            android:paddingVertical="5dp"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@+id/group_in_fm_vh_date_tv" />
@@ -112,7 +113,7 @@
                 android:layout_width="65dp"
                 android:layout_height="30dp"
                 android:padding="0dp"
-                android:text="222"
+                android:text="0"
                 android:textColor="#AAAAAA"
                 android:textSize="16sp"
                 app:icon="@drawable/ic_baseline_thumb_up_24"
@@ -126,7 +127,7 @@
                 android:layout_height="30dp"
                 android:layout_marginStart="10dp"
                 android:padding="0dp"
-                android:text="222"
+                android:text="0"
                 android:textColor="#AAAAAA"
                 android:textSize="16sp"
                 app:icon="@drawable/ic_comment"
@@ -208,11 +209,14 @@
             android:id="@+id/group_in_fm_vh_reply_Cl"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:minHeight="65dp"
             android:background="@drawable/borderline_bottom"
+            android:minHeight="65dp"
+            android:visibility="gone"
+            tools:visibility="visible"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/view2">
+            app:layout_constraintTop_toBottomOf="@+id/view2"
+            >
 
             <com.google.android.material.imageview.ShapeableImageView
                 android:id="@+id/group_in_fm_vh_reply_cl_iv"
@@ -248,8 +252,8 @@
                 android:layout_marginTop="12dp"
                 android:layout_marginEnd="16dp"
                 android:text="2022-6-29 00:00:11"
-                android:textColor="#707070"
                 android:textAppearance="?attr/textAppearanceListItem"
+                android:textColor="#707070"
                 android:textSize="14sp"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintTop_toTopOf="parent"
@@ -259,8 +263,8 @@
                 android:id="@+id/group_in_fm_vh_reply_cl_content_tv"
                 android:layout_width="350dp"
                 android:layout_height="wrap_content"
-                android:maxHeight="200dp"
                 android:layout_marginTop="5dp"
+                android:maxHeight="200dp"
                 android:text="컨텐츠 내용 출력 "
                 android:textAppearance="?attr/textAppearanceListItem"
                 android:textSize="14sp"
@@ -276,6 +280,8 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:minHeight="65dp"
+            android:visibility="gone"
+            tools:visibility="visible"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@+id/group_in_fm_vh_reply_Cl">
@@ -360,5 +366,10 @@
     </androidx.constraintlayout.widget.ConstraintLayout>
 
 
-
+    <ProgressBar
+        android:id="@+id/progress_bar"
+        android:layout_width="150dp"
+        android:layout_height="150dp"
+        android:visibility="gone"
+        android:layout_gravity="center|center_horizontal" />
 </com.google.android.material.card.MaterialCardView>

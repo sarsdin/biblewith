@@ -127,12 +127,42 @@
         <action
             android:id="@+id/action_groupInFm_to_groupInWriteFm"
             app:destination="@id/groupInWriteFm" />
+        <action
+            android:id="@+id/action_groupInFm_to_groupInUpdateFm"
+            app:destination="@id/groupInUpdateFm"
+            app:popEnterAnim="@anim/nav_default_pop_enter_anim"
+            app:popExitAnim="@anim/nav_default_pop_exit_anim" />
+        <action
+            android:id="@+id/action_groupInFm_to_groupBoardDetail"
+            app:destination="@id/groupBoardDetail"
+            app:enterAnim="@anim/nav_default_enter_anim"
+            app:exitAnim="@anim/nav_default_exit_anim" />
     </fragment>
     <fragment
         android:id="@+id/groupInWriteFm"
         android:name="com.example.androidclient.group.GroupInWriteFm"
         android:label="글쓰기"
         tools:layout="@layout/group_in_write_fm"/>
+    <fragment
+        android:id="@+id/groupInUpdateFm"
+        android:name="com.example.androidclient.group.GroupInUpdateFm"
+        android:label="글수정하기"
+        tools:layout="@layout/group_in_update_fm" >
+        <action
+            android:id="@+id/action_groupInUpdateFm_to_groupInFm"
+            app:destination="@id/groupInFm"
+            app:launchSingleTop="true"
+            app:popUpTo="@id/groupInFm" />
+    </fragment>
+    <fragment
+        android:id="@+id/groupBoardDetail"
+        android:name="com.example.androidclient.group.GroupBoardDetail"
+        android:label=""
+        tools:layout="@layout/group_board_detail" >
+        <action
+            android:id="@+id/action_groupBoardDetail_to_groupInUpdateFm"
+            app:destination="@id/groupInUpdateFm" />
+    </fragment>
 
 
 </navigation>

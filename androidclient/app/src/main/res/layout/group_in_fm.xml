@@ -191,12 +191,12 @@ tools:context=".group.GroupInFm">
 <!--    모임의 게시물 리스트    -->
         <androidx.recyclerview.widget.RecyclerView
             android:id="@+id/group_in_list"
-            android:name="com.example.androidclient.group.GroupInFm"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:layout_marginTop="5dp"
-            android:paddingBottom="500dp"
+            android:paddingBottom="350dp"
             app:layoutManager="LinearLayoutManager" />
+<!--            android:name="com.example.androidclient.group.GroupInFm"-->
         <!--            tools:listitem="@layout/group_in_fm_vh"-->
 
     </LinearLayout>

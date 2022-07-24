@@ -94,7 +94,7 @@ class GroupFm : Fragment() {
         //탭 선택시 툴바의 제목 바꾸기
         binding.groupMainTabLayout.addOnTabSelectedListener(object: TabLayout.OnTabSelectedListener {
             override fun onTabSelected(tab: TabLayout.Tab?) {
-                Toast.makeText(requireContext(), "${tab?.id}, ${tab?.contentDescription}, ${tab?.position} ",Toast.LENGTH_SHORT).show()
+//                Toast.makeText(requireContext(), "${tab?.id}, ${tab?.contentDescription}, ${tab?.position} ",Toast.LENGTH_SHORT).show()
                 when(tab?.position){
                     0 -> {
                         binding.groupMainToolbarTv.text = "모임 홈"

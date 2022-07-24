@@ -89,7 +89,7 @@ public class MyApp extends Application {
             Date mDate = new Date(mNow);//1644034298
             long mDate_muter = mDate.toInstant().getEpochSecond();
 
-            long second = (currentTime - ldt.toEpochSecond(ZoneOffset.UTC));
+            long second = (currentTime - ldt.toEpochSecond(ZoneOffset.UTC)+2); //시간이 -가 되는 증세가 있음. 기기마다 시간계산이 미묘하게 달라서..+2초해줌
             long minute = (currentTime - ldt.toEpochSecond(ZoneOffset.UTC))/60L;
             long hour = (currentTime - ldt.toEpochSecond(ZoneOffset.UTC))/60/60;
             long day = (currentTime - ldt.toEpochSecond(ZoneOffset.UTC))/60/60/24;

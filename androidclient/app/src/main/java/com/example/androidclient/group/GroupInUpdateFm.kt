@@ -11,10 +11,8 @@ import android.os.Bundle
 import android.os.Environment
 import android.os.Handler
 import android.os.Looper
-import android.provider.MediaStore
 import android.provider.Settings
 import android.util.Log
-import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -27,6 +25,7 @@ import androidx.activity.result.registerForActivityResult
 import androidx.appcompat.app.AlertDialog
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
+import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.Navigation
 import androidx.navigation.ui.AppBarConfiguration
@@ -39,13 +38,16 @@ import com.bumptech.glide.request.target.CustomTarget
 import com.bumptech.glide.request.transition.Transition
 import com.example.androidclient.MyApp
 import com.example.androidclient.R
-import com.example.androidclient.databinding.GroupInWriteFmBinding
+import com.example.androidclient.databinding.GroupInUpdateFmBinding
 import com.example.androidclient.home.MainActivity
-import com.example.androidclient.moreinfo.MyNoteRva
 import com.example.androidclient.util.FileHelper
+import com.example.androidclient.util.Http.UPLOADS_URL
 import com.github.dhaval2404.imagepicker.ImagePicker
-import com.google.android.material.imageview.ShapeableImageView
 import com.google.gson.JsonObject
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.runBlocking
 import okhttp3.MediaType.Companion.toMediaTypeOrNull
 import okhttp3.MultipartBody
 import okhttp3.RequestBody
@@ -56,19 +58,28 @@ import retrofit2.Response
 import java.io.*
 import java.util.concurrent.ExecutionException
 
-class GroupInWriteFm : Fragment() {
+class GroupInUpdateFm : Fragment() {
     lateinit var groupVm: GroupVm
-    var mbinding: GroupInWriteFmBinding? = null
+    var mbinding: GroupInUpdateFmBinding? = null
     val binding get() = mbinding!! //null체크를 매번 안하게끔 재 선언
 
     //리사이클러뷰 관련
-    lateinit var rva: GroupInWriteRva
+    lateinit var rva: GroupInUpdateRva
     lateinit var rv: RecyclerView
 
     //랜덤이미지 api
     val url = "https://random.responsiveimages.io/v1/docs"
     val url2 = "https://picsum.photos/200/300"
-    var groupWriteImageUriL : List<Uri>? = null  //모임 글쓰기 이미지 추가용 리스트
+    var groupWriteImageUriL : List<Uri>? = null  //모임 글수정 이미지 추가용 리스트
+    var groupInitImageUriL = ArrayList<Uri>()  //모임 글수정 이미지 추가용 초기화 리스트 - 수정페이지가 시작되고 변동없는 데이터들: 원격서버Uri를 가지고있음
+    var gboardImageTmpInitL = mutableListOf<MultipartBody.Part>()
+
+    //글라이드로 받아온 이미지의 uri를 이용해 file객체를 만들고 그 객체를 RequestBody + multipart 로 만든 리스트 List<MultipartBody.Part> 를 새로 만든다.--안함
+
+    //받아온 이미지 리스트에서 개별 삭제버튼으로 제거한 이미지의 gboard_image_no 만 따로 새로운 리스트에 저장해둔다.
+    //새로 추가된 이미지파일은 기존처럼 groupWriteImageUriL에 담기게 된다.
+    //기존에서 제거된 이미지 넘버만 가진 updated_gboard_image 리스트와 새로운 List<MultipartBody.Part> 를 서버로 보낸다.
+    //서버에서 updated_gboard_image 를 이미지 테이블에서 번호를 이용해 제거하고 새로운 이미지를 추가해준다. delete , insert 작업 둘다 해줌
 
     lateinit var startForImageResult : ActivityResultLauncher<Intent>
 
@@ -83,9 +94,9 @@ class GroupInWriteFm : Fragment() {
 //            Log.e("getImageContent", "$it")
             groupWriteImageUriL = it
             groupVm.groupWriteImageUriL = it //이미지 리사이클러뷰 어뎁터에 쓰임
-            binding.groupInWriteImageList.visibility = View.VISIBLE //리사이클러 뷰 보이게 처리
-//            binding.groupInWriteToolbarAddImageBt.text = "이미지 ${groupVm.groupWriteImageUriL?.size?:"+" }"
-            binding.groupInWriteToolbarAddImageBt.text = "이미지 ${ if (groupVm.groupWriteImageUriL?.size==0) "+" else groupVm.groupWriteImageUriL?.size }"
+            binding.groupInUpdateImageList.visibility = View.VISIBLE //리사이클러 뷰 보이게 처리
+//            binding.groupInUpdateToolbarAddImageBt.text = "이미지 ${groupVm.groupWriteImageUriL?.size?:"+" }"
+            binding.groupInUpdateToolbarAddImageBt.text = "이미지 ${ if (groupVm.groupWriteImageUriL?.size==0) "+" else groupVm.groupWriteImageUriL?.size }"
             rva.notifyDataSetChanged()
         }
     }
@@ -97,7 +108,7 @@ class GroupInWriteFm : Fragment() {
             //참조하는 주소가 같아서 2중 추가됨.. 주의 - getImageContent에서 받아온 it의 주소를 둘다 참조하고 있음.
             (groupVm.groupWriteImageUriL as MutableList<Uri>).addAll(it)//이미지 리사이클러뷰 어뎁터에 쓰임
 //            (groupWriteImageUriL as MutableList<Uri>).addAll(it)
-            binding.groupInWriteToolbarAddImageBt.text = "이미지 ${ if (groupVm.groupWriteImageUriL?.size==0) "+" else groupVm.groupWriteImageUriL?.size }"
+            binding.groupInUpdateToolbarAddImageBt.text = "이미지 ${ if (groupVm.groupWriteImageUriL?.size==0) "+" else groupVm.groupWriteImageUriL?.size }"
             rva.notifyDataSetChanged()
         }
     }
@@ -113,7 +124,7 @@ class GroupInWriteFm : Fragment() {
                 val fileUri = data?.data!!
 //                groupWriteImageUri = fileUri
                 //이미지뷰에 사진 넣기
-//                (binding.groupInWriteIv as ShapeableImageView).setImageURI(fileUri)
+//                (binding.groupInUpdateIv as ShapeableImageView).setImageURI(fileUri)
                 Log.e("startForImageResult", "$groupWriteImageUriL")
             } else if (resultCode == ImagePicker.RESULT_ERROR) {
                 Toast.makeText(requireActivity(), ImagePicker.getError(data), Toast.LENGTH_SHORT).show()
@@ -123,19 +134,63 @@ class GroupInWriteFm : Fragment() {
         }
     }
 
+    fun makePartL(uri:Uri, formDataKeyName: String, fileName:String) {
+        val fileHelper = FileHelper()
+        var part : MultipartBody.Part? = null
+        //원격의 파일을 다운받는거라 메모리상 객체로 만들어 따로 리스트에 추가해야함
+        try {
+            //글라이드를 통해 파일 다운로드
+            val requestManager = Glide.with(this)
+            val loaded = requestManager.asBitmap().load(uri)
+                .diskCacheStrategy(DiskCacheStrategy.NONE) //disk cache 전략을 off
+                .skipMemoryCache(true)
+            //받은 비트맵을 requestBody 객체로 만듦
+            loaded.into(object: CustomTarget<Bitmap>(){
+                override fun onResourceReady(resource: Bitmap, transition: Transition<in Bitmap>?) {
+                    val requestBody = fileHelper.bitmapToRequestBody(resource)
+                    //위의 바디를 파트로 만들고, 임시 멀티파트를 담을 초기화 전용 리스트에 추가
+                    /*gboardImageTmpInitL*/
+//                        "gboard_image",
+//                        it2.asJsonObject.get("original_file_name").asString ?:"$index ${System.currentTimeMillis().toString()}",
+                    fileHelper.requestBodyToAddMultipart(formDataKeyName, fileName, requestBody )
+                }
+                override fun onLoadCleared(placeholder: Drawable?) {
+                }
+            })
+            //            val file: File = requestManager.downloadOnly().load(url).submit().get()
+        } catch (e: ExecutionException) {
+            e.printStackTrace()
+        } catch (e: InterruptedException) {
+            e.printStackTrace()
+        }
+    }
+
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
-        mbinding = GroupInWriteFmBinding.inflate(inflater, container, false)
+        mbinding = GroupInUpdateFmBinding.inflate(inflater, container, false)
         groupVm = ViewModelProvider(requireActivity()).get(GroupVm::class.java)
         checkPermission()
 
-        binding.groupInWriteToolbar.setNavigationIcon(R.drawable.ic_xmark) // 버그로 인해 작동안하는중 구글에서 3년동안 안고침
+        //초기화 리스트 - 기존 정보를 이용해 수정 페이지의 뷰에 내용을 채움
+        val fileHelper = FileHelper()
+        groupWriteImageUriL = ArrayList<Uri>() //이미지를 보여주기 위한 Ui 에 사용할 uri 리스트
+        //현재 선택한 게시물에서 가져온 정보를 이용해 원격 주소 uri 만들어 리스트에 넣음
+        groupVm.gboardUpdateO.get("gboard_image").asJsonArray.forEachIndexed  { index, it2 ->
+            val uri =  Uri.parse(UPLOADS_URL + it2.asJsonObject.get("stored_file_name").asString)
+            val uri2 =  Uri.parse(UPLOADS_URL + it2.asJsonObject.get("stored_file_name").asString)
+            (groupWriteImageUriL as ArrayList).add(uri)
+            groupInitImageUriL.add(uri2) //깊은 복사로 초기 uri들을 가진 리스트로 만듦
+        }
+        groupVm.groupWriteImageUriL = groupWriteImageUriL
+
+
+        binding.groupInUpdateToolbar.setNavigationIcon(R.drawable.ic_xmark) // 버그로 인해 작동안하는중 구글에서 3년동안 안고침
 
         //이미지 리사이클러 뷰 셋팅
-        rv = binding.groupInWriteImageList
+        rv = binding.groupInUpdateImageList
         rv.layoutManager = LinearLayoutManager(binding.root.context).apply { orientation = LinearLayoutManager.HORIZONTAL }
         //        recyclerView.setLayoutManager(new GridLayoutManager(context, mColumnCount));
-        rv.adapter = GroupInWriteRva(groupVm, this)
-        rva = rv.adapter as GroupInWriteRva
+        rv.adapter = GroupInUpdateRva(groupVm, this)
+        rva = rv.adapter as GroupInUpdateRva
 
 
         return binding.root
@@ -146,10 +201,17 @@ class GroupInWriteFm : Fragment() {
         //툴바 셋팅
         val navController = Navigation.findNavController(view)
         val appBarConfiguration = AppBarConfiguration.Builder(com.example.androidclient.R.id.group_fm).build()
-        binding.groupInWriteToolbar.setupWithNavController(navController, appBarConfiguration)
+        binding.groupInUpdateToolbar.setupWithNavController(navController, appBarConfiguration)
+
+        //이미지 리사이클러뷰 보이게
+        binding.groupInUpdateImageList.visibility = View.VISIBLE //리사이클러 뷰 보이게 처리
+        //수정 되어야 할 정보들 가져와서 뷰에 넣어주기
+        binding.groupInUpdateContentEt.setText(groupVm.gboardUpdateO.get("gboard_content").asString)
+
+
 
         //툴바 이미지+ 버튼 클릭시
-        binding.groupInWriteToolbarAddImageBt.setOnClickListener {
+        binding.groupInUpdateToolbarAddImageBt.setOnClickListener {
             Toast.makeText(requireActivity(),"사진을 선택해주세요.", Toast.LENGTH_SHORT).show()
             
             //contentProvider 로 선택 이미지 uri 를 가져오는 인텐트 명령 - 변수 groupWriteImageUri 에 담김
@@ -193,20 +255,58 @@ class GroupInWriteFm : Fragment() {
         }
 
         //완료 버튼 클릭시
-        binding.groupInWriteToolbarAddBt.setOnClickListener {
+        binding.groupInUpdateToolbarAddBt.setOnClickListener {
             Toast.makeText(requireActivity(),"test bt", Toast.LENGTH_SHORT).show()
+            it.isEnabled = false //버튼 잠금 두번클릭 방지
             //todo 서버로 보내는 로직 작성. groupImage - 모임 메인 이미지.   uploadO - 모임장, 모임명, 모임설명 등의 requestBody들을 가진 맵
-            var writeImage = mutableListOf<MultipartBody.Part>()
+            lateinit var writeImage : List<MultipartBody.Part>
             val uploadO = mutableMapOf<String, RequestBody>()
+            uploadO["gboard_no"] = groupVm.gboardUpdateO.get("gboard_no").asString.toRequestBody("text/plain".toMediaTypeOrNull())
             uploadO["group_no"] = groupVm.currentGroupIn.toString().toRequestBody("text/plain".toMediaTypeOrNull())
             uploadO["user_no"] = MyApp.userInfo.user_no.toString().toRequestBody("text/plain".toMediaTypeOrNull())
-            uploadO["gboard_content"] = binding.groupInWriteContentEt.text.toString().toRequestBody("text/plain".toMediaTypeOrNull())
+            uploadO["gboard_content"] = binding.groupInUpdateContentEt.text.toString().toRequestBody("text/plain".toMediaTypeOrNull())
 
             val fileHelper = FileHelper()
             if(groupWriteImageUriL != null){
-                //FileHelper 에서 uri를 이용해 MultipartBody.Part 객체를 생성해서 가져옴
-                writeImage =
-                    fileHelper.getPartBodyFromUriList(requireContext(), groupWriteImageUriL!!, "gboard_image[]") as MutableList<MultipartBody.Part>
+                binding.groupInUpdateProgressBar.visibility = View.VISIBLE
+//                runBlocking : 메인스레드 멈춤. ui 멈춤
+                //launch : 스코프안에서 suspend 메소드 만나면 그 메소드 완료부터함. 그다음에 다시 다른 함수 진행 - 만약, suspend 메소드안에 콜백을 사용하는
+                //로직이 있으면 그 콜백도 비동기이기 때문에 다시 그 콜백을 포함하는 함수를 suspendCoroutine 메소드로 감싸서 resume 전까지 진행을 멈추도록 함
+                //어떻게 보면 코루틴안의 코루틴이라고 보면 될듯하다.
+                CoroutineScope(Dispatchers.Main).launch {
+                    //FileHelper 에서 uri를 이용해 MultipartBody.Part 객체를 생성해서 가져옴
+                    writeImage = fileHelper.업데이트용멀티파트리스트만들기(requireContext(), groupWriteImageUriL!!, "gboard_image[]")
+
+
+
+                    //서버로 수정된 모임 정보 전송
+                    groupVm.모임글수정(uploadO, writeImage,false)?.enqueue(object : Callback<JsonObject?> {
+                        override fun onResponse(call: Call<JsonObject?>, response: Response<JsonObject?>) {
+                            if (response.isSuccessful) {
+                                val res = response.body()!!
+                                if(res.get("msg").asString == "ok" ){
+                                    Log.e("[GroupInUpdateFm]", "모임글수정 onResponse: $res")
+                                    Toast.makeText(requireActivity(),"글을 수정하였습니다.", Toast.LENGTH_SHORT).show()
+                                    //글쓰기 성공하면 모임 게시물 목록을 갱신하기 위해 다시 서버로부터 가져와야한다.
+                                    //Ui 갱신은 GroupInFm observer 에서 갱신되는 데이터 목록들을 보고 갱신한다.
+                                    groupVm.모임상세불러오기(true)
+                                    CoroutineScope(Dispatchers.Main).launch {
+                                        groupVm.모임글상세가져오기(groupVm.gboardUpdateO.get("gboard_no").asInt, "GroupInUpdateFm",true)
+                                        binding.groupInUpdateProgressBar.visibility = View.GONE //progressbar 중지
+                                        Navigation.findNavController(view).navigateUp() //수정 성공 후 이전페이지로 돌아가기
+
+                                    }
+//                                    Navigation.findNavController(view).navigate(R.id.action_groupInUpdateFm_to_groupInFm) //만들기 성공 후 모임상세화면으로 가기
+                                }
+                            }
+                        }
+                        override fun onFailure(call: Call<JsonObject?>, t: Throwable) {
+                            Log.e("[GroupInUpdateFm]", "모임글수정 onFailure: " + t.message)
+                        }
+                    })
+                }
+
+
 
                 //리졸버를 이용해 이미지픽커로 받은 사진 파일의 uri를 인풋스트림에 넣고, 또 그것을 bitmap factory를 이용해 bitmap을 생성함.
                 //비트맵을 압축함. 그리고, 압축한 것을 바이트배열아웃스트림에 전달함. 그 후 multipart용 requestBody를 byteArrayOutS에서 얻어온 파일을 포함시켜 생성.
@@ -224,28 +324,11 @@ class GroupInWriteFm : Fragment() {
                 //이미지를 등록안하고 모임을 만들경우 noimage vector 파일을 bitmap 파일로 변환하여 서버로 전송.
 //                val resUri = Uri.parse("android.resource://${requireContext().packageName}/${R.drawable.ic_noimage}")
 //                groupImage = fileHelper.getPartBodyFromDrawableResource(requireContext(), R.drawable.ic_noimage, "group_main_image", "svg")
-//                (binding.groupInWriteIv as ShapeableImageView).setImageURI(resUri)
+//                (binding.groupInUpdateIv as ShapeableImageView).setImageURI(resUri)
+                Log.e("오류태그", "groupWriteImageUriL is null")
             }
 
-            //서버로 만들 모임 정보 전송
-            groupVm.모임글쓰기(uploadO, writeImage,false)?.enqueue(object : Callback<JsonObject?> {
-                override fun onResponse(call: Call<JsonObject?>, response: Response<JsonObject?>) {
-                    if (response.isSuccessful) {
-                        val res = response.body()!!
-                        if(res.get("msg").asString == "ok" ){
-                            Log.e("[GroupInWriteFm]", "모임글쓰기 onResponse: $res")
-                            Toast.makeText(requireActivity(),"글을 등록하였습니다.", Toast.LENGTH_SHORT).show()
-                            //글쓰기 성공하면 모임 게시물 목록을 갱신하기 위해 다시 서버로부터 가져와야한다.
-                            //Ui 갱신은 GroupInFm observer 에서 갱신되는 데이터 목록들을 보고 갱신한다.
-                            groupVm.모임상세불러오기(true)
-                            Navigation.findNavController(view).navigateUp() //만들기 성공 후 이전페이지로 돌아가기
-                        }
-                    }
-                }
-                override fun onFailure(call: Call<JsonObject?>, t: Throwable) {
-                    Log.e("[GroupInWriteFm]", "모임글쓰기 onFailure: " + t.message)
-                }
-            })
+
         }
 
 
@@ -359,29 +442,29 @@ class GroupInWriteFm : Fragment() {
         handler.post {
             Toast.makeText(requireActivity(),"filepath: $localFile", Toast.LENGTH_SHORT).show()
         }
-        Log.e("[GroupInWriteFm saveFile]", "filepath: $localFile")
+        Log.e("[GroupInUpdateFm saveFile]", "filepath: $localFile")
         try {
             val inputs: InputStream = FileInputStream(file)
-            Log.d("[GroupInWriteFm saveFile]", "on do in background, url get input stream")
+            Log.d("[GroupInUpdateFm saveFile]", "on do in background, url get input stream")
             val bis = BufferedInputStream(inputs)
-            Log.d("[GroupInWriteFm saveFile]", "on do in background, create buffered input stream")
+            Log.d("[GroupInUpdateFm saveFile]", "on do in background, create buffered input stream")
             val baos = ByteArrayOutputStream()
-            Log.d("[GroupInWriteFm saveFile]", "on do in background, create buffered array output stream")
+            Log.d("[GroupInUpdateFm saveFile]", "on do in background, create buffered array output stream")
             val img = ByteArray(1024)
             var current = 0
-            Log.d("[GroupInWriteFm saveFile]", "on do in background, write byte to baos")
+            Log.d("[GroupInUpdateFm saveFile]", "on do in background, write byte to baos")
             while (bis.read().also { current = it } != -1) {
                 baos.write(current)
             }
-            Log.d("[GroupInWriteFm saveFile]", "on do in background, done write")
+            Log.d("[GroupInUpdateFm saveFile]", "on do in background, done write")
             val fos = FileOutputStream(localFile)  //파일출력스트림을 이용해 저장될 경로를 가진 빈 파일 객체에 쓸 준비를 마침
-            Log.d("[GroupInWriteFm saveFile]", "on do in background, create fos")
+            Log.d("[GroupInUpdateFm saveFile]", "on do in background, create fos")
             fos.write(baos.toByteArray())       //메모리상에 있는 글라이드로 받아온 파일객체를 바이트배열로 변환한 것을 이용해 실제 파일에 쓰기(아웃풋).
-            Log.d("[GroupInWriteFm saveFile]", "on do in background, write to fos")
+            Log.d("[GroupInUpdateFm saveFile]", "on do in background, write to fos")
             fos.flush() // 받아온 이미지 파일객체를 최종byteArray로 만들어, 사진폴더에 지정해준 파일객체(localFile)를 이용해 fos로 실제파일로 아웃풋작업(byteArray -> localFile)을 함.
             fos.close()
             inputs.close()
-            Log.d("[GroupInWriteFm saveFile]", "on do in background, done write to fos")
+            Log.d("[GroupInUpdateFm saveFile]", "on do in background, done write to fos")
             scanMedia(localFile) //미디어 스캔을 해줘야 , 시스템에서 바로 반영됨
         } catch (e: Exception) {
             e.printStackTrace()
