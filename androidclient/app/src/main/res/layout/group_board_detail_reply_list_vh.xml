@@ -12,7 +12,7 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:minHeight="65dp"
-        tools:visibility="visible"
+        tools:visibility="gone"
         >
 <!--        android:background="@drawable/borderline_bottom"-->
 
@@ -90,7 +90,6 @@
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 
-<!--
     <androidx.constraintlayout.widget.ConstraintLayout
         android:id="@+id/answer"
         android:layout_width="match_parent"
@@ -117,9 +116,9 @@
             app:shapeAppearanceOverlay="@style/ShapeAppearanceOverlay.App.CornerSize50Percent"
             app:srcCompat="@drawable/ic_baseline_person_24" />
 
-        &lt;!&ndash;            app:maxImageSize="14dp"&ndash;&gt;
-&lt;!&ndash;            app:fabCustomSize="15dp"&ndash;&gt;
-&lt;!&ndash;            app:backgroundTint="#1ADDDDDD"&ndash;&gt;
+        <!--            app:maxImageSize="14dp"-->
+<!--            app:fabCustomSize="15dp"-->
+<!--            app:backgroundTint="#1ADDDDDD"-->
 
         <com.google.android.material.floatingactionbutton.FloatingActionButton
             android:id="@+id/answer_profile_writer_fab"
@@ -188,5 +187,5 @@
             app:layout_constraintTop_toBottomOf="@+id/answer_writer_tv"
             tools:text="컨텐츠 내용 출력 " />
 
-    </androidx.constraintlayout.widget.ConstraintLayout> -->
+    </androidx.constraintlayout.widget.ConstraintLayout>
 </FrameLayout>

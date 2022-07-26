@@ -151,12 +151,17 @@ public class MainActivity extends AppCompatActivity {
                 //노트 추가 화면으로 이동시 바텀 네비게이션 숨김
                 switch(navDestination.getId()){
                     case  R.id.myNoteFmAdd:
-
+                    case  R.id.myNoteFmUpdate:
                     case  R.id.groupInFm:
                     case  R.id.groupInWriteFm:
                     case  R.id.groupInUpdateFm:
                     case  R.id.groupBoardDetail:
-                    case  R.id.myNoteFmUpdate:
+                    case  R.id.group_in_challenge_fm:
+                    case  R.id.challengeCreateFm:
+                    case  R.id.challengeCreateNextFm:
+                    case  R.id.challengeDetailFm:
+                    case  R.id.challengeDetailListFm:
+//                    case  R.id.challengeCreateNextFm:
                         binding.mainBottomNav.setVisibility(View.GONE);
 //                        binding.mainAppbarNoteAddBt.setVisibility(View.VISIBLE);
                         break;

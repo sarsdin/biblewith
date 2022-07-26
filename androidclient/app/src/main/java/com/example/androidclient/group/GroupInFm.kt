@@ -57,6 +57,7 @@ class GroupInFm : Fragment() {
 //        binding.groupMainCollapsingToolbar.setupWithNavController(binding.groupMainToolbar, navController, appBarConfiguration)
 //        binding.groupInToolbar.setupWithNavController(navController, appBarConfiguration)
         setupWithNavController(binding.groupInToolbar, navController, appBarConfiguration)
+        setupWithNavController(binding.groupInBottomNavi, navController)
 
         //스크롤 이벤트로 밑으로 갈시 바텀네비게이션 감추기
         binding.groupInNestedScrollView.setOnScrollChangeListener(View.OnScrollChangeListener { v, scrollX, scrollY, oldScrollX, oldScrollY ->
@@ -93,6 +94,9 @@ class GroupInFm : Fragment() {
         binding.groupInToolbarWriteBt.setOnClickListener {
             Navigation.findNavController(it).navigate(R.id.action_groupInFm_to_groupInWriteFm)
         }
+
+        //하단 첼린지 버튼 클릭시
+
 
     }
 

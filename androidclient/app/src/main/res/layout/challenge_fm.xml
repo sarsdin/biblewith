@@ -1,0 +1,196 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.coordinatorlayout.widget.CoordinatorLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="#59DCDCDC"
+    tools:context=".group.ChallengeFm">
+    <!--    android:fitsSystemWindows="true"-->
+
+    <com.google.android.material.appbar.AppBarLayout
+        android:id="@+id/chal_appbar"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        app:elevation="1dp">
+        <!--        android:theme="@style/ThemeOverlay.MaterialComponents.Dark.ActionBar"-->
+        <!--        android:fitsSystemWindows="true"-->
+
+        <com.google.android.material.appbar.MaterialToolbar
+            android:id="@+id/chal_toolbar"
+            android:layout_width="match_parent"
+            android:layout_height="?attr/actionBarSize"
+            android:background="#FFFFFF"
+            >
+<!--            app:theme="@style/ToolbarTheme.seols"-->
+            <!--            android:background="#00FFFFFF"-->
+            <!--                app:popupTheme="@style/ThemeOverlay.MaterialComponents.Light"-->
+            <!--                app:contentInsetStart="0dp"-->
+            <!--                app:contentInsetStartWithNavigation="0dp"-->
+
+            <com.google.android.material.textview.MaterialTextView
+                android:id="@+id/chal_toolbar_tv"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:fontFamily="monospace"
+                android:text="모임명"
+                android:textColor="@color/white"
+                android:textSize="20sp"
+                android:textStyle="bold" />
+
+            <com.google.android.material.imageview.ShapeableImageView
+                android:id="@+id/chal_toolbar_iv"
+                android:layout_width="20dp"
+                android:layout_height="20dp"
+                android:layout_gravity="end"
+                android:layout_marginEnd="15dp"
+                android:background="#818080"
+                android:contentDescription="성경 사진 입니다."
+                android:scaleType="centerCrop"
+                android:tint="#FFFFFF"
+                app:layout_collapseMode="pin"
+                app:shapeAppearanceOverlay="@style/ShapeAppearanceOverlay.App.CornerSize50Percent"
+                app:srcCompat="@drawable/ic_baseline_person_24" />
+            <!--                app:srcCompat="@drawable/biblewith_logo"-->
+            <!--                android:fitsSystemWindows="true"-->
+
+            <ImageButton
+                android:id="@+id/chal_toolbar_write_bt"
+                android:layout_width="20dp"
+                android:layout_height="20dp"
+                android:layout_gravity="end"
+                android:layout_marginEnd="20dp"
+                android:background="#00818080"
+                app:tint="#5C5C5C"
+                app:srcCompat="@drawable/ic_baseline_create_24"
+                />
+
+        </com.google.android.material.appbar.MaterialToolbar>
+
+    </com.google.android.material.appbar.AppBarLayout>
+
+    <!--  NestedScrollView 에는 하나의 레이아웃만 들어가야 오류가 없음  -->
+    <androidx.core.widget.NestedScrollView
+        android:id="@+id/chal_nested_scroll_view"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        app:layout_behavior="@string/appbar_scrolling_view_behavior"
+        >
+        <!--    android:background="#59DCDCDC"-->
+
+        <LinearLayout
+            android:id="@+id/chal_linear_layout"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical">
+
+            <androidx.constraintlayout.widget.ConstraintLayout
+                android:id="@+id/chal_constraint"
+                android:background="#FFFFFF"
+                android:layout_width="match_parent"
+                android:layout_height="90dp">
+
+                <com.google.android.material.textview.MaterialTextView
+                    android:id="@+id/chal_summary_name_tv"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="16dp"
+                    android:layout_marginTop="16dp"
+                    android:text="진행중인 챌린지 현황 "
+                    android:textSize="20sp"
+                    android:textColor="#004D40"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toTopOf="parent" />
+
+                <com.google.android.material.textview.MaterialTextView
+                    android:id="@+id/chal_summary_name_tv_ea"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="14개"
+                    android:textColor="#004D40"
+                    android:textSize="20sp"
+                    app:layout_constraintStart_toEndOf="@+id/chal_summary_name_tv"
+                    app:layout_constraintTop_toTopOf="@+id/chal_summary_name_tv" />
+
+                <com.google.android.material.textview.MaterialTextView
+                    android:id="@+id/chal_summary_member_fix_tv"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="8dp"
+                    android:text="멤버"
+                    android:textColor="#1B1B1B"
+                    app:layout_constraintStart_toStartOf="@+id/chal_summary_name_tv"
+                    app:layout_constraintTop_toBottomOf="@+id/chal_summary_name_tv" />
+
+                <com.google.android.material.textview.MaterialTextView
+                    android:id="@+id/chal_summary_member_tv"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="4dp"
+                    android:text="200"
+                    android:textColor="#1B1B1B"
+                    app:layout_constraintStart_toEndOf="@+id/chal_summary_member_fix_tv"
+                    app:layout_constraintTop_toTopOf="@+id/chal_summary_member_fix_tv" />
+
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/chal_summary_invite_bt"
+                    style="@android:style/Widget.Material.Button.Borderless.Small"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="38dp"
+                    android:padding="7dp"
+                    android:text="달성횟수 2회"
+                    android:textColor="#1B1B1B"
+                    android:textSize="12sp"
+                    app:layout_constraintBottom_toBottomOf="@+id/chal_summary_member_tv"
+                    app:layout_constraintStart_toEndOf="@+id/chal_summary_member_tv"
+                    app:layout_constraintTop_toTopOf="@+id/chal_summary_member_tv" />
+
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/chal_summary_write_bt"
+                    style="@style/Widget.Material3.Button"
+                    android:layout_width="wrap_content"
+                    android:layout_height="40dp"
+                    android:layout_marginTop="20dp"
+                    android:layout_marginEnd="24dp"
+                    android:backgroundTint="#4CAF50"
+                    android:fontFamily="@font/melonabold"
+                    android:padding="2dp"
+                    android:text="글쓰기"
+                    android:visibility="gone"
+                    android:textColor="#FFFFFF"
+                    android:textSize="14sp"
+                    android:textStyle="bold"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintTop_toTopOf="parent"
+                    app:strokeColor="#535353" />
+
+            </androidx.constraintlayout.widget.ConstraintLayout>
+
+            <!--    챌린지의 게시물 리스트    -->
+            <androidx.recyclerview.widget.RecyclerView
+                android:id="@+id/chal_list"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:layout_marginTop="5dp"
+                android:paddingBottom="350dp"
+                app:layoutManager="LinearLayoutManager" />
+            <!--            android:name="com.example.androidclient.group.GroupInFm"-->
+            <!--            tools:listitem="@layout/chal_fm_vh"-->
+
+        </LinearLayout>
+
+    </androidx.core.widget.NestedScrollView>
+
+
+    <com.google.android.material.bottomnavigation.BottomNavigationView
+        android:id="@+id/chal_bottom_navi"
+        android:layout_width="match_parent"
+        android:layout_height="40dp"
+        android:layout_gravity="bottom"
+        app:labelVisibilityMode="unlabeled"
+        app:menu="@menu/group_in_bottom_navi_menu"
+        />
+
+
+</androidx.coordinatorlayout.widget.CoordinatorLayout>

@@ -1,0 +1,316 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.coordinatorlayout.widget.CoordinatorLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context=".group.ChallengeCreateNextFm"
+    >
+    <com.google.android.material.appbar.AppBarLayout
+        android:id="@+id/create_next_appbar"
+        android:layout_width="match_parent"
+        android:layout_height="?attr/actionBarSize"
+        android:background="#00FFFFFF"
+        app:elevation="0dp">
+
+        <com.google.android.material.appbar.MaterialToolbar
+            android:id="@+id/create_next_toolbar"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:background="#FFFFFF"
+            app:layout_collapseMode="pin"
+            >
+            <com.google.android.material.textview.MaterialTextView
+                android:id="@+id/create_next_toolbar_tv"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:fontFamily="monospace"
+                android:text="챌린지 만들기"
+                android:textSize="20sp"
+                android:textStyle="bold" />
+            <!--<com.google.android.material.imageview.ShapeableImageView
+                android:id="@+id/create_next_toolbar_iv"
+                android:layout_width="20dp"
+                android:layout_height="20dp"
+                android:layout_marginEnd="15dp"
+                android:layout_gravity="end"
+                android:contentDescription="이미지 입니다."
+                android:scaleType="centerCrop"
+                android:background="#818080"
+                android:tint="#FFFFFF"
+                app:shapeAppearanceOverlay="@style/ShapeAppearanceOverlay.App.CornerSize50Percent"
+                app:srcCompat="@drawable/ic_baseline_person_24"
+                app:layout_collapseMode="pin"  />-->
+
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/create_next_toolbar_add_bt"
+                style="@style/Widget.Material3.Button.OutlinedButton"
+                android:layout_width="50dp"
+                android:layout_height="40dp"
+                android:layout_gravity="end"
+                android:layout_marginEnd="16dp"
+                android:padding="5dp"
+                android:text="완료"
+                android:textColor="#171717"
+                android:textSize="14sp"
+                android:visibility="visible"
+                app:strokeColor="#9A9A9A"
+                tools:visibility="visible" />
+
+        </com.google.android.material.appbar.MaterialToolbar>
+    </com.google.android.material.appbar.AppBarLayout>
+
+    <androidx.core.widget.NestedScrollView
+        android:id="@+id/nestedScrollView"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="?attr/actionBarSize">
+        <!--  collapsingToolbarLayout의 스크롤옵션과 같이 쓴다면 설정해야함 -->
+        <!--        app:layout_behavior="@string/appbar_scrolling_view_behavior"-->
+        <androidx.constraintlayout.widget.ConstraintLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:minHeight="600dp">
+
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/verse_bt"
+                style="@android:style/Widget.Material.Button.Borderless.Small"
+                android:layout_width="120dp"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="88dp"
+                android:layout_marginTop="60dp"
+                android:checkable="true"
+                android:padding="7dp"
+                android:text="분량으로 계산"
+                android:textColor="#000000"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent" />
+
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/day_bt"
+                style="@android:style/Widget.Material.Button.Borderless.Small"
+                android:layout_width="120dp"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="60dp"
+                android:checkable="true"
+                android:padding="7dp"
+                android:text="일수로 계산"
+                android:textColor="#000000"
+                app:layout_constraintStart_toEndOf="@+id/verse_bt"
+                app:layout_constraintTop_toTopOf="@+id/verse_bt" />
+
+            <com.google.android.material.textview.MaterialTextView
+                android:id="@+id/select_list_tv"
+                android:layout_width="300dp"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="132dp"
+                android:text="선택한 목록: 1.창세기, 2.에레미아, 3.역대사, 4.잠언, 5.시편"
+                android:textSize="16sp"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent" />
+
+            <androidx.constraintlayout.widget.Group
+                android:id="@+id/verse_group"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:visibility="gone"
+                app:constraint_referenced_ids="select_info_tv,seekBar_verse,select_number_tv,select_total_tv,select_info_tv3,select_expect_tv,select_duration_tv"
+                />
+
+            <com.google.android.material.textview.MaterialTextView
+                android:id="@+id/select_info_tv"
+                android:layout_width="300dp"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="32dp"
+                android:text="하루에 진행할 구절 수를 선택해주세요."
+                android:textSize="16sp"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/select_list_tv" />
+
+            <com.google.android.material.textview.MaterialTextView
+                android:id="@+id/select_number_tv"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="80dp"
+                android:text="55절씩 읽으면"
+                android:textSize="20sp"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintHorizontal_bias="0.501"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/select_list_tv" />
+
+            <com.google.android.material.textview.MaterialTextView
+                android:id="@+id/select_duration_tv"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="176dp"
+                android:text="2022.07.29일 완료"
+                android:textSize="18sp"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/select_list_tv" />
+
+            <com.google.android.material.textview.MaterialTextView
+                android:id="@+id/select_total_tv"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="236dp"
+                android:text="선택한 성경은 총 340절 입니다."
+                android:textColor="#4DB6AC"
+                android:textSize="18sp"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/select_list_tv" />
+
+            <com.google.android.material.textview.MaterialTextView
+                android:id="@+id/select_expect_tv"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="276dp"
+                android:text="하루에 약 45절씩 170일"
+                android:textColor="#4DB6AC"
+                android:textSize="18sp"
+                android:textStyle="bold"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/select_list_tv" />
+
+            <com.google.android.material.textview.MaterialTextView
+                android:id="@+id/select_info_tv3"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="312dp"
+                android:text="읽으면 완독 할 수 있습니다."
+                android:textColor="#4DB6AC"
+                android:textSize="18sp"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/select_list_tv" />
+
+            <SeekBar
+                android:id="@+id/seekBar_verse"
+                android:layout_width="400dp"
+                android:layout_height="40dp"
+                android:layout_marginTop="9dp"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/select_number_tv" />
+
+
+
+<!-- 진행 일별                  -->
+            <androidx.constraintlayout.widget.Group
+                android:id="@+id/day_group"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:visibility="visible"
+                app:constraint_referenced_ids="create_day_info_tv,seekBar_day,create_day_number_tv,create_day_total_verse_tv,create_day_info_tv3,create_day_expect_tv,create_day_duration_tv"
+                />
+            
+            <com.google.android.material.textview.MaterialTextView
+                android:id="@+id/create_day_info_tv"
+                android:layout_width="300dp"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="32dp"
+                android:text="몇일 동안 진행할 지 선택해주세요."
+                android:textSize="16sp"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/select_list_tv" />
+
+            <com.google.android.material.textview.MaterialTextView
+                android:id="@+id/create_day_number_tv"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="80dp"
+                android:text="45일간 읽으면"
+                android:textSize="20sp"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintHorizontal_bias="0.501"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/select_list_tv" />
+
+
+            <com.google.android.material.textview.MaterialTextView
+                android:id="@+id/create_day_duration_tv"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="176dp"
+                android:text="2022.07.26 ~ 2022.07.29일 완료"
+                android:textSize="18sp"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/select_list_tv" />
+
+            <com.google.android.material.textview.MaterialTextView
+                android:id="@+id/create_day_total_verse_tv"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="236dp"
+                android:text="선택한 성경은 총 340절 입니다."
+                android:textColor="#4DB6AC"
+                android:textSize="18sp"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/select_list_tv" />
+
+            <com.google.android.material.textview.MaterialTextView
+                android:id="@+id/create_day_expect_tv"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="276dp"
+                android:text="하루에 약 45절씩 170일"
+                android:textColor="#4DB6AC"
+                android:textSize="18sp"
+                android:textStyle="bold"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/select_list_tv" />
+
+            <com.google.android.material.textview.MaterialTextView
+                android:id="@+id/create_day_info_tv3"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="312dp"
+                android:text="읽으면 완독 할 수 있습니다."
+                android:textColor="#4DB6AC"
+                android:textSize="18sp"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/select_list_tv" />
+
+            <SeekBar
+                android:id="@+id/seekBar_day"
+                android:layout_width="400dp"
+                android:layout_height="40dp"
+                android:layout_marginTop="120dp"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/select_number_tv" />
+
+
+        </androidx.constraintlayout.widget.ConstraintLayout>
+
+
+    </androidx.core.widget.NestedScrollView>
+
+    <com.google.android.material.button.MaterialButton
+        android:id="@+id/next_bt"
+        style="@android:style/Widget.Material.Button.Borderless.Small"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_gravity="bottom"
+        android:background="#009688"
+        android:padding="7dp"
+        android:text="완료하기"
+        android:enabled="false"
+        android:textColor="#FFFFFF"
+        android:textSize="20sp"
+        android:textStyle="bold"
+        app:backgroundTint="#4DB6AC"
+        app:rippleColor="#009688" />
+
+</androidx.coordinatorlayout.widget.CoordinatorLayout>

@@ -124,7 +124,7 @@ class GroupBoardDetail : Fragment() {
             imm.hideSoftInputFromWindow(binding.gboardDetailReplyWriteEt.windowToken, 0)
         }
 
-        //댓글 수정 버튼 클릭시
+        //댓글 수정완료 버튼 클릭시
         binding.gboardDetailReplyModifyIbt.setOnClickListener {
             val params = JsonObject()
             params.addProperty("user_no", MyApp.userInfo.user_no)

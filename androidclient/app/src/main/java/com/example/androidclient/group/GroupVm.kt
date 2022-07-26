@@ -50,6 +50,14 @@ class GroupVm : ViewModel() {
     var currentUserNoToReply = 9999 //댓글과 답글 달시 - 현재 답글 버튼(홀더안에 답글버튼) 누를 시 그 대상의 번호를 넣어줘야함.9999일때는 답글이 아닌 댓글로 판단한다. 댓글 restapi를 보내야함
     var currentReplyGroupNoToReply = 0 //댓글 그룹번호도 같이 보낸다.
 
+
+
+    var 
+
+
+
+
+
     init {
         모임목록가져오기(MyApp.userInfo.user_no, true)
     }

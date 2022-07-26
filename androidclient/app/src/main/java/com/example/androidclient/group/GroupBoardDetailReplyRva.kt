@@ -50,16 +50,17 @@ class GroupBoardDetailReplyRva (val groupVm: GroupVm, /*val images : JsonArray,*
     var snackBarReplyCancel : Snackbar? = null
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): GroupBoardDetailReplyRva.GroupBoardDetailReplyRvaVh {
-        val binding = if(viewType == 0){
+        /*val binding = if(viewType == 0){
             GroupBoardDetailReplyListVhBinding.inflate(LayoutInflater.from(parent.context), parent,false)
         } else {
             GroupBoardDetailReplyListAnswerVhBinding.inflate(LayoutInflater.from(parent.context), parent,false)
         }
         val vh = GroupBoardDetailReplyRvaVh(binding)
-        return vh
+        return vh*/
+        return GroupBoardDetailReplyRvaVh(GroupBoardDetailReplyListVhBinding.inflate(LayoutInflater.from(parent.context), parent,false))
     }
 
-    override fun getItemViewType(position: Int): Int {
+    /*override fun getItemViewType(position: Int): Int {
 //        super.getItemViewType(position)
         val tmpReplyInfo = groupVm.gboardReplyL[position] as JsonObject
         return if(tmpReplyInfo.get("parent_no").isJsonNull == true){
@@ -67,7 +68,7 @@ class GroupBoardDetailReplyRva (val groupVm: GroupVm, /*val images : JsonArray,*
         } else {
             1
         }
-    }
+    }*/
 
     override fun onBindViewHolder(holder: GroupBoardDetailReplyRva.GroupBoardDetailReplyRvaVh, position: Int) {
         holder.bind(groupVm.gboardReplyL[position] as JsonObject)
@@ -78,18 +79,15 @@ class GroupBoardDetailReplyRva (val groupVm: GroupVm, /*val images : JsonArray,*
     }
 
 
-    inner class GroupBoardDetailReplyRvaVh(var mbinding: ViewBinding) : RecyclerView.ViewHolder(mbinding.root) {
+    inner class GroupBoardDetailReplyRvaVh(var binding: GroupBoardDetailReplyListVhBinding) : RecyclerView.ViewHolder(binding.root) {
         lateinit var mItem: JsonObject
-        lateinit var binding :GroupBoardDetailReplyListVhBinding
+
         init {
         }
 
         //mItem --
         fun bind(mItem: JsonObject) {
             this.mItem = mItem
-            if(mbinding is GroupBoardDetailReplyListVhBinding){
-
-            }
 //        Log.e("[GroupBoardDetailReplyRva]", "test1231 : ${mItem.get("parent_reply_no").isJsonNull}")
 
             //최상위 댓글이면
@@ -100,7 +98,7 @@ class GroupBoardDetailReplyRva (val groupVm: GroupVm, /*val images : JsonArray,*
                 if(mItem.get("user_no").asInt == MyApp.userInfo.user_no){
                     binding.replyProfileWriterFab.visibility = View.VISIBLE
                     binding.replyProfileWriterFab.setOnClickListener {
-                        수정삭제버튼메뉴활성(it, "reply")
+                        댓글수정삭제버튼메뉴활성(it, "reply")
                     }
                 }
                 if (mItem.get("user_image").isJsonNull == false) {
@@ -120,7 +118,7 @@ class GroupBoardDetailReplyRva (val groupVm: GroupVm, /*val images : JsonArray,*
                 if(mItem.get("user_no").asInt == MyApp.userInfo.user_no){
                     binding.answerProfileWriterFab.visibility = View.VISIBLE
                     binding.answerProfileWriterFab.setOnClickListener {
-                        수정삭제버튼메뉴활성(it, "answer")
+                        댓글수정삭제버튼메뉴활성(it, "answer")
                     }
                 }
                 if (mItem.get("user_image").isJsonNull == false) {
@@ -134,21 +132,30 @@ class GroupBoardDetailReplyRva (val groupVm: GroupVm, /*val images : JsonArray,*
 //                Log.e("[GroupBoardDetailReplyRva]", "test answer : $mItem")
             }
 
+
             //댓글 클릭시 스낵바 실행 - 클릭시 그 댓글 유저에게 보낼 정보를 셋팅하고 취소시 초기화하여 새로운 댓글을 씀
             binding.root.setOnClickListener {
+                //수정이었을 경우 쓰기로 초기화하기
+                snackBarReplyCancel?.dismiss()
+                groupBoardDetail.binding.gboardDetailWriteReplyEtLayout.hint = "댓글을 남겨주세요"
+                groupBoardDetail.binding.gboardDetailReplyWriteEt.setText("") //입력창 초기화
+                groupBoardDetail.binding.gboardDetailReplyWriteEt.clearFocus() //et에 포커싱부터 맞춰야 showSoftInput 메소드가 반응함
+                groupBoardDetail.binding.gboardDetailReplyModifyIbt.visibility = View.GONE // 댓글 수정버튼 숨기기
+                groupBoardDetail.binding.gboardDetailReplyWriteIbt.visibility = View.VISIBLE // 댓글 쓰기버튼 보이기. 아이콘 모양은 같다
+
                 //소프트키보드 보이기 및 애니메이션 적용
                 groupBoardDetail.binding.gboardDetailReplyWriteEt.requestFocus() //et에 포커싱부터 맞춰야 showSoftInput 메소드가 반응함
                 val imm = (groupBoardDetail.requireActivity()).getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager
                 imm.showSoftInput(groupBoardDetail.binding.gboardDetailReplyWriteEt, 0) //직접 뷰를 설정해서 보이는 방법
 //                imm.showSoftInput( (groupBoardDetail.requireActivity()).currentFocus , 0) //포커싱메소드로 보이는 방법
-                선택애니메이션적용()
+                선택애니메이션적용(mItem)
 
                 groupVm.currentReplyNoToReply = mItem.get("reply_no").asInt
                 groupVm.currentUserNoToReply = mItem.get("user_no").asInt //이 댓글쓴 유저의 번호 - 부모 번호가 됨
                 groupVm.currentReplyGroupNoToReply = mItem.get("reply_group").asInt // 이 댓글의 최상위 부모 번호
-                Log.e("[GroupBoardDetailReplyRva]", "test groupVm.currentReplyNoToReply : ${groupVm.currentReplyNoToReply}")
-                Log.e("[GroupBoardDetailReplyRva]", "test groupVm.currentUserNoToReply : ${groupVm.currentUserNoToReply}")
-                Log.e("[GroupBoardDetailReplyRva]", "test groupVm.currentReplyGroupNoToReply : ${groupVm.currentReplyGroupNoToReply}")
+//                Log.e("[GroupBoardDetailReplyRva]", "test groupVm.currentReplyNoToReply : ${groupVm.currentReplyNoToReply}")
+//                Log.e("[GroupBoardDetailReplyRva]", "test groupVm.currentUserNoToReply : ${groupVm.currentUserNoToReply}")
+//                Log.e("[GroupBoardDetailReplyRva]", "test groupVm.currentReplyGroupNoToReply : ${groupVm.currentReplyGroupNoToReply}")
                 snackBar = Snackbar.make(groupBoardDetail.binding.gboardDetailWriteReplyEtLayout,
                     "${mItem.get("user_nick")} 님께 쓰기", Snackbar.LENGTH_INDEFINITE).apply {
                     setAction("취소") { //확인을 눌렀을 때 동작을 정의
@@ -161,21 +168,6 @@ class GroupBoardDetailReplyRva (val groupVm: GroupVm, /*val images : JsonArray,*
                         groupVm.currentUserNoToReply = 9999 //0일때는 답글이 아닌 댓글로 판단한다. 댓글 api를 보내야함
                         groupVm.currentReplyGroupNoToReply = 0
                     }
-                    /*addCallback(object :BaseTransientBottomBar.BaseCallback<Snackbar>(){
-                        override fun onDismissed(transientBottomBar: Snackbar?, event: Int) {
-                            super.onDismissed(transientBottomBar, event)
-                            if(event != Snackbar.Callback.DISMISS_EVENT_ACTION){
-                                //소프트키보드 숨기기
-                                groupBoardDetail.binding.gboardDetailReplyWriteEt.clearFocus() //et에 포커싱부터 맞춰야 showSoftInput 메소드가 반응함
-                                val imm = (groupBoardDetail.requireActivity()).getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager
-                                imm.hideSoftInputFromWindow(groupBoardDetail.binding.gboardDetailReplyWriteEt.windowToken, 0)
-//                             Toast.makeText(applicationContext, "Hello Snackbar!", Toast.LENGTH_SHORT).show()
-                                groupVm.currentReplyNoToReply = 0
-                                groupVm.currentUserNoToReply = 9999 //0일때는 답글이 아닌 댓글로 판단한다. 댓글 api를 보내야함
-                                groupVm.currentReplyGroupNoToReply = 0
-                            }
-                        }
-                    })*/
                 }
                 setSnackBarOption(snackBar!!) // 스낵바 옵션 설정
                 snackBar!!.show()
@@ -197,7 +189,7 @@ class GroupBoardDetailReplyRva (val groupVm: GroupVm, /*val images : JsonArray,*
                     //위의 리사이클러뷰의 메소드를 이용한 코드들은 작동하지 않는다. 스크롤뷰안에 있기때문이다.
                     groupBoardDetail.binding.gboardDetailNestedScrollView.scrollTo(0, childY.toInt())
                     //해당 댓글 애니메이션 적용
-                    선택애니메이션적용()
+                    선택애니메이션적용(mItem)
                     groupVm.clickedReplyNoGroupIn = 0 //초기화 - 댓글을 눌러서만 들어갈때 실행해주고 그페이지에서 새로고침시부터는 실행안함
                 }, 250)
             }
@@ -207,12 +199,11 @@ class GroupBoardDetailReplyRva (val groupVm: GroupVm, /*val images : JsonArray,*
 
 
 
-
-
         } //bind() end
 
 
-        private fun 수정삭제버튼메뉴활성(it:View, replyOrAnswer:String) {
+
+        private fun 댓글수정삭제버튼메뉴활성(it:View, replyOrAnswer:String) {
             //댓글 팝업 메뉴 클릭시 - 수정, 삭제
 
             //팝업 메뉴 생성 후 각 메뉴에 대한 xml 파일 인플레이트
@@ -223,6 +214,7 @@ class GroupBoardDetailReplyRva (val groupVm: GroupVm, /*val images : JsonArray,*
                 when(menuItem.itemId){
                     //수정 클릭시
                     R.id.group_in_popup_update -> {
+                        snackBar?.dismiss()
 //                        Toast.makeText(groupBoardDetail.requireContext(), "수정", Toast.LENGTH_SHORT).show()
                         //View.GONE 으로 버튼을 없앴다가 다른 버튼을 살리면 에디트텍스트의 width가 쪼그라드는 현상이 생김. INVISIBLE로 설정하면 괜찮아짐.
                         groupBoardDetail.binding.gboardDetailReplyWriteIbt.visibility = View.INVISIBLE // 댓글 쓰기버튼 숨기기. 아이콘 모양은 같다
@@ -238,7 +230,7 @@ class GroupBoardDetailReplyRva (val groupVm: GroupVm, /*val images : JsonArray,*
                         val imm = (groupBoardDetail.requireActivity()).getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager
                         imm.showSoftInput(groupBoardDetail.binding.gboardDetailReplyWriteEt, 0) //직접 뷰를 설정해서 보이는 방법
 //                       imm.showSoftInput( (groupBoardDetail.requireActivity()).currentFocus , 0) //포커싱메소드로 보이는 방법
-                        선택애니메이션적용()
+                        선택애니메이션적용(mItem)
 //                            groupVm.currentReplyNoToReply = mItem.get("reply_no").asInt
 //                            groupVm.currentUserNoToReply = mItem.get("user_no").asInt //이 댓글쓴 유저의 번호 - 부모 번호가 됨
 //                            groupVm.currentReplyGroupNoToReply = mItem.get("reply_group").asInt // 이 댓글의 최상위 부모 번호
@@ -262,21 +254,33 @@ class GroupBoardDetailReplyRva (val groupVm: GroupVm, /*val images : JsonArray,*
                                 groupBoardDetail.binding.gboardDetailReplyModifyIbt.visibility = View.INVISIBLE // 댓글 수정버튼 숨기기
                                 groupBoardDetail.binding.gboardDetailReplyWriteIbt.visibility = View.VISIBLE // 댓글 쓰기버튼 보이기. 아이콘 모양은 같다
                             }
-                            addCallback(object :BaseTransientBottomBar.BaseCallback<Snackbar>(){
+
+                            //댓글버튼클릭 이벤트안에 수정상황에 쓰여져있던 내용과 수정버튼을 그저 댓글쓰기용 버튼으로 초기화하고 쓰기버튼으로 visibility만 초기화 해주면 되는것을
+                            //착각으로 인해 콜백까지 넣으면서 쓸대없는 삽질을 하였다.
+                            /*addCallback(object :BaseTransientBottomBar.BaseCallback<Snackbar>(){
                                 override fun onDismissed(transientBottomBar: Snackbar?, event: Int) {
                                     super.onDismissed(transientBottomBar, event)
                                     if(event != Snackbar.Callback.DISMISS_EVENT_ACTION){
-                                        //소프트키보드 숨기기
-                                        groupBoardDetail.binding.gboardDetailWriteReplyEtLayout.hint = "댓글을 남겨주세요"
-                                        groupBoardDetail.binding.gboardDetailReplyWriteEt.setText("") //입력창 초기화
-                                        groupBoardDetail.binding.gboardDetailReplyWriteEt.clearFocus() //et에 포커싱부터 맞춰야 showSoftInput 메소드가 반응함
-                                        val imm = (groupBoardDetail.requireActivity()).getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager
-                                        imm.hideSoftInputFromWindow(groupBoardDetail.binding.gboardDetailReplyWriteEt.windowToken, 0)
-                                        groupBoardDetail.binding.gboardDetailReplyModifyIbt.visibility = View.GONE // 댓글 수정버튼 숨기기
-                                        groupBoardDetail.binding.gboardDetailReplyWriteIbt.visibility = View.VISIBLE // 댓글 쓰기버튼 보이기. 아이콘 모양은 같다
+                                        if(snackBarReplyCancel == null){
+                                            //소프트키보드 숨기기
+                                            groupBoardDetail.binding.gboardDetailWriteReplyEtLayout.hint = "댓글을 남겨주세요"
+                                            groupBoardDetail.binding.gboardDetailReplyWriteEt.setText("") //입력창 초기화
+                                            groupBoardDetail.binding.gboardDetailReplyWriteEt.clearFocus() //et에 포커싱부터 맞춰야 showSoftInput 메소드가 반응함
+    //                                        val imm = (groupBoardDetail.requireActivity()).getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager
+    //                                        imm.hideSoftInputFromWindow(groupBoardDetail.binding.gboardDetailReplyWriteEt.windowToken, 0)
+                                            groupBoardDetail.binding.gboardDetailReplyModifyIbt.visibility = View.GONE // 댓글 수정버튼 숨기기
+                                            groupBoardDetail.binding.gboardDetailReplyWriteIbt.visibility = View.VISIBLE // 댓글 쓰기버튼 보이기. 아이콘 모양은 같다
+                                        }
+                                        if(snackBar != null ){
+                                            groupBoardDetail.binding.gboardDetailWriteReplyEtLayout.hint = "댓글을 남겨주세요"
+                                            groupBoardDetail.binding.gboardDetailReplyWriteEt.setText("") //입력창 초기화
+                                            groupBoardDetail.binding.gboardDetailReplyWriteEt.clearFocus() //et에 포커싱부터 맞춰야 showSoftInput 메소드가 반응함
+                                            groupBoardDetail.binding.gboardDetailReplyModifyIbt.visibility = View.GONE // 댓글 수정버튼 숨기기
+                                            groupBoardDetail.binding.gboardDetailReplyWriteIbt.visibility = View.VISIBLE // 댓글 쓰기버튼 보이기. 아이콘 모양은 같다
+                                        }
                                     }
                                 }
-                            })
+                            })*/
                         }
                         setSnackBarOption(snackBarReplyCancel!!) // 스낵바 옵션 설정
                         snackBarReplyCancel!!.show()
@@ -326,7 +330,7 @@ class GroupBoardDetailReplyRva (val groupVm: GroupVm, /*val images : JsonArray,*
         }
 
 
-        private fun 선택애니메이션적용() {
+        private fun 선택애니메이션적용(mItem: JsonObject) {
             val ani = AnimationUtils.loadAnimation(groupBoardDetail.requireContext(), R.anim.blink)
             val anim = ValueAnimator.ofArgb(
                 /*Color.RED, Color.YELLOW, Color.GREEN, Color.MAGENTA, Color.BLUE, Color.WHITE*/Color.GREEN
@@ -335,13 +339,20 @@ class GroupBoardDetailReplyRva (val groupVm: GroupVm, /*val images : JsonArray,*
                 repeatCount = 1
                 repeatMode = ValueAnimator.REVERSE
                 addUpdateListener {
-                    binding.reply.setBackgroundColor(it.animatedValue as Int)
-                    binding.answer.setBackgroundColor(it.animatedValue as Int)
+                    if(mItem.get("parent_reply_no").isJsonNull == true){
+                        binding.reply.setBackgroundColor(it.animatedValue as Int)
+                    //분기점을 둔이유: 위의 로직이 뷰홀더를 리플과 답변으로 나눠서 어쩔수 없이..ㅠㅠ 담부턴 createVH 단계에서 바인딩객체를 던지고 차라리 캐스팅을 하여 로직을 짜자!
+                    } else {
+                        binding.answer.setBackgroundColor(it.animatedValue as Int)
+                    }
                 }
             }
             anim.start()
-            binding.reply.startAnimation(ani)
-            binding.answer.startAnimation(ani)
+            if(mItem.get("parent_reply_no").isJsonNull == true){
+                binding.reply.startAnimation(ani)
+            } else {
+                binding.answer.startAnimation(ani)
+            }
         }
 
         // 스낵바 옵션 설정

@@ -137,6 +137,10 @@
             app:destination="@id/groupBoardDetail"
             app:enterAnim="@anim/nav_default_enter_anim"
             app:exitAnim="@anim/nav_default_exit_anim" />
+        <action
+            android:id="@+id/action_groupInFm_to_group_in_challenge_fm2"
+            app:destination="@id/group_in_challenge_fm"
+            app:launchSingleTop="true" />
     </fragment>
     <fragment
         android:id="@+id/groupInWriteFm"
@@ -163,6 +167,57 @@
             android:id="@+id/action_groupBoardDetail_to_groupInUpdateFm"
             app:destination="@id/groupInUpdateFm" />
     </fragment>
+    <fragment
+        android:id="@+id/group_in_challenge_fm"
+        android:name="com.example.androidclient.group.ChallengeFm"
+        android:label="challenge_fm"
+        tools:layout="@layout/challenge_fm" >
+        <action
+            android:id="@+id/action_group_in_challenge_fm_to_challengeCreateFm"
+            app:destination="@id/challengeCreateFm" />
+        <action
+            android:id="@+id/action_group_in_challenge_fm_to_challengeDetailListFm"
+            app:destination="@id/challengeDetailListFm" />
+    </fragment>
+    <fragment
+        android:id="@+id/challengeCreateFm"
+        android:name="com.example.androidclient.group.ChallengeCreateFm"
+        android:label="ChallengeCreateFm"
+        tools:layout="@layout/challenge_create_fm"
+        >
+        <action
+            android:id="@+id/action_challengeCreateFm_to_challengeCreateNextFm"
+            app:destination="@id/challengeCreateNextFm" />
+    </fragment>
+    <fragment
+        android:id="@+id/challengeCreateNextFm"
+        android:name="com.example.androidclient.group.ChallengeCreateNextFm"
+        android:label="challenge_create_next_fm"
+        tools:layout="@layout/challenge_create_next_fm" >
+        <action
+            android:id="@+id/action_challengeCreateNextFm_to_group_in_challenge_fm"
+            app:destination="@id/group_in_challenge_fm"
+            app:popUpTo="@id/group_in_challenge_fm" />
+    </fragment>
+    <fragment
+        android:id="@+id/challengeDetailFm"
+        android:name="com.example.androidclient.group.ChallengeDetailFm"
+        android:label="ChallengeDetailFm"
+        tools:layout="@layout/challenge_detail_fm"/>
+    <fragment
+        android:id="@+id/challengeDetailListFm"
+        android:name="com.example.androidclient.group.ChallengeDetailListFm"
+        android:label="challenge_detail_list_fm"
+        tools:layout="@layout/challenge_detail_list_fm" >
+        <action
+            android:id="@+id/action_challengeDetailListFm_to_challengeDetailFm"
+            app:destination="@id/challengeDetailFm" />
+    </fragment>
+    <action
+        android:id="@+id/action_global_groupInFm"
+        app:destination="@id/groupInFm"
+        app:launchSingleTop="true"
+        app:popUpTo="@id/groupInFm" />
 
 
 </navigation>
