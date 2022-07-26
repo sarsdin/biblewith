@@ -1,0 +1,400 @@
+<?xml version="1.0" encoding="utf-8"?>
+<com.google.android.material.card.MaterialCardView
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:layout_marginVertical="5dp"
+    android:background="#48FB6C6C"
+    app:cardCornerRadius="10dp"
+    app:cardElevation="1dp"
+    >
+    <!--app:cardUseCompatPadding="true"-->
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:minHeight="120dp">
+        <!--            android:background="#48DCDCDC"-->
+
+        <com.google.android.material.imageview.ShapeableImageView
+            android:id="@+id/chal_vh_fm_vh_iv"
+            android:layout_width="40dp"
+            android:layout_height="40dp"
+            android:layout_gravity="end"
+            android:layout_marginStart="16dp"
+            android:layout_marginTop="12dp"
+            android:background="#818080"
+            android:contentDescription="profile 사진 입니다."
+            android:scaleType="centerCrop"
+            android:tint="#FFFFFF"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            app:shapeAppearanceOverlay="@style/ShapeAppearanceOverlay.App.CornerSize50Percent"
+            app:srcCompat="@drawable/ic_baseline_person_24" />
+
+        <com.google.android.material.textview.MaterialTextView
+            android:id="@+id/chal_vh_fm_vh_writer_tv"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="20dp"
+            android:textAppearance="?attr/textAppearanceListItem"
+            android:textSize="14sp"
+            app:layout_constraintStart_toEndOf="@+id/chal_vh_fm_vh_iv"
+            app:layout_constraintTop_toTopOf="@+id/chal_vh_fm_vh_iv"
+            tools:text="글쓴이" />
+
+        <com.google.android.material.textview.MaterialTextView
+            android:id="@+id/chal_vh_fm_vh_date_tv"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="3dp"
+            android:text="2022-6-29일 시작. 28일 경과"
+            android:textColor="#707070"
+            android:textAppearance="?attr/textAppearanceListItem"
+            android:textSize="14sp"
+            app:layout_constraintStart_toStartOf="@+id/chal_vh_fm_vh_writer_tv"
+            app:layout_constraintTop_toBottomOf="@+id/chal_vh_fm_vh_writer_tv"
+            tools:text="2022-6-29일 시작. 28일 경과" />
+
+        <ImageButton
+            android:id="@+id/chal_vh_fm_vh_menu_ibt"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="14dp"
+            android:layout_marginEnd="16dp"
+            android:background="#FFFFFF"
+            android:scaleType="centerInside"
+            android:src="@drawable/ic_baseline_more_vert_24"
+            android:visibility="gone"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
+
+
+        <com.google.android.material.textview.MaterialTextView
+            android:id="@+id/chal_vh_fm_vh_content_tv"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="16dp"
+            android:minHeight="50dp"
+            android:maxHeight="200dp"
+            android:paddingHorizontal="15dp"
+            android:paddingVertical="5dp"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/chal_vh_fm_vh_date_tv" />
+
+        <com.google.android.material.textview.MaterialTextView
+            android:id="@+id/chal_vh_fix_tv"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:maxHeight="200dp"
+            android:minHeight="50dp"
+            android:text="진행 챌린지 목록 - "
+            android:paddingHorizontal="15dp"
+            android:paddingVertical="5dp"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/chal_vh_fm_vh_content_tv" />
+
+        <com.google.android.material.textview.MaterialTextView
+            android:id="@+id/chal_vh_content_tv"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:maxHeight="200dp"
+            android:minHeight="50dp"
+            android:paddingHorizontal="15dp"
+            android:paddingVertical="5dp"
+            android:text="잠언서, 시편, 에스더... "
+            app:layout_constraintStart_toEndOf="@+id/chal_vh_fix_tv"
+            app:layout_constraintTop_toTopOf="@+id/chal_vh_fix_tv" />
+
+        <!--  <androidx.recyclerview.widget.RecyclerView
+              android:id="@+id/chal_vh_fm_vh_image_list"
+              android:layout_width="match_parent"
+              android:layout_height="150dp"
+              android:layout_marginVertical="15dp"
+              android:visibility="gone"
+              app:layout_constraintEnd_toEndOf="parent"
+              app:layout_constraintStart_toStartOf="parent"
+              app:layout_constraintTop_toBottomOf="@+id/chal_vh_fm_vh_content_tv"
+              tools:visibility="visible" />-->
+
+        <!--<LinearLayout
+            android:id="@+id/chal_vh_fm_vh_LL"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="8dp"
+            android:orientation="horizontal"
+            android:padding="15dp"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintHorizontal_bias="1.0"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/chal_vh_fm_vh_image_list">
+
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/chal_vh_fm_vh_LL_like_ea_bt"
+                style="@android:style/Widget.Material.Light.Button.Borderless.Small"
+                android:layout_width="65dp"
+                android:layout_height="30dp"
+                android:padding="0dp"
+                android:text="0"
+                android:textColor="#AAAAAA"
+                android:textSize="16sp"
+                app:icon="@drawable/ic_baseline_thumb_up_24"
+                app:iconPadding="0dp"
+                app:iconTint="#AAAAAA"
+                tools:text="22" />
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/chal_vh_fm_vh_LL_reply_ea_bt"
+                style="@android:style/Widget.Material.Light.Button.Borderless.Small"
+                android:layout_width="65dp"
+                android:layout_height="30dp"
+                android:layout_marginStart="10dp"
+                android:padding="0dp"
+                android:text="0"
+                android:textColor="#AAAAAA"
+                android:textSize="16sp"
+                app:icon="@drawable/ic_comment"
+                app:iconPadding="0dp"
+                app:iconTint="#AAAAAA"
+                tools:text="22" />
+
+        </LinearLayout>
+
+        &lt;!&ndash;        구분선&ndash;&gt;
+        <View
+            android:id="@+id/view"
+            android:layout_width="match_parent"
+            android:layout_height="1dp"
+            android:layout_marginVertical="1dp"
+            android:background="#4DCDCDCD"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintHorizontal_bias="0.0"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/chal_vh_fm_vh_LL" />
+
+
+        <LinearLayout
+            android:id="@+id/chal_vh_fm_vh_LL_bottom"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:gravity="center"
+            android:orientation="horizontal"
+            android:padding="1dp"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/view">
+
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/chal_vh_fm_vh_LL_bottom_like_bt"
+                style="@android:style/Widget.Material.Light.Button.Borderless.Small"
+                android:layout_width="200dp"
+                android:layout_height="40dp"
+                android:padding="0dp"
+                android:checkable="true"
+                android:text="  좋아요"
+                android:textColor="#3C3C3C"
+                android:textSize="16sp"
+                app:icon="@drawable/ic_baseline_thumb_up_24"
+                app:iconGravity="textStart"
+                app:iconPadding="0dp"
+                app:iconTint="#3C3C3C" />
+
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/chal_vh_fm_vh_LL_bottom_reply_bt"
+                style="@android:style/Widget.Material.Light.Button.Borderless.Small"
+                android:layout_width="200dp"
+                android:layout_height="40dp"
+                android:padding="0dp"
+                android:checkable="true"
+                android:text="  댓글쓰기"
+                android:textColor="#3C3C3C"
+                android:textSize="16sp"
+                app:icon="@drawable/ic_comment"
+                app:iconGravity="textStart"
+                app:iconPadding="0dp"
+                app:iconTint="#3C3C3C" />
+        </LinearLayout>
+-->
+
+        <!--        구분선2-->
+<!--        <View-->
+<!--            android:id="@+id/view2"-->
+<!--            android:layout_width="match_parent"-->
+<!--            android:layout_height="1dp"-->
+<!--            android:layout_marginVertical="1dp"-->
+<!--            android:background="#4DCDCDCD"-->
+<!--            app:layout_constraintEnd_toEndOf="parent"-->
+<!--            app:layout_constraintHorizontal_bias="1.0"-->
+<!--            app:layout_constraintStart_toStartOf="parent"-->
+<!--            app:layout_constraintTop_toBottomOf="@+id/chal_vh_fm_vh_LL_bottom" />-->
+
+        <!--<androidx.constraintlayout.widget.ConstraintLayout
+            android:id="@+id/chal_vh_fm_vh_reply_Cl"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:background="@drawable/borderline_bottom"
+            android:minHeight="65dp"
+            android:visibility="gone"
+            tools:visibility="visible"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/view2"
+            >
+
+            <com.google.android.material.imageview.ShapeableImageView
+                android:id="@+id/chal_vh_fm_vh_reply_cl_iv"
+                android:layout_width="40dp"
+                android:layout_height="40dp"
+                android:layout_gravity="end"
+                android:layout_marginStart="16dp"
+                android:layout_marginTop="12dp"
+                android:background="#818080"
+                android:contentDescription="profile 사진 입니다."
+                android:scaleType="centerCrop"
+                android:tint="#FFFFFF"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent"
+                app:shapeAppearanceOverlay="@style/ShapeAppearanceOverlay.App.CornerSize50Percent"
+                app:srcCompat="@drawable/ic_baseline_person_24" />
+
+            <com.google.android.material.textview.MaterialTextView
+                android:id="@+id/chal_vh_fm_vh_reply_cl_writer_tv"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="20dp"
+                android:textAppearance="?attr/textAppearanceListItem"
+                android:textSize="14sp"
+                app:layout_constraintStart_toEndOf="@+id/chal_vh_fm_vh_reply_cl_iv"
+                app:layout_constraintTop_toTopOf="@+id/chal_vh_fm_vh_reply_cl_iv"
+                tools:text="글쓴이" />
+
+            <com.google.android.material.textview.MaterialTextView
+                android:id="@+id/chal_vh_fm_vh_reply_cl_date_tv"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="12dp"
+                android:layout_marginEnd="16dp"
+                android:text="2022-6-29 00:00:11"
+                android:textAppearance="?attr/textAppearanceListItem"
+                android:textColor="#707070"
+                android:textSize="14sp"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintTop_toTopOf="parent"
+                tools:text="2022-6-29 00:00:11" />
+
+            <com.google.android.material.textview.MaterialTextView
+                android:id="@+id/chal_vh_fm_vh_reply_cl_content_tv"
+                android:layout_width="350dp"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="5dp"
+                android:maxHeight="200dp"
+                android:text="컨텐츠 내용 출력 "
+                android:textAppearance="?attr/textAppearanceListItem"
+                android:textSize="14sp"
+                app:layout_constraintStart_toStartOf="@+id/chal_vh_fm_vh_reply_cl_writer_tv"
+                app:layout_constraintTop_toBottomOf="@+id/chal_vh_fm_vh_reply_cl_writer_tv"
+                tools:text="컨텐츠 내용 출력 " />
+
+        </androidx.constraintlayout.widget.ConstraintLayout>
+
+
+        <androidx.constraintlayout.widget.ConstraintLayout
+            android:id="@+id/chal_vh_fm_vh_reply_cl_sec"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:minHeight="65dp"
+            android:visibility="gone"
+            tools:visibility="visible"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/chal_vh_fm_vh_reply_Cl">
+
+            <com.google.android.material.imageview.ShapeableImageView
+                android:id="@+id/chal_vh_fm_vh_reply_cl_sec_iv"
+                android:layout_width="40dp"
+                android:layout_height="40dp"
+                android:layout_gravity="end"
+                android:layout_marginStart="16dp"
+                android:layout_marginTop="12dp"
+                android:background="#818080"
+                android:contentDescription="profile 사진 입니다."
+                android:scaleType="centerCrop"
+                android:tint="#FFFFFF"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent"
+                app:shapeAppearanceOverlay="@style/ShapeAppearanceOverlay.App.CornerSize50Percent"
+                app:srcCompat="@drawable/ic_baseline_person_24" />
+
+            <com.google.android.material.textview.MaterialTextView
+                android:id="@+id/chal_vh_fm_vh_reply_cl_sec_writer_tv"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="20dp"
+                android:textAppearance="?attr/textAppearanceListItem"
+                android:textSize="14sp"
+                app:layout_constraintStart_toEndOf="@+id/chal_vh_fm_vh_reply_cl_sec_iv"
+                app:layout_constraintTop_toTopOf="@+id/chal_vh_fm_vh_reply_cl_sec_iv"
+                tools:text="글쓴이" />
+
+            <com.google.android.material.textview.MaterialTextView
+                android:id="@+id/chal_vh_fm_vh_reply_cl_sec_date_tv"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="12dp"
+                android:layout_marginEnd="16dp"
+                android:text="2022-6-29 00:00:11"
+                android:textColor="#707070"
+                android:textAppearance="?attr/textAppearanceListItem"
+                android:textSize="14sp"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintTop_toTopOf="parent"
+                tools:text="2022-6-29 00:00:11" />
+
+            <com.google.android.material.textview.MaterialTextView
+                android:id="@+id/chal_vh_fm_vh_reply_cl_sec_content_tv"
+                android:layout_width="350dp"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="5dp"
+                android:maxHeight="200dp"
+                android:text="컨텐츠 내용 출력 "
+                android:textAppearance="?attr/textAppearanceListItem"
+                android:textSize="14sp"
+                app:layout_constraintStart_toStartOf="@+id/chal_vh_fm_vh_reply_cl_sec_writer_tv"
+                app:layout_constraintTop_toBottomOf="@+id/chal_vh_fm_vh_reply_cl_sec_writer_tv"
+                tools:text="컨텐츠 내용 출력 " />
+
+        </androidx.constraintlayout.widget.ConstraintLayout>
+
+-->
+
+        <!-- <com.google.android.material.card.MaterialCardView
+             android:layout_width="match_parent"
+             android:layout_height="wrap_content"
+             app:cardBackgroundColor="#E8E7E7"
+             app:cardCornerRadius="10dp"
+             android:layout_marginStart="8dp"
+             android:layout_marginTop="24dp"
+             android:layout_marginEnd="8dp"
+             android:layout_marginBottom="8dp"
+             app:layout_constraintBottom_toBottomOf="parent"
+             app:layout_constraintEnd_toEndOf="parent"
+             app:layout_constraintStart_toStartOf="parent"
+             app:layout_constraintTop_toBottomOf="@+id/chal_vh_fm_vh_verse_list"
+             >
+         </com.google.android.material.card.MaterialCardView>-->
+
+
+
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
+
+
+    <ProgressBar
+        android:id="@+id/progress_bar"
+        android:layout_width="150dp"
+        android:layout_height="150dp"
+        android:visibility="gone"
+        android:layout_gravity="center|center_horizontal" />
+</com.google.android.material.card.MaterialCardView>

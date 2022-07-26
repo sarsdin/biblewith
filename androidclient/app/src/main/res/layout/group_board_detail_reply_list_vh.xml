@@ -1,0 +1,191 @@
+<?xml version="1.0" encoding="utf-8"?>
+<FrameLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    >
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:id="@+id/reply"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:minHeight="65dp"
+        tools:visibility="gone"
+        >
+<!--        android:background="@drawable/borderline_bottom"-->
+
+        <com.google.android.material.imageview.ShapeableImageView
+            android:id="@+id/reply_iv"
+            android:layout_width="40dp"
+            android:layout_height="40dp"
+            android:layout_gravity="end"
+            android:layout_marginStart="16dp"
+            android:layout_marginTop="12dp"
+            android:background="#818080"
+            android:contentDescription="profile 사진 입니다."
+            android:scaleType="centerCrop"
+            android:tint="#FFFFFF"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            app:shapeAppearanceOverlay="@style/ShapeAppearanceOverlay.App.CornerSize50Percent"
+            app:srcCompat="@drawable/ic_baseline_person_24" />
+
+        <com.google.android.material.floatingactionbutton.FloatingActionButton
+            android:id="@+id/reply_profile_writer_fab"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginEnd="-18dp"
+            android:layout_marginBottom="-17dp"
+            android:visibility="gone"
+            app:fabCustomSize="14dp"
+            app:fabSize="mini"
+            app:layout_constraintBottom_toBottomOf="@+id/reply_iv"
+            app:layout_constraintEnd_toEndOf="@+id/reply_iv"
+            app:maxImageSize="14dp"
+            app:srcCompat="@drawable/ic_baseline_brightness_7_24"
+            app:tint="#E78602"
+            app:backgroundTint="#99DDDDDD"
+            app:useCompatPadding="true" />
+        
+        
+        <com.google.android.material.textview.MaterialTextView
+            android:id="@+id/reply_writer_tv"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="20dp"
+            android:textAppearance="?attr/textAppearanceListItem"
+            android:textSize="14sp"
+            app:layout_constraintStart_toEndOf="@+id/reply_iv"
+            app:layout_constraintTop_toTopOf="@+id/reply_iv"
+            tools:text="글쓴이" />
+
+        <com.google.android.material.textview.MaterialTextView
+            android:id="@+id/reply_date_tv"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="12dp"
+            android:layout_marginEnd="16dp"
+            android:text="2022-6-29 00:00:11"
+            android:textAppearance="?attr/textAppearanceListItem"
+            android:textColor="#707070"
+            android:textSize="14sp"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            tools:text="2022-6-29 00:00:11" />
+
+        <com.google.android.material.textview.MaterialTextView
+            android:id="@+id/reply_content_tv"
+            android:layout_width="350dp"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="5dp"
+            android:maxHeight="200dp"
+            android:text="컨텐츠 내용 출력 "
+            android:textAppearance="?attr/textAppearanceListItem"
+            android:textSize="14sp"
+            app:layout_constraintStart_toStartOf="@+id/reply_writer_tv"
+            app:layout_constraintTop_toBottomOf="@+id/reply_writer_tv"
+            tools:text="컨텐츠 내용 출력 " />
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:id="@+id/answer"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="45dp"
+        android:minHeight="65dp"
+        android:visibility="gone"
+        tools:visibility="visible"
+        >
+
+        <com.google.android.material.imageview.ShapeableImageView
+            android:id="@+id/answer_iv"
+            android:layout_width="40dp"
+            android:layout_height="40dp"
+            android:layout_gravity="end"
+            android:layout_marginStart="16dp"
+            android:layout_marginTop="12dp"
+            android:background="#818080"
+            android:contentDescription="profile 사진 입니다."
+            android:scaleType="centerCrop"
+            android:tint="#FFFFFF"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            app:shapeAppearanceOverlay="@style/ShapeAppearanceOverlay.App.CornerSize50Percent"
+            app:srcCompat="@drawable/ic_baseline_person_24" />
+
+        <!--            app:maxImageSize="14dp"-->
+<!--            app:fabCustomSize="15dp"-->
+<!--            app:backgroundTint="#1ADDDDDD"-->
+
+        <com.google.android.material.floatingactionbutton.FloatingActionButton
+            android:id="@+id/answer_profile_writer_fab"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginEnd="-18dp"
+            android:layout_marginBottom="-17dp"
+            android:visibility="gone"
+            app:fabCustomSize="14dp"
+            app:fabSize="mini"
+            app:layout_constraintBottom_toBottomOf="@+id/answer_iv"
+            app:layout_constraintEnd_toEndOf="@+id/answer_iv"
+            app:maxImageSize="14dp"
+            app:srcCompat="@drawable/ic_baseline_brightness_7_24"
+            app:tint="#E78602"
+            app:backgroundTint="#99DDDDDD"
+            app:useCompatPadding="true" />
+
+        <com.google.android.material.textview.MaterialTextView
+            android:id="@+id/answer_writer_tv"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="20dp"
+            android:textAppearance="?attr/textAppearanceListItem"
+            android:textSize="14sp"
+            app:layout_constraintStart_toEndOf="@+id/answer_iv"
+            app:layout_constraintTop_toTopOf="@+id/answer_iv"
+            tools:text="글쓴이" />
+
+        <com.google.android.material.textview.MaterialTextView
+            android:id="@+id/answer_to_writer_tv"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="8dp"
+            android:textAppearance="?attr/textAppearanceListItem"
+            android:textColor="#29B6F6"
+            android:textSize="14sp"
+            app:layout_constraintStart_toEndOf="@+id/answer_writer_tv"
+            app:layout_constraintTop_toTopOf="@+id/answer_writer_tv"
+            tools:text="\@받는이" />
+
+        <com.google.android.material.textview.MaterialTextView
+            android:id="@+id/answer_date_tv"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="12dp"
+            android:layout_marginEnd="16dp"
+            android:text="2022-6-29 00:00:11"
+            android:textAppearance="?attr/textAppearanceListItem"
+            android:textColor="#707070"
+            android:textSize="14sp"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            tools:text="2022-6-29 00:00:11" />
+
+        <com.google.android.material.textview.MaterialTextView
+            android:id="@+id/answer_content_tv"
+            android:layout_width="350dp"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="5dp"
+            android:maxHeight="200dp"
+            android:text="컨텐츠 내용 출력 "
+            android:textAppearance="?attr/textAppearanceListItem"
+            android:textSize="14sp"
+            app:layout_constraintStart_toStartOf="@+id/answer_writer_tv"
+            app:layout_constraintTop_toBottomOf="@+id/answer_writer_tv"
+            tools:text="컨텐츠 내용 출력 " />
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
+</FrameLayout>

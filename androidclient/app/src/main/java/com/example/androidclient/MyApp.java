@@ -7,6 +7,11 @@ import android.util.Log;
 
 import com.example.androidclient.login.LoginDto;
 
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
 import java.text.SimpleDateFormat;
 import java.time.LocalDateTime;
 import java.time.ZoneOffset;
@@ -26,6 +31,20 @@ public class MyApp extends Application {
         super.onCreate();
         MyApp.application = this;
     }
+
+    //객체를 깊은 복사하는 메소드 - 데이터주소까지 완전히 다른 객체가 된다
+    public static Object deepCopy(Object o) throws IOException, ClassNotFoundException {
+        ByteArrayOutputStream baos = new ByteArrayOutputStream();
+        ObjectOutputStream oos = new ObjectOutputStream(baos);
+        oos.writeObject(o);
+
+        byte[] buff = baos.toByteArray();
+        ByteArrayInputStream bais = new ByteArrayInputStream(buff);
+        ObjectInputStream os = new ObjectInputStream(bais);
+        Object copy = os.readObject();
+        return copy;
+    }
+
 
     public static SharedPreferences getDefaultSp() {
         return PreferenceManager.getDefaultSharedPreferences(application.getApplicationContext());
@@ -70,7 +89,7 @@ public class MyApp extends Application {
             Date mDate = new Date(mNow);//1644034298
             long mDate_muter = mDate.toInstant().getEpochSecond();
 
-            long second = (currentTime - ldt.toEpochSecond(ZoneOffset.UTC));
+            long second = (currentTime - ldt.toEpochSecond(ZoneOffset.UTC)+2); //시간이 -가 되는 증세가 있음. 기기마다 시간계산이 미묘하게 달라서..+2초해줌
             long minute = (currentTime - ldt.toEpochSecond(ZoneOffset.UTC))/60L;
             long hour = (currentTime - ldt.toEpochSecond(ZoneOffset.UTC))/60/60;
             long day = (currentTime - ldt.toEpochSecond(ZoneOffset.UTC))/60/60/24;

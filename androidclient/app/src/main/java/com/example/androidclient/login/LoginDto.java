@@ -7,6 +7,7 @@ public class LoginDto {
     private boolean user_autologin;
     private String user_nick;
     private String user_name;
+    private String user_image;
 
     public LoginDto(String user_email, String user_pwd, boolean user_autologin) {
         this.user_email = user_email;
@@ -14,24 +15,26 @@ public class LoginDto {
         this.user_autologin = user_autologin;
     }
 
-    public LoginDto(int user_no, String user_email, String user_pwd, boolean user_autologin, String user_nick, String user_name) {
+    public LoginDto(int user_no, String user_email, String user_pwd, boolean user_autologin, String user_nick, String user_name, String user_image) {
         this.user_no = user_no;
         this.user_email = user_email;
         this.user_pwd = user_pwd;
         this.user_autologin = user_autologin;
         this.user_nick = user_nick;
         this.user_name = user_name;
+        this.user_image = user_image;
     }
 
     @Override
     public String toString() {
         return "LoginDto{" +
-                "user_no='" + user_no + '\'' +
+                "user_no=" + user_no +
                 ", user_email='" + user_email + '\'' +
                 ", user_pwd='" + user_pwd + '\'' +
-                ", user_autologin='" + user_autologin + '\'' +
+                ", user_autologin=" + user_autologin +
                 ", user_nick='" + user_nick + '\'' +
                 ", user_name='" + user_name + '\'' +
+                ", user_image='" + user_image + '\'' +
                 '}';
     }
 
@@ -81,5 +84,13 @@ public class LoginDto {
 
     public void setUser_name(String user_name) {
         this.user_name = user_name;
+    }
+
+    public String getUser_image() {
+        return user_image;
+    }
+
+    public void setUser_image(String user_image) {
+        this.user_image = user_image;
     }
 }

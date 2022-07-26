@@ -9,6 +9,8 @@ import android.widget.Toast
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.Navigation
+import androidx.navigation.ui.AppBarConfiguration
+import androidx.navigation.ui.NavigationUI
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.example.androidclient.MyApp
@@ -52,8 +54,16 @@ class MyNoteFmUpdate : Fragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+        //모임 툴바 셋팅
+        val navController = Navigation.findNavController(view)
+//        val appBarConfiguration = AppBarConfiguration(navController.graph)
+        val appBarConfiguration = AppBarConfiguration.Builder(R.id.more_fm).build()
+//        binding.groupMainCollapsingToolbar.setupWithNavController(binding.groupMainToolbar, navController, appBarConfiguration)
+//        binding.groupInToolbar.setupWithNavController(navController, appBarConfiguration)
+        NavigationUI.setupWithNavController( binding.noteUpdateToolbar, navController, appBarConfiguration )
+
         //툴바에 소속된 노트 추가 버튼에 이벤트 리스너 설정
-        (activity as MainActivity).binding.mainAppbarNoteUpdateBt.setOnClickListener {
+        binding.noteUpdateToolbarModifyBt.setOnClickListener {
             val gson = Gson()
             var sendJsonO = JsonObject()
             sendJsonO.addProperty("user_no", MyApp.userInfo.user_no)

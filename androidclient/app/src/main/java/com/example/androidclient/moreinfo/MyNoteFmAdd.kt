@@ -10,9 +10,12 @@ import androidx.annotation.NonNull
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.Navigation
+import androidx.navigation.ui.AppBarConfiguration
+import androidx.navigation.ui.NavigationUI
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.example.androidclient.MyApp
+import com.example.androidclient.R
 import com.example.androidclient.bible.BibleDto
 import com.example.androidclient.bible.BibleVm
 import com.example.androidclient.databinding.MyNoteFmAddBinding
@@ -47,8 +50,16 @@ class MyNoteFmAdd : Fragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+        //모임 툴바 셋팅
+        val navController = Navigation.findNavController(view)
+//        val appBarConfiguration = AppBarConfiguration(navController.graph)
+        val appBarConfiguration = AppBarConfiguration.Builder(R.id.bible_fm).build()
+//        binding.groupMainCollapsingToolbar.setupWithNavController(binding.groupMainToolbar, navController, appBarConfiguration)
+//        binding.groupInToolbar.setupWithNavController(navController, appBarConfiguration)
+        NavigationUI.setupWithNavController( binding.noteAddToolbar, navController, appBarConfiguration )
+
         //툴바에 소속된 노트 추가 버튼에 이벤트 리스너 설정
-        (activity as MainActivity).binding.mainAppbarNoteAddBt.setOnClickListener {
+        binding.noteAddToolbarAddBt.setOnClickListener {
             //추가클릭시 정보 db로
             val gson = Gson()
             var sendJsonO = JsonObject()

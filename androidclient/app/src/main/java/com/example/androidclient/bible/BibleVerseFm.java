@@ -52,6 +52,7 @@ public class BibleVerseFm extends Fragment {
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
     }
 
     @Override
@@ -89,12 +90,14 @@ public class BibleVerseFm extends Fragment {
         //바텀시트뷰 감추기
         btsb.setState(BottomSheetBehavior.STATE_HIDDEN);
 
-/*        btsb.addBottomSheetCallback(new BottomSheetBehavior.BottomSheetCallback() {
+        btsb.addBottomSheetCallback(new BottomSheetBehavior.BottomSheetCallback() {
             @Override
             public void onStateChanged(@NonNull View bottomSheet, int newState) {
 //                Toast.makeText(getContext(), "gkgkgk", Toast.LENGTH_SHORT).show();
                 switch(newState){
                 case BottomSheetBehavior.STATE_COLLAPSED:
+                    ((BibleFm) BibleVerseFm.this.getParentFragment()).binding.bibleTabLayoutViewpager.setUserInputEnabled(true); //뷰페이저2 어댑터에서 유저스와이프 on
+                    Log.e("[BibleVerseFm]", "스와이프 on ");
 //                    Toast.makeText(getContext(),"STATE_COLLAPSED", Toast.LENGTH_SHORT).show();
                     break;
                 case BottomSheetBehavior.STATE_EXPANDED:
@@ -107,6 +110,8 @@ public class BibleVerseFm extends Fragment {
 //                    Toast.makeText(getContext(), "STATE_SETTLING", Toast.LENGTH_SHORT).show();
                     break;
                 case BottomSheetBehavior.STATE_HIDDEN:
+                    ((BibleFm) BibleVerseFm.this.getParentFragment()).binding.bibleTabLayoutViewpager.setUserInputEnabled(true); //뷰페이저2 어댑터에서 유저스와이프 on
+                    Log.e("[BibleVerseFm]", "스와이프 on ");
 //                    Toast.makeText(getContext(), "STATE_HIDDEN", Toast.LENGTH_SHORT).show();
                     break;
                 default:
@@ -117,7 +122,7 @@ public class BibleVerseFm extends Fragment {
             @Override
             public void onSlide(@NonNull View bottomSheet, float slideOffset) {
             }
-        });*/
+        });
 
 
 //        binding.bibleVerseFmNextFab.setOnClickListener(new View.OnClickListener() {
@@ -135,8 +140,8 @@ public class BibleVerseFm extends Fragment {
         bibleVm.liveVerseL.observe(getViewLifecycleOwner(), new Observer<List<BibleDto>>() {
             @Override
             public void onChanged(List<BibleDto> bibleDtos) {
-                Log.e("[BibleVerseFm]", "onCreateView liveVerseL observe onChanged 프로그래스바 test: 작동" );
                 binding.bibleVerseFmProgressbar.setVisibility(View.GONE);
+                Log.e("[BibleVerseFm]", "onCreateView liveVerseL observe onChanged 프로그래스바 test: 작동후 오프" );
 //                rva.notifyDataSetChanged();//todo 이걸 키면 보던위치로 자동스크롤이 동작하지 않음.. 왜일까?? -스크롤전에 구조를 바꿔버리니깐 스크롤이 작동안하는 것일듯
             }
         });
@@ -265,7 +270,8 @@ public class BibleVerseFm extends Fragment {
         bibleVm.live책장번호.observe(getViewLifecycleOwner(), new Observer<int[]>() {
             @Override
             public void onChanged(int[] ints) {
-                binding.includeLayout.bibleVerseBtsTv.setText(bibleVm.bookL.get(bibleVm.책장번호[0] - 1).getBook_name() +" "+ bibleVm.chapterL.get(bibleVm.책장번호[1] - 1).getChapter()+"장" );
+                Log.e("오류태그", "biblevm bookl "+ bibleVm.bookL) ;
+                binding.includeLayout.bibleVerseBtsTv.setText(bibleVm.bookLForSearch.get(bibleVm.책장번호[0] - 1).getBook_name() +" "+ bibleVm.chapterL.get(bibleVm.책장번호[1] - 1).getChapter()+"장" );
 //                binding.includeLayout.bibleVerseBtsTvVerse.setText(bibleVm.verseL.get(bibleVm.책장번호[2] - 1).getVerse() +" ");
                 StringBuilder sb = new StringBuilder();
                 for (BibleDto dto : bibleVm.verseL) {
@@ -299,32 +305,35 @@ public class BibleVerseFm extends Fragment {
 //        });
 
         //바텀시트뷰가 열린상태일때 뷰페이저의 스와이프 막기
-        binding.includeLayout.getRoot().setOnTouchListener(new View.OnTouchListener() {
+/*        binding.includeLayout.getRoot().setOnTouchListener(new View.OnTouchListener() {
             @Override
             public boolean onTouch(View v, MotionEvent event) {
-                //BibleVerseRva의 홀더 클릭시 뷰페이저 스와이프를 off 처리함. 여기서는 접히거나 감춰졌을때 스와이프 다시 가능하게 처리.
+                //BibleVerseRva의 홀더 터치시 뷰페이저 스와이프를 off 처리함. 여기서는 접히거나 감춰졌을때 스와이프 다시 가능하게 처리.
                 if (btsb.getState() == BottomSheetBehavior.STATE_COLLAPSED || btsb.getState() == BottomSheetBehavior.STATE_HIDDEN ) {
-//                if ( event.getAction() == MotionEvent.ACTION_UP) {
+//                    if ( event.getAction() == MotionEvent.ACTION_UP) {
 //                    ((BibleFm) BibleVerseFm.this.getParentFragment()).binding.bibleTabLayoutViewpager.requestDisallowInterceptTouchEvent(true);
 //                    ((BibleFm) BibleVerseFm.this.getParentFragment()).binding.bibleTabLayoutViewpager.getAdapter().;
 //                    recyclerView.requestDisallowInterceptTouchEvent(true);
 //                    v.dispatchTouchEvent(event);
-                    //위는 실패 사례들..ㅠ
+                        //위는 실패 사례들..ㅠ
 //                    ((BibleFm) BibleVerseFm.this.getParentFragment()).binding.bibleTabLayoutViewpager.requestDisallowInterceptTouchEvent(false);
-                    ((BibleFm) BibleVerseFm.this.getParentFragment()).binding.bibleTabLayoutViewpager.setUserInputEnabled(true); //뷰페이저2 어댑터에서 유저스와이프 on
+                        ((BibleFm) BibleVerseFm.this.getParentFragment()).binding.bibleTabLayoutViewpager.setUserInputEnabled(true); //뷰페이저2 어댑터에서 유저스와이프 on
 //                    recyclerView.requestDisallowInterceptTouchEvent(true);
-                    Log.e("[BibleVerseFm]", "스와이프 on " );
-
-                }/* else if ( event.getAction() == MotionEvent.ACTION_DOWN){
+                        Log.e("[BibleVerseFm]", "스와이프 on ");
+//                    }
+                }*/
+/* else if ( event.getAction() == MotionEvent.ACTION_DOWN){
                     ((BibleFm) BibleVerseFm.this.getParentFragment()).binding.bibleTabLayoutViewpager.setUserInputEnabled(false);
 //                    ((BibleFm) BibleVerseFm.this.getParentFragment()).binding.bibleTabLayoutViewpager.requestDisallowInterceptTouchEvent(true);
 //                    recyclerView.requestDisallowInterceptTouchEvent(false);
                     Log.e("[BibleVerseFm]", "test down " );
-                }*/
+                }*//*
+
                 return true;  //이걸 true로 두면 터치이벤트의 전파를 막아버리는 것 같다. 바텀시트뷰와 같은 위치에 터치(정확히는 클릭이벤트임)되는 Fab(이전다음)버튼과 리사이클러뷰홀더들이
                 // 클릭되지 않게 된다. 하지만, false로 설정하면 바텀시트뷰가 버튼이나 리사이클러뷰홀더들을 가려버려도 터치이벤트가 전파되어 버튼들이 보이지 않더라도 중복해서 같이 터치된다.
             }
         });
+*/
 
 
         //highlightRva 의 뷰홀더 클릭시 해당하는 하이라이트 위치로 가기

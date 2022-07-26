@@ -107,12 +107,11 @@ public class BibleBookRva extends RecyclerView.Adapter<BibleBookRva.BibleBookVh>
                 @SuppressLint("ResourceAsColor")
                 @Override
                 public void onClick(View v) {
-                    Log.e("[BibleBookRav]", "책장번호[0]: " + bibleVm.책장번호[0] );
+//                    Log.e("[BibleBookRav]", "책장번호[0]: " + bibleVm.책장번호[0] ); //책장번호업데이트전 번호
 //                    position = getAbsoluteAdapterPosition(); //현재 홀더의 절대위치 LayoutManager를 이용하는 기능이라면 이것의 위치를 사용해야한다.
                     position = getLayoutPosition();
                     if (position != RecyclerView.NO_POSITION   ) {
                         //로딩바 보이기
-                        Log.e("오류태그", "");
                         ((BibleVerseFm) ( bibleBookFm.getParentFragmentManager().findFragmentById(0))).binding.bibleVerseFmProgressbar.setVisibility(View.VISIBLE);
                         bibleVm.책장번호업데이트( mItem.getBook()); //position == mItem.book-1  -- position 은 0부터 인덱스가 시작이기 때문 book은 창세기가 1부터 시작임.
 
@@ -128,9 +127,11 @@ public class BibleBookRva extends RecyclerView.Adapter<BibleBookRva.BibleBookVh>
                         assert bibleBookFm.getParentFragment() != null;
                         ((BibleFm) bibleBookFm.getParentFragment()).binding.bibleTabLayoutViewpager.setCurrentItem(1);
                         //스크롤 제일 위로 가기
-//                        ((BibleVerseFm) ( bibleChapterFm.getParentFragmentManager().getFragments().get(2))).recyclerView.scrollToPosition(0);
-//                        Log.e("[BibleBookRav]", "getParentFragmentManager: " +  bibleChapterFm.getParentFragmentManager().getFragments().get(0).getId() );
                         ((BibleVerseFm) ( bibleBookFm.getParentFragmentManager().findFragmentById(0))).recyclerView.scrollToPosition(0);
+//                        ((BibleVerseFm) ( bibleChapterFm.getParentFragmentManager().getFragments().get(2))).recyclerView.scrollToPosition(0);
+                        //현재 보고있는 화면의 프라그먼트의 id를 가져오기
+//                        Log.e("[BibleBookRav]", "getParentFragmentManager: " +  bibleChapterFm.getParentFragmentManager().getFragments().get(0).getId() );
+                        //id가 아닌 findFragmentByTag("f2") 로 가져오고 싶은 경우 viewpager2에서는 "f0", "f1", "f2" 등으로 각 인덱스에 f 가 붙은 태그네임이 디폴트로 잡혀있다.
 
                         notifyDataSetChanged();
 

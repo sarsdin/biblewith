@@ -1,0 +1,85 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/image_linear_layout"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    android:orientation="horizontal">
+
+    <!--    실제 보여질 이미지뷰 -->
+    <com.google.android.material.card.MaterialCardView
+        android:id="@+id/image_card_view"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginHorizontal="7dp"
+        android:background="#48FB6C6C"
+        app:cardCornerRadius="10dp"
+        app:cardElevation="1dp"
+        >
+        <com.google.android.material.imageview.ShapeableImageView
+            android:id="@+id/image_iv"
+            android:layout_width="184dp"
+            android:layout_height="153dp"
+            android:background="#FFFFFF"
+            android:contentDescription="이미지"
+            android:scaleType="fitXY"
+            app:srcCompat="@drawable/ic_noimage" />
+
+        <!--<com.google.android.material.floatingactionbutton.FloatingActionButton
+            android:id="@+id/image_remove_fab"
+            android:layout_width="30dp"
+            android:layout_height="30dp"
+            android:layout_gravity="end"
+            android:clickable="true"
+            app:backgroundTint="#80DDDDDD"
+            app:tint="#C80000"
+            app:fabCustomSize="30dp"
+            app:maxImageSize="36dp"
+            app:srcCompat="@drawable/ic_baseline_remove_circle_outline_24"
+            tools:ignore="SpeakableTextPresentCheck"
+            />-->
+    </com.google.android.material.card.MaterialCardView>
+
+
+    <!--    추가용! 이미지 홀더 0번 인덱스 -->
+    <!--    <com.google.android.material.card.MaterialCardView-->
+    <!--        android:id="@+id/image_card_view_i0"-->
+    <!--        android:layout_width="wrap_content"-->
+    <!--        android:layout_height="wrap_content"-->
+    <!--        android:layout_marginHorizontal="7dp"-->
+    <!--        android:background="#48FB6C6C"-->
+    <!--        android:visibility="gone"-->
+    <!--        app:cardCornerRadius="10dp"-->
+    <!--        app:cardElevation="1dp">-->
+
+    <!--        <com.google.android.material.imageview.ShapeableImageView-->
+    <!--            android:id="@+id/image_iv_i0"-->
+    <!--            android:layout_width="184dp"-->
+    <!--            android:layout_height="153dp"-->
+    <!--            android:background="#FFFFFF"-->
+    <!--            android:contentDescription="이미지"-->
+    <!--            android:scaleType="fitXY"-->
+    <!--            app:srcCompat="@drawable/ic_noimage" />-->
+
+    <!--        <com.google.android.material.floatingactionbutton.FloatingActionButton-->
+    <!--            android:id="@+id/image_add_fab_i0"-->
+    <!--            android:layout_width="30dp"-->
+    <!--            android:layout_height="30dp"-->
+    <!--            android:layout_gravity="end"-->
+    <!--            android:backgroundTint="#FFFFFF"-->
+    <!--            android:clickable="true"-->
+    <!--            app:backgroundTint="#00DDDDDD"-->
+    <!--            app:fabCustomSize="30dp"-->
+    <!--            app:maxImageSize="36dp"-->
+    <!--            app:srcCompat="@android:drawable/ic_input_add"-->
+    <!--            app:tint="#C80000"-->
+    <!--            tools:ignore="SpeakableTextPresentCheck" />-->
+    <!--    </com.google.android.material.card.MaterialCardView>-->
+
+
+
+
+
+</LinearLayout>

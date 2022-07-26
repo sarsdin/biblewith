@@ -56,6 +56,7 @@ class BibleVerseBtsRva( val bibleVm: BibleVm, val bibleVerseFm: BibleVerseFm) : 
             //색깔 클릭시
             vhBinding.root.setOnClickListener {
                 var signalDel = false
+                //색깔 삭제 클릭시(0번홀더)
                 if(absoluteAdapterPosition == 0){
                     signalDel = true    //0번 뷰홀더를 클릭하였다면 삭제 시그널을 주고 삭제 로직을 진행
                     //프로그래스바 비통기 통신 완료 전 까지 온시킴.
@@ -69,12 +70,12 @@ class BibleVerseBtsRva( val bibleVm: BibleVm, val bibleVerseFm: BibleVerseFm) : 
                     //todo  절 리사이클러뷰 새로고침. 그후 highL 목록을 db에 update - selected all false로 변경
                     //0은 색깔을 제거한다는 것. 어차피 삭제처리이기때문에..
                     bibleVm.verseL.forEach{
-                        if (it.highlight_selected) {
+                        if (it.highlight_selected == true) {
                             it.highlight_color = bibleVm.colorL[0].highlight_color
                         }
                     }
 
-                    val tmpHighL = bibleVm.verseL.filter { it.highlight_selected } //하이라이트될 리스트
+                    val tmpHighL = bibleVm.verseL.filter { it.highlight_selected == true } //하이라이트될 리스트
                     val delHighL = tmpHighL.map{ it.bible_no } //하이라이트 되지 않을 리스트(하이라이트 삭제)
 //                Log.e("[BibleVerseBtsRva]", "delHighL : $delHighL")
                     //삭제할 하이라이트절이 없으면 함수 종료
@@ -129,7 +130,7 @@ class BibleVerseBtsRva( val bibleVm: BibleVm, val bibleVerseFm: BibleVerseFm) : 
 
 
 
-
+                //색깔 클릭시(나머지홀더)
                 } else {
                     //프로그래스바 비통기 통신 완료 전 까지 온시킴.
                     bibleVerseFm.binding.bibleVerseFmProgressbar.visibility = View.VISIBLE
@@ -142,12 +143,12 @@ class BibleVerseBtsRva( val bibleVm: BibleVm, val bibleVerseFm: BibleVerseFm) : 
                     //todo  절 리사이클러뷰 새로고침. 그후 highL 목록을 db에 update - selected all false로 변경
                     //선택된 절들 색깔을 클릭한 홀더의 색으로 변경해줌
                     bibleVm.verseL.forEach{
-                        if (it.highlight_selected) {
+                        if (it.highlight_selected == true) {
                             it.highlight_color = bibleVm.colorL[0].highlight_color
                         }
                     }
 
-                    val tmpHighL = bibleVm.verseL.filter { it.highlight_selected } //하이라이트될 리스트
+                    val tmpHighL = bibleVm.verseL.filter { it.highlight_selected == true } //하이라이트될 리스트
                     val delHighL = tmpHighL.map{ it.bible_no } //하이라이트 되지 않을 리스트(하이라이트 삭제)
 //                Log.e("[BibleVerseBtsRva]", "delHighL : $delHighL")
 
@@ -197,23 +198,14 @@ class BibleVerseBtsRva( val bibleVm: BibleVm, val bibleVerseFm: BibleVerseFm) : 
                         }
                     })
 
-
-
                 }
 
+            } //색깔 뷰홀더 클릭 종료 부분
 
 
 
 
-
-
-
-            }
-
-
-
-
-        }
+        } //bind() 끝 부분
 
 
     }

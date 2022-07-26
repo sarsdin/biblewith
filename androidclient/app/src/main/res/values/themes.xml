@@ -10,13 +10,18 @@
         <item name="colorSecondaryVariant">@color/teal_700</item>
         <item name="colorOnSecondary">@color/black</item>
         <!-- Status bar color. -->
-        <item name="android:statusBarColor" >#8B8795</item>
+<!--        <item name="android:statusBarColor" >#8B8795</item>-->
         <!-- Customize your theme here. -->
     </style>
 
     <style name="Theme.seols" parent="Theme.Androidclient">
         <item name="windowActionBar">false</item>
         <item name="windowNoTitle">true</item>
+<!--        상태바 투명으로 하는 옵션들-->
+<!--        <item name="android:windowTranslucentStatus">true</item>-->
+<!--        <item name="android:windowTranslucentNavigation">true</item>-->
+<!--        <item name="android:statusBarColor">@android:color/transparent</item>-->
+<!--        <item name="android:fitsSystemWindows">true</item> <<이것은 전역설정이라 개별로 해야할듯.. -->
 
 <!--        <item name="android:textViewStyle">@style/customTextViewFontStyle</item>-->
 <!--        <item name="editTextStyle">@style/customEditTextFontStyle</item>-->

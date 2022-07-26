@@ -18,39 +18,25 @@
     <fragment
         android:id="@+id/group_fm"
         android:name="com.example.androidclient.group.GroupFm"
-        android:label=""
-        tools:layout="@layout/group_fm" />
-    <fragment
-        android:id="@+id/more_fm"
-        android:name="com.example.androidclient.moreinfo.MoreFm"
-        android:label="더보기"
-        tools:layout="@layout/more_fm" />
+        android:label="모임 main"
+        tools:layout="@layout/group_fm" >
+        <action
+            android:id="@+id/action_group_fm_to_groupCreateFm"
+            app:destination="@id/groupCreateFm" />
+        <action
+            android:id="@+id/action_group_fm_to_groupInFm"
+            app:destination="@id/groupInFm"
+            app:enterAnim="@anim/nav_default_enter_anim"
+            app:exitAnim="@anim/nav_default_exit_anim"
+            app:launchSingleTop="true" />
+    </fragment>
     <fragment
         android:id="@+id/bibleVerseFm"
         android:name="com.example.androidclient.bible.BibleVerseFm"
-        android:label="" />
+        android:label=""
+        tools:layout="@layout/bible_verse_fm_list"/>
     <action android:id="@+id/action_global_bibleVerseFm"
         app:destination="@id/bibleVerseFm"/>
-    <fragment
-        android:id="@+id/myNoteFm"
-        android:name="com.example.androidclient.moreinfo.MyNoteFm"
-        android:label="나의 노트"
-        tools:layout="@layout/my_note_fm_list" />
-    <fragment
-        android:id="@+id/myHighLightFm"
-        android:name="com.example.androidclient.moreinfo.MyHighLightFm"
-        android:label="하이라이트"
-        tools:layout="@layout/my_high_light_fm_list" />
-    <action
-        android:id="@+id/action_global_myHighLightFm"
-        app:destination="@id/myHighLightFm"
-        app:enterAnim="@anim/nav_default_enter_anim"
-        app:exitAnim="@anim/nav_default_exit_anim" />
-    <action
-        android:id="@+id/action_global_myNoteFm"
-        app:destination="@id/myNoteFm"
-        app:enterAnim="@anim/nav_default_enter_anim"
-        app:exitAnim="@anim/nav_default_exit_anim" />
     <fragment
         android:id="@+id/myNoteFmAdd"
         android:name="com.example.androidclient.moreinfo.MyNoteFmAdd"
@@ -66,14 +52,172 @@
     <fragment
         android:id="@+id/myNoteFmUpdate"
         android:name="com.example.androidclient.moreinfo.MyNoteFmUpdate"
-        android:label="노트 수정" />
+        android:label="노트 수정"
+        tools:layout="@layout/my_note_fm_update"/>
     <action
         android:id="@+id/action_global_myNoteFmUpdate"
         app:destination="@id/myNoteFmUpdate"
         app:enterAnim="@anim/nav_default_enter_anim"
         app:exitAnim="@anim/nav_default_exit_anim" />
     <action android:id="@+id/action_global_bible_fm" app:destination="@id/bible_fm"/>
+    <action
+        android:id="@+id/action_global_home_fm"
+        app:destination="@id/home_fm" />
 
+    <!--nested navigation 사용시 -navigation이 바뀔때마다
+    setupActionBarWithNavController 로 navController를 계속
+    바꿔줘야해서 귀찮아서 안씀. 써야되는지 알았는데 안써도 구현가능 -->
+   <!-- <navigation android:id="@+id/more_navigation"
+        app:startDestination="@id/more_fm">
+    </navigation>-->
+
+    <fragment
+        android:id="@+id/more_fm"
+        android:name="com.example.androidclient.moreinfo.MoreFm"
+        android:label="더보기"
+        tools:layout="@layout/more_fm">
+        <action
+            android:id="@+id/action_more_fm_to_myNoteFm"
+            app:destination="@id/myNoteFm"
+            app:enterAnim="@anim/nav_default_enter_anim"
+            app:exitAnim="@anim/nav_default_exit_anim"
+            />
+        <action
+            android:id="@+id/action_more_fm_to_myHighLightFm"
+            app:destination="@id/myHighLightFm"
+            app:enterAnim="@anim/nav_default_enter_anim"
+            app:exitAnim="@anim/nav_default_exit_anim" />
+    </fragment>
+<!--            app:restoreState="true"-->
+    <fragment
+        android:id="@+id/myHighLightFm"
+        android:name="com.example.androidclient.moreinfo.MyHighLightFm"
+        android:label="하이라이트"
+        tools:layout="@layout/my_high_light_fm_list" />
+    <fragment
+        android:id="@+id/myNoteFm"
+        android:name="com.example.androidclient.moreinfo.MyNoteFm"
+        android:label="나의 노트"
+        tools:layout="@layout/my_note_fm_list" />
+    <fragment
+        android:id="@+id/groupCreateFm"
+        android:name="com.example.androidclient.group.GroupCreateFm"
+        android:label="모임 만들기"
+        tools:layout="@layout/group_create_fm" />
+    <fragment
+        android:id="@+id/groupListFm"
+        android:name="com.example.androidclient.group.GroupListFm"
+        android:label=""
+        tools:layout="@layout/group_list_fm" />
+    <fragment
+        android:id="@+id/groupChatFm"
+        android:name="com.example.androidclient.group.GroupChatFm"
+        android:label=""
+        tools:layout="@layout/group_chat_fm" />
+    <fragment
+        android:id="@+id/groupNotifyFm"
+        android:name="com.example.androidclient.group.GroupNotifyFm"
+        android:label=""
+        tools:layout="@layout/group_notify_fm" />
+    <fragment
+        android:id="@+id/groupInFm"
+        android:name="com.example.androidclient.group.GroupInFm"
+        android:label=""
+        tools:layout="@layout/group_in_fm" >
+        <action
+            android:id="@+id/action_groupInFm_to_groupInWriteFm"
+            app:destination="@id/groupInWriteFm" />
+        <action
+            android:id="@+id/action_groupInFm_to_groupInUpdateFm"
+            app:destination="@id/groupInUpdateFm"
+            app:popEnterAnim="@anim/nav_default_pop_enter_anim"
+            app:popExitAnim="@anim/nav_default_pop_exit_anim" />
+        <action
+            android:id="@+id/action_groupInFm_to_groupBoardDetail"
+            app:destination="@id/groupBoardDetail"
+            app:enterAnim="@anim/nav_default_enter_anim"
+            app:exitAnim="@anim/nav_default_exit_anim" />
+        <action
+            android:id="@+id/action_groupInFm_to_group_in_challenge_fm2"
+            app:destination="@id/group_in_challenge_fm"
+            app:launchSingleTop="true" />
+    </fragment>
+    <fragment
+        android:id="@+id/groupInWriteFm"
+        android:name="com.example.androidclient.group.GroupInWriteFm"
+        android:label="글쓰기"
+        tools:layout="@layout/group_in_write_fm"/>
+    <fragment
+        android:id="@+id/groupInUpdateFm"
+        android:name="com.example.androidclient.group.GroupInUpdateFm"
+        android:label="글수정하기"
+        tools:layout="@layout/group_in_update_fm" >
+        <action
+            android:id="@+id/action_groupInUpdateFm_to_groupInFm"
+            app:destination="@id/groupInFm"
+            app:launchSingleTop="true"
+            app:popUpTo="@id/groupInFm" />
+    </fragment>
+    <fragment
+        android:id="@+id/groupBoardDetail"
+        android:name="com.example.androidclient.group.GroupBoardDetail"
+        android:label=""
+        tools:layout="@layout/group_board_detail" >
+        <action
+            android:id="@+id/action_groupBoardDetail_to_groupInUpdateFm"
+            app:destination="@id/groupInUpdateFm" />
+    </fragment>
+    <fragment
+        android:id="@+id/group_in_challenge_fm"
+        android:name="com.example.androidclient.group.ChallengeFm"
+        android:label="challenge_fm"
+        tools:layout="@layout/challenge_fm" >
+        <action
+            android:id="@+id/action_group_in_challenge_fm_to_challengeCreateFm"
+            app:destination="@id/challengeCreateFm" />
+        <action
+            android:id="@+id/action_group_in_challenge_fm_to_challengeDetailListFm"
+            app:destination="@id/challengeDetailListFm" />
+    </fragment>
+    <fragment
+        android:id="@+id/challengeCreateFm"
+        android:name="com.example.androidclient.group.ChallengeCreateFm"
+        android:label="ChallengeCreateFm"
+        tools:layout="@layout/challenge_create_fm"
+        >
+        <action
+            android:id="@+id/action_challengeCreateFm_to_challengeCreateNextFm"
+            app:destination="@id/challengeCreateNextFm" />
+    </fragment>
+    <fragment
+        android:id="@+id/challengeCreateNextFm"
+        android:name="com.example.androidclient.group.ChallengeCreateNextFm"
+        android:label="challenge_create_next_fm"
+        tools:layout="@layout/challenge_create_next_fm" >
+        <action
+            android:id="@+id/action_challengeCreateNextFm_to_group_in_challenge_fm"
+            app:destination="@id/group_in_challenge_fm"
+            app:popUpTo="@id/group_in_challenge_fm" />
+    </fragment>
+    <fragment
+        android:id="@+id/challengeDetailFm"
+        android:name="com.example.androidclient.group.ChallengeDetailFm"
+        android:label="ChallengeDetailFm"
+        tools:layout="@layout/challenge_detail_fm"/>
+    <fragment
+        android:id="@+id/challengeDetailListFm"
+        android:name="com.example.androidclient.group.ChallengeDetailListFm"
+        android:label="challenge_detail_list_fm"
+        tools:layout="@layout/challenge_detail_list_fm" >
+        <action
+            android:id="@+id/action_challengeDetailListFm_to_challengeDetailFm"
+            app:destination="@id/challengeDetailFm" />
+    </fragment>
+    <action
+        android:id="@+id/action_global_groupInFm"
+        app:destination="@id/groupInFm"
+        app:launchSingleTop="true"
+        app:popUpTo="@id/groupInFm" />
 
 
 </navigation>

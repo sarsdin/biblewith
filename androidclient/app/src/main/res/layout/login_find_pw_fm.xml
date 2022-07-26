@@ -10,12 +10,11 @@
         android:id="@+id/findpw_iv"
         android:layout_width="117dp"
         android:layout_height="96dp"
-        android:layout_marginTop="80dp"
-        android:layout_marginEnd="132dp"
+        android:layout_marginTop="76dp"
         android:src="@drawable/ic_baseline_lock_open_24"
         android:tint="#0D47A1"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.888"
+        app:layout_constraintHorizontal_bias="0.501"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
 

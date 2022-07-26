@@ -10,7 +10,9 @@ import com.google.gson.JsonObject;
 import java.util.List;
 import java.util.Map;
 
+import okhttp3.MultipartBody;
 import okhttp3.OkHttpClient;
+import okhttp3.RequestBody;
 import okhttp3.logging.HttpLoggingInterceptor;
 import retrofit2.Call;
 import retrofit2.Retrofit;
@@ -18,7 +20,10 @@ import retrofit2.converter.gson.GsonConverterFactory;
 import retrofit2.http.Body;
 import retrofit2.http.GET;
 import retrofit2.http.Headers;
+import retrofit2.http.Multipart;
 import retrofit2.http.POST;
+import retrofit2.http.Part;
+import retrofit2.http.PartMap;
 import retrofit2.http.Query;
 
 public class Http {
@@ -37,10 +42,12 @@ public class Http {
 
     public static final String CHANNEL_ID_LALIGA = "UCTv-XvfzLX3i4IGWAm4sbmA";                             //채널 ID - laliga 공식 채널
     public static final String Q_LALIGA = "highlight";                             //검색어
+    public static final String UPLOADS_URL = "http://15.165.174.226/uploads/";                             //검색어
 
 
     public static Retrofit getRetrofitInstance(String host){
-        Gson gson = new GsonBuilder().setLenient().create(); // RFC 4627만을 허용할정도로 엄격한 parse 규칙을 사용하지만 setLenient 를 적용하여 완화해줌. (오류전문)--> Use JsonReader.setLenient(true) to accept malformed JSON at line 1 column 1 path $
+        // RFC 4627만을 허용할정도로 엄격한 parse 규칙을 사용하지만 setLenient 를 적용하여 완화해줌. (오류전문)--> Use JsonReader.setLenient(true) to accept malformed JSON at line 1 column 1 path $
+        Gson gson = new GsonBuilder().setPrettyPrinting().setLenient().create();
 
         // 로그를 중간에 가로채서 로그캣에 보여줌
         HttpLoggingInterceptor interceptor = new HttpLoggingInterceptor();
@@ -162,6 +169,74 @@ public class Http {
     }
 
 
+    public interface HttpGroup{
+        //모임 만들기
+        @Multipart
+        @POST("group/createGroup")
+        Call<JsonObject> createGroup(@PartMap Map<String, RequestBody> groupInfo,
+                                     @Part/*("group_main_image")*/ MultipartBody.Part groupImage);
+
+        //모임 목록 가져오기
+        @Headers("content-type: application/json")
+        @POST("group/getGroupL")
+        Call<JsonObject> getGroupL(@Query("user_no") int userNo, @Query("sortState") String sortState);
+
+
+        //모임 상세 가져오기
+        @Headers("content-type: application/json")
+        @POST("group/getGroupIn")
+        Call<JsonObject> getGroupIn(@Query("group_no") int currentGroupIn, @Query("sortStateGroupIn") String sortStateGroupIn, @Query("user_no")int userNo);
+
+        //모임 게시물 목록 가져오기
+        @Headers("content-type: application/json")
+        @POST("group/getGroupInL")
+        Call<JsonObject> getGroupInL(@Query("group_no")int currentGroupIn, @Query("sortStateGroupIn") String sortStateGroupIn);
+
+        //모임 글쓰기
+        @Multipart
+        @POST("group/writeGroupIn")
+        Call<JsonObject> writeGroupIn(@PartMap Map<String, RequestBody> writeInfo,
+                                     @Part List<MultipartBody.Part> writeImage);
+
+        //모임 글수정
+        @Multipart
+        @POST("group/updateBoardGroupIn")
+        Call<JsonObject> updateBoardGroupIn(@PartMap Map<String, RequestBody> updateInfo,
+                                      @Part List<MultipartBody.Part> updateImage);
+
+        //모임 글삭제
+        @Headers("content-type: application/json")
+        @POST("group/deleteBoardGroupIn")
+        Call<JsonObject> deleteBoardGroupIn(@Query("gboard_no") int gboard_no, @Query("user_no") int user_no);
+
+        //모임 글 상세 가져오기
+        @Headers("content-type: application/json")
+        @POST("group/getGboardDetail")
+        Call<JsonObject> getGboardDetail(@Query("gboard_no") int gboard_no, @Query("whereIs") String whereIs, @Query("user_no") int userNo);
+
+        //모임 댓글 쓰기
+        @Headers("content-type: application/json")
+        @POST("group/writeGboardReply")
+        Call<JsonObject> writeGboardReply(@Body JsonObject replyInfo);
+
+        //모임 댓글 삭제
+        @Headers("content-type: application/json")
+        @POST("group/deleteGboardReply")
+        Call<JsonObject> deleteGboardReply(@Body JsonObject replyInfo);
+
+        //모임 댓글 수정
+        @Headers("content-type: application/json")
+        @POST("group/modifyGboardReply")
+        Call<JsonObject> modifyGboardReply(@Body JsonObject replyInfo);
+
+        //모임 좋아요 클릭 - insert or delete
+        @Headers("content-type: application/json")
+        @POST("group/clickGboardLike")
+        Call<JsonObject> clickGboardLike(@Query("gboard_no") int gboard_no, @Query("user_no") int user_no);
+
+
+
+    }
 
 
 

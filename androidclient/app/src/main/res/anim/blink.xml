@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8"?>
+<set xmlns:android="http://schemas.android.com/apk/res/android">
+    <alpha
+        android:duration="350"
+        android:fromAlpha="1.0"
+        android:interpolator="@android:anim/decelerate_interpolator"
+        android:repeatCount="1"
+        android:repeatMode="reverse"
+
+        android:toAlpha="0.0" />
+</set>
+<!--        android:repeatCount="infinite"-->
+<!--        android:interpolator="@android:anim/accelerate_interpolator"-->
+<!--
+- 점점빠르게 : accelerate_interpolator
+- 점점 느리게 이동 : decelerate_interpolator
+- 위 둘을 동시에 : accelerate_decelerate_interpolator
+- 시작위치에서 조금 뒤로 당겼다 이동 : anticipate_interpolator
+- 도착위치를 조금 지나쳤다가 도착위치로 이동 : overshoot_interpolator
+- 위 둘을 동시에 : anticipate_overshoot_interpolator
+- 도착위치에서 튕김 : bounce_interpolator
+출처: https://csjung.tistory.com/176 [짱수의 스토리 창고:티스토리]
+-->

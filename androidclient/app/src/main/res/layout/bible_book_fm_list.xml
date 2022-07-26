@@ -5,7 +5,8 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/bible_book_fm_scroll_view"
     android:layout_width="match_parent"
-    android:layout_height="wrap_content">
+    android:layout_height="wrap_content"
+    tools:context=".bible.BibleBookFm">
 
 
 <androidx.recyclerview.widget.RecyclerView
@@ -16,7 +17,6 @@
     android:layout_marginLeft="16dp"
     android:layout_marginRight="16dp"
     app:layoutManager="LinearLayoutManager"
-    tools:context=".bible.BibleBookFm"
     tools:listitem="@layout/bible_book_fm_book_vh" />
 
 

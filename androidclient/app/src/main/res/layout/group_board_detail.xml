@@ -1,0 +1,369 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.coordinatorlayout.widget.CoordinatorLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context=".group.GroupBoardDetail"
+    >
+
+    <com.google.android.material.appbar.AppBarLayout
+        android:id="@+id/gboard_detail_appbar"
+        android:layout_width="match_parent"
+        android:layout_height="?attr/actionBarSize"
+        app:elevation="1dp">
+
+        <com.google.android.material.appbar.MaterialToolbar
+            android:id="@+id/gboard_detail_toolbar"
+            android:layout_width="match_parent"
+            android:layout_height="?attr/actionBarSize"
+            android:background="#FFFFFF"
+            >
+            <!--            android:background="#00FFFFFF"-->
+
+            <com.google.android.material.textview.MaterialTextView
+                android:id="@+id/gboard_detail_toolbar_tv"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="모임명 글쓴이"
+                android:textSize="16sp" />
+
+            <com.google.android.material.imageview.ShapeableImageView
+                android:id="@+id/gboard_detail_toolbar_iv"
+                android:layout_width="20dp"
+                android:layout_height="20dp"
+                android:layout_gravity="end"
+                android:layout_marginEnd="15dp"
+                android:background="#818080"
+                android:contentDescription="성경 사진 입니다."
+                android:scaleType="centerCrop"
+                android:tint="#FFFFFF"
+                app:shapeAppearanceOverlay="@style/ShapeAppearanceOverlay.App.CornerSize50Percent"
+                app:layout_collapseMode="pin"
+                app:srcCompat="@drawable/ic_baseline_person_24" />
+            <!--                app:srcCompat="@drawable/biblewith_logo"-->
+            <!--                android:fitsSystemWindows="true"-->
+
+<!--            <ImageButton-->
+<!--                android:id="@+id/gboard_detail_toolbar_write_bt"-->
+<!--                android:layout_width="20dp"-->
+<!--                android:layout_height="20dp"-->
+<!--                android:layout_gravity="end"-->
+<!--                android:layout_marginEnd="20dp"-->
+<!--                android:background="#00818080"-->
+<!--                app:tint="#FFFFFF"-->
+<!--                app:srcCompat="@drawable/ic_baseline_create_24"-->
+<!--                />-->
+
+        </com.google.android.material.appbar.MaterialToolbar>
+
+    </com.google.android.material.appbar.AppBarLayout>
+
+    <!--  NestedScrollView 에는 하나의 레이아웃만 들어가야 오류가 없음  -->
+    <androidx.core.widget.NestedScrollView
+        android:id="@+id/gboard_detail_nested_scroll_view"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="?actionBarSize"
+        >
+<!--        app:layout_behavior="@string/appbar_scrolling_view_behavior"-->
+        <!--    android:background="#59DCDCDC"-->
+
+        <androidx.constraintlayout.widget.ConstraintLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:minHeight="120dp">
+            <!--            android:background="#48DCDCDC"-->
+
+            <com.google.android.material.imageview.ShapeableImageView
+                android:id="@+id/gboard_detail_fm_iv"
+                android:layout_width="40dp"
+                android:layout_height="40dp"
+                android:layout_gravity="end"
+                android:layout_marginStart="16dp"
+                android:layout_marginTop="12dp"
+                android:background="#818080"
+                android:contentDescription="profile 사진 입니다."
+                android:scaleType="centerCrop"
+                android:tint="#FFFFFF"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent"
+                app:shapeAppearanceOverlay="@style/ShapeAppearanceOverlay.App.CornerSize50Percent"
+                app:srcCompat="@drawable/ic_baseline_person_24" />
+
+            <com.google.android.material.textview.MaterialTextView
+                android:id="@+id/gboard_detail_fm_writer_tv"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="20dp"
+                android:textAppearance="?attr/textAppearanceListItem"
+                android:textSize="14sp"
+                app:layout_constraintStart_toEndOf="@+id/gboard_detail_fm_iv"
+                app:layout_constraintTop_toTopOf="@+id/gboard_detail_fm_iv"
+                tools:text="글쓴이" />
+
+            <com.google.android.material.textview.MaterialTextView
+                android:id="@+id/gboard_detail_fm_date_tv"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="3dp"
+                android:text="2022-6-29 00:00:11"
+                android:textColor="#707070"
+                android:textAppearance="?attr/textAppearanceListItem"
+                android:textSize="14sp"
+                app:layout_constraintStart_toStartOf="@+id/gboard_detail_fm_writer_tv"
+                app:layout_constraintTop_toBottomOf="@+id/gboard_detail_fm_writer_tv"
+                tools:text="2022-6-29 00:00:11" />
+
+            <ImageButton
+                android:id="@+id/gboard_detail_fm_menu_ibt"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="14dp"
+                android:layout_marginEnd="16dp"
+                android:background="#FFFFFF"
+                android:scaleType="centerInside"
+                android:src="@drawable/ic_baseline_more_vert_24"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintTop_toTopOf="parent" />
+
+
+            <com.google.android.material.textview.MaterialTextView
+                android:id="@+id/gboard_detail_fm_content_tv"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="16dp"
+                android:minHeight="50dp"
+                android:maxHeight="200dp"
+                android:paddingHorizontal="15dp"
+                android:paddingVertical="5dp"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/gboard_detail_fm_date_tv" />
+
+            <androidx.recyclerview.widget.RecyclerView
+                android:id="@+id/gboard_detail_fm_image_list"
+                android:layout_width="match_parent"
+                android:layout_height="150dp"
+                android:layout_marginVertical="15dp"
+                android:visibility="gone"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/gboard_detail_fm_content_tv"
+                tools:visibility="visible" />
+
+            <LinearLayout
+                android:id="@+id/gboard_detail_fm_LL"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="8dp"
+                android:orientation="horizontal"
+                android:padding="15dp"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintHorizontal_bias="1.0"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/gboard_detail_fm_image_list">
+
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/gboard_detail_fm_LL_like_ea_bt"
+                    style="@android:style/Widget.Material.Light.Button.Borderless.Small"
+                    android:layout_width="65dp"
+                    android:layout_height="30dp"
+                    android:padding="0dp"
+                    android:text="0"
+                    android:textColor="#AAAAAA"
+                    android:textSize="16sp"
+                    app:icon="@drawable/ic_baseline_thumb_up_24"
+                    app:iconPadding="0dp"
+                    app:iconTint="#AAAAAA"
+                    tools:text="22" />
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/gboard_detail_fm_LL_reply_ea_bt"
+                    style="@android:style/Widget.Material.Light.Button.Borderless.Small"
+                    android:layout_width="65dp"
+                    android:layout_height="30dp"
+                    android:layout_marginStart="10dp"
+                    android:padding="0dp"
+                    android:text="0"
+                    android:textColor="#AAAAAA"
+                    android:textSize="16sp"
+                    app:icon="@drawable/ic_comment"
+                    app:iconPadding="0dp"
+                    app:iconTint="#AAAAAA"
+                    tools:text="22" />
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/gboard_detail_fm_LL_hit_bt"
+                    style="@android:style/Widget.Material.Light.Button.Borderless.Small"
+                    android:layout_width="65dp"
+                    android:layout_height="30dp"
+                    android:layout_marginStart="10dp"
+                    android:padding="0dp"
+                    android:text="0"
+                    android:textColor="#AAAAAA"
+                    android:textSize="16sp"
+                    app:icon="@drawable/ic_baseline_remove_red_eye_24"
+                    app:iconPadding="0dp"
+                    app:iconTint="#AAAAAA"
+                    tools:text="22" />
+
+            </LinearLayout>
+
+            <!--        구분선-->
+            <View
+                android:id="@+id/view"
+                android:layout_width="match_parent"
+                android:layout_height="1dp"
+                android:layout_marginVertical="1dp"
+                android:background="#4DCDCDCD"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintHorizontal_bias="0.0"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/gboard_detail_fm_LL" />
+
+
+            <LinearLayout
+                android:id="@+id/gboard_detail_fm_LL_bottom"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:gravity="center"
+                android:orientation="horizontal"
+                android:padding="1dp"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/view">
+
+<!--                <com.google.android.material.button.MaterialButton-->
+<!--                    android:id="@+id/gboard_detail_fm_LL_bottom_like_bt"-->
+<!--                    style="@android:style/Widget.Material.Light.Button.Borderless.Small"-->
+<!--                    android:layout_width="200dp"-->
+<!--                    android:layout_height="40dp"-->
+<!--                    android:padding="0dp"-->
+<!--                    android:checkable="true"-->
+<!--                    android:text="  좋아요"-->
+<!--                    android:textColor="#3C3C3C"-->
+<!--                    android:textSize="16sp"-->
+<!--                    app:icon="@drawable/ic_baseline_thumb_up_24"-->
+<!--                    app:iconGravity="textStart"-->
+<!--                    app:iconPadding="0dp"-->
+<!--                    app:iconTint="#3C3C3C" />-->
+
+<!--                <com.google.android.material.button.MaterialButton-->
+<!--                    android:id="@+id/gboard_detail_fm_LL_bottom_reply_bt"-->
+<!--                    style="@android:style/Widget.Material.Light.Button.Borderless.Small"-->
+<!--                    android:layout_width="200dp"-->
+<!--                    android:layout_height="40dp"-->
+<!--                    android:padding="0dp"-->
+<!--                    android:checkable="true"-->
+<!--                    android:text="  댓글쓰기"-->
+<!--                    android:textColor="#3C3C3C"-->
+<!--                    android:textSize="16sp"-->
+<!--                    app:icon="@drawable/ic_comment"-->
+<!--                    app:iconGravity="textStart"-->
+<!--                    app:iconPadding="0dp"-->
+<!--                    app:iconTint="#3C3C3C" />-->
+            </LinearLayout>
+
+
+            <!--        구분선2-->
+            <View
+                android:id="@+id/view2"
+                android:layout_width="match_parent"
+                android:layout_height="1dp"
+                android:layout_marginVertical="1dp"
+                android:background="#4DCDCDCD"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintHorizontal_bias="1.0"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/gboard_detail_fm_LL_bottom" />
+
+            <androidx.recyclerview.widget.RecyclerView
+                android:id="@+id/gboard_detail_reply_list"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:minHeight="65dp"
+                android:paddingBottom="160dp"
+                android:visibility="visible"
+                app:layoutManager="LinearLayoutManager"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/view2"
+                tools:visibility="visible" />
+<!--                android:nestedScrollingEnabled="false"-->
+<!--                app:layout_behavior="@string/appbar_scrolling_view_behavior"-->
+
+
+
+
+        </androidx.constraintlayout.widget.ConstraintLayout>
+
+
+    </androidx.core.widget.NestedScrollView>
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:id="@+id/reply_constraint"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_gravity="bottom"
+        android:focusable="auto">
+        <!--    app:layout_constraintBottom_toBottomOf="parent"-->
+        <!--    app:layout_constraintEnd_toEndOf="parent"-->
+        <!--    app:layout_constraintStart_toStartOf="parent"-->
+        <!--    app:layout_constraintTop_toBottomOf="@+id/gboard_detail_reply_list"-->
+
+        <com.google.android.material.textfield.TextInputLayout
+            android:id="@+id/gboard_detail_write_reply_et_layout"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="8dp"
+            android:layout_marginTop="8dp"
+            android:background="#FFFFFF"
+            android:hint="댓글을 남겨주세요."
+            app:boxBackgroundMode="outline"
+            app:layout_constraintEnd_toStartOf="@+id/gboard_detail_reply_write_ibt"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent">
+            <!--        app:counterEnabled="true"-->
+            <!--        app:counterMaxLength="40"-->
+
+            <com.google.android.material.textfield.TextInputEditText
+                android:id="@+id/gboard_detail_reply_write_et"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:inputType="textNoSuggestions|textMultiLine" />
+        </com.google.android.material.textfield.TextInputLayout>
+
+        <ImageButton
+            android:id="@+id/gboard_detail_reply_write_ibt"
+            android:layout_width="30dp"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="8dp"
+            android:layout_marginEnd="8dp"
+            android:layout_marginBottom="16dp"
+            android:background="#00818080"
+            android:scaleType="centerCrop"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toEndOf="@+id/gboard_detail_write_reply_et_layout"
+            app:srcCompat="@drawable/ic_baseline_create_24"
+            app:tint="#7A7979" />
+        <ImageButton
+            android:id="@+id/gboard_detail_reply_modify_ibt"
+            android:layout_width="30dp"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="8dp"
+            android:layout_marginEnd="8dp"
+            android:layout_marginBottom="16dp"
+            android:background="#00818080"
+            android:scaleType="centerCrop"
+            android:visibility="gone"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toEndOf="@+id/gboard_detail_write_reply_et_layout"
+            app:srcCompat="@drawable/ic_baseline_create_24"
+            app:tint="#7A7979" />
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
+
+
+</androidx.coordinatorlayout.widget.CoordinatorLayout>

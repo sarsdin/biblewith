@@ -1,185 +1,241 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.coordinatorlayout.widget.CoordinatorLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".moreinfo.MoreFm">
+    tools:context=".moreinfo.MoreFm"
+    >
 
-<!--    내정보 -->
-    <com.google.android.material.imageview.ShapeableImageView
-        android:id="@+id/more_fm_profile_iv"
-        android:layout_width="32dp"
-        android:layout_height="32dp"
-        android:layout_marginStart="28dp"
-        android:layout_marginTop="24dp"
-        android:adjustViewBounds="false"
-        android:background="#818080"
-        android:scaleType="fitCenter"
-        android:tint="#FFFFFF"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
-        app:shapeAppearanceOverlay="@style/ShapeAppearanceOverlay.App.CornerSize50Percent"
-        app:srcCompat="@drawable/ic_baseline_person_24" />
-    <com.google.android.material.textview.MaterialTextView
-        android:id="@+id/more_fm_profile_tv"
-        android:layout_width="wrap_content"
+    <com.google.android.material.appbar.AppBarLayout
+        android:id="@+id/more_appbar"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginStart="64dp"
-        android:text="내정보"
-        android:textColor="#070707"
-        android:textSize="24dp"
-        app:layout_constraintBottom_toBottomOf="@+id/more_fm_profile_iv"
-        app:layout_constraintStart_toEndOf="@+id/more_fm_profile_iv"
-        app:layout_constraintTop_toTopOf="@+id/more_fm_profile_iv"
-        app:layout_constraintVertical_bias="1.0" />
+        android:background="#00FFFFFF"
+        app:elevation="1dp">
 
-    <androidx.constraintlayout.widget.Group
-        android:id="@+id/more_fm_profile_group"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        app:constraint_referenced_ids="more_fm_profile_iv,more_fm_profile_tv"
-        />
+        <com.google.android.material.appbar.MaterialToolbar
+            android:id="@+id/more_toolbar"
+            android:layout_width="match_parent"
+            android:layout_height="?attr/actionBarSize"
+            android:background="#FFFFFF"
+            android:elevation="1dp">
 
-<!-- 알림 -->
-    <com.google.android.material.imageview.ShapeableImageView
-        android:id="@+id/more_fm_notification_iv"
-        android:layout_width="32dp"
-        android:layout_height="32dp"
-        android:layout_marginStart="28dp"
-        android:layout_marginTop="96dp"
-        android:scaleType="centerInside"
-        android:tint="#020202"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
-        app:shapeAppearanceOverlay="@style/ShapeAppearanceOverlay.App.CornerSize50Percent"
-        app:srcCompat="@drawable/ic_notification_icon" />
+            <com.google.android.material.textview.MaterialTextView
+                android:id="@+id/more_toolbar_tv"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:fontFamily="monospace"
+                android:text=""
+                android:textSize="20sp"
+                android:textStyle="bold" />
 
-    <com.google.android.material.textview.MaterialTextView
-        android:id="@+id/more_fm_notification_tv"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginStart="64dp"
-        android:text="알림"
-        android:textColor="#070707"
-        android:textSize="24dp"
-        app:layout_constraintBottom_toBottomOf="@+id/more_fm_notification_iv"
-        app:layout_constraintStart_toEndOf="@+id/more_fm_notification_iv"
-        app:layout_constraintTop_toTopOf="@+id/more_fm_notification_iv"
-        app:layout_constraintVertical_bias="0.0" />
-    <androidx.constraintlayout.widget.Group
-        android:id="@+id/more_fm_notification_group"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        app:constraint_referenced_ids="more_fm_notification_iv,more_fm_notification_tv"
-        />
+            <com.google.android.material.imageview.ShapeableImageView
+                android:id="@+id/more_toolbar_iv"
+                android:layout_width="20dp"
+                android:layout_height="20dp"
+                android:layout_gravity="end"
+                android:layout_marginEnd="15dp"
+                android:background="#818080"
+                android:contentDescription="이미지 입니다."
+                android:scaleType="centerCrop"
+                android:tint="#FFFFFF"
+                android:visibility="gone"
+                app:layout_collapseMode="pin"
+                app:shapeAppearanceOverlay="@style/ShapeAppearanceOverlay.App.CornerSize50Percent"
+                app:srcCompat="@drawable/ic_baseline_person_24" />
 
-<!--하이라이트-->
-    <com.google.android.material.imageview.ShapeableImageView
-        android:id="@+id/more_fm_highlight_iv"
-        android:layout_width="32dp"
-        android:layout_height="32dp"
-        android:layout_marginStart="28dp"
-        android:layout_marginTop="164dp"
-        android:scaleType="centerInside"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
-        app:shapeAppearanceOverlay="@style/ShapeAppearanceOverlay.App.CornerSize50Percent"
-        app:srcCompat="@drawable/ic_highlight_icon" />
-
-    <com.google.android.material.textview.MaterialTextView
-        android:id="@+id/more_fm_highlight_tv"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginStart="64dp"
-        android:text="하이라이트"
-        android:textColor="#000000"
-        android:textSize="24dp"
-        app:layout_constraintBottom_toBottomOf="@+id/more_fm_highlight_iv"
-        app:layout_constraintStart_toEndOf="@+id/more_fm_highlight_iv"
-        app:layout_constraintTop_toTopOf="@+id/more_fm_highlight_iv"
-        app:layout_constraintVertical_bias="0.0" />
-    <androidx.constraintlayout.widget.Group
-        android:id="@+id/more_fm_highlight_group"
-        android:layout_width="wrap_content"
-        android:clickable="true"
-        app:constraint_referenced_ids="more_fm_highlight_iv,more_fm_highlight_tv"
-        android:layout_height="wrap_content" />
+        </com.google.android.material.appbar.MaterialToolbar>
 
 
-<!--    노트 -->
-    <com.google.android.material.imageview.ShapeableImageView
-        android:id="@+id/more_fm_note_iv"
-        android:layout_width="32dp"
-        android:layout_height="32dp"
-        android:layout_marginStart="28dp"
-        android:layout_marginTop="236dp"
-        android:scaleType="centerInside"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
-        app:shapeAppearanceOverlay="@style/ShapeAppearanceOverlay.App.CornerSize50Percent"
-        app:srcCompat="@drawable/ic_note_icon" />
 
-    <com.google.android.material.textview.MaterialTextView
-        android:id="@+id/more_fm_note_tv"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginStart="64dp"
-        android:text="노트"
-        android:textColor="#000000"
-        android:textSize="24dp"
-        app:layout_constraintBottom_toBottomOf="@+id/more_fm_note_iv"
-        app:layout_constraintStart_toEndOf="@+id/more_fm_note_iv"
-        app:layout_constraintTop_toTopOf="@+id/more_fm_note_iv"
-        app:layout_constraintVertical_bias="1.0" />
-    <androidx.constraintlayout.widget.Group
-        android:id="@+id/more_fm_note_group"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        app:constraint_referenced_ids="more_fm_note_iv,more_fm_note_tv"
-        />
+    </com.google.android.material.appbar.AppBarLayout>
+
+    <androidx.constraintlayout.widget.ConstraintLayout 
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_marginTop="?attr/actionBarSize"
+        >
+
+        <!--    내정보 -->
+        <com.google.android.material.imageview.ShapeableImageView
+            android:id="@+id/more_fm_profile_iv"
+            android:layout_width="32dp"
+            android:layout_height="32dp"
+            android:layout_marginStart="28dp"
+            android:layout_marginTop="24dp"
+            android:adjustViewBounds="false"
+            android:background="#818080"
+            android:scaleType="fitCenter"
+            android:tint="#FFFFFF"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            app:shapeAppearanceOverlay="@style/ShapeAppearanceOverlay.App.CornerSize50Percent"
+            app:srcCompat="@drawable/ic_baseline_person_24" />
+        <com.google.android.material.textview.MaterialTextView
+            android:id="@+id/more_fm_profile_tv"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="64dp"
+            android:text="내정보"
+            android:textColor="#070707"
+            android:textSize="24dp"
+            app:layout_constraintBottom_toBottomOf="@+id/more_fm_profile_iv"
+            app:layout_constraintStart_toEndOf="@+id/more_fm_profile_iv"
+            app:layout_constraintTop_toTopOf="@+id/more_fm_profile_iv"
+            app:layout_constraintVertical_bias="1.0" />
+
+        <androidx.constraintlayout.widget.Group
+            android:id="@+id/more_fm_profile_group"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            app:constraint_referenced_ids="more_fm_profile_iv,more_fm_profile_tv"
+            />
+
+        <!-- 알림 -->
+        <com.google.android.material.imageview.ShapeableImageView
+            android:id="@+id/more_fm_notification_iv"
+            android:layout_width="32dp"
+            android:layout_height="32dp"
+            android:layout_marginStart="28dp"
+            android:layout_marginTop="96dp"
+            android:scaleType="centerInside"
+            android:tint="#020202"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            app:shapeAppearanceOverlay="@style/ShapeAppearanceOverlay.App.CornerSize50Percent"
+            app:srcCompat="@drawable/ic_notification_icon" />
+
+        <com.google.android.material.textview.MaterialTextView
+            android:id="@+id/more_fm_notification_tv"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="64dp"
+            android:text="알림"
+            android:textColor="#070707"
+            android:textSize="24dp"
+            app:layout_constraintBottom_toBottomOf="@+id/more_fm_notification_iv"
+            app:layout_constraintStart_toEndOf="@+id/more_fm_notification_iv"
+            app:layout_constraintTop_toTopOf="@+id/more_fm_notification_iv"
+            app:layout_constraintVertical_bias="0.0" />
+        <androidx.constraintlayout.widget.Group
+            android:id="@+id/more_fm_notification_group"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            app:constraint_referenced_ids="more_fm_notification_iv,more_fm_notification_tv"
+            />
+
+        <!--하이라이트-->
+        <com.google.android.material.imageview.ShapeableImageView
+            android:id="@+id/more_fm_highlight_iv"
+            android:layout_width="32dp"
+            android:layout_height="32dp"
+            android:layout_marginStart="28dp"
+            android:layout_marginTop="164dp"
+            android:scaleType="centerInside"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            app:shapeAppearanceOverlay="@style/ShapeAppearanceOverlay.App.CornerSize50Percent"
+            app:srcCompat="@drawable/ic_highlight_icon" />
+
+        <com.google.android.material.textview.MaterialTextView
+            android:id="@+id/more_fm_highlight_tv"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="64dp"
+            android:text="하이라이트"
+            android:textColor="#000000"
+            android:textSize="24dp"
+            app:layout_constraintBottom_toBottomOf="@+id/more_fm_highlight_iv"
+            app:layout_constraintStart_toEndOf="@+id/more_fm_highlight_iv"
+            app:layout_constraintTop_toTopOf="@+id/more_fm_highlight_iv"
+            app:layout_constraintVertical_bias="0.0" />
+        <androidx.constraintlayout.widget.Group
+            android:id="@+id/more_fm_highlight_group"
+            android:layout_width="wrap_content"
+            android:clickable="true"
+            app:constraint_referenced_ids="more_fm_highlight_iv,more_fm_highlight_tv"
+            android:layout_height="wrap_content" />
 
 
-<!--    로그아웃 -->
-    <com.google.android.material.imageview.ShapeableImageView
-        android:id="@+id/more_fm_logout_iv"
-        android:layout_width="32dp"
-        android:layout_height="32dp"
-        android:layout_marginStart="28dp"
-        android:layout_marginTop="312dp"
-        android:scaleType="centerInside"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
-        app:shapeAppearanceOverlay="@style/ShapeAppearanceOverlay.App.CornerSize50Percent"
-        app:srcCompat="@drawable/ic_earth" />
+        <!--    노트 -->
+        <com.google.android.material.imageview.ShapeableImageView
+            android:id="@+id/more_fm_note_iv"
+            android:layout_width="32dp"
+            android:layout_height="32dp"
+            android:layout_marginStart="28dp"
+            android:layout_marginTop="236dp"
+            android:scaleType="centerInside"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            app:shapeAppearanceOverlay="@style/ShapeAppearanceOverlay.App.CornerSize50Percent"
+            app:srcCompat="@drawable/ic_note_icon" />
 
-    <com.google.android.material.textview.MaterialTextView
-        android:id="@+id/more_fm_logout_tv"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginStart="64dp"
-        android:text="로그아웃"
-        android:textColor="#000000"
-        android:textSize="24dp"
-        app:layout_constraintBottom_toBottomOf="@+id/more_fm_logout_iv"
-        app:layout_constraintStart_toEndOf="@+id/more_fm_logout_iv"
-        app:layout_constraintTop_toTopOf="@+id/more_fm_logout_iv"
-        app:layout_constraintVertical_bias="1.0" />
-
-    <androidx.constraintlayout.widget.Group
-        android:id="@+id/more_fm_logout_group"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:visibility="gone"
-        app:constraint_referenced_ids="more_fm_logout_iv,more_fm_logout_tv" />
-    
-    
-    <androidx.constraintlayout.widget.Guideline
-        android:id="@+id/guideline6"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:orientation="vertical"
-        app:layout_constraintGuide_begin="27dp" />
+        <com.google.android.material.textview.MaterialTextView
+            android:id="@+id/more_fm_note_tv"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="64dp"
+            android:text="노트"
+            android:textColor="#000000"
+            android:textSize="24dp"
+            app:layout_constraintBottom_toBottomOf="@+id/more_fm_note_iv"
+            app:layout_constraintStart_toEndOf="@+id/more_fm_note_iv"
+            app:layout_constraintTop_toTopOf="@+id/more_fm_note_iv"
+            app:layout_constraintVertical_bias="1.0" />
+        <androidx.constraintlayout.widget.Group
+            android:id="@+id/more_fm_note_group"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            app:constraint_referenced_ids="more_fm_note_iv,more_fm_note_tv"
+            />
 
 
-</androidx.constraintlayout.widget.ConstraintLayout>
+        <!--    로그아웃 -->
+        <com.google.android.material.imageview.ShapeableImageView
+            android:id="@+id/more_fm_logout_iv"
+            android:layout_width="32dp"
+            android:layout_height="32dp"
+            android:layout_marginStart="28dp"
+            android:layout_marginTop="312dp"
+            android:scaleType="centerInside"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            app:shapeAppearanceOverlay="@style/ShapeAppearanceOverlay.App.CornerSize50Percent"
+            app:srcCompat="@drawable/ic_earth" />
+
+        <com.google.android.material.textview.MaterialTextView
+            android:id="@+id/more_fm_logout_tv"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="64dp"
+            android:text="로그아웃"
+            android:textColor="#000000"
+            android:textSize="24dp"
+            app:layout_constraintBottom_toBottomOf="@+id/more_fm_logout_iv"
+            app:layout_constraintStart_toEndOf="@+id/more_fm_logout_iv"
+            app:layout_constraintTop_toTopOf="@+id/more_fm_logout_iv"
+            app:layout_constraintVertical_bias="1.0" />
+
+        <androidx.constraintlayout.widget.Group
+            android:id="@+id/more_fm_logout_group"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:visibility="gone"
+            app:constraint_referenced_ids="more_fm_logout_iv,more_fm_logout_tv" />
+
+
+        <androidx.constraintlayout.widget.Guideline
+            android:id="@+id/guideline6"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            app:layout_constraintGuide_begin="27dp" />
+
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
+   
+</androidx.coordinatorlayout.widget.CoordinatorLayout>
+
+

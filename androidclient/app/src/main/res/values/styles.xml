@@ -26,7 +26,10 @@
     <style name="ShapeAppearanceOverlay.App.CornerSize50Percent" parent="">
         <item name="cornerSize">50%</item>
     </style>
-
+<!--  툴바 백버튼 색깔  -->
+    <style name="ToolbarTheme.seols" parent="@style/ThemeOverlay.MaterialComponents.ActionBar">
+        <item name="colorControlNormal">@color/white</item>
+    </style>
 
     <style name="Theme.seols.AppBarOverlay" parent="ThemeOverlay.AppCompat.Dark.ActionBar" /> <!--각 액티비티 AppBar 테마속성으로 적용 가능. 덮어쓰기함 -->
     <style name="Theme.seols.PopupOverlay" parent="ThemeOverlay.AppCompat.Light" /> <!--각 액티비티 toolBar 테마속성으로 적용 가능. 덮어쓰기함 -->
