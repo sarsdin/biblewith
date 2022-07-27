@@ -4,6 +4,7 @@ import android.net.Uri
 import android.util.Log
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
+import com.bumptech.glide.Glide.init
 import com.example.androidclient.MyApp
 import com.example.androidclient.util.Http
 import com.google.gson.GsonBuilder
@@ -52,9 +53,13 @@ class GroupVm : ViewModel() {
 
 
 
-    var 
+    var chalL = JsonArray() //챌린지 목록
+    var liveChalL = MutableLiveData<JsonArray>()
 
-
+    var createList = JsonArray() // 챌린지 만들기 - 고정초기 성경책 목록 - ChallengeCreateFm
+    var selectedCreateList = JsonArray() // 챌린지 만들기 - 선택된 성경책 목록 - 변화함
+    var liveSelectedCreateList = MutableLiveData<JsonArray>()
+    var createJo = JsonObject() //챌린지 만들기 서버전송용 임시객체
 
 
 
@@ -315,6 +320,32 @@ class GroupVm : ViewModel() {
         }
         return call
     }
+
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+//   챌린지 http
+
+    suspend fun 챌린지목록가져오기(params: JsonObject, isExeInVm: Boolean): Call<JsonObject>? {
+        val retrofit = Http.getRetrofitInstance(host)
+        val httpGroup = retrofit.create(Http.HttpGroup::class.java) // 통신 구현체 생성(미리 보낼 쿼리스트링 설정해두는거)
+        val call = httpGroup.modifyGboardReply(params)
+        if (isExeInVm) { //true를 받으면 여기서(vm) 실행하고 결과완료된 call을 리턴. false면 완료안된 call을 리턴해서 호출한 fragment or rva에서 비동기 로직 진행.
+            val resp = suspendCoroutine { cont: Continuation<Unit> ->
+                call.enqueue(object : Callback<JsonObject?> {
+                    override fun onResponse(call: Call<JsonObject?>, response: Response<JsonObject?>) {
+                        if (response.isSuccessful) {
+                            val res = response.body()!!
+                            cont.resumeWith(Result.success(Unit))
+                        }
+                    }
+                    override fun onFailure(call: Call<JsonObject?>, t: Throwable) {
+                        Log.e("[GroupVm]", "모임댓글삭제 onFailure: " + t.message)
+                    }
+                })
+            }
+        }
+        return call
+    }
+
 
 }
 

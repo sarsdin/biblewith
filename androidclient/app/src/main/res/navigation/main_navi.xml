@@ -139,8 +139,7 @@
             app:exitAnim="@anim/nav_default_exit_anim" />
         <action
             android:id="@+id/action_groupInFm_to_group_in_challenge_fm2"
-            app:destination="@id/group_in_challenge_fm"
-            app:launchSingleTop="true" />
+            app:destination="@id/group_in_challenge_fm" />
     </fragment>
     <fragment
         android:id="@+id/groupInWriteFm"
@@ -170,7 +169,7 @@
     <fragment
         android:id="@+id/group_in_challenge_fm"
         android:name="com.example.androidclient.group.ChallengeFm"
-        android:label="challenge_fm"
+        android:label=""
         tools:layout="@layout/challenge_fm" >
         <action
             android:id="@+id/action_group_in_challenge_fm_to_challengeCreateFm"
@@ -182,7 +181,7 @@
     <fragment
         android:id="@+id/challengeCreateFm"
         android:name="com.example.androidclient.group.ChallengeCreateFm"
-        android:label="ChallengeCreateFm"
+        android:label=""
         tools:layout="@layout/challenge_create_fm"
         >
         <action
@@ -192,7 +191,7 @@
     <fragment
         android:id="@+id/challengeCreateNextFm"
         android:name="com.example.androidclient.group.ChallengeCreateNextFm"
-        android:label="challenge_create_next_fm"
+        android:label=""
         tools:layout="@layout/challenge_create_next_fm" >
         <action
             android:id="@+id/action_challengeCreateNextFm_to_group_in_challenge_fm"
@@ -202,12 +201,12 @@
     <fragment
         android:id="@+id/challengeDetailFm"
         android:name="com.example.androidclient.group.ChallengeDetailFm"
-        android:label="ChallengeDetailFm"
+        android:label=""
         tools:layout="@layout/challenge_detail_fm"/>
     <fragment
         android:id="@+id/challengeDetailListFm"
         android:name="com.example.androidclient.group.ChallengeDetailListFm"
-        android:label="challenge_detail_list_fm"
+        android:label=""
         tools:layout="@layout/challenge_detail_list_fm" >
         <action
             android:id="@+id/action_challengeDetailListFm_to_challengeDetailFm"
