@@ -7,8 +7,10 @@
     <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" /> <!-- READ권한 포함일걸? -->
     <uses-permission android:name="android.permission.CAMERA" />
+    <uses-permission android:name="android.permission.RECORD_AUDIO" />
     <uses-permission android:name="android.permission.SCHEDULE_EXACT_ALARM" /> <!-- 알람매니저를 사용할려면 권한등록해야함 -->
     <uses-feature android:name="android.hardware.camera2" />
+    <uses-feature android:name="android.hardware.camera.any" />
 
     <application
         android:name=".MyApp"
@@ -25,7 +27,8 @@
         tools:targetApi="31">
         <activity
             android:name=".home.MainActivity"
-            android:exported="false"
+            android:exported="true"
+            android:configChanges="keyboard|keyboardHidden|orientation|screenSize|screenLayout|smallestScreenSize|uiMode"
             android:label="" >
             <intent-filter>
                 <action android:name="android.intent.action.SEND" />
@@ -44,6 +47,17 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
+
+        <!-- FileProvider used to share media with other apps -->
+        <provider
+            android:name="androidx.core.content.FileProvider"
+            android:authorities="${applicationId}.provider"
+            android:exported="false"
+            android:grantUriPermissions="true">
+            <meta-data
+                android:name="android.support.FILE_PROVIDER_PATHS"
+                android:resource="@xml/file_paths"/>
+        </provider>
     </application>
 
 </manifest>

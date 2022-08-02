@@ -138,7 +138,7 @@
             app:enterAnim="@anim/nav_default_enter_anim"
             app:exitAnim="@anim/nav_default_exit_anim" />
         <action
-            android:id="@+id/action_groupInFm_to_group_in_challenge_fm2"
+            android:id="@+id/action_groupInFm_to_group_in_challenge_fm"
             app:destination="@id/group_in_challenge_fm" />
     </fragment>
     <fragment
@@ -196,7 +196,8 @@
         <action
             android:id="@+id/action_challengeCreateNextFm_to_group_in_challenge_fm"
             app:destination="@id/group_in_challenge_fm"
-            app:popUpTo="@id/group_in_challenge_fm" />
+            app:popUpTo="@id/group_in_challenge_fm"
+            app:popUpToInclusive="true" />
     </fragment>
     <fragment
         android:id="@+id/challengeDetailFm"

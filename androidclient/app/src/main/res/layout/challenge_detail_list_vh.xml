@@ -15,7 +15,7 @@
     <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:minHeight="120dp">
+        android:minHeight="90dp">
         <!--            android:background="#48DCDCDC"-->
 
 
@@ -26,7 +26,7 @@
             android:layout_gravity="end"
             android:layout_marginStart="16dp"
             android:layout_marginTop="8dp"
-            android:visibility="gone"
+            android:visibility="visible"
             android:contentDescription="profile 사진 입니다."
             android:scaleType="centerCrop"
             app:layout_constraintStart_toStartOf="parent"
@@ -36,12 +36,13 @@
 <!--            android:tint="#43A047"-->
 <!--            android:background="#818080"-->
 
+
         <com.google.android.material.textview.MaterialTextView
             android:id="@+id/detail_list_fm_vh_date_tv"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginStart="16dp"
-            android:layout_marginTop="16dp"
+            android:layout_marginStart="80dp"
+            android:layout_marginTop="20dp"
             android:text="2022-6-29 00:00:11"
             android:textAppearance="?attr/textAppearanceListItem"
             android:textColor="#707070"
@@ -50,13 +51,38 @@
             app:layout_constraintTop_toTopOf="parent"
             tools:text="2022-6-29 00:00:11" />
 
+        <com.google.android.material.progressindicator.LinearProgressIndicator
+            android:id="@+id/detail_vh_progress"
+            android:layout_width="90dp"
+            android:layout_height="50dp"
+            android:layout_marginTop="28dp"
+            android:layout_marginEnd="8dp"
+            android:progress="20"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintEnd_toStartOf="@+id/detail_vh_progress_tv"
+            app:layout_constraintTop_toTopOf="parent" />
+
+        <com.google.android.material.textview.MaterialTextView
+            android:id="@+id/detail_vh_progress_tv"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="20dp"
+            android:text="진행20%"
+            android:textAppearance="?attr/textAppearanceListItem"
+            android:textColor="#707070"
+            android:textSize="14sp"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintHorizontal_bias="0.962"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            tools:text="진행20%" />
 
         <com.google.android.material.textview.MaterialTextView
             android:id="@+id/detail_vh_content_tv"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="16dp"
-            android:minHeight="50dp"
+            android:minHeight="35dp"
             android:maxHeight="200dp"
             android:paddingHorizontal="15dp"
             android:paddingVertical="5dp"

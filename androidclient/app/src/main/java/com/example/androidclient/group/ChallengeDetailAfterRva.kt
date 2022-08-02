@@ -14,10 +14,10 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 
 
-class ChallengeDetailRva(val groupVm: GroupVm, val challengeDetailFm: ChallengeDetailFm)
-    : RecyclerView.Adapter<ChallengeDetailRva.ChallengeDetailFmVh>() {
+class ChallengeDetailAfterRva(val groupVm: GroupVm, val challengeDetailAfterFm: ChallengeDetailAfterFm)
+    : RecyclerView.Adapter<ChallengeDetailAfterRva.ChallengeDetailFmVh>() {
 
-    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ChallengeDetailRva.ChallengeDetailFmVh {
+    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ChallengeDetailAfterRva.ChallengeDetailFmVh {
         return ChallengeDetailFmVh(ChallengeDetailFmVhBinding.inflate(LayoutInflater.from(parent.context), parent,false))
     }
 
@@ -62,9 +62,9 @@ class ChallengeDetailRva(val groupVm: GroupVm, val challengeDetailFm: ChallengeD
                 jo.addProperty("progress_day", mItem.get("progress_day").asInt)
                 jo.addProperty("is_checked", mItem.get("is_checked").asBoolean)
                 CoroutineScope(Dispatchers.Main).launch {
-                    challengeDetailFm.binding.progressBar.visibility = View.VISIBLE
+                    challengeDetailAfterFm.binding.progressBar.visibility = View.VISIBLE
                     groupVm.챌린지인증체크업데이트(jo, true)
-                    challengeDetailFm.binding.progressBar.visibility = View.GONE
+                    challengeDetailAfterFm.binding.progressBar.visibility = View.GONE
                 }
 //                notifyDataSetChanged()
             }

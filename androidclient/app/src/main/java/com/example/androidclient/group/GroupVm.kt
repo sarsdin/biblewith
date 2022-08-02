@@ -53,18 +53,32 @@ class GroupVm : ViewModel() {
 
 
 
-    var chalL = JsonArray() //챌린지 목록
+    var chalLInfo = JsonObject() //챌린지 목록에서 클릭하면 들어오는 해당 챌린지 정보
+    var chalL = JsonArray() //챌린지 목록 - 챌린지정보 + selected_bibleL
     var liveChalL = MutableLiveData<JsonArray>()
+    var chalDetailInfo = JsonObject() //챌린지 상세목록 클릭시 페이지 해당 정보 - 영상인증 페이지 및 전송에서 활용
+    var chalDetailL = JsonArray() //챌린지 상세 목록
+    var liveChalDetailL = MutableLiveData<JsonArray>()
+    var chalDetailVerseL = JsonArray() //챌린지 상세목록 클릭시 영상인증 페이지의 절 목록
+    var liveChalDetailVerseL = MutableLiveData<JsonArray>()
 
+
+    //챌린지 만들기 페이지에서 쓰이는 변수들
     var createList = JsonArray() // 챌린지 만들기 - 고정초기 성경책 목록 - ChallengeCreateFm
     var selectedCreateList = JsonArray() // 챌린지 만들기 - 선택된 성경책 목록 - 변화함
     var liveSelectedCreateList = MutableLiveData<JsonArray>()
     var createJo = JsonObject() //챌린지 만들기 서버전송용 임시객체
+    var progressCountVerse = 20  //진행할 구절수 - 챌린지 만들기2 seekBar 수치
+    var progressCountDay = 3  //진행할 일수 - 챌린지 만들기2 seekBar 수치
+    var totalVerseCount = 0     //선택한 책의 총 구절수 - 챌린지 만들기2
+    var whatIsSelected = "day"     //선택한 계산방식 - 챌린지 만들기2
+    var computedDay = 0               //계산된 완료예정일수 - 서버전송용
 
 
 
     init {
         모임목록가져오기(MyApp.userInfo.user_no, true)
+
     }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -321,24 +335,30 @@ class GroupVm : ViewModel() {
         return call
     }
 
+
+
+
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 //   챌린지 http
 
-    suspend fun 챌린지목록가져오기(params: JsonObject, isExeInVm: Boolean): Call<JsonObject>? {
+    suspend fun 챌린지목록가져오기( isExeInVm: Boolean): Call<JsonObject>? {
         val retrofit = Http.getRetrofitInstance(host)
         val httpGroup = retrofit.create(Http.HttpGroup::class.java) // 통신 구현체 생성(미리 보낼 쿼리스트링 설정해두는거)
-        val call = httpGroup.modifyGboardReply(params)
+        val call = httpGroup.챌린지목록가져오기(MyApp.userInfo.user_no, groupInfo.get("group_no").asInt)
         if (isExeInVm) { //true를 받으면 여기서(vm) 실행하고 결과완료된 call을 리턴. false면 완료안된 call을 리턴해서 호출한 fragment or rva에서 비동기 로직 진행.
             val resp = suspendCoroutine { cont: Continuation<Unit> ->
                 call.enqueue(object : Callback<JsonObject?> {
                     override fun onResponse(call: Call<JsonObject?>, response: Response<JsonObject?>) {
                         if (response.isSuccessful) {
                             val res = response.body()!!
+                            chalL = res.get("result").asJsonArray
+                            liveChalL.value = chalL
                             cont.resumeWith(Result.success(Unit))
                         }
                     }
                     override fun onFailure(call: Call<JsonObject?>, t: Throwable) {
-                        Log.e("[GroupVm]", "모임댓글삭제 onFailure: " + t.message)
+                        Log.e("[GroupVm]", "챌린지목록가져오기 onFailure: " + t.message)
                     }
                 })
             }
@@ -346,6 +366,131 @@ class GroupVm : ViewModel() {
         return call
     }
 
+    suspend fun 챌린지상세목록가져오기(chal_no:Int, isExeInVm: Boolean): Call<JsonObject>? {
+        val retrofit = Http.getRetrofitInstance(host)
+        val httpGroup = retrofit.create(Http.HttpGroup::class.java) // 통신 구현체 생성(미리 보낼 쿼리스트링 설정해두는거)
+        val call = httpGroup.챌린지상세목록가져오기(chal_no, MyApp.userInfo.user_no, groupInfo.get("group_no").asInt)
+        if (isExeInVm) { //true를 받으면 여기서(vm) 실행하고 결과완료된 call을 리턴. false면 완료안된 call을 리턴해서 호출한 fragment or rva에서 비동기 로직 진행.
+            val resp = suspendCoroutine { cont: Continuation<Unit> ->
+                call.enqueue(object : Callback<JsonObject?> {
+                    override fun onResponse(call: Call<JsonObject?>, response: Response<JsonObject?>) {
+                        if (response.isSuccessful) {
+                            val res = response.body()!!
+                            chalDetailL = res.get("result").asJsonArray
+                            liveChalDetailL.value = chalDetailL
+                            cont.resumeWith(Result.success(Unit))
+                        }
+                    }
+                    override fun onFailure(call: Call<JsonObject?>, t: Throwable) {
+                        Log.e("[GroupVm]", "챌린지상세가져오기 onFailure: " + t.message)
+                    }
+                })
+            }
+        }
+        return call
+    }
+
+    suspend fun 챌린지만들기총분량수계산(params: JsonArray, isExeInVm: Boolean): Call<JsonObject>? {
+        val retrofit = Http.getRetrofitInstance(host)
+        val httpGroup = retrofit.create(Http.HttpGroup::class.java) // 통신 구현체 생성(미리 보낼 쿼리스트링 설정해두는거)
+        val call = httpGroup.챌린지만들기총분량수계산(params)
+        if (isExeInVm) { //true를 받으면 여기서(vm) 실행하고 결과완료된 call을 리턴. false면 완료안된 call을 리턴해서 호출한 fragment or rva에서 비동기 로직 진행.
+            val resp = suspendCoroutine { cont: Continuation<Unit> ->
+                call.enqueue(object : Callback<JsonObject?> {
+                    override fun onResponse(call: Call<JsonObject?>, response: Response<JsonObject?>) {
+                        if (response.isSuccessful) {
+                            val res = response.body()!!
+                            totalVerseCount = res.get("result").asInt
+                            Log.e("[GroupVm]", "챌린지만들기총분량수계산 onResponse: $res")
+                            cont.resumeWith(Result.success(Unit))
+                        }
+                    }
+                    override fun onFailure(call: Call<JsonObject?>, t: Throwable) {
+                        Log.e("[GroupVm]", "챌린지만들기총분량수계산 onFailure: " + t.message)
+                    }
+                })
+            }
+        }
+        return call
+    }
+
+
+    suspend fun 챌린지만들기완료하기(params: JsonObject, isExeInVm: Boolean): Call<JsonObject>? {
+        val retrofit = Http.getRetrofitInstance(host)
+        val httpGroup = retrofit.create(Http.HttpGroup::class.java) // 통신 구현체 생성(미리 보낼 쿼리스트링 설정해두는거)
+        val call = httpGroup.챌린지만들기완료하기(params)
+        if (isExeInVm) { //true를 받으면 여기서(vm) 실행하고 결과완료된 call을 리턴. false면 완료안된 call을 리턴해서 호출한 fragment or rva에서 비동기 로직 진행.
+            val resp = suspendCoroutine { cont: Continuation<Unit> ->
+                call.enqueue(object : Callback<JsonObject?> {
+                    override fun onResponse(call: Call<JsonObject?>, response: Response<JsonObject?>) {
+                        if (response.isSuccessful) {
+                            val res = response.body()!!
+//                            totalVerseCount = res.get("result").asInt
+                            Log.e("[GroupVm]", "챌린지만들기완료하기 onResponse: $res")
+                            cont.resumeWith(Result.success(Unit))
+                        }
+                    }
+                    override fun onFailure(call: Call<JsonObject?>, t: Throwable) {
+                        Log.e("[GroupVm]", "챌린지만들기완료하기 onFailure: " + t.message)
+                    }
+                })
+            }
+        }
+        return call
+    }
+
+    suspend fun 챌린지인증진행하기(params: JsonObject, isExeInVm: Boolean): Call<JsonObject>? {
+        val retrofit = Http.getRetrofitInstance(host)
+        val httpGroup = retrofit.create(Http.HttpGroup::class.java) // 통신 구현체 생성(미리 보낼 쿼리스트링 설정해두는거)
+        val call = httpGroup.챌린지인증진행하기(params)
+        if (isExeInVm) { //true를 받으면 여기서(vm) 실행하고 결과완료된 call을 리턴. false면 완료안된 call을 리턴해서 호출한 fragment or rva에서 비동기 로직 진행.
+            val resp = suspendCoroutine { cont: Continuation<Unit> ->
+                call.enqueue(object : Callback<JsonObject?> {
+                    override fun onResponse(call: Call<JsonObject?>, response: Response<JsonObject?>) {
+                        if (response.isSuccessful) {
+                            val res = response.body()!!
+//                            chalDetailVerseL = res.get("result").asJsonObject.get("verseL").asJsonArray
+                            chalDetailVerseL = res.get("result").asJsonArray
+                            liveChalDetailVerseL.value = chalDetailVerseL
+//                            Log.e("[GroupVm]", "챌린지인증진행하기 onResponse: $res")
+                            cont.resumeWith(Result.success(Unit))
+                        }
+                    }
+                    override fun onFailure(call: Call<JsonObject?>, t: Throwable) {
+                        Log.e("[GroupVm]", "챌린지인증진행하기 onFailure: " + t.message)
+                    }
+                })
+            }
+        }
+        return call
+    }
+
+    //영상 녹화시 코루틴 해제 할지 말지 결정해보자
+    suspend fun 챌린지인증체크업데이트(params: JsonObject, isExeInVm: Boolean): Call<JsonObject>? {
+        val retrofit = Http.getRetrofitInstance(host)
+        val httpGroup = retrofit.create(Http.HttpGroup::class.java) // 통신 구현체 생성(미리 보낼 쿼리스트링 설정해두는거)
+        val call = httpGroup.챌린지인증체크업데이트(params)
+        if (isExeInVm) { //true를 받으면 여기서(vm) 실행하고 결과완료된 call을 리턴. false면 완료안된 call을 리턴해서 호출한 fragment or rva에서 비동기 로직 진행.
+            val resp = suspendCoroutine { cont: Continuation<Unit> ->
+                call.enqueue(object : Callback<JsonObject?> {
+                    override fun onResponse(call: Call<JsonObject?>, response: Response<JsonObject?>) {
+                        if (response.isSuccessful) {
+                            val res = response.body()!!
+//                            chalDetailVerseL = res.get("result").asJsonObject.get("verseL").asJsonArray
+                            chalDetailVerseL = res.get("result").asJsonArray
+                            liveChalDetailVerseL.value = chalDetailVerseL
+//                            Log.e("[GroupVm]", "챌린지인증체크업데이트 onResponse: $res")
+                            cont.resumeWith(Result.success(Unit))
+                        }
+                    }
+                    override fun onFailure(call: Call<JsonObject?>, t: Throwable) {
+                        Log.e("[GroupVm]", "챌린지인증체크업데이트 onFailure: " + t.message)
+                    }
+                })
+            }
+        }
+        return call
+    }
 
 }
 

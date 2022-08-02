@@ -2,6 +2,11 @@
 
 namespace App\Controllers;
 
+use App\Models\Challenge;
+use App\Models\ChallengeDetail;
+use App\Models\ChallengeDetailVerse;
+use App\Models\ChallengeSelectedBible;
+use App\Models\ChallengeVideo;
 use App\Models\GboardLike;
 use App\Models\GroupBoard;
 use App\Models\GroupBoardImage;
@@ -139,11 +144,7 @@ class Group extends \CodeIgniter\Controller
         }
     }
 
-    //모임 상세 가져오기
-//    public function getGroupIn() : ResponseInterface
-//    {
-//
-//    }
+
 
     //모임의 게시물 목록 가져오기 == 모임상세불러오기()
     public function getGroupIn() : ResponseInterface
@@ -202,6 +203,8 @@ class Group extends \CodeIgniter\Controller
                 $result[$i]['replyL'] = $reply->join('User', 'User.user_no = Reply.user_no')
                     ->where('gboard_no', $board['gboard_no'])
                     ->orderBy('reply_writedate', 'desc')->findAll(2);
+                //해당 게시물 총 댓글 수
+                $result[$i]['reply_count'] = $reply->where('gboard_no', $board['gboard_no'])->countAllResults();
             }
             log_message("debug", "[Group] getGroupIn \$result: ". print_r($result, true));
 
@@ -815,6 +818,480 @@ class Group extends \CodeIgniter\Controller
             return $res->setJSON($e->getMessage());
         }
     }
+
+
+
+    // 챌린지 만들기 총 절수 가져오기
+    public function getCountVerseForChalCreate() : ResponseInterface
+    {
+        $bible = new \App\Models\Bible();
+        $req = $this->request;
+        $res = $this->response;
+        $data = $req->getJson(true);
+//        $data = $req->getVar();
+        log_message("debug", "[Group] getCountVerseForChalCreate \$data: ". print_r($data, true));
+
+        try {
+            $bible->db->transStart();
+            $totalCount = 0;
+            foreach ($data as $i => $item) {
+                $res1 = $bible->join('book', 'book.book_no = bible_korHRV.book')
+                    ->where('book', $item['book'])->countAllResults();
+                $totalCount += $res1;
+            }
+            log_message("debug", "[Group] getCountVerseForChalCreate \$totalCount: ". print_r($totalCount, true));
+
+            if ($bible->db->transComplete()){
+                $bible->db->transCommit();
+                return $res->setJSON([
+                    "result" => $totalCount,
+                    "msg" => "ok"
+                ]);
+            } else {
+                $bible->db->transRollback();
+                return $res->setJSON([
+                    "result" => "failed",
+                    "msg" => "fail"
+                ]);
+            }
+        } catch (\ReflectionException | DataException $e){
+            return $res->setJSON($e->getMessage());
+        }
+    }
+
+    // 챌린지 만들기 - 계산방식:계산된결과, 선택된 성경목록, 사용자번호, 모임번호
+    public function createChallenge() : ResponseInterface
+    {
+        $bible = new \App\Models\Bible();
+        $chal = new Challenge();
+        $cSelected = new ChallengeSelectedBible();
+        $cDetail = new ChallengeDetail();
+        $cDetailVerse = new ChallengeDetailVerse();
+        $req = $this->request;
+        $res = $this->response;
+        $data = $req->getJson(true);
+//        $data = $req->getVar();
+        log_message("debug", "[Group] createChallenge \$data: ". print_r($data, true));
+
+        try {
+            $bible->db->transStart();
+            $res1 = $chal->insert([
+               'user_no' => $data['user_no'],
+               'group_no' => $data['group_no'],
+               'chal_title' => $data['chal_title'],
+               'chal_create_date' => date('Y-m-d H:i:s')
+            ]);
+
+            //챌린지 선택책 테이블에도 책정보 insert
+            $insertData = [];
+            $insertDetailItems = [];
+            $addedTotalBibleL = [];
+            foreach ($data['selectedCreateList'] as $i => $item) { //selectedCreateList 선택된 책 정보 리스트
+                $item['chal_no'] = $res1;   //챌린지 insert 결과로 얻은 pk번호를 해당 테이블에 들어갈 데이터의 pk번호로써 추가해줌
+                array_push($insertData, $item);
+                /////////////////////////////////////////////////////////////////
+                //item에 해당하는 책의 구절들을 배열로 가져오고, 그안의 각 레코드(bible_no)들을 챌린지 상세 테이블에 insertBatch
+                // 하기 위한 '임시 총 구절 모음 배열'($addedTotalBibleL)을 마련해둠
+                foreach ($bible->where('book', $item['book'])->findAll() as $i2 => $item2) {
+                    array_push( $addedTotalBibleL, $item2);
+                }
+            }
+            $cSelected->insertBatch($insertData);
+
+
+
+            //챌린지 상세정보도 입력
+            //전체구절리스트 - 일수로 계산시
+            $진행완료일차 = $data['computedDay'];
+            $하루필요절개수고정 = floor(count($addedTotalBibleL) / $data['computedDay']); //평균 하루 필요절수
+            $하루필요절개수 = 0; //하루 필요 절수에 충족하기 위한 값
+            if ($data['whatIsSelected'] == 'day') {
+                $진행일 = 1;
+                //전체 절을 전체 일수로 나누면 절개수가 산출됨
+                //각 진행일을 progress_day 컬럼에 저장해줌
+                //하루에 필요절개수를 insert 함 - 필요절개수고정값이 되기전까지 +1
+                // 후에 필요절개수 초기화, 진행일 +1 해줌
+                // 진행완료일차 값에 도달했을때 특별 코드를 넣음 - 나머지 처리?
+                for ($i=1; $i <= $진행완료일차; $i++) {
+                    $progressDate수정 = $i-1 ; //진행 첫날부터 진행날짜를 +하면 안됨
+                    $insertDetailData = []; //Detail 테이블 정보
+                    $insertDetailData['chal_no'] = $res1;
+                    $insertDetailData['start_date'] = date('Y-m-d H:i:s');
+                    $insertDetailData['progress_date'] = date('Y-m-d H:i:s', strtotime("+{$progressDate수정} days")); //$data['computedDay'] 필요일수
+                    $insertDetailData['progress_day'] = $i; //진행일
+                    $cDetail->insert($insertDetailData);
+
+                }
+                //챌린지 일차 테이블과   각 일차의 절데이터 테이블을 따로 만든다.
+                foreach ($addedTotalBibleL as $i => $item){
+                    $하루필요절개수++;
+                    $날짜계산 = $진행일-1;
+                    $insertDetailVerseData = []; //DetailVerse 테이블 정보
+                    $insertDetailVerseData['chal_no'] = $res1;
+                    $insertDetailVerseData['bible_no'] = $item['bible_no']; //책에 속한 구절들 각각
+                    $insertDetailVerseData['progress_day'] = $진행일; //
+                    $cDetailVerse->insert($insertDetailVerseData);
+                    if ($하루필요절개수 == $하루필요절개수고정) { //필요절개수가 충족되면
+                        $하루필요절개수 = 0;                   //초기화후
+                        $진행일++;                             //진행일을 +해서 다음 insert 값을 변화시킨다
+                    }
+                }
+
+                // todo verse 개수로 진행하는 로직은 verse 개수를 받아와서 그걸로 산출해야함
+            } /*else {
+                $진행일 = 1;
+                //전체 절을 전체 일수로 나누면 절개수가 산출됨
+                //각 진행일을 progress_day 컬럼에 저장해줌
+                //하루에 필요절개수를 insert 함 - 필요절개수고정값이 되기전까지 +1
+                // 후에 필요절개수 초기화, 진행일 +1 해줌
+                // 진행완료일차 값에 도달했을때 특별 코드를 넣음 - 나머지 처리?
+                foreach ($addedTotalBibleL as $i => $item) {
+                    $하루필요절개수++;
+                    $insertDetailData = [];
+                    $insertDetailData['chal_no'] = $res1;
+                    $insertDetailData['bible_no'] = $item['bible_no']; //책에 속한 구절들 각각
+                    $insertDetailData['start_date'] = date('Y-m-d H:i:s');
+                    $insertDetailData['progress_date'] = date('Y-m-d H:i:s', strtotime("+${진행일} days")); //$data['computedDay'] 필요일수
+                    $insertDetailData['progress_day'] = $진행일;
+                    $cDetail->insert($insertDetailData);
+//                    if ($진행완료일차 == $진행일) {
+//                    } else {
+//                    }
+                    if ($하루필요절개수 == $하루필요절개수고정) { //필요절개수가 충족되면
+                        $하루필요절개수 = 0;                   //초기화후
+                        $진행일++;                             //진행일을 +해서 다음 insert 값을 변화시킨다
+                    }
+                }
+            }*/
+
+
+
+
+
+            if ($bible->db->transComplete()){
+                $bible->db->transCommit();
+                return $res->setJSON([
+                    "result" => "ok",
+                    "msg" => "ok"
+                ]);
+            } else {
+                $bible->db->transRollback();
+                return $res->setJSON([
+                    "result" => "failed",
+                    "msg" => "fail"
+                ]);
+            }
+        } catch (\ReflectionException | DataException $e){
+            return $res->setJSON($e->getMessage());
+        }
+    }
+
+
+
+    // 챌린지 목록가져오기
+    public function getChallengeList() : ResponseInterface
+    {
+        $bible = new \App\Models\Bible();
+        $chal = new Challenge();
+        $cSelected = new ChallengeSelectedBible();
+        $cDetail = new ChallengeDetail();
+        $req = $this->request;
+        $res = $this->response;
+//        $data = $req->getJson(true);
+        $data = $req->getVar();
+        log_message("debug", "[Group] getChallengeList \$data: ". print_r($data, true));
+
+        try {
+            $bible->db->transStart();
+            $result = [];
+            $res1 = $chal->join('User', 'User.user_no = Challenge.user_no')
+                ->where('Challenge.user_no', $data['user_no'])->where('Challenge.group_no', $data['group_no'])
+                ->findAll();
+
+            foreach ($res1 as $i => $item){
+                $res1[$i]['selected_bibleL'] = $cSelected
+                    ->join('book', 'book.book_no = ChallengeSelectedBible.book')
+                    ->where('chal_no', $item['chal_no'])->findAll();
+            }
+
+//            $result['chalL'] = $res1;
+
+            if ($bible->db->transComplete()){
+                $bible->db->transCommit();
+                return $res->setJSON([
+                    "result" => $res1,
+                    "msg" => "ok"
+                ]);
+            } else {
+                $bible->db->transRollback();
+                return $res->setJSON([
+                    "result" => "failed",
+                    "msg" => "fail"
+                ]);
+            }
+        } catch (\ReflectionException | DataException $e){
+            return $res->setJSON($e->getMessage());
+        }
+    }
+
+
+     // 챌린지상세목록가져오기
+    public function getChallengeDetailList() : ResponseInterface
+    {
+        $bible = new \App\Models\Bible();
+        $chal = new Challenge();
+        $cSelected = new ChallengeSelectedBible();
+        $cDetail = new ChallengeDetail();
+        $cDetailVerse = new ChallengeDetailVerse();
+        $req = $this->request;
+        $res = $this->response;
+//        $data = $req->getJson(true);
+        $data = $req->getVar();
+        log_message("debug", "[Group] getChallengeDetailL \$data: ". print_r($data, true));
+
+        try {
+            $bible->db->transStart();
+            // todo 들어가야할 데이터: 진행률 - 해당일차 디테일의 절들 체크수에 따른 진행률 표시
+            // todo 책장절 이름 시작 ~ 끝 범위
+
+//            $result = $cDetail->join('bible_korHRV', 'bible_korHRV.bible_no = ChallengeDetail.bible_no')
+//                ->join('book', 'book.book_no = bible_korHRV.book')
+//                ->where('chal_no', $data['chal_no'])->findAll();
+            $sql = "select chal_no, progress_day, is_checked, start_date, progress_date, chal_detail_no 
+                    from ChallengeDetail 
+                    where chal_no = ? ";
+            $result = $cDetail->db->query($sql, [$data['chal_no']])->getResultArray();
+//            $result = $cDetail->where('chal_no', $data['chal_no'])->findAll();
+
+
+//            $res1 = $chal->join('User', 'User.user_no = Challenge.user_no')
+//                ->where('Challenge.user_no', $data['user_no'])->where('Challenge.group_no', $data['group_no'])
+//                ->findAll();
+//
+            foreach ($result as $i => $item){
+                $minSql = "select * from ChallengeDetailVerse cd 
+                        join bible_korHRV bk on bk.bible_no = cd.bible_no
+                        join book b on b.book_no = bk.book
+                        where cd.bible_no = (select MIN(bible_no)  from ChallengeDetailVerse where progress_day = ? )
+                        and cd.chal_no = ? ";
+                $maxSql = "select * from ChallengeDetailVerse cd 
+                        join bible_korHRV bk on bk.bible_no = cd.bible_no
+                        join book b on b.book_no = bk.book
+                        where cd.bible_no = (select MAX(bible_no)  from ChallengeDetailVerse where progress_day = ? )
+                         and cd.chal_no = ? ";
+                $tmpMin= $cDetail->db->query($minSql, [$i+1, $item['chal_no']])->getResultObject(); //i+1 이유: progress_day 시작이 1부터 시작이기 때문에 싱크맞춰야함
+                $tmpMax= $cDetail->db->query($maxSql, [$i+1, $item['chal_no']])->getResultObject();
+
+                $result[$i]['first_verse'] = $tmpMin; //첫번째 절 데이터
+                $result[$i]['last_verse'] = $tmpMax; // 두번째 절 데이터
+                $result[$i]['verse_count'] = $cDetailVerse->where('progress_day', $item['progress_day'])
+                    ->where('chal_no', $item['chal_no'])
+                    ->countAllResults(); //해당 일차 인증할 절 개수
+                $checkedVerseCount = $cDetailVerse->where('progress_day', $item['progress_day'])
+                    ->where('chal_no', $item['chal_no'])->where('is_checked', 1)
+                    ->countAllResults(); //체크완료된 절 개수
+                //x: 13(checked) = 100: 20(총절수) -> x20 = 1300 -> x = 1300(checked*100) / 20(총절수) f
+                //진행율 추가
+                $result[$i]['progress_percent'] = round((100*$checkedVerseCount) / $result[$i]['verse_count']);
+
+            }
+
+
+            if ($bible->db->transComplete()){
+                $bible->db->transCommit();
+                return $res->setJSON([
+                    "result" => $result,
+                    "msg" => "ok"
+                ]);
+            } else {
+                $bible->db->transRollback();
+                return $res->setJSON([
+                    "result" => "failed",
+                    "msg" => "fail"
+                ]);
+            }
+        } catch (\ReflectionException | DataException $e){
+            return $res->setJSON($e->getMessage());
+        }
+    }
+
+     // 챌린지상세인증 내용
+    public function getChallengeDetailVerseList() : ResponseInterface
+    {
+        $bible = new \App\Models\Bible();
+        $chal = new Challenge();
+        $cSelected = new ChallengeSelectedBible();
+        $cDetail = new ChallengeDetail();
+        $cDetailVerse = new ChallengeDetailVerse();
+        $req = $this->request;
+        $res = $this->response;
+        $data = $req->getJson(true);
+//        $data = $req->getVar();
+        log_message("debug", "[Group] getChallengeDetailVerseList \$data: ". print_r($data, true));
+
+        try {
+            $bible->db->transStart();
+            // todo 나중에 들어가야할 데이터: 체크유무, 절 데이터, 영상 데이터
+
+            //인증화면 인증할 절 데이터 - 성경, 책 테이블 정보 조인하여 가져오기
+            $result = $cDetailVerse
+                ->join('bible_korHRV', 'bible_korHRV.bible_no = ChallengeDetailVerse.bible_no')
+                ->join('book', 'book.book_no = bible_korHRV.book')
+                ->where('progress_day', $data['progress_day'])
+                ->where('chal_no', $data['chal_no'])->findAll();
+
+
+            if ($bible->db->transComplete()){
+                $bible->db->transCommit();
+                return $res->setJSON([
+                    "result" => $result,
+                    "msg" => "ok"
+                ]);
+            } else {
+                $bible->db->transRollback();
+                return $res->setJSON([
+                    "result" => "failed",
+                    "msg" => "fail"
+                ]);
+            }
+        } catch (\ReflectionException | DataException $e){
+            return $res->setJSON($e->getMessage());
+        }
+    }
+
+    // 챌린지상세인증 체크 내용 업데이트
+    public function updateChallengeDetailVerse() : ResponseInterface
+    {
+        $bible = new \App\Models\Bible();
+        $chal = new Challenge();
+        $cSelected = new ChallengeSelectedBible();
+        $cDetail = new ChallengeDetail();
+        $cDetailVerse = new ChallengeDetailVerse();
+        $req = $this->request;
+        $res = $this->response;
+        $data = $req->getJson(true);
+//        $data = $req->getVar();
+        log_message("debug", "[Group] updateChallengeDetailVerse \$data: ". print_r($data, true));
+
+        try {
+            $bible->db->transStart();
+            // todo 나중에 들어가야할 데이터: 체크유무, 절 데이터, 영상 데이터
+
+            //인증화면 인증할 절 체크 현황 업데이트
+            $cDetailVerse->set('is_checked', $data['is_checked'])
+                ->update($data['chal_detail_verse_no']);
+
+            //인증화면 인증할 절 데이터 - 성경, 책 테이블 정보 조인하여 가져오기
+            $result = $cDetailVerse
+                ->join('bible_korHRV', 'bible_korHRV.bible_no = ChallengeDetailVerse.bible_no')
+                ->join('book', 'book.book_no = bible_korHRV.book')
+                ->where('progress_day', $data['progress_day'])
+                ->where('chal_no', $data['chal_no'])->findAll();
+
+            if ($bible->db->transComplete()){
+                $bible->db->transCommit();
+                return $res->setJSON([
+                    "result" => $result,
+                    "msg" => "ok"
+                ]);
+            } else {
+                $bible->db->transRollback();
+                return $res->setJSON([
+                    "result" => "failed",
+                    "msg" => "fail"
+                ]);
+            }
+        } catch (\ReflectionException | DataException $e){
+            return $res->setJSON($e->getMessage());
+        }
+    }
+
+
+
+    // 인증 보내기 (챌린지디테일화면) - 보내온 녹화 비디오를 저장하고 스트리밍용파일로 변환한다.
+    public function createChalDetailVideo() : ResponseInterface
+    {
+        $cVideo = new ChallengeVideo();
+        $req = $this->request;
+        $res = $this->response;
+//        $data = $req->getJson(true);
+        $data = $req->getVar();
+        log_message("debug", "[Group] createChalDetailVideo \$data: ". print_r($data, true));
+//        $imgData3 = $req->getFileMultiple('product_image');
+//        log_message("debug", "[Group] createGroup \$getFileMultiple: ".print_r($imgData3, true));
+        $videoData = $req->getFile('chal_video');
+//        $imgData = $req->getFiles();
+        log_message("debug", "[Group] createChalDetailVideo \$getFiles: ".print_r($videoData, true));
+//        return $res->setJSON([
+//            "result" => "test",
+//            "msg" => "ok"
+//        ]);
+
+        /*$validationRule = [
+            'group_main_image' => [
+                'label' => 'Image File',
+                'rules' => 'uploaded[group_main_image]'
+                    . '|is_image[group_main_image]'
+                    . '|mime_in[group_main_image,image/jpg,image/jpeg,image/gif,image/png,image/webp]'
+                    . '|max_size[group_main_image,1000]'
+                    . '|max_dims[group_main_image,1924,1924]',
+            ],
+        ];
+        if (! $this->validate($validationRule)) { //이미지파일 검증실패시 result false로 에러메시지 리턴.
+            $data = [
+                'result' => false,
+                'errors' => $this->validator->getErrors()
+            ];
+            return $res->setJSON($data);
+        }
+        */
+
+        //이미지파일을 ci 기본 upload 경로(writable/uploads)에 저장. 그후 경로 반환된걸로 db에 insert
+        $filePath = $videoData->store();
+        log_message("debug", "[Group] createChalDetailVideo \$filePath: ".print_r($filePath, true));
+
+        $data = [
+            'user_no' => $req->getVar('user_no'),
+            'group_name' => $req->getVar('group_name'),
+            'group_desc' => $req->getVar('group_desc'),
+            'group_main_image' => $filePath,
+            'create_date' => date('Y-m-d H:i:s'),
+        ];
+
+        try {
+            //모임을 만들고 반환된 모임 번호를 이용해 만든이를 모임장으로서 모임멤버로 추가시켜줌.
+            $result = $group->insert($data);
+            $result = $groupMember->insert([
+                'group_no' => $result,
+                'user_no' => $req->getVar('user_no')
+            ]);
+            log_message("debug", "[Group] createChalDetailVideo \$result: ". print_r($result, true));
+
+            if ($cVideo->db->transComplete()){
+                $cVideo->db->transCommit();
+                return $res->setJSON([
+                    "result" => $result,
+                    "msg" => "ok"
+                ]);
+            } else {
+                $cVideo->db->transRollback();
+                return $res->setJSON([
+                    "result" => "failed",
+                    "msg" => "fail"
+                ]);
+            }
+        } catch (\ReflectionException | DataException $e){
+            return $res->setJSON($e->getMessage());
+        }
+    }
+
+
+
+
+
+
+
+
 
 
 

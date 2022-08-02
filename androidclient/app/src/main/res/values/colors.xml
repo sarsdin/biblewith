@@ -19,4 +19,6 @@
     <color name="colorLike_green">#4CAF50</color>
     <color name="colorLike_gray">#AAAAAA</color>
     <color name="color_transparent">#00009688</color>
+    <color name="color_green2">#03B399</color>
+    <color name="color_gray2">#9A9A9A</color>
 </resources>

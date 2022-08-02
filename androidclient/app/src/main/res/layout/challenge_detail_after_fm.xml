@@ -6,7 +6,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="#59DCDCDC"
-    tools:context=".group.ChallengeDetailFm"
+    tools:context=".group.GroupCreateFm"
 >
 <!--    android:background="#00DCDCDC"-->
 
@@ -60,7 +60,7 @@
                     app:layout_collapseMode="pin"
                     tools:visibility="visible"
                     />
-
+                
                 <com.google.android.material.button.MaterialButton
                     android:id="@+id/saveBt"
                     style="@style/Widget.Material3.Button.OutlinedButton"
@@ -69,58 +69,27 @@
                     android:layout_gravity="end"
                     android:layout_marginEnd="16dp"
                     android:padding="5dp"
-                    android:text="보내기"
+                    android:text="인증하기"
                     android:textColor="#171717"
                     android:textSize="14sp"
                     android:visibility="gone"
                     app:strokeColor="#9A9A9A"
                     tools:visibility="visible" />
-
+              
             </com.google.android.material.appbar.MaterialToolbar>
         </com.google.android.material.appbar.CollapsingToolbarLayout>
     </com.google.android.material.appbar.AppBarLayout>
 
-
-    <androidx.coordinatorlayout.widget.CoordinatorLayout
-        android:id="@+id/viewFinderP"
+    <com.google.android.exoplayer2.ui.PlayerView
+        android:id="@+id/video_view"
         android:layout_width="match_parent"
         android:layout_height="240dp"
         android:layout_marginTop="56dp"
-        android:background="@color/black"
-        android:orientation="horizontal"
-        >
-<!--        android:backgroundTint="@color/black"-->
-
-        <androidx.camera.view.PreviewView
-            android:id="@+id/viewFinder"
-            android:layout_width="match_parent"
-            android:layout_height="240dp"
-            >
-<!--            android:layout_marginTop="56dp"-->
-
-            <!--<Button
-                android:id="@+id/image_capture_button"
-                android:layout_width="60dp"
-                android:layout_height="60dp"
-                android:layout_gravity="bottom|center"
-                android:layout_marginEnd="0dp"
-                android:layout_marginBottom="1dp"
-                android:elevation="2dp"
-                android:text="사진찍기" />-->
-        </androidx.camera.view.PreviewView>
-
-        <Button
-            android:id="@+id/video_capture_button"
-            android:layout_width="60dp"
-            android:layout_height="60dp"
-            android:layout_gravity="bottom|right"
-            android:layout_marginStart="0dp"
-            android:layout_marginEnd="30dp"
-            android:layout_marginBottom="1dp"
-            android:backgroundTint="#A34D4D"
-            android:elevation="2dp"
-            android:text="인증시작" />
-    </androidx.coordinatorlayout.widget.CoordinatorLayout>
+        app:resize_mode="fit"
+        app:show_timeout="5000"
+        app:use_controller="true"
+        android:background="@color/cardview_dark_background"
+        />
 
 
     <androidx.core.widget.NestedScrollView
@@ -150,15 +119,11 @@
 
     </androidx.core.widget.NestedScrollView>
 
-    <ProgressBar
-        android:id="@+id/progress_bar"
-        android:layout_width="match_parent"
-        android:layout_height="150dp"
-        android:layout_gravity="center|center_horizontal"
-        android:layout_marginVertical="500dp"
-        android:background="#1AFFFFFF"
-        android:visibility="gone" />
-        <!--    android:layout_width="150dp"-->
-        <!--    android:layout_height="150dp"-->
+      <ProgressBar
+            android:id="@+id/progress_bar"
+            android:layout_width="150dp"
+            android:layout_height="150dp"
+            android:visibility="gone"
+            android:layout_gravity="center|center_horizontal" />
 
 </androidx.coordinatorlayout.widget.CoordinatorLayout>

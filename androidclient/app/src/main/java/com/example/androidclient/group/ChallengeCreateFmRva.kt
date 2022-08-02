@@ -142,7 +142,7 @@ class ChallengeCreateFmRva(val groupVm: GroupVm, val bibleVm: BibleVm, val chall
                 (image.height / 2 + fontSize / 4).toFloat()+3.5f, paint) //draw the number onto the hexagon
 //            val iv: ImageView = findViewById(com.example.androidclient.R.id.iv) as ImageView
 //            buttonView.setImageBitmap(image)
-            Toast.makeText(challengeCreateFm.requireActivity(),"$position",Toast.LENGTH_SHORT).show()
+//            Toast.makeText(challengeCreateFm.requireActivity(),"$position",Toast.LENGTH_SHORT).show()
             buttonView.icon = BitmapDrawable(challengeCreateFm.requireContext().resources, image)
         }
 

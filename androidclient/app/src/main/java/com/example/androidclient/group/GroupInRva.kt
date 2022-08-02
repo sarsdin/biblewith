@@ -76,10 +76,11 @@ class GroupInRva(val groupVm: GroupVm, val groupInFm: GroupInFm) : RecyclerView.
             if(!mItem.get("user_image").isJsonNull){
                 ImageHelper.getImageUsingGlide(groupInFm.requireContext(), mItem.get("user_image").asString, binding.groupInFmVhIv)
             }
-            //날짜, 내용, 좋아요 수
+            //날짜, 내용, 좋아요 수, 댓글 수
             binding.groupInFmVhDateTv.text = MyApp.getTime("ui", mItem.get("create_date").asString)
             binding.groupInFmVhContentTv.text = mItem.get("gboard_content").asString
             binding.groupInFmVhLLLikeEaBt.text = mItem.get("gboard_like_count").asString
+            binding.groupInFmVhLLReplyEaBt.text = mItem.get("reply_count").asString
             if(mItem.get("is_like").asBoolean){
 //                binding.groupInFmVhLLBottomLikeBt.iconTintMode =PorterDuff.Mode.DST_OVER
 //                binding.groupInFmVhLLBottomLikeBt.iconTint = ColorStateList.valueOf(R.color.colorLike_green)
@@ -95,7 +96,7 @@ class GroupInRva(val groupVm: GroupVm, val groupInFm: GroupInFm) : RecyclerView.
                     ImageHelper.getImageUsingGlide(groupInFm.requireContext(), replyL.get(0).asJsonObject.get("user_image").asString, binding.groupInFmVhReplyClIv)
                 }
                 binding.groupInFmVhReplyClContentTv.text = replyL.get(0).asJsonObject.get("reply_content").asString
-                binding.groupInFmVhReplyClDateTv.text = replyL.get(0).asJsonObject.get("reply_writedate").asString
+                binding.groupInFmVhReplyClDateTv.text = MyApp.getTime("ui",replyL.get(0).asJsonObject.get("reply_writedate").asString)
                 //댓글 클릭시
 //                        Log.e("[GroupInRva]", "댓글 유무확인:  ${replyL.get(0).asJsonObject}")
                 binding.groupInFmVhReplyCl.setOnTouchListener { _, event ->

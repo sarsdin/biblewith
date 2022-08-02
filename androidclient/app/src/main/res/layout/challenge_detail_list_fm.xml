@@ -5,6 +5,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:background="#59DCDCDC"
     tools:context=".group.ChallengeDetailListFm"
     >
     <com.google.android.material.appbar.AppBarLayout
@@ -27,7 +28,7 @@
                 android:layout_height="wrap_content"
                 android:fontFamily="monospace"
                 android:text="챌린지title-writer"
-                android:textSize="20sp"
+                android:textSize="16sp"
                 android:textStyle="bold" />
 
             <com.google.android.material.imageview.ShapeableImageView
@@ -85,4 +86,11 @@
 
 
     </androidx.core.widget.NestedScrollView>
+
+      <ProgressBar
+            android:id="@+id/progress_bar"
+            android:layout_width="150dp"
+            android:layout_height="150dp"
+            android:visibility="gone"
+            android:layout_gravity="center|center_horizontal" />
 </androidx.coordinatorlayout.widget.CoordinatorLayout>

@@ -8,8 +8,12 @@ class ChallengeDetail extends \CodeIgniter\Model
     protected $allowedFields = [
         'chal_no',
         'bible_no',
-        'progress_day'
+        'progress_day',
+        'is_checked',
+        'start_date',
+        'progress_date',
+        'chal_detail_no'
     ];
-    protected $primaryKey = 'chal_no';
+    protected $primaryKey = 'chal_detail_no';
 }
 

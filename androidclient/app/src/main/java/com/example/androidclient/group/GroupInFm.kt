@@ -9,8 +9,10 @@ import androidx.fragment.app.Fragment
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.Navigation
+import androidx.navigation.fragment.findNavController
 import androidx.navigation.ui.AppBarConfiguration
 import androidx.navigation.ui.NavigationUI
+import androidx.navigation.ui.NavigationUI.onNavDestinationSelected
 import androidx.navigation.ui.NavigationUI.setupActionBarWithNavController
 import androidx.navigation.ui.NavigationUI.setupWithNavController
 import androidx.navigation.ui.setupWithNavController
@@ -20,6 +22,9 @@ import com.example.androidclient.R
 import com.example.androidclient.databinding.GroupInFmBinding
 import com.example.androidclient.home.MainActivity
 import com.example.androidclient.util.ImageHelper
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
 
 class GroupInFm : Fragment() {
     lateinit var groupVm: GroupVm
@@ -38,6 +43,10 @@ class GroupInFm : Fragment() {
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
         mbinding = GroupInFmBinding.inflate(inflater, container, false)
 
+        CoroutineScope(Dispatchers.Main).launch {
+            groupVm.챌린지목록가져오기(true)
+        }
+
         rv = binding.groupInList
         rv.layoutManager = LinearLayoutManager(context)
         rv.adapter = GroupInRva(groupVm, this)
@@ -51,13 +60,25 @@ class GroupInFm : Fragment() {
 
 
         //모임 툴바 셋팅
-        val navController = Navigation.findNavController(view)
+//        val navController = Navigation.findNavController(view)
+        val navController = Navigation.findNavController(requireActivity(), R.id.nav_host_fragment_main_activity)
 //        val appBarConfiguration = AppBarConfiguration(navController.graph)
         val appBarConfiguration = AppBarConfiguration.Builder(R.id.group_fm).build()
 //        binding.groupMainCollapsingToolbar.setupWithNavController(binding.groupMainToolbar, navController, appBarConfiguration)
 //        binding.groupInToolbar.setupWithNavController(navController, appBarConfiguration)
         setupWithNavController(binding.groupInToolbar, navController, appBarConfiguration)
-        setupWithNavController(binding.groupInBottomNavi, navController)
+//        setupWithNavController(binding.groupInBottomNavi, navController)
+
+        //바텀네비 리스너 설정
+        binding.groupInBottomNavi.setOnItemSelectedListener {
+//            onNavDestinationSelected(it, navController)  << navigate()와 충돌함.
+            if(it.getItemId() == R.id.group_in_challenge_fm){
+                Navigation.findNavController(view).navigate(R.id.action_groupInFm_to_group_in_challenge_fm)
+            }
+            return@setOnItemSelectedListener false
+        }
+
+
 
         //스크롤 이벤트로 밑으로 갈시 바텀네비게이션 감추기
         binding.groupInNestedScrollView.setOnScrollChangeListener(View.OnScrollChangeListener { v, scrollX, scrollY, oldScrollX, oldScrollY ->
@@ -95,7 +116,6 @@ class GroupInFm : Fragment() {
             Navigation.findNavController(it).navigate(R.id.action_groupInFm_to_groupInWriteFm)
         }
 
-        //하단 첼린지 버튼 클릭시
 
 
     }
@@ -105,6 +125,7 @@ class GroupInFm : Fragment() {
         //메인액티비티의 툴바는 감춤
 //        (requireActivity() as MainActivity).binding.mainToolbar.visibility = View.GONE
 //        (requireActivity() as MainActivity).binding.mainBottomNav.visibility = View.GONE
+        binding.groupInBottomNavi.visibility = View.VISIBLE
     }
 
     override fun onPause() {

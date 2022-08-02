@@ -7,6 +7,9 @@ import com.google.gson.GsonBuilder;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
+
 import java.util.List;
 import java.util.Map;
 
@@ -169,7 +172,7 @@ public class Http {
     }
 
 
-    public interface HttpGroup{
+    public interface HttpGroup {
         //모임 만들기
         @Multipart
         @POST("group/createGroup")
@@ -185,24 +188,24 @@ public class Http {
         //모임 상세 가져오기
         @Headers("content-type: application/json")
         @POST("group/getGroupIn")
-        Call<JsonObject> getGroupIn(@Query("group_no") int currentGroupIn, @Query("sortStateGroupIn") String sortStateGroupIn, @Query("user_no")int userNo);
+        Call<JsonObject> getGroupIn(@Query("group_no") int currentGroupIn, @Query("sortStateGroupIn") String sortStateGroupIn, @Query("user_no") int userNo);
 
         //모임 게시물 목록 가져오기
         @Headers("content-type: application/json")
         @POST("group/getGroupInL")
-        Call<JsonObject> getGroupInL(@Query("group_no")int currentGroupIn, @Query("sortStateGroupIn") String sortStateGroupIn);
+        Call<JsonObject> getGroupInL(@Query("group_no") int currentGroupIn, @Query("sortStateGroupIn") String sortStateGroupIn);
 
         //모임 글쓰기
         @Multipart
         @POST("group/writeGroupIn")
         Call<JsonObject> writeGroupIn(@PartMap Map<String, RequestBody> writeInfo,
-                                     @Part List<MultipartBody.Part> writeImage);
+                                      @Part List<MultipartBody.Part> writeImage);
 
         //모임 글수정
         @Multipart
         @POST("group/updateBoardGroupIn")
         Call<JsonObject> updateBoardGroupIn(@PartMap Map<String, RequestBody> updateInfo,
-                                      @Part List<MultipartBody.Part> updateImage);
+                                            @Part List<MultipartBody.Part> updateImage);
 
         //모임 글삭제
         @Headers("content-type: application/json")
@@ -235,7 +238,40 @@ public class Http {
         Call<JsonObject> clickGboardLike(@Query("gboard_no") int gboard_no, @Query("user_no") int user_no);
 
 
+        //챌린지만들기총분량수계산
+        @Headers("content-type: application/json")
+        @POST("group/getCountVerseForChalCreate")
+        Call<JsonObject> 챌린지만들기총분량수계산(@Body JsonArray params);
 
+        //챌린지만들기완료하기
+        @Headers("content-type: application/json")
+        @POST("group/createChallenge")
+        Call<JsonObject> 챌린지만들기완료하기(@Body JsonObject params);
+
+        //챌린지목록가져오기
+        @Headers("content-type: application/json")
+        @POST("group/getChallengeList")
+        Call<JsonObject> 챌린지목록가져오기(@Query("user_no") int user_no, @Query("group_no") int group_no);
+
+
+        //챌린지상세목록가져오기
+        @Headers("content-type: application/json")
+        @POST("group/getChallengeDetailList")
+        Call<JsonObject> 챌린지상세목록가져오기(@Query("chal_no") int chal_no, @Query("user_no") int user_no, @Query("group_no") int group_no);
+
+
+        @Headers("content-type: application/json")
+        @POST("group/getChallengeDetailVerseList")
+        Call<JsonObject> 챌린지인증진행하기(@Body JsonObject params);
+
+        @Headers("content-type: application/json")
+        @POST("group/updateChallengeDetailVerse")
+        Call<JsonObject> 챌린지인증체크업데이트(@Body JsonObject params);
+
+        @Multipart
+        @POST("group/createChalDetailVideo")
+        Call<JsonObject> 챌린지인증영상업로드(@PartMap Map<String, RequestBody> groupInfo,
+                                          @Part MultipartBody.Part groupImage);
     }
 
 
