@@ -2,19 +2,24 @@
 <com.google.android.material.card.MaterialCardView xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
-    android:layout_width="wrap_content"
+    android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:layout_marginTop="7dp"
     android:layout_marginHorizontal="0dp"
-    android:background="#48FB6C6C"
-    app:cardCornerRadius="0dp"
-    app:cardElevation="0dp">
-
+    android:layout_marginTop="7dp"
+    android:background="#D4E157"
+    app:cardCornerRadius="13dp"
+    app:cardElevation="1dp"
+    >
+<!--    app:cardUseCompatPadding="true"-->
+<!--  2순위적용  app:cardBackgroundColor="#42A5F5"-->
+<!--  1순위적용-항상Tint부터 적용됨 android:backgroundTint="#7A551D"-->
+<!--  0순위는 자식뷰의 background 부터-->
 
     <LinearLayout
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:orientation="horizontal">
+<!--        android:background="#9CCC65"-->
 
         <com.google.android.material.imageview.ShapeableImageView
             android:id="@+id/complete_iv"
@@ -25,7 +30,7 @@
             android:contentDescription="is checked?"
             android:scaleType="centerCrop"
             android:tint="#F4511E"
-            android:visibility="invisible"
+            android:visibility="gone"
             app:shapeAppearanceOverlay="@style/ShapeAppearanceOverlay.App.CornerSize50Percent"
             app:srcCompat="@drawable/ic_baseline_done_24" />
         <!--        android:background="#818080"-->
@@ -41,7 +46,8 @@
                 android:id="@+id/verseNo"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_margin="8dp"
+                android:layout_marginHorizontal="18dp"
+                android:layout_marginVertical="8dp"
                 android:fontFamily="@font/binggraebold"
                 android:textAppearance="?attr/textAppearanceListItem"
                 android:textColor="@color/colorDarkSemiTransparent"
@@ -51,10 +57,11 @@
                 android:id="@+id/verseContent"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_margin="8dp"
+                android:layout_marginHorizontal="18dp"
+                android:layout_marginVertical="8dp"
                 android:fontFamily="@font/binggraetaom"
-                tools:text="사사기 1장 1절"
-                android:textAppearance="?attr/textAppearanceListItem" />
+                android:textAppearance="?attr/textAppearanceListItem"
+                tools:text="사사기 1장 1절" />
 
 
         </LinearLayout>

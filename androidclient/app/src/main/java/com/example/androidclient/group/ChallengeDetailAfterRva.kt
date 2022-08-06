@@ -6,7 +6,7 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.Toast
 import androidx.recyclerview.widget.RecyclerView
-import com.example.androidclient.databinding.ChallengeDetailFmVhBinding
+import com.example.androidclient.databinding.ChallengeDetailAfterFmVhBinding
 import com.example.androidclient.moreinfo.MyNoteRvaInner
 import com.google.gson.JsonObject
 import kotlinx.coroutines.CoroutineScope
@@ -15,13 +15,13 @@ import kotlinx.coroutines.launch
 
 
 class ChallengeDetailAfterRva(val groupVm: GroupVm, val challengeDetailAfterFm: ChallengeDetailAfterFm)
-    : RecyclerView.Adapter<ChallengeDetailAfterRva.ChallengeDetailFmVh>() {
+    : RecyclerView.Adapter<ChallengeDetailAfterRva.ChallengeDetailAfterFmVh>() {
 
-    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ChallengeDetailAfterRva.ChallengeDetailFmVh {
-        return ChallengeDetailFmVh(ChallengeDetailFmVhBinding.inflate(LayoutInflater.from(parent.context), parent,false))
+    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ChallengeDetailAfterRva.ChallengeDetailAfterFmVh {
+        return ChallengeDetailAfterFmVh(ChallengeDetailAfterFmVhBinding.inflate(LayoutInflater.from(parent.context), parent,false))
     }
 
-    override fun onBindViewHolder(holder: ChallengeDetailFmVh, position: Int) {
+    override fun onBindViewHolder(holder: ChallengeDetailAfterFmVh, position: Int) {
         holder.bind(groupVm.chalDetailVerseL[position] as JsonObject)
     }
 
@@ -29,12 +29,12 @@ class ChallengeDetailAfterRva(val groupVm: GroupVm, val challengeDetailAfterFm: 
         return groupVm.chalDetailVerseL.size()
     }
 
-    override fun onViewAttachedToWindow(holder: ChallengeDetailFmVh) {
+    override fun onViewAttachedToWindow(holder: ChallengeDetailAfterFmVh) {
         holder.setIsRecyclable(false) //홀더뷰 재사용 안함으로 설정하여 홀더의 절 ui들이 독립적으로 작동하게 함
         super.onViewAttachedToWindow(holder)
     }
 
-    inner class ChallengeDetailFmVh(var binding: ChallengeDetailFmVhBinding) : RecyclerView.ViewHolder(binding.root) {
+    inner class ChallengeDetailAfterFmVh(var binding: ChallengeDetailAfterFmVhBinding) : RecyclerView.ViewHolder(binding.root) {
         var rva: MyNoteRvaInner? = null
         var rv: RecyclerView? =null
 
@@ -48,24 +48,16 @@ class ChallengeDetailAfterRva(val groupVm: GroupVm, val challengeDetailAfterFm: 
             //클릭시 체크 여부 판별하여 데이터 & ui 업데이트 작업
             binding.root.setOnClickListener {
 //                Toast.makeText(challengeDetailFm.requireActivity(),"${mItem.get("is_checked").asBoolean}",Toast.LENGTH_SHORT).show()
-                if(mItem.get("is_checked").asString == "1"){
-                    mItem.addProperty("is_checked", false)
-//                    binding.completeIv.visibility = View.INVISIBLE
-
-                } else {
-                    mItem.addProperty("is_checked", true)
-//                    binding.completeIv.visibility = View.VISIBLE
-                }
-                val jo = JsonObject()
-                jo.addProperty("chal_detail_verse_no", mItem.get("chal_detail_verse_no").asInt)
-                jo.addProperty("chal_no", mItem.get("chal_no").asInt)
-                jo.addProperty("progress_day", mItem.get("progress_day").asInt)
-                jo.addProperty("is_checked", mItem.get("is_checked").asBoolean)
-                CoroutineScope(Dispatchers.Main).launch {
-                    challengeDetailAfterFm.binding.progressBar.visibility = View.VISIBLE
-                    groupVm.챌린지인증체크업데이트(jo, true)
-                    challengeDetailAfterFm.binding.progressBar.visibility = View.GONE
-                }
+//                val jo = JsonObject()
+//                jo.addProperty("chal_detail_verse_no", mItem.get("chal_detail_verse_no").asInt)
+//                jo.addProperty("chal_no", mItem.get("chal_no").asInt)
+//                jo.addProperty("progress_day", mItem.get("progress_day").asInt)
+//                jo.addProperty("is_checked", mItem.get("is_checked").asBoolean)
+//                CoroutineScope(Dispatchers.Main).launch {
+//                    challengeDetailAfterFm.binding.progressBar.visibility = View.VISIBLE
+//                    groupVm.챌린지인증체크업데이트(jo, true)
+//                    challengeDetailAfterFm.binding.progressBar.visibility = View.GONE
+//                }
 //                notifyDataSetChanged()
             }
 
@@ -73,16 +65,18 @@ class ChallengeDetailAfterRva(val groupVm: GroupVm, val challengeDetailAfterFm: 
             //todo Gson asBoolean 은 버그가 있다. 조심하자! if문 & log.e 에서  정상적으로 값이 나오지 않는다!.. 리사이클러뷰에서만 그런듯하다!
 //                Log.e("오류태그", "test ${mItem.get("is_checked").asString} ") //${mItem.get("is_checked").asBoolean}
 //                Log.e("오류태그", "test ${mItem.get("is_checked").getAsBoolean()} ") //${mItem.get("is_checked").asBoolean}
-            val bol = mItem.get("is_checked").asString
+            //after페이지는 이미 인증완료한 페이지라 체크여부를 보여줄 필요가 없다.
+            /*val bol = mItem.get("is_checked").asString
             if(bol == "1"){
                 binding.completeIv.visibility = View.VISIBLE
 
             } else {
                 binding.completeIv.visibility = View.INVISIBLE
-            }
+            }*/
 
             binding.verseNo.text = "${mItem.get("book_name").asString} ${mItem.get("chapter").asString}장 ${mItem.get("verse").asString}절"
             binding.verseContent.text = mItem.get("content").asString
+
 
 
 

@@ -212,12 +212,20 @@
         <action
             android:id="@+id/action_challengeDetailListFm_to_challengeDetailFm"
             app:destination="@id/challengeDetailFm" />
+        <action
+            android:id="@+id/action_challengeDetailListFm_to_challengeDetailAfterFm"
+            app:destination="@id/challengeDetailAfterFm" />
     </fragment>
     <action
         android:id="@+id/action_global_groupInFm"
         app:destination="@id/groupInFm"
         app:launchSingleTop="true"
         app:popUpTo="@id/groupInFm" />
+    <fragment
+        android:id="@+id/challengeDetailAfterFm"
+        android:name="com.example.androidclient.group.ChallengeDetailAfterFm"
+        android:label=""
+        tools:layout="@layout/challenge_detail_after_fm"/>
 
 
 </navigation>

@@ -13,7 +13,7 @@
     <com.google.android.material.appbar.AppBarLayout
         android:id="@+id/appbar"
         android:layout_width="match_parent"
-        android:layout_height="?attr/actionBarSize"
+        android:layout_height="45dp"
         android:background="#00FFFFFF"
         app:elevation="0dp">
 
@@ -23,7 +23,7 @@
             android:layout_height="wrap_content"
             app:contentScrim="@color/colorBlue"
             app:expandedTitleGravity="bottom"
-            app:layout_scrollFlags="scroll|snap"
+            app:layout_scrollFlags="scroll|snap|exitUntilCollapsed"
             app:toolbarId="@id/toolbar">
             <!--            contentScrim: 접혔을때의 툴바 layout 색 -->
 
@@ -84,18 +84,18 @@
         android:id="@+id/video_view"
         android:layout_width="match_parent"
         android:layout_height="240dp"
-        android:layout_marginTop="56dp"
+        android:layout_marginTop="45dp"
         app:resize_mode="fit"
         app:show_timeout="5000"
         app:use_controller="true"
-        android:background="@color/cardview_dark_background"
+        android:background="@color/black"
         />
 
 
     <androidx.core.widget.NestedScrollView
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginTop="300dp"
+        android:layout_marginTop="285dp"
     >
         <!--  collapsingToolbarLayout의 스크롤옵션과 같이 쓴다면 설정해야함 -->
         <!--        app:layout_behavior="@string/appbar_scrolling_view_behavior"-->
@@ -104,15 +104,80 @@
             android:layout_height="match_parent"
         >
 
+            <LinearLayout
+                android:id="@+id/linear_layout"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintHorizontal_bias="0.0"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent">
+
+                <com.google.android.material.button.MaterialButtonToggleGroup
+                    android:id="@+id/toggleGroup"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    app:selectionRequired="false"
+                    app:singleSelection="true">
+<!--                    app:checkedButton="@id/btn1"-->
+
+                    <com.google.android.material.button.MaterialButton
+                        android:id="@+id/btn1"
+                        style="@style/Widget.MaterialComponents.Button.TextButton"
+                        android:layout_width="70dp"
+                        android:layout_height="wrap_content"
+                        android:text="😆0"
+                        android:textAlignment="textStart"
+                         />
+<!--                    android:textStyle="bold"-->
+<!--                        android:textSize="18sp"-->
+<!--                        android:textColor="#B71C1C"-->
+
+                    <com.google.android.material.button.MaterialButton
+                        android:id="@+id/btn2"
+                        style="@style/Widget.MaterialComponents.Button.TextButton"
+                        android:layout_width="70dp"
+                        android:layout_height="wrap_content"
+                        android:text="👍0"
+                        android:textAlignment="textStart" />
+
+                    <com.google.android.material.button.MaterialButton
+                        android:id="@+id/btn3"
+                        style="@style/Widget.MaterialComponents.Button.TextButton"
+                        android:layout_width="70dp"
+                        android:layout_height="wrap_content"
+                        android:text="❤0"
+                        android:textAlignment="textStart" />
+
+                    <com.google.android.material.button.MaterialButton
+                        android:id="@+id/btn4"
+                        style="@style/Widget.MaterialComponents.Button.TextButton"
+                        android:layout_width="70dp"
+                        android:layout_height="wrap_content"
+                        android:text="😮0"
+                        android:textAlignment="textStart" />
+
+                    <com.google.android.material.button.MaterialButton
+                        android:id="@+id/btn5"
+                        style="@style/Widget.MaterialComponents.Button.TextButton"
+                        android:layout_width="70dp"
+                        android:layout_height="50dp"
+                        android:text="😍0"
+                        android:textAlignment="textStart" />
+
+                </com.google.android.material.button.MaterialButtonToggleGroup>
+
+            </LinearLayout>
+
             <androidx.recyclerview.widget.RecyclerView
                 android:id="@+id/verse_list"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="5dp"
                 android:minHeight="400dp"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toTopOf="parent" />
+                app:layout_constraintTop_toBottomOf="@+id/linear_layout" />
 
 
         </androidx.constraintlayout.widget.ConstraintLayout>

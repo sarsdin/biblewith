@@ -411,9 +411,9 @@ class GroupInUpdateFm : Fragment() {
                         intent.data = Uri.parse("package:" + requireActivity().packageName)
                         startActivity(intent)
                     }
-                    .setPositiveButton(
-                        "확인"
-                    ) { dialogInterface, i -> requireActivity().finish() }
+                    .setPositiveButton("확인") { dialogInterface, i ->
+                        requireActivity().finish()
+                    }
                     .setCancelable(false)
                     .create()
                     .show()

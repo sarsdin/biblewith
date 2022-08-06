@@ -2,14 +2,17 @@ package com.example.androidclient.util
 
 import android.R
 import android.content.Context
+import android.database.Cursor
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
 import android.graphics.drawable.Drawable
 import android.net.Uri
 import android.provider.DocumentsContract
 import android.provider.MediaStore
+import android.provider.OpenableColumns
 import android.util.Log
 import androidx.appcompat.content.res.AppCompatResources.getDrawable
+import androidx.core.content.ContentProviderCompat.requireContext
 import androidx.core.graphics.drawable.toBitmap
 import com.bumptech.glide.Glide
 import com.bumptech.glide.load.engine.DiskCacheStrategy
@@ -24,6 +27,7 @@ import okhttp3.RequestBody.Companion.toRequestBody
 import okhttp3.Response
 import java.io.ByteArrayOutputStream
 import java.io.File
+import java.lang.RuntimeException
 import java.nio.file.Files.createFile
 import kotlin.coroutines.Continuation
 import kotlin.coroutines.resume
@@ -41,6 +45,15 @@ class FileHelper {
     fun getPartBodyFromUri(context: Context, uri: Uri, formDataKeyName: String): MultipartBody.Part {
         val realPath = getPathFromURI(context, uri)
         val fileImage = createFile(realPath)
+        val requestBody = createRequestBody(fileImage)
+        Log.e("[FileHelper]", "uri: $uri")
+        Log.e("[FileHelper]", "realPath: $realPath")
+        return createPart(fileImage, requestBody, formDataKeyName)
+    }
+
+    fun getPartBodyFromUriForVideo(context: Context, uri: Uri, formDataKeyName: String): MultipartBody.Part {
+        val realPath = getAbsolutePathFromUri(context, uri)
+        val fileImage = createFile(realPath!!)
         val requestBody = createRequestBody(fileImage)
         Log.e("[FileHelper]", "uri: $uri")
         Log.e("[FileHelper]", "realPath: $realPath")
@@ -185,6 +198,7 @@ class FileHelper {
                 databaseUri = MediaStore.Images.Media.EXTERNAL_CONTENT_URI
                 selection = "_id=?"
                 selectionArgs = arrayOf(DocumentsContract.getDocumentId(uri).split(":")[1]) //getDocumentId 가 /document/image:123 부분 uri인듯
+
             } else { // files selected from all other sources, especially on Samsung devices
                 databaseUri = uri
                 selection = null
@@ -213,4 +227,51 @@ class FileHelper {
         }
         return realPath
     }
+
+    /**
+     * A helper function to get the captured file location.
+     */
+//    else if (path.contains("media/external/video")){
+////                outputFileResults.savedUri: content://media/external/video/media/230
+
+    private fun getAbsolutePathFromUri(context: Context, contentUri: Uri): String? {
+        var cursor: Cursor? = null
+        return try {
+            cursor = context
+                .contentResolver
+                //두번째 매개변수는 반환할 쿼리의 열목록을 말하는 것. DATA는 _data 행을 반환하는데 image 든 video 든 같은 열이 존재하므로 어느것을 써도 노상관.
+                //_data 열에는 실제 내가 알고자하는 파일의 실제 경로가 담겨져있음.
+                .query(contentUri, arrayOf(MediaStore.Images.Media.DATA), null, null, null)
+            if (cursor == null) {
+                return null
+            }
+            val columnIndex = cursor.getColumnIndexOrThrow(MediaStore.Images.Media.DATA)
+            cursor.moveToFirst()
+            cursor.getString(columnIndex)
+        } catch (e: RuntimeException) {
+            Log.e("VideoViewerFragment", String.format("Failed in getting absolute path for Uri %s with Exception %s",
+                contentUri.toString(), e.toString() ))
+            null
+        } finally {
+            cursor?.close()
+        }
+    }
+
+    /**
+     * A helper function to retrieve the captured file size.
+     */
+    private fun getFileSizeFromUri(context: Context, contentUri: Uri): Long? {
+        val cursor = context
+            .contentResolver
+            .query(contentUri, null, null, null, null)
+            ?: return null
+
+        val sizeIndex = cursor.getColumnIndex(OpenableColumns.SIZE)
+        cursor.moveToFirst()
+
+        cursor.use {
+            return it.getLong(sizeIndex)
+        }
+    }
+
 }

@@ -4,6 +4,7 @@ namespace App\Controllers;
 
 use App\Models\Challenge;
 use App\Models\ChallengeDetail;
+use App\Models\ChallengeDetailLike;
 use App\Models\ChallengeDetailVerse;
 use App\Models\ChallengeSelectedBible;
 use App\Models\ChallengeVideo;
@@ -16,7 +17,10 @@ use App\Models\NoteVerse;
 use App\Models\Reply;
 use CodeIgniter\Database\Exceptions\DataException;
 use CodeIgniter\HTTP\ResponseInterface;
+use CodeIgniter\Log\Logger;
 use Config\Pager;
+use Streaming\FFMpeg;
+use Streaming\Representation;
 
 class Group extends \CodeIgniter\Controller
 {
@@ -1123,6 +1127,8 @@ class Group extends \CodeIgniter\Controller
         $cSelected = new ChallengeSelectedBible();
         $cDetail = new ChallengeDetail();
         $cDetailVerse = new ChallengeDetailVerse();
+        $cVideo = new ChallengeVideo();
+        $cLike = new ChallengeDetailLike();
         $req = $this->request;
         $res = $this->response;
         $data = $req->getJson(true);
@@ -1134,13 +1140,30 @@ class Group extends \CodeIgniter\Controller
             // todo 나중에 들어가야할 데이터: 체크유무, 절 데이터, 영상 데이터
 
             //인증화면 인증할 절 데이터 - 성경, 책 테이블 정보 조인하여 가져오기
-            $result = $cDetailVerse
+            $res1 = $cDetailVerse
                 ->join('bible_korHRV', 'bible_korHRV.bible_no = ChallengeDetailVerse.bible_no')
                 ->join('book', 'book.book_no = bible_korHRV.book')
                 ->where('progress_day', $data['progress_day'])
                 ->where('chal_no', $data['chal_no'])->findAll();
 
+            //인증 비디오 정보 : 있으면 불러온다
+            $res2 = $cVideo->where('chal_detail_no', $data['chal_detail_no'])->findAll();
 
+            //챌린지 상세 페이지의 각 좋아요 아이콘의 개별 숫자, 현재 사용자가 선택한 좋아요 현황을 반환해줌
+            $sql = " select like_bt_no, count(*) `count`
+                    from ChallengeDetailLike
+                    where chal_detail_no = ? 
+                    group by like_bt_no ";
+
+            $result = [
+                'chalDetailVerseL' => $res1,
+                'chalDetailVideoInfo' => $res2,
+                'likeInfo' => $cLike->where('chal_detail_no', $data['chal_detail_no'])->findAll(),
+                'likeMyInfo' => $cLike->where('user_no', $data['user_no'])
+                    ->where('chal_detail_no', $data['chal_detail_no'])->find()
+            ];
+
+            //연관배열자체가 jsonObject로 들어간다
             if ($bible->db->transComplete()){
                 $bible->db->transCommit();
                 return $res->setJSON([
@@ -1207,11 +1230,116 @@ class Group extends \CodeIgniter\Controller
     }
 
 
+    // 챌린지 영상업로드 사전작업 - is_checked 를 2로 바꿔줘서 영상변환중이라는 것을 알리기 위함
+    public function createChalDetailVideoFirstWork() : ResponseInterface
+    {
+        $cDetail = new ChallengeDetail();
+        $req = $this->request;
+        $res = $this->response;
+//        $data = $req->getJson(true);
+        $data = $req->getVar();
+        log_message("debug", "[Group] createChalDetailVideoFirstWork \$data: ". print_r($data, true));
+
+        try {
+            $cDetail->db->transStart();
+            //영상업로드시 해당 일차 챌린지 완료 처리
+            //is_checked == 1(true--위의 format callback에서 조정) 이면 영상 업로드 변환까지 완료되었다는 뜻.
+            // == 2 면 아직 영상작업은 안됐다는 말
+            //클라에서는 대기시키는 메시지 띄워야함.
+            $result = $cDetail->set('is_checked', 2)->update($data['chal_detail_no']);
+            log_message("debug", "[Group] createChalDetailVideoFirstWork \$result: ". print_r($result, true));
+
+            if ($cDetail->db->transComplete()){
+                $cDetail->db->transCommit();
+                return $res->setJSON([
+                    "result" => "ok",
+                    "msg" => "ok"
+                ]);
+            } else {
+                $cDetail->db->transRollback();
+                return $res->setJSON([
+                    "result" => "failed",
+                    "msg" => "fail"
+                ]);
+            }
+        } catch (\ReflectionException | DataException $e){
+            return $res->setJSON($e->getMessage());
+        }
+    }
+
+
+    // 챌린지 상세화면 좋아요 클릭시
+    public function chalLikeClicked() : ResponseInterface
+    {
+        $cLike = new ChallengeDetailLike();
+        $cDetail = new ChallengeDetail();
+        $req = $this->request;
+        $res = $this->response;
+        $data = $req->getJson(true);
+//        $data = $req->getVar();
+        log_message("debug", "[Group] chalLikeClicked \$data: ". print_r($data, true));
+
+        //좋아요 작업에 필요한 사용자의 행동 정보 (=클라이언트의 ui 조작 정보)
+        $params = [
+            'chal_detail_no' => $data['chal_detail_no'],
+            'user_no' => $data['user_no'],
+            'like_bt_no' => $data['like_bt_no'],
+            'is_checked' => $data['is_checked']
+        ];
+
+        try {
+            $cDetail->db->transStart();
+            $result = null;
+            //현재 챌린지 상세 페이지의 좋아요 데이터에 사용자의 정보가 없다면(=처음클릭이다) insert  
+            if ($cLike->where('user_no', $data['user_no'])->where('chal_detail_no', $data['chal_detail_no'])
+                    ->countAllResults() == 0) {
+                $result = $cLike->insert($params);
+
+            // 아니면 그 사용자의 정보 업데이트 작업
+            } else {
+                $result = $cLike->where('user_no', $data['user_no'])
+                    ->where('chal_detail_no', $data['chal_detail_no'])
+                    ->set($params)->update();
+            }
+            log_message("debug", "[Group] chalLikeClicked \$result: ". print_r($result, true));
+
+            $sql = " select like_bt_no, count(*) `count`
+                    from ChallengeDetailLike
+                    where chal_detail_no = ? 
+                    group by like_bt_no" ;
+
+            //챌린지 상세 페이지의 각 좋아요 관련정보, 현재 사용자가 선택한 좋아요 현황을 반환해줌
+            $result = [
+                'likeInfo' => $cLike->where('chal_detail_no', $data['chal_detail_no'])->findAll(),
+                'likeMyInfo' => $cLike->where('user_no', $data['user_no'])
+                    ->where('chal_detail_no', $data['chal_detail_no'])->find()
+            ];
+
+            if ($cDetail->db->transComplete()){
+                $cDetail->db->transCommit();
+                return $res->setJSON([
+                    "result" => $result,
+                    "msg" => "ok"
+                ]);
+            } else {
+                $cDetail->db->transRollback();
+                return $res->setJSON([
+                    "result" => "failed",
+                    "msg" => "fail"
+                ]);
+            }
+        } catch (\ReflectionException | DataException $e){
+            return $res->setJSON($e->getMessage());
+        }
+    }
+
+
 
     // 인증 보내기 (챌린지디테일화면) - 보내온 녹화 비디오를 저장하고 스트리밍용파일로 변환한다.
     public function createChalDetailVideo() : ResponseInterface
     {
         $cVideo = new ChallengeVideo();
+        $cDetail = new ChallengeDetail();
         $req = $this->request;
         $res = $this->response;
 //        $data = $req->getJson(true);
@@ -1222,10 +1350,7 @@ class Group extends \CodeIgniter\Controller
         $videoData = $req->getFile('chal_video');
 //        $imgData = $req->getFiles();
         log_message("debug", "[Group] createChalDetailVideo \$getFiles: ".print_r($videoData, true));
-//        return $res->setJSON([
-//            "result" => "test",
-//            "msg" => "ok"
-//        ]);
+
 
         /*$validationRule = [
             'group_main_image' => [
@@ -1248,29 +1373,102 @@ class Group extends \CodeIgniter\Controller
 
         //이미지파일을 ci 기본 upload 경로(writable/uploads)에 저장. 그후 경로 반환된걸로 db에 insert
         $filePath = $videoData->store();
-        log_message("debug", "[Group] createChalDetailVideo \$filePath: ".print_r($filePath, true));
+        log_message("debug", "[Group] createChalDetailVideo \$filePath: ".print_r(WRITEPATH."uploads/".$filePath, true));
 
-        $data = [
-            'user_no' => $req->getVar('user_no'),
-            'group_name' => $req->getVar('group_name'),
-            'group_desc' => $req->getVar('group_desc'),
-            'group_main_image' => $filePath,
-            'create_date' => date('Y-m-d H:i:s'),
+        //받은 비디오파일을 이용해 스트리밍용 파일 생성 - 변환시 사용할 config 파일 설정.
+        // ffmpeg 바이너리 지정 및 변환시간 제한, 사용할 쓰레드 수 설정
+        $config = [
+            'ffmpeg.binaries'  => '/usr/bin/ffmpeg',
+            'ffprobe.binaries' => '/usr/bin/ffprobe',
+            'timeout'          => 3600, // The timeout for the underlying process
+            'ffmpeg.threads'   => 1,   // The number of threads that FFmpeg should use
         ];
+        //변환에 사용할 가변 비트레이트를 설정한다. 밑의 addRepresentations 의 인수로 넣는다
+        $r_360p  = (new Representation)->setKiloBitrate(276)->setResize(640, 360);
+//        $r_480p  = (new Representation)->setKiloBitrate(750)->setResize(854, 480);
+//        $r_720p  = (new Representation)->setKiloBitrate(2048)->setResize(1280, 720);
+//        $r_1080p = (new Representation)->setKiloBitrate(4096)->setResize(1920, 1080);
+
+        //비디오 변환에 관한 로그출력 지정자 설정
+        $log = new Logger(new \Config\Logger());
+//        $log->pushHandler(new StreamHandler('/var/log/ffmpeg-streaming.log')); // path to log file
+
+        //확장자 제거하고 변환될 파일명으로 사용한다
+        $without_extension = substr($filePath,0,strrpos($filePath,"."));
+        log_message("debug", "[Group] createChalDetailVideo \$without_extension: ".print_r($without_extension, true));
+
+        //php_ffmpeg 라이브러리를 이용해 스트리밍용 dash파일을 생성하기 위한 사전작업.
+        $ffmpeg = FFMpeg::create($config, $log);
+        $video = $ffmpeg->open(WRITEPATH."uploads/".$filePath);
+//        $format = new \FFMpeg\Format\Video\X264();
+        $format = new \Streaming\Format\X264();
+
 
         try {
-            //모임을 만들고 반환된 모임 번호를 이용해 만든이를 모임장으로서 모임멤버로 추가시켜줌.
-            $result = $group->insert($data);
-            $result = $groupMember->insert([
-                'group_no' => $result,
-                'user_no' => $req->getVar('user_no')
-            ]);
+            $cVideo->db->transStart();
+
+            //영상업로드시 해당 일차 챌린지 완료 처리
+            //is_checked == 1(true--위의 format callback에서 조정) 이면 영상 업로드 변환까지 완료되었다는 뜻.
+            // == 2 면 아직 영상작업은 안됐다는 말
+            //클라에서는 대기시키는 메시지 띄워야함.
+            $result = $cDetail->set('is_checked', 2)->update($data['chal_detail_no']);
+//            $cVideo->db->transCommit();
             log_message("debug", "[Group] createChalDetailVideo \$result: ". print_r($result, true));
 
+            $res1 = $cVideo->insert([
+                'chal_detail_no' => $data['chal_detail_no'],
+                'chal_no' => $data['chal_no'],
+                'progress_day' => $data['progress_day'],
+                'origin_file_name' => $videoData->getClientName(),
+                'stored_file_name' => $filePath,
+                'file_size' => $videoData->getSize(),
+                'video_create_date' => date('Y-m-d H:i:s'),
+                'for_streaming_file_name' => $without_extension.".mpd"
+            ]);
+
+            $data2 = $data['chal_detail_no'];
+            //비디오 변환 작업 후 콜백받아서 변환완료 되었다는 update 작업해줌. true == 1
+            $format->on('progress', function ($video, $format, $percentage) use ( $data2) {
+                 log_message("debug", "[Group] createChalDetailVideo \$result test in: ". print_r($percentage, true));
+                if ($percentage >= 96) {
+                    log_message("debug", "[Group] createChalDetailVideo \$result test out: ". print_r($data2, true));
+                    $cDetail = new ChallengeDetail();
+                    $cDetail->set('is_checked', true)->update($data2);
+//                    $cDetail->db->transCommit();
+                }
+            });
+
+            $video->dash()
+//            ->setSegDuration(30) // Default value is 10. 세그먼트 초단위 설정
+                ->setAdaption('id=0,streams=v id=1,streams=a') // Set the adaption.
+//            ->x264() // Format of the video. Alternatives: x264() and vp9()
+                ->setFormat($format)
+//            ->autoGenerateRepresentations() //여러가지 가변비트레이트 자동생성 - 느리다 하지말자!
+                ->addRepresentations([ $r_360p]) //사용가능한 적응형 가변비트레이트의 종류를 지정
+                ->save(WRITEPATH."uploads/".$without_extension); //변환될 파일의 저장위치를 설정
+
+
+
+//            if (! $img->hasMoved()) {
+//                $originalName = $img->getClientName(); //원래 파일의 이름
+//                $filePath =  $img->store(); //store는 기본경로에 날짜폴더를 생성하고 거기에 랜덤이름의 파일을 저장한다. 그 후 저장된 경로를 리턴
+//                log_message("debug", "writeGroupIn:\$originalName: ".print_r($originalName, true));
+//                log_message("debug", "writeGroupIn:\$filePath: ".print_r($filePath, true));
+//                //                $fileName =  $img->getRandomName();
+//                //                $img->move(WRITEPATH.'uploads', $fileName); //경로명, 저장될이름명(이이름으로저장됨) -- move는 tmp폴더에 임시로 받아진 사진파일을 지정한 경로에 파일명으로 저장한다. 그후 tmp폴더의 사진파일은 메소드종료와 동시에 삭제됨
+//
+//                //서버에 저장된 파일경로를 db에 저장함.
+//                $gBoardImage->insert([
+//                    'gboard_no' => $result,
+//                    'original_file_name' => $originalName,
+//                    'stored_file_name' => $filePath,
+//                    'file_size' => $img->getSize(),
+//                    'create_date' => date('Y-m-d H:i:s')
+//                ]);
             if ($cVideo->db->transComplete()){
                 $cVideo->db->transCommit();
                 return $res->setJSON([
-                    "result" => $result,
+                    "result" => "ok",
                     "msg" => "ok"
                 ]);
             } else {

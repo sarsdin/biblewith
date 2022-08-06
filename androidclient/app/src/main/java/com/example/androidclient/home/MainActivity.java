@@ -160,6 +160,7 @@ public class MainActivity extends AppCompatActivity {
                     case  R.id.challengeCreateFm:
                     case  R.id.challengeCreateNextFm:
                     case  R.id.challengeDetailFm:
+                    case  R.id.challengeDetailAfterFm:
                     case  R.id.challengeDetailListFm:
 //                    case  R.id.challengeCreateNextFm:
                         binding.mainBottomNav.setVisibility(View.GONE);

@@ -13,7 +13,8 @@ class ChallengeVideo extends \CodeIgniter\Model
         'origin_file_name',
         'stored_file_name',
         'file_size',
-        'for_streaming_file_name'
+        'for_streaming_file_name',
+        'chal_detail_no'
     ];
     protected $primaryKey = 'chal_video_no';
 }

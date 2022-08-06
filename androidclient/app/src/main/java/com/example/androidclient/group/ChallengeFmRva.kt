@@ -46,7 +46,7 @@ class ChallengeFmRva(val groupVm: GroupVm, val challengeFm: ChallengeFm)
 
             binding.chalVhFmVhWriterTv.text = mItem.get("user_nick").asString
             binding.chalVhFmVhDateTv.text =
-                "${MyApp.getTime(".", mItem.get("chal_create_date").asString)}일 시작. ${MyApp.getTime("ui", mItem.get("chal_create_date").asString)}"
+                "${MyApp.getTime(".ui", mItem.get("chal_create_date").asString)}일 시작. ${MyApp.getTime("ui", mItem.get("chal_create_date").asString)}"
             binding.chalVhFmVhContentTv.text = mItem.get("chal_title").asString
 
             //선택한 목록 표시 - 선택된 성경책 목록을 표시
@@ -65,9 +65,10 @@ class ChallengeFmRva(val groupVm: GroupVm, val challengeFm: ChallengeFm)
             //해당 챌린지의 디테일리스트페이지로 가기
             binding.root.setOnClickListener {
                 groupVm.chalLInfo = mItem //이 챌린지의 정보를 상세페이지에서 활용할 수 있게 넘겨준다
+                binding.progressBar.visibility = View.VISIBLE
                 CoroutineScope(Dispatchers.Main).launch {
-                    binding.progressBar.visibility = View.VISIBLE
                     groupVm.챌린지상세목록가져오기(mItem.get("chal_no").asInt, true)
+                    //IO 쓰레드에서 네비게이션을 사용하면 에러남. 메인스레드에서만 사용해야함.
                     binding.progressBar.visibility = View.GONE
                     Navigation.findNavController(it).navigate(R.id.action_group_in_challenge_fm_to_challengeDetailListFm)
                 }

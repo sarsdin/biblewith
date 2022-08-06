@@ -2,6 +2,7 @@ package com.example.androidclient.group
 
 import android.net.Uri
 import android.util.Log
+import android.widget.Toast
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import com.bumptech.glide.Glide.init
@@ -57,10 +58,12 @@ class GroupVm : ViewModel() {
     var chalL = JsonArray() //챌린지 목록 - 챌린지정보 + selected_bibleL
     var liveChalL = MutableLiveData<JsonArray>()
     var chalDetailInfo = JsonObject() //챌린지 상세목록 클릭시 페이지 해당 정보 - 영상인증 페이지 및 전송에서 활용
+    var liveChalDetailInfo = MutableLiveData<JsonObject>()
     var chalDetailL = JsonArray() //챌린지 상세 목록
     var liveChalDetailL = MutableLiveData<JsonArray>()
     var chalDetailVerseL = JsonArray() //챌린지 상세목록 클릭시 영상인증 페이지의 절 목록
     var liveChalDetailVerseL = MutableLiveData<JsonArray>()
+    var chalDetailVideoInfo = JsonObject() //챌린지 상세목록 클릭시 영상인증 페이지의 영상 정보
 
 
     //챌린지 만들기 페이지에서 쓰이는 변수들
@@ -449,9 +452,31 @@ class GroupVm : ViewModel() {
                     override fun onResponse(call: Call<JsonObject?>, response: Response<JsonObject?>) {
                         if (response.isSuccessful) {
                             val res = response.body()!!
-//                            chalDetailVerseL = res.get("result").asJsonObject.get("verseL").asJsonArray
-                            chalDetailVerseL = res.get("result").asJsonArray
+                            //받은 리스트의 요소가 없다면 npe 가 뜨기에 사이즈가 0일경우의 처리를 해준다.
+                            chalDetailVideoInfo = res.get("result").asJsonObject.get("chalDetailVideoInfo").asJsonArray.run {
+                                if(size() != 0){
+                                    get(0).asJsonObject
+                                } else{
+                                    JsonObject()
+                                }
+                            }
+                            chalDetailVerseL = res.get("result").asJsonObject.get("chalDetailVerseL").asJsonArray
                             liveChalDetailVerseL.value = chalDetailVerseL
+                            //좋아요 관련 데이터
+//                            val likeInfo = res.get("result").asJsonObject.get("likeInfo").asJsonArray
+                            val likeInfo = if(res.get("result").asJsonObject.get("likeInfo").asJsonArray.size() > 0){
+                                res.get("result").asJsonObject.get("likeInfo").asJsonArray
+                            } else {
+                                null
+                            }
+                            val likeMyInfo = if(res.get("result").asJsonObject.get("likeMyInfo").asJsonArray.size() > 0){
+                                res.get("result").asJsonObject.get("likeMyInfo").asJsonArray.get(0).asJsonObject
+                            } else {
+                                null//JsonObject() //after page 가 아닌 detail page 라면 좋아요가 표시되지 않아서 빈 객체를 임시로 넣어줌.
+                            }
+                            chalDetailInfo.add("likeInfo", likeInfo)
+                            chalDetailInfo.add("likeMyInfo", likeMyInfo)
+                            liveChalDetailInfo.value = chalDetailInfo
 //                            Log.e("[GroupVm]", "챌린지인증진행하기 onResponse: $res")
                             cont.resumeWith(Result.success(Unit))
                         }
@@ -491,6 +516,101 @@ class GroupVm : ViewModel() {
         }
         return call
     }
+
+
+    //영상 녹화 업로드 진행  - chal_detail_no, user_no                chal_video
+    suspend fun 챌린지인증영상업로드(params: Map<String, RequestBody>, video:MultipartBody.Part, isExeInVm: Boolean): Call<JsonObject>? {
+        val retrofit = Http.getRetrofitInstance(host)
+        val httpGroup = retrofit.create(Http.HttpGroup::class.java) // 통신 구현체 생성(미리 보낼 쿼리스트링 설정해두는거)
+        val call = httpGroup.챌린지인증영상업로드(params, video)
+        if (isExeInVm) { //true를 받으면 여기서(vm) 실행하고 결과완료된 call을 리턴. false면 완료안된 call을 리턴해서 호출한 fragment or rva에서 비동기 로직 진행.
+            val resp = suspendCoroutine { cont: Continuation<Unit> ->
+                call.enqueue(object : Callback<JsonObject?> {
+                    override fun onResponse(call: Call<JsonObject?>, response: Response<JsonObject?>) {
+                        if (response.isSuccessful) {
+                            val res = response.body()!!
+//                            Log.e("[GroupVm]", "챌린지인증영상업로드 onResponse: $res")
+//                            Toast.makeText(MyApp.getApplication(),"업로드완료 콜백옴",Toast.LENGTH_SHORT).show()
+                            cont.resumeWith(Result.success(Unit))
+                        }
+                    }
+                    override fun onFailure(call: Call<JsonObject?>, t: Throwable) {
+                        Log.e("[GroupVm]", "챌린지인증체크업데이트 onFailure: " + t.message)
+                    }
+                })
+            }
+        }
+        return call
+    }
+
+
+    suspend fun 챌린지인증영상업로드사전작업(chal_detail_no: Int, isExeInVm: Boolean): Call<JsonObject>? {
+        val retrofit = Http.getRetrofitInstance(host)
+        val httpGroup = retrofit.create(Http.HttpGroup::class.java) // 통신 구현체 생성(미리 보낼 쿼리스트링 설정해두는거)
+        val call = httpGroup.챌린지인증영상업로드사전작업(chal_detail_no)
+        if (isExeInVm) { //true를 받으면 여기서(vm) 실행하고 결과완료된 call을 리턴. false면 완료안된 call을 리턴해서 호출한 fragment or rva에서 비동기 로직 진행.
+            val resp = suspendCoroutine { cont: Continuation<Unit> ->
+                call.enqueue(object : Callback<JsonObject?> {
+                    override fun onResponse(call: Call<JsonObject?>, response: Response<JsonObject?>) {
+                        if (response.isSuccessful) {
+                            val res = response.body()!!
+//                            Log.e("[GroupVm]", "챌린지인증영상업로드 onResponse: $res")
+//                            Toast.makeText(MyApp.getApplication(),"업로드완료 콜백옴",Toast.LENGTH_SHORT).show()
+                            cont.resumeWith(Result.success(Unit))
+                        }
+                    }
+                    override fun onFailure(call: Call<JsonObject?>, t: Throwable) {
+                        Log.e("[GroupVm]", "챌린지인증영상업로드사전작업 onFailure: " + t.message)
+                    }
+                })
+            }
+        }
+        return call
+    }
+
+
+    suspend fun 챌린지상세좋아요클릭(params: JsonObject, isExeInVm: Boolean): Call<JsonObject>? {
+        val retrofit = Http.getRetrofitInstance(host)
+        val httpGroup = retrofit.create(Http.HttpGroup::class.java) // 통신 구현체 생성(미리 보낼 쿼리스트링 설정해두는거)
+        val call = httpGroup.챌린지상세좋아요클릭(params)
+        if (isExeInVm) { //true를 받으면 여기서(vm) 실행하고 결과완료된 call을 리턴. false면 완료안된 call을 리턴해서 호출한 fragment or rva에서 비동기 로직 진행.
+            val resp = suspendCoroutine { cont: Continuation<Unit> ->
+                call.enqueue(object : Callback<JsonObject?> {
+                    override fun onResponse(call: Call<JsonObject?>, response: Response<JsonObject?>) {
+                        if (response.isSuccessful) {
+                            val res = response.body()!!
+                            val likeInfo = res.get("result").asJsonObject.get("likeInfo").asJsonArray
+//                            val likeMyInfo = res.get("result").asJsonObject.get("likeMyInfo").asJsonArray
+                            val likeMyInfo = if(res.get("result").asJsonObject.get("likeMyInfo").asJsonArray.size() > 0){
+                                res.get("result").asJsonObject.get("likeMyInfo").asJsonArray.get(0).asJsonObject
+                            } else {
+                                null//JsonObject() //after page 가 아닌 detail page 라면 좋아요가 표시되지 않아서 빈 객체를 임시로 넣어줌.
+                            }
+                            chalDetailInfo.add("likeInfo", likeInfo)
+                            chalDetailInfo.add("likeMyInfo", likeMyInfo)
+                            liveChalDetailInfo.value = chalDetailInfo
+//                            Log.e("[GroupVm]", "챌린지인증영상업로드 onResponse: $res")
+//                            Toast.makeText(MyApp.getApplication(),"업로드완료 콜백옴",Toast.LENGTH_SHORT).show()
+                            cont.resumeWith(Result.success(Unit))
+                        }
+                    }
+                    override fun onFailure(call: Call<JsonObject?>, t: Throwable) {
+                        Log.e("[GroupVm]", "챌린지인증영상업로드사전작업 onFailure: " + t.message)
+                    }
+                })
+            }
+        }
+        return call
+    }
+
+
+
+
+
+
+
+
+
 
 }
 

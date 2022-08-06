@@ -4,6 +4,7 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.Toast
 import androidx.navigation.Navigation
 import androidx.navigation.fragment.NavHostFragment.Companion.findNavController
 import androidx.recyclerview.widget.RecyclerView
@@ -53,23 +54,33 @@ class ChallengeDetailListRva(val groupVm: GroupVm, val challengeDetailListFm: Ch
 
             //목록 클릭시 상세페이지로 감
             binding.root.setOnClickListener {
+                //진행 구간정보텍스트를 다음 상세 페이지에 번들로 넘김
+                val verseScope = Bundle()
+                verseScope.putCharSequence("verseScope", binding.detailVhContentTv.text )
+
+                //서버에 전달할 내용 json object 로 만들어서 파라미터로 넘김
+                val jo = JsonObject()
+                jo.addProperty("user_no", MyApp.userInfo.user_no)
+                jo.addProperty("chal_no", mItem.get("chal_no").asInt)
+                jo.addProperty("chal_detail_no", mItem.get("chal_detail_no").asInt)
+                jo.addProperty("progress_day", mItem.get("progress_day").asInt)
                 CoroutineScope(Dispatchers.Main).launch {
-                    val jo = JsonObject()
-                    jo.addProperty("chal_no", mItem.get("chal_no").asInt)
-                    jo.addProperty("progress_day", mItem.get("progress_day").asInt)
-                    binding.progressBar.visibility = View.VISIBLE
-                    //100%이고 영상인증이 되었으면 detailafter fm으로 가야하고, 아니면 detail 페이지로 가야함
-                    if(mItem.get("progress_percent").asInt == 100){
-//                        groupVm.챌린지인증한내용불러오기(jo , true)
-                    } else {
-                        groupVm.챌린지인증진행하기(jo , true)
-                    }
-                    binding.progressBar.visibility = View.GONE
+                    /*challengeDetailListFm.*/binding.progressBar.visibility = View.VISIBLE
+                    groupVm.챌린지인증진행하기(jo , true)
+                    groupVm.챌린지상세목록가져오기(mItem.get("chal_no").asInt , true)
+                    /*challengeDetailListFm.*/binding.progressBar.visibility = View.GONE 
+                    //Fm꺼 받아서 쓰면 처음 영상인증페이지안에 들어갈때 npe 뜸 코루틴이 다른 스레드에서 돌동안 다른 페이지로 전환해서임
+
                     groupVm.chalDetailInfo = mItem //현재 홀더 정보를 이후페이지에서 사용할 수 있게 참조
-                    //진행 구간정보텍스트를 다음 상세 페이지에 번들로 넘김  
-                    val verseScope = Bundle()
-                    verseScope.putCharSequence("verseScope", binding.detailVhContentTv.text )
-                    Navigation.findNavController(it).navigate(R.id.action_challengeDetailListFm_to_challengeDetailFm, verseScope)
+                    //100%이고 영상인증이 되었으면 detailafter fm으로 가야하고, 아니면 detail 페이지로 가야함
+                    //is_checked == 1 이면 영상 업로드 변환까지 완료되었다는 뜻. == 2 면 아직 영상작업은 안됐다는 말 대기시키는 메시지 띄워야함.
+                    if(mItem.get("progress_percent").asInt == 100 && mItem.get("is_checked").asInt == 1){
+                        Navigation.findNavController(it).navigate(R.id.action_challengeDetailListFm_to_challengeDetailAfterFm, verseScope)
+                    } else if(mItem.get("progress_percent").asInt == 100 && mItem.get("is_checked").asInt == 2){
+                        Toast.makeText(challengeDetailListFm.requireActivity(),"아직 영상 변환이 진행중입니다. 잠시만 기다려주세요.",Toast.LENGTH_SHORT).show()
+                    } else {
+                        Navigation.findNavController(it).navigate(R.id.action_challengeDetailListFm_to_challengeDetailFm, verseScope)
+                    }
                 }
             }
 
@@ -95,7 +106,15 @@ class ChallengeDetailListRva(val groupVm: GroupVm, val challengeDetailListFm: Ch
 
             //진행율 표시
             binding.detailVhProgress.progress = mItem.get("progress_percent").asInt
-            binding.detailVhProgressTv.text = "진행${mItem.get("progress_percent").asString}%"
+            if(mItem.get("is_checked").asInt == 2){
+                binding.detailVhProgressTv.text = "영상변환중"
+
+            } else if(mItem.get("is_checked").asInt == 1){
+                binding.detailVhProgressTv.text = "인증완료"
+
+            }else{
+                binding.detailVhProgressTv.text = "진행${mItem.get("progress_percent").asString}%"
+            }
 
             //시작 절, 끝 절
             val verseMin = mItem.get("first_verse").asJsonArray.get(0).asJsonObject

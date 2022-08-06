@@ -53,7 +53,8 @@ class ChallengeDetailListFm : Fragment() {
             navController,
             appBarConfiguration
         )
-        CoroutineScope(Dispatchers.Main).launch {
+        CoroutineScope(Dispatchers.IO).launch {
+//            Thread.sleep(100)
             groupVm.챌린지상세목록가져오기(groupVm.chalLInfo .get("chal_no").asInt, true)
         }
 
@@ -69,6 +70,7 @@ class ChallengeDetailListFm : Fragment() {
     override fun onResume() {
         super.onResume()
         binding.toolbarTv.text = "${groupVm.chalLInfo.get("user_nick").asString}님의 챌린지: ${groupVm.chalLInfo.get("chal_title").asString}"
+        rva.notifyDataSetChanged()
     }
 
     override fun onDestroyView() {

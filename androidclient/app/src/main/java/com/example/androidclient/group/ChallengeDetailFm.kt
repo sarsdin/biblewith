@@ -4,9 +4,14 @@ import android.util.Log
 import android.Manifest
 import android.content.ContentValues
 import android.content.Context
+import android.content.Intent
 import android.content.pm.PackageManager
+import android.net.Uri
 import android.os.Bundle
+import android.os.Handler
+import android.os.Looper
 import android.provider.MediaStore
+import android.provider.Settings
 import android.util.Size
 import android.view.LayoutInflater
 import android.view.View
@@ -14,6 +19,7 @@ import android.view.ViewGroup
 import android.widget.Button
 import android.widget.Toast
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.appcompat.app.AlertDialog
 import androidx.camera.core.*
 import androidx.camera.lifecycle.ProcessCameraProvider
 import androidx.core.app.ActivityCompat
@@ -22,6 +28,8 @@ import androidx.fragment.app.Fragment
 import androidx.lifecycle.*
 import androidx.lifecycle.Observer
 import androidx.navigation.Navigation
+import androidx.navigation.Navigation.findNavController
+import androidx.navigation.fragment.findNavController
 import androidx.navigation.ui.AppBarConfiguration
 import androidx.navigation.ui.NavigationUI
 import androidx.recyclerview.widget.LinearLayoutManager
@@ -31,6 +39,9 @@ import com.example.androidclient.R
 import com.example.androidclient.databinding.ChallengeDetailFmBinding
 import com.example.androidclient.util.FileHelper
 import com.google.common.util.concurrent.ListenableFuture
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
 import okhttp3.MediaType.Companion.toMediaTypeOrNull
 import okhttp3.MultipartBody
 import okhttp3.RequestBody
@@ -96,27 +107,54 @@ class ChallengeDetailFm : Fragment() {
             }
             if(count == it.size()){
                 binding.saveBt.visibility = View.VISIBLE
-                binding.videoCaptureButton.text = "체크완료"
+                Toast.makeText(requireActivity(),"인증을 완료하기위해 보내기를 해주세요.",Toast.LENGTH_SHORT).show()
             } else {
                 binding.saveBt.visibility = View.INVISIBLE
-                binding.videoCaptureButton.text = "진행중.."
             }
         })
         
-        //인증하기 버튼(녹화) 클릭시 녹화 시작
-        binding.videoCaptureButton.setOnClickListener{
+        //인증하기 버튼(녹화) 클릭시 녹화 시작 -- 현재 사용안함
+       /* binding.videoCaptureButton.setOnClickListener{
             if(binding.videoCaptureButton.text == "인증시작"){
                 recordVideo()
                 binding.videoCaptureButton.text = "진행중.."
             } else {
                 //인증하기가 아닐 경우 레코딩 중지하고 인증하기로 바꿈
 //                videoCapture.stopRecording()
-                binding.videoCaptureButton.text = "인증시작"
+//                binding.videoCaptureButton.text = "인증시작"
             }
-        }
+        }*/
+        //상단바의 보내기 버튼 클릭시 녹화 중지 및 서버 전송 작업 시작
         binding.saveBt.setOnClickListener {
+            binding.videoCaptureButton.text = "완료작업중.."
             videoCapture.stopRecording()
         }
+
+//        binding.toolbarIv.setOnClickListener{
+//            Navigation.findNavController(it).navigate(R.id.action_challengeDetailFm_to_challengeDetailAfterFm)
+//        }
+
+    }
+
+    override fun onResume() {
+        super.onResume()
+        binding.toolbarTv.text = arguments?.get("verseScope").toString().substring(8)
+
+        AlertDialog.Builder(requireActivity())
+            .setTitle("인증녹화")
+            .setMessage("확인을 누르면 녹화가 시작됩니다. 체크과정이 마무리되면 보내기버튼으로 인증을 완료합니다.")
+            .setNeutralButton("취소") { dialogInterface, i ->
+                //취소누르면 뒤로가기함
+//                findNavController().popBackStack(R.id.challengeDetailListFm, false)
+                findNavController().navigateUp()
+            }
+            .setPositiveButton("확인") { dialogInterface, i ->
+                recordVideo()
+                binding.videoCaptureButton.text = "진행중.."
+            }
+            .setCancelable(false)
+            .create()
+            .show()
 
     }
 
@@ -152,7 +190,7 @@ class ChallengeDetailFm : Fragment() {
         videoCapture = VideoCapture.Builder()
             .setTargetResolution( Size(640, 480))
 //            .setTargetAspectRatio(AspectRatio.RATIO_4_3)
-            .setVideoFrameRate(30)
+            .setVideoFrameRate(7)
             .build()
 
         //bind to lifecycle: 카메라 프로바이더에 현재 fm의 생명주기 적용 + 사용할 카메라등록 + 적용할 유스케이스 등록
@@ -187,18 +225,39 @@ class ChallengeDetailFm : Fragment() {
                 override fun onVideoSaved(outputFileResults: VideoCapture.OutputFileResults) {
                     //특정 생명주기동안 실행 - 생명주기중 detach 된후 이 콜백이 도착하면 NullPointerException이 뜨기에 위험하다.
                     // mbinding의 유무로 생명주기를 파악하기도 가능하고 코루틴스코프로 제약조건을 걸수도 있다.
-//                    if(mbinding != null){}
-                    lifecycle.coroutineScope.launchWhenResumed {
-                        Toast.makeText(requireActivity(),"성공! 전송하시겠습니까?",Toast.LENGTH_SHORT).show()
-                        outputFileResults.savedUri
+//                        lifecycle.coroutineScope.launchWhenResumed {}
+                    if(mbinding != null){
 
-                        var writeImage = mutableListOf<MultipartBody.Part>()
+                        Toast.makeText(requireActivity(),"인증보내기 중입니다..",Toast.LENGTH_SHORT).show()
+                        // E/ChallengeDetailFm: outputFileResults.savedUri: content://media/external/video/media/230
+//                        Log.e(tagName, "outputFileResults.savedUri: ${outputFileResults.savedUri}")
+
                         val uploadO = mutableMapOf<String, RequestBody>()
                         uploadO["chal_detail_no"] = groupVm.chalDetailInfo.get("chal_detail_no").asString.toRequestBody("text/plain".toMediaTypeOrNull())
+                        uploadO["chal_no"] = groupVm.chalDetailInfo.get("chal_no").asString.toRequestBody("text/plain".toMediaTypeOrNull())
+                        uploadO["progress_day"] = groupVm.chalDetailInfo.get("progress_day").asString.toRequestBody("text/plain".toMediaTypeOrNull())
                         uploadO["user_no"] = MyApp.userInfo.user_no.toString().toRequestBody("text/plain".toMediaTypeOrNull())
 
                         val fileHelper = FileHelper()
-
+                        binding.progressBar.visibility = View.VISIBLE
+                        CoroutineScope(Dispatchers.IO).launch {
+                            groupVm.챌린지인증영상업로드(uploadO,
+                                fileHelper.getPartBodyFromUriForVideo(requireActivity(), outputFileResults.savedUri!!, "chal_video"),
+                                true
+                            )
+                            groupVm.챌린지상세목록가져오기(groupVm.chalDetailInfo.get("chal_no").asInt, true)
+//                            val handler = Handler(Looper.getMainLooper())
+//                            handler.post {
+//                                binding.progressBar.visibility = View.GONE
+//                            }
+                        }
+                        //밑의 코드가 위의 코루틴보다 먼저 완료된다 - 업로드가 오래걸리고, 메인스레드를 블락하지 않기 때문
+                        //업로드가 완료 되면 상세목록을 가져오고 목록의 리사이클러뷰가 갱신된다. 업로드 완료 여부를 확인할 수 있다.
+                        CoroutineScope(Dispatchers.Main).launch {
+                            groupVm.챌린지인증영상업로드사전작업(groupVm.chalDetailInfo.get("chal_detail_no").asInt, true)
+                            Toast.makeText(requireActivity(),"인증보내기를 완료했습니다",Toast.LENGTH_SHORT).show()
+                            findNavController().navigateUp() //완료후 이전페이지로 돌아감 - 메인스레드에서만 실행가능 아니면 오류남
+                        }
                     }
                 }
                 override fun onError(videoCaptureError: Int, message: String, cause: Throwable?) {
@@ -209,10 +268,7 @@ class ChallengeDetailFm : Fragment() {
         )
     }
 
-    override fun onResume() {
-        super.onResume()
-        binding.toolbarTv.text = arguments?.get("verseScope").toString().substring(8)
-    }
+
 
     override fun onStop() {
         super.onStop()

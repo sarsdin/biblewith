@@ -272,6 +272,12 @@ public class Http {
         @POST("group/createChalDetailVideo")
         Call<JsonObject> 챌린지인증영상업로드(@PartMap Map<String, RequestBody> groupInfo,
                                           @Part MultipartBody.Part groupImage);
+
+        @POST("group/createChalDetailVideoFirstWork")
+        Call<JsonObject> 챌린지인증영상업로드사전작업(@Query("chal_detail_no") int chal_detail_no);
+
+        @POST("group/chalLikeClicked")
+        Call<JsonObject> 챌린지상세좋아요클릭(@Body JsonObject params);
     }
 
 
