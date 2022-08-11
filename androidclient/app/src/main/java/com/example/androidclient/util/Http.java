@@ -46,6 +46,7 @@ public class Http {
     public static final String CHANNEL_ID_LALIGA = "UCTv-XvfzLX3i4IGWAm4sbmA";                             //채널 ID - laliga 공식 채널
     public static final String Q_LALIGA = "highlight";                             //검색어
     public static final String UPLOADS_URL = "http://15.165.174.226/uploads/";                             //검색어
+    public static final String HOST_IP = "15.165.174.226";                             //서버 ip
 
 
     public static Retrofit getRetrofitInstance(String host){
@@ -278,6 +279,54 @@ public class Http {
 
         @POST("group/chalLikeClicked")
         Call<JsonObject> 챌린지상세좋아요클릭(@Body JsonObject params);
+
+
+        //////////////모임 초대 관련
+        @POST("group/isInviteNumber")
+        Call<JsonObject> 모임초대번호있는지확인(@Body JsonObject params);
+
+        @POST("group/memberInviteNumber")
+        Call<JsonObject> 모임초대번호재생성요청(@Body JsonObject params);
+
+        @POST("group/memberInviteLink")
+        Call<JsonObject> 모임초대링크생성(@Body JsonObject params);
+
+
+        @POST("group/memberInviteLinkConfirm")
+        Call<JsonObject> 모임초대링크유효한지확인(@Query("group_no") int group_no,
+                                      @Query("invite_code") String invite_code,
+                                      @Query("user_no") int user_no
+        );
+
+        @POST("group/memberInviteLinkMemberAdd")
+        Call<JsonObject> 모임초대링크로멤버추가하기(@Query("group_no") int group_no,
+                                      @Query("invite_code") String invite_code,
+                                      @Query("user_no") int user_no
+        );
+
+        @POST("group/memberInviteNumberMemberAdd")
+        Call<JsonObject> 모임초대번호로멤버추가하기(/*@Query("group_no") int group_no,*/
+                                      @Query("invite_code") String invite_code,
+                                      @Query("user_no") int user_no
+        );
+        @POST("group/memberInviteNumberVerify")
+        Call<JsonObject> 모임초대번호로멤버추가하기전유효성확인(/*@Query("group_no") int group_no,*/
+                                      @Query("invite_code") String invite_code,
+                                      @Query("user_no") int user_no
+        );
+
+        @POST("group/memberListLoad")
+        Call<JsonObject> 모임멤버목록로드(@Body JsonObject params);
+
+        @POST("group/memberOut")
+        Call<JsonObject> 모임멤버탈퇴(@Body JsonObject params);
+
+        @POST("group/memberFire")
+        Call<JsonObject> 모임멤버추방(@Body JsonObject params);
+
+        @POST("group/memberListSearch")
+        Call<JsonObject> 모임멤버검색(@Body JsonObject params);
+
     }
 
 

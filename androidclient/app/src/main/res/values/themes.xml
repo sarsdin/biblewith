@@ -34,6 +34,9 @@
 
         <!-- 마테리얼 아웃라인 박스 텍스트인풋필드에 전체 오버레이할 테마 지정. -->
         <item name="textInputStyle">@style/Widget.seols.TextInputLayout1</item>
+        <!-- AlertDialog 확인, 취소 글자색 조정       -->
+        <item name="alertDialogTheme">@style/Seols.Dialog.Alert</item>
+
     </style>
 
 </resources>

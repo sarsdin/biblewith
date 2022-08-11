@@ -76,7 +76,7 @@ class MyNoteFm : Fragment() {
         rva.notifyDataSetChanged()
         //노트수정 시그널
         bibleVm.liveNoteL.observe(viewLifecycleOwner, Observer {
-                rva.notifyDataSetChanged()
+            rva.notifyDataSetChanged()
 //                Log.e("오류태그", "it:${it}")
         })
     }

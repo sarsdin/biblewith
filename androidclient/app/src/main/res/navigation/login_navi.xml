@@ -9,7 +9,7 @@
         android:id="@+id/loginMainFm"
         android:name="com.example.androidclient.login.LoginMainFm"
         android:label="login_main_fm"
-        tools:layout="@layout/login_main_fm" >
+        tools:layout="@layout/login_main_fm">
         <action
             android:id="@+id/action_loginMainFm_to_joinFm"
             app:destination="@id/joinFm"

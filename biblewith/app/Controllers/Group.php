@@ -12,9 +12,11 @@ use App\Models\GboardLike;
 use App\Models\GroupBoard;
 use App\Models\GroupBoardImage;
 use App\Models\GroupMember;
+use App\Models\GroupMemberInvite;
 use App\Models\Note;
 use App\Models\NoteVerse;
 use App\Models\Reply;
+use App\Models\User;
 use CodeIgniter\Database\Exceptions\DataException;
 use CodeIgniter\HTTP\ResponseInterface;
 use CodeIgniter\Log\Logger;
@@ -81,7 +83,8 @@ class Group extends \CodeIgniter\Controller
             $result = $group->insert($data);
             $result = $groupMember->insert([
                 'group_no' => $result,
-                'user_no' => $req->getVar('user_no')
+                'user_no' => $req->getVar('user_no'),
+                'user_grade' => '모임장'
             ]);
             log_message("debug", "[Group] createGroup \$result: ". print_r($result, true));
 
@@ -106,37 +109,49 @@ class Group extends \CodeIgniter\Controller
         $res = $this->response;
 //        $data = $req->getJson(true);
         $data = $req->getVar();
-        log_message("debug", "[Group] createGroup \$data: ". print_r($data, true));
+        log_message("debug", "[Group] getGroupL \$data: ". print_r($data, true));
+
+        $namedBinding = [
+            'user_no' => $data['user_no']
+        ];
 
         $sql = "";
         $orderBy = "";
         if ($data['sortState'] == "name") {
             $orderBy = "group_name";
+//            $sql = " select *
+//                    from `Group` g
+//                    where g.user_no = ? ORDER by 'group_name'  ";
             $sql = " select * 
                     from `Group` g
-                    where g.user_no = ? ORDER by 'group_name'  ";
+                    join GroupMember gm on g.group_no = gm.group_no
+                    where g.group_no in (select group_no 
+                                            from `GroupMember` g
+                                            where g.user_no = :user_no: ORDER by group_name)
+                                    and gm.user_no = :user_no:
+                    ORDER by group_name ";
 
         } else if($data['sortState'] == "member"){
             $sql = " select count(g.user_no) cc, g.* 
                     from `Group` g
                     join GroupMember gm on g.group_no = gm.group_no 
-                    where g.user_no = ?
+                    where g.user_no = :user_no:
                     group by g.group_no ORDER by cc desc ";
 
         } else {
             $sql = " select count(gb.gboard_no) cc, g.* 
                     from `Group` g
                     join GroupBoard gb on g.group_no = gb.group_no 
-                    where g.user_no = ?
+                    where g.user_no = :user_no:
                     group by g.group_no ORDER by cc desc  ";
 
         }
 
         try {
 //            $result = $group->where("user_no", $data['user_no'])->orderBy($orderBy)->findAll();
-            $result = $group->db->query($sql, [$data['user_no']]);
+            $result = $group->db->query($sql, $namedBinding/*[$data['user_no']]*/);
             $result = $result->getResultArray();
-            log_message("debug", "[Group] createGroup \$result: ". print_r($result, true));
+            log_message("debug", "[Group] getGroupL \$result: ". print_r($result, true));
 
             return $res->setJSON([
                 "result" => $result,
@@ -1346,7 +1361,7 @@ class Group extends \CodeIgniter\Controller
         $data = $req->getVar();
         log_message("debug", "[Group] createChalDetailVideo \$data: ". print_r($data, true));
 //        $imgData3 = $req->getFileMultiple('product_image');
-//        log_message("debug", "[Group] createGroup \$getFileMultiple: ".print_r($imgData3, true));
+//        log_message("debug", "[Group] createChalDetailVideo \$getFileMultiple: ".print_r($imgData3, true));
         $videoData = $req->getFile('chal_video');
 //        $imgData = $req->getFiles();
         log_message("debug", "[Group] createChalDetailVideo \$getFiles: ".print_r($videoData, true));
@@ -1485,9 +1500,519 @@ class Group extends \CodeIgniter\Controller
 
 
 
+    // 모임 멤버 초대 링크 생성 클릭시
+    public function memberInviteLink() : ResponseInterface
+    {
+        $invite = new GroupMemberInvite();
+        $req = $this->request;
+        $res = $this->response;
+        $data = $req->getJson(true);
+//        $data = $req->getVar();
+        log_message("debug", "[Group] memberInviteLink \$data: ". print_r($data, true));
+
+        try {
+            //링크 코드 생성 - 생성하고 db저장하고 클라이언트에 코드를 보내준다.
+            $code = sprintf("%06d", mt_rand(1, 999999));
+            $invite->db->transStart();
+
+            $result = $invite->insert([
+                'group_no' => $data['group_no'],
+                'invite_code' => $code,
+                'expire_date' => date('Y-m-d H:i:s', strtotime("+2 hours")),
+                'code_type' => 'link'
+            ]);
+//            log_message("debug", "[Group] memberInviteLink \$result: ". print_r($result, true));
+            $result = $invite->find($result);
+
+
+            if ($invite->db->transComplete()){
+                $invite->db->transCommit();
+                return $res->setJSON([
+                    "result" => $result,
+                    "msg" => "ok"
+                ]);
+            } else {
+                $invite->db->transRollback();
+                return $res->setJSON([
+                    "result" => "failed",
+                    "msg" => "fail"
+                ]);
+            }
+        } catch (\ReflectionException | DataException $e){
+            return $res->setJSON($e->getMessage());
+        }
+    }
+
+
+    // 모임 멤버 초대 링크 확인하기 - 링크타고 startFm - LoginActivity - MainActivity - GroupFm(onResume)에서 확인
+    // group_no , invite_code, user_no
+    public function memberInviteLinkConfirm() : ResponseInterface
+    {
+        $invite = new GroupMemberInvite();
+        $group = new \App\Models\Group();
+        $req = $this->request;
+        $res = $this->response;
+//        $data = $req->getJson(true);
+        $data = $req->getVar();
+        log_message("debug", "[Group] memberInviteLinkConfirm \$data: ". print_r($data, true));
+
+        try {
+            $invite->db->transStart();
+            $result = null;
+            $res1 = $invite->where('group_no', $data['group_no'])
+                ->where('invite_code', $data['invite_code'])
+                ->find();
+            log_message("debug", "[Group] memberInviteLinkConfirm \$res1: ". print_r($res1, true));
+
+            //db에 해당모임의 초대 비밀번호가 존재하고, 현재시간보다 크다면 == 지나지않았다면 유효기간이 남았다면
+            //해당 초대 링크 정보를 클라에 보내줌
+            if ($res1 != null && $res1[0]['expire_date'] > date('Y-m-d H:i:s')) {
+                //where로찾으면 array로 가져옴. find(id)로 찾으면 객체로 가져옴.. 주의!
+                //find()를 쓸때는 where을 써서 인덱스를 쓸 수 있게 하자!
+                $res2 = $group->where('group_no', $data['group_no'])->find();
+                $result = [
+                    'invite_info' => $res1[0], // null 이 아니므로 0번에 있겠지?
+                    'group_info' => $res2[0]
+                ];
+            }
+            log_message("debug", "[Group] memberInviteLinkConfirm \$result: ". print_r($result, true));
+
+            if ($invite->db->transComplete()){
+                $invite->db->transCommit();
+                return $res->setJSON([
+                    "result" => $result,
+                    "msg" => "ok"
+                ]);
+            } else {
+                $invite->db->transRollback();
+                return $res->setJSON([
+                    "result" => "failed",
+                    "msg" => "fail"
+                ]);
+            }
+        } catch (\ReflectionException | DataException $e){
+            return $res->setJSON($e->getMessage());
+        }
+    }
+
+
+    // 모임 멤버 초대 링크 확인하기 - 링크타고 startFm - LoginActivity - MainActivity - GroupFm(onResume)에서 확인
+    // 이후 위의 확인하기 요청에서 다이얼로그에서 참가하기 클릭시 이 요청 실행 - 해당 모임의 멤버로 추가
+    // group_no , invite_code, user_no
+    public function memberInviteLinkMemberAdd() : ResponseInterface
+    {
+        $invite = new GroupMemberInvite();
+        $gMember = new GroupMember();
+        $req = $this->request;
+        $res = $this->response;
+//        $data = $req->getJson(true);
+        $data = $req->getVar();
+        log_message("debug", "[Group] memberInviteLinkMemberAdd \$data: ". print_r($data, true));
+
+        try {
+            $invite->db->transStart();
+
+            //참가하기 버튼 클릭시 처리되는 insert 작업 - 사용자를 멤버로 추가
+            $result = $gMember->where('group_no', $data['group_no'])
+                ->insert([
+                    'user_no' => $data['user_no'],
+                    'group_no' => $data['group_no']
+                ]);
+
+            log_message("debug", "[Group] memberInviteLinkMemberAdd \$result: ". print_r($result, true));
+            if ($invite->db->transComplete()){
+                $invite->db->transCommit();
+                return $res->setJSON([
+                    "result" => "ok",
+                    "msg" => "ok"
+                ]);
+            } else {
+                $invite->db->transRollback();
+                return $res->setJSON([
+                    "result" => "failed",
+                    "msg" => "fail"
+                ]);
+            }
+        } catch (\ReflectionException | DataException $e){
+            return $res->setJSON($e->getMessage());
+        }
+    }
+
+    //모임 참가 비밀번호로 멤머 추가하기 - invite_code, user_no
+    public function memberInviteNumberMemberAdd() : ResponseInterface
+    {
+        $invite = new GroupMemberInvite();
+        $gMember = new GroupMember();
+        $req = $this->request;
+        $res = $this->response;
+//        $data = $req->getJson(true);
+        $data = $req->getVar();
+        log_message("debug", "[Group] memberInviteNumberMemberAdd \$data: ". print_r($data, true));
+
+        try {
+            $invite->db->transStart();
+            $result = null;
+            //일단 코드부터 확인 - 레코드가 존재하는지 null부터 체크하고, 유효기간 남았는지 확인하기
+            $res1 = $invite->where('invite_code', $data['invite_code'])->find();
+            log_message("debug", "[Group] memberInviteNumberMemberAdd \$res1: ". print_r($res1, true));
+
+            if ($res1 != null && $res1[0]['expire_date'] > date('Y-m-d H:i:s')) {
+                //존재하고, 유효기간도 남았으면 멤버로 추가하기
+                $result = $gMember->where('group_no', $res1[0]['group_no']) //존재하는 레코드안의 모임번호를 이용하여 추가
+                    ->insert([
+                        'user_no' => $data['user_no'],
+                        'group_no' => $res1[0]['group_no']
+                    ]);
+            }
+            log_message("debug", "[Group] memberInviteNumberMemberAdd \$result: ". print_r($result, true));
+
+            if ($invite->db->transComplete()){
+                $invite->db->transCommit();
+                return $res->setJSON([
+                    "result" => "ok",
+                    "msg" => "ok"
+                ]);
+            } else {
+                $invite->db->transRollback();
+                return $res->setJSON([
+                    "result" => "failed",
+                    "msg" => "fail"
+                ]);
+            }
+        } catch (\ReflectionException | DataException $e){
+            return $res->setJSON($e->getMessage());
+        }
+    }
+
+
+    //모임 참가 비밀번호로 멤머 추가하기 전 코드 유효성 검사 - invite_code, user_no
+    public function memberInviteNumberVerify() : ResponseInterface
+    {
+        $invite = new GroupMemberInvite();
+        $gMember = new GroupMember();
+        $group = new \App\Models\Group();
+        $req = $this->request;
+        $res = $this->response;
+//        $data = $req->getJson(true);
+        $data = $req->getVar();
+        log_message("debug", "[Group] memberInviteNumberMemberAdd \$data: ". print_r($data, true));
+
+        try {
+            $invite->db->transStart();
+            $result = null;
+            //일단 코드부터 확인 - 레코드가 존재하는지 null부터 체크하고, 유효기간 남았는지 확인하기
+            $res1 = $invite->where('invite_code', $data['invite_code'])->find();
+            log_message("debug", "[Group] memberInviteNumberMemberAdd \$res1: ". print_r($res1, true));
+
+            if ($res1 != null && $res1[0]['expire_date'] > date('Y-m-d H:i:s')) {
+                //존재하고 유효기간 남았으면 모임의 정보를 보내주고, 클라에서 이 모임에 참가할건지 물어본뒤 참가여부결정하게함
+                $result = $group->where('group_no', $res1[0]['group_no'])->find()[0];
+            }
+            log_message("debug", "[Group] memberInviteNumberMemberAdd \$result: ". print_r($result, true));
+
+            if ($invite->db->transComplete()){
+                $invite->db->transCommit();
+                return $res->setJSON([
+                    "result" => $result,
+                    "msg" => "ok"
+                ]);
+            } else {
+                $invite->db->transRollback();
+                return $res->setJSON([
+                    "result" => "failed",
+                    "msg" => "fail"
+                ]);
+            }
+        } catch (\ReflectionException | DataException $e){
+            return $res->setJSON($e->getMessage());
+        }
+    }
 
 
 
+    // 모임 멤버 초대 번호 있는지 확인 - group_no , code_type
+    public function isInviteNumber() : ResponseInterface
+    {
+        $invite = new GroupMemberInvite();
+        $req = $this->request;
+        $res = $this->response;
+        $data = $req->getJson(true);
+//        $data = $req->getVar();
+        log_message("debug", "[Group] isInviteNumber \$data: ". print_r($data, true));
+
+        try {
+            $invite->db->transStart();
+            $result = null;
+            //client에서 받은 정보를 이용해 참가 코드를 확인하고, 유효한 코드인지 날짜를 비교확인한다.
+            //유효하면 유효하다는 의미로 그 레코드를 클라이언트에 보내준다.
+            //만료됐으면 expired 라는 메시지를 보내준다
+            $res1 = $invite->where('group_no', $data['group_no'])
+                ->where('code_type', 'number')
+                ->find();
+            log_message("debug", "[Group] isInviteNumber \$res1: ". print_r($res1, true));
+            //쿼리가 널이 아니고, 컬럼의 number type도 존재한다면(=number 값이 존재하는 행이 있다는 말은 해당 모임에
+            //초대 공유 비밀번호가 생성되어 있다는 말임!
+            if ($res1 != null && $res1[0]['code_type'] != null) {
+                if (date("Y-m-d H:i:s") < $res1[0]['expire_date']) {
+                    //아직 유효한 기간임
+                    $result = [
+                        'invite_no' => $res1[0]['invite_no'],
+                        'group_no' => $res1[0]['group_no'],
+                        'expire_date' => $res1[0]['expire_date'],
+                        'invite_code' => $res1[0]['invite_code'],
+                        'code_type' => 'number',
+                    ];
+                } else {
+                    $result = "expired";
+                }
+            } else { //만료되거나, 비밀번호가 생성되지 않았음.
+                $result = "nocreated";
+            }
+            log_message("debug", "[Group] isInviteNumber \$result: ". print_r($result, true));
+
+
+            if ($invite->db->transComplete()){
+                $invite->db->transCommit();
+                return $res->setJSON([
+                    "result" => $result,
+                    "msg" => "ok"
+                ]);
+            } else {
+                $invite->db->transRollback();
+                return $res->setJSON([
+                    "result" => "failed",
+                    "msg" => "fail"
+                ]);
+            }
+        } catch (\ReflectionException | DataException $e){
+            return $res->setJSON($e->getMessage());
+        }
+    }
+
+    // 모임 멤버 초대 번호 생성 클릭시
+    public function memberInviteNumber() : ResponseInterface
+    {
+        $invite = new GroupMemberInvite();
+        $req = $this->request;
+        $res = $this->response;
+        $data = $req->getJson(true);
+//        $data = $req->getVar();
+        log_message("debug", "[Group] memberInviteNumber \$data: ". print_r($data, true));
+
+        try {
+            $invite->db->transStart();
+            $code = sprintf("%06d", mt_rand(1, 999999));
+            $result = null;
+            //재생성 요청이면 1, 초기 생성 요청이면 0 << 초기생성이면 백엔드에서 기존 number 레코드 delete할 필요없음
+            //재생성 요청이면 기존의 number 값을 가진 레코드를 지우고 새로 insert 해야하기에 delete 작업해줌
+            if ($data['is_recreate'] == 1) {
+                $invite->where('code_type', 'number')->where('group_no', $data['group_no'])
+                    ->delete();
+            }
+            $res1 = $invite->insert([
+                'group_no' => $data['group_no'],
+                'invite_code' => $code,
+                'expire_date' => date('Y-m-d H:i:s', strtotime("+2 hours")),
+                'code_type' => 'number'
+            ]);
+            
+            $result = $invite->find($res1); //방금 새로 생성한 비밀번호를 클라이언트에 반환함
+            log_message("debug", "[Group] memberInviteNumber \$result: ". print_r($result, true));
+
+            if ($invite->db->transComplete()){
+                $invite->db->transCommit();
+                return $res->setJSON([
+                    "result" => $result,
+                    "msg" => "ok"
+                ]);
+            } else {
+                $invite->db->transRollback();
+                return $res->setJSON([
+                    "result" => "failed",
+                    "msg" => "fail"
+                ]);
+            }
+        } catch (\ReflectionException | DataException $e){
+            return $res->setJSON($e->getMessage());
+        }
+    }
+
+
+    // 모임 멤버 목록 로드
+    public function memberListLoad() : ResponseInterface
+    {
+        $gMember = new GroupMember();
+        $user = new User();
+        $req = $this->request;
+        $res = $this->response;
+        $data = $req->getJson(true);
+//        $data = $req->getVar();
+        log_message("debug", "[Group] memberListLoad \$data: ". print_r($data, true));
+
+        try {
+            $user->db->transStart();
+            $result = null;
+            $res1 = $gMember->join('User', 'User.user_no = GroupMember.user_no')
+                ->where('group_no', $data['group_no'])
+                ->orderBy('user_nick')
+                ->findAll();
+
+            log_message("debug", "[Group] memberListLoad \$result: ". print_r($result, true));
+
+            if ($user->db->transComplete()){
+                $user->db->transCommit();
+                return $res->setJSON([
+                    "result" => $res1,
+                    "msg" => "ok"
+                ]);
+            } else {
+                $user->db->transRollback();
+                return $res->setJSON([
+                    "result" => "failed",
+                    "msg" => "fail"
+                ]);
+            }
+        } catch (\ReflectionException | DataException $e){
+            return $res->setJSON($e->getMessage());
+        }
+    }
+
+ // 모임 멤버 추방 - user_no, group_no
+    public function memberFire() : ResponseInterface
+    {
+        $gMember = new GroupMember();
+        $user = new User();
+        $req = $this->request;
+        $res = $this->response;
+        $data = $req->getJson(true);
+//        $data = $req->getVar();
+        log_message("debug", "[Group] memberFire \$data: ". print_r($data, true));
+
+        try {
+            $user->db->transStart();
+            $result = null;
+            //해당 멤버를 모임에서 삭제(추방)
+            $res1 = $gMember->where('group_no', $data['group_no'])
+                ->where('user_no', $data['user_no'])
+                ->delete();
+
+            //그리고, 멤버목록을 다시 보내준다.
+            $result = $gMember->join('User', 'User.user_no = GroupMember.user_no')
+                ->where('group_no', $data['group_no'])
+                ->orderBy('user_nick')
+                ->findAll();
+            log_message("debug", "[Group] memberFire \$result: ". print_r($result, true));
+
+            if ($user->db->transComplete()){
+                $user->db->transCommit();
+                return $res->setJSON([
+                    "result" => $result,
+                    "msg" => "ok"
+                ]);
+            } else {
+                $user->db->transRollback();
+                return $res->setJSON([
+                    "result" => "failed",
+                    "msg" => "fail"
+                ]);
+            }
+        } catch (\ReflectionException | DataException $e){
+            return $res->setJSON($e->getMessage());
+        }
+    }
+
+// 모임 멤버 탈퇴 - user_no, group_no -- 추방이랑 같음..;
+    public function memberOut() : ResponseInterface
+    {
+        $gMember = new GroupMember();
+        $user = new User();
+        $req = $this->request;
+        $res = $this->response;
+        $data = $req->getJson(true);
+//        $data = $req->getVar();
+        log_message("debug", "[Group] memberOut \$data: ". print_r($data, true));
+
+        try {
+            $user->db->transStart();
+            $result = null;
+            //해당 멤버를 모임에서 삭제(추방)
+            $res1 = $gMember->where('group_no', $data['group_no'])
+                ->where('user_no', $data['user_no'])
+                ->delete();
+
+            //그리고, 멤버목록을 다시 보내준다.
+            $result = $gMember->join('User', 'User.user_no = GroupMember.user_no')
+                ->where('group_no', $data['group_no'])
+                ->orderBy('user_nick')
+                ->findAll();
+            log_message("debug", "[Group] memberOut \$result: ". print_r($result, true));
+
+            if ($user->db->transComplete()){
+                $user->db->transCommit();
+                return $res->setJSON([
+                    "result" => $result,
+                    "msg" => "ok"
+                ]);
+            } else {
+                $user->db->transRollback();
+                return $res->setJSON([
+                    "result" => "failed",
+                    "msg" => "fail"
+                ]);
+            }
+        } catch (\ReflectionException | DataException $e){
+            return $res->setJSON($e->getMessage());
+        }
+    }
+
+    // 모임 멤버 검색 - user_no, group_no, search_word
+    public function memberListSearch() : ResponseInterface
+    {
+        $gMember = new GroupMember();
+        $user = new User();
+        $req = $this->request;
+        $res = $this->response;
+        $data = $req->getJson(true);
+//        $data = $req->getVar();
+        log_message("debug", "[Group] memberListSearch \$data: ". print_r($data, true));
+
+        try {
+            $user->db->transStart();
+            $result = null;
+
+            //그리고, 멤버목록을 다시 보내준다.
+            if ($data['search_word'] == "") {
+                $result = $gMember->join('User', 'User.user_no = GroupMember.user_no')
+                    ->where('group_no', $data['group_no'])
+                    ->orderBy('user_nick')
+                    ->findAll();
+
+            } else {
+                $result = $gMember->join('User', 'User.user_no = GroupMember.user_no')
+                    ->where('group_no', $data['group_no'])
+                    ->like('user_nick', $data['search_word'])
+                    ->orderBy('user_nick')
+                    ->findAll();
+            }
+            log_message("debug", "[Group] memberListSearch \$result: ". print_r($result, true));
+
+            if ($user->db->transComplete()){
+                $user->db->transCommit();
+                return $res->setJSON([
+                    "result" => $result,
+                    "msg" => "ok"
+                ]);
+            } else {
+                $user->db->transRollback();
+                return $res->setJSON([
+                    "result" => "failed",
+                    "msg" => "fail"
+                ]);
+            }
+        } catch (\ReflectionException | DataException $e){
+            return $res->setJSON($e->getMessage());
+        }
+    }
 
 
 

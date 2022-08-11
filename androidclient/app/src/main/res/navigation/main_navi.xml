@@ -3,7 +3,7 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/main_navi"
-    app:startDestination="@id/home_fm">
+    app:startDestination="@id/startFm">
 
     <fragment
         android:id="@+id/home_fm"
@@ -18,8 +18,8 @@
     <fragment
         android:id="@+id/group_fm"
         android:name="com.example.androidclient.group.GroupFm"
-        android:label="모임 main"
-        tools:layout="@layout/group_fm" >
+        android:label=""
+        tools:layout="@layout/group_fm">
         <action
             android:id="@+id/action_group_fm_to_groupCreateFm"
             app:destination="@id/groupCreateFm" />
@@ -29,6 +29,9 @@
             app:enterAnim="@anim/nav_default_enter_anim"
             app:exitAnim="@anim/nav_default_exit_anim"
             app:launchSingleTop="true" />
+        <deepLink
+            android:id="@+id/deepLink4"
+            app:uri="biblewith.com/groupfm/{group_no}/c/{invite_code}?dest=group_fm" />
     </fragment>
     <fragment
         android:id="@+id/bibleVerseFm"
@@ -87,6 +90,11 @@
             app:destination="@id/myHighLightFm"
             app:enterAnim="@anim/nav_default_enter_anim"
             app:exitAnim="@anim/nav_default_exit_anim" />
+        <action
+            android:id="@+id/action_more_fm_to_myProfileFm"
+            app:destination="@id/myProfileFm"
+            app:enterAnim="@anim/nav_default_enter_anim"
+            app:exitAnim="@anim/nav_default_exit_anim" />
     </fragment>
 <!--            app:restoreState="true"-->
     <fragment
@@ -123,7 +131,7 @@
         android:id="@+id/groupInFm"
         android:name="com.example.androidclient.group.GroupInFm"
         android:label=""
-        tools:layout="@layout/group_in_fm" >
+        tools:layout="@layout/group_in_fm">
         <action
             android:id="@+id/action_groupInFm_to_groupInWriteFm"
             app:destination="@id/groupInWriteFm" />
@@ -140,6 +148,9 @@
         <action
             android:id="@+id/action_groupInFm_to_group_in_challenge_fm"
             app:destination="@id/group_in_challenge_fm" />
+        <action
+            android:id="@+id/action_groupInFm_to_groupInInviteFm"
+            app:destination="@id/groupInInviteFm" />
     </fragment>
     <fragment
         android:id="@+id/groupInWriteFm"
@@ -226,6 +237,52 @@
         android:name="com.example.androidclient.group.ChallengeDetailAfterFm"
         android:label=""
         tools:layout="@layout/challenge_detail_after_fm"/>
+    <fragment
+        android:id="@+id/groupInMemberFm"
+        android:name="com.example.androidclient.group.GroupInMemberFm"
+        android:label=""
+        tools:layout="@layout/group_in_member_fm">
+    </fragment>
+    <action android:id="@+id/action_global_groupInMemberFm"
+        app:destination="@id/groupInMemberFm" />
+    <fragment
+        android:id="@+id/myProfileFm"
+        android:name="com.example.androidclient.moreinfo.MyProfileFm"
+        android:label="내정보"
+        tools:layout="@layout/my_profile_fm" >
+        <action
+            android:id="@+id/action_myProfileFm_to_groupInviteVerifyFm"
+            app:destination="@id/groupInviteVerifyFm" />
+    </fragment>
+    <action android:id="@+id/action_global_groupChatFm" app:destination="@id/groupChatFm" />
+    <fragment
+        android:id="@+id/groupInInviteFm"
+        android:name="com.example.androidclient.group.GroupInInviteFm"
+        android:label=""
+        tools:layout="@layout/group_in_invite_fm" />
+    <fragment
+        android:id="@+id/groupInviteVerifyFm"
+        android:name="com.example.androidclient.group.GroupInviteVerifyFm"
+        android:label=""
+        tools:layout="@layout/group_invite_verify_fm" />
+    <action
+        android:id="@+id/action_global_groupInInviteFm"
+        app:destination="@id/groupInInviteFm"
+        app:enterAnim="@anim/nav_default_enter_anim"
+        app:exitAnim="@anim/nav_default_exit_anim" />
+    <fragment
+        android:id="@+id/startFm"
+        android:name="com.example.androidclient.home.StartFm"
+        android:label="StartFm">
+        <action
+            android:id="@+id/action_startFm_to_home_fm"
+            app:destination="@id/home_fm" />
+        <deepLink
+            android:id="@+id/deepLink"
+            app:uri="biblewith.com/invite/{group_no}/c/{invite_code}" />
+    </fragment>
+    <action android:id="@+id/action_global_group_fm"
+        app:destination="@id/group_fm"/>
 
 
 </navigation>

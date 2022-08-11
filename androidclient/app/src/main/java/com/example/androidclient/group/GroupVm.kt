@@ -132,6 +132,7 @@ class GroupVm : ViewModel() {
         return call
     }
 
+    // 모임상세 목록을 가져옴 - 게시물리스트, 멤버리스트, 모임정보 ...
     fun 모임상세불러오기(isExeInVm: Boolean): Call<JsonObject>? {
         val retrofit = Http.getRetrofitInstance(host)
         val httpGroup = retrofit.create(Http.HttpGroup::class.java) // 통신 구현체 생성(미리 보낼 쿼리스트링 설정해두는거)
@@ -604,6 +605,107 @@ class GroupVm : ViewModel() {
     }
 
 
+    suspend fun 모임멤버목록로드(params: JsonObject, isExeInVm: Boolean): Call<JsonObject>? {
+        val retrofit = Http.getRetrofitInstance(host)
+        val httpGroup = retrofit.create(Http.HttpGroup::class.java) // 통신 구현체 생성(미리 보낼 쿼리스트링 설정해두는거)
+        val call = httpGroup.모임멤버목록로드(params)
+        if (isExeInVm) { //true를 받으면 여기서(vm) 실행하고 결과완료된 call을 리턴. false면 완료안된 call을 리턴해서 호출한 fragment or rva에서 비동기 로직 진행.
+            val resp = suspendCoroutine { cont: Continuation<Unit> ->
+                call.enqueue(object : Callback<JsonObject?> {
+                    override fun onResponse(call: Call<JsonObject?>, response: Response<JsonObject?>) {
+                        if (response.isSuccessful) {
+                            val res = response.body()!!
+                            memberL = res.get("result").asJsonArray
+                            liveMemberL.value = memberL
+//                            Log.e("[GroupVm]", "모임멤버목록로드 onResponse: $res")
+                            cont.resumeWith(Result.success(Unit))
+                        }
+                    }
+                    override fun onFailure(call: Call<JsonObject?>, t: Throwable) {
+                        Log.e("[GroupVm]", "모임멤버목록로드 onFailure: " + t.message)
+                    }
+                })
+            }
+        }
+        return call
+    }
+
+
+    suspend fun 모임멤버탈퇴(params: JsonObject, isExeInVm: Boolean): Call<JsonObject>? {
+        val retrofit = Http.getRetrofitInstance(host)
+        val httpGroup = retrofit.create(Http.HttpGroup::class.java) // 통신 구현체 생성(미리 보낼 쿼리스트링 설정해두는거)
+        val call = httpGroup.모임멤버탈퇴(params)
+        if (isExeInVm) { //true를 받으면 여기서(vm) 실행하고 결과완료된 call을 리턴. false면 완료안된 call을 리턴해서 호출한 fragment or rva에서 비동기 로직 진행.
+            val resp = suspendCoroutine { cont: Continuation<Unit> ->
+                call.enqueue(object : Callback<JsonObject?> {
+                    override fun onResponse(call: Call<JsonObject?>, response: Response<JsonObject?>) {
+                        if (response.isSuccessful) {
+                            val res = response.body()!!
+                            memberL = res.get("result").asJsonArray
+                            liveMemberL.value = memberL
+//                            Log.e("[GroupVm]", "모임멤버탈퇴 onResponse: $res")
+                            cont.resumeWith(Result.success(Unit))
+                        }
+                    }
+                    override fun onFailure(call: Call<JsonObject?>, t: Throwable) {
+                        Log.e("[GroupVm]", "모임멤버탈퇴 onFailure: " + t.message)
+                    }
+                })
+            }
+        }
+        return call
+    }
+
+    suspend fun 모임멤버추방(params: JsonObject, isExeInVm: Boolean): Call<JsonObject>? {
+        val retrofit = Http.getRetrofitInstance(host)
+        val httpGroup = retrofit.create(Http.HttpGroup::class.java) // 통신 구현체 생성(미리 보낼 쿼리스트링 설정해두는거)
+        val call = httpGroup.모임멤버추방(params)
+        if (isExeInVm) { //true를 받으면 여기서(vm) 실행하고 결과완료된 call을 리턴. false면 완료안된 call을 리턴해서 호출한 fragment or rva에서 비동기 로직 진행.
+            val resp = suspendCoroutine { cont: Continuation<Unit> ->
+                call.enqueue(object : Callback<JsonObject?> {
+                    override fun onResponse(call: Call<JsonObject?>, response: Response<JsonObject?>) {
+                        if (response.isSuccessful) {
+                            val res = response.body()!!
+                            memberL = res.get("result").asJsonArray
+                            liveMemberL.value = memberL
+//                            Log.e("[GroupVm]", "모임멤버추방 onResponse: $res")
+                            cont.resumeWith(Result.success(Unit))
+                        }
+                    }
+                    override fun onFailure(call: Call<JsonObject?>, t: Throwable) {
+                        Log.e("[GroupVm]", "모임멤버추방 onFailure: " + t.message)
+                    }
+                })
+            }
+        }
+        return call
+    }
+
+    suspend fun 모임멤버검색(params: JsonObject, isExeInVm: Boolean): Call<JsonObject>? {
+        val retrofit = Http.getRetrofitInstance(host)
+        val httpGroup = retrofit.create(Http.HttpGroup::class.java) // 통신 구현체 생성(미리 보낼 쿼리스트링 설정해두는거)
+        val call = httpGroup.모임멤버검색(params)
+        if (isExeInVm) { //true를 받으면 여기서(vm) 실행하고 결과완료된 call을 리턴. false면 완료안된 call을 리턴해서 호출한 fragment or rva에서 비동기 로직 진행.
+            val resp = suspendCoroutine { cont: Continuation<Unit> ->
+                call.enqueue(object : Callback<JsonObject?> {
+                    override fun onResponse(call: Call<JsonObject?>, response: Response<JsonObject?>) {
+                        if (response.isSuccessful) {
+                            val res = response.body()!!
+                            memberL = res.get("result").asJsonArray
+                            liveMemberL.value = memberL
+//                            Log.e("[GroupVm]", "모임멤버검색 onResponse: $res")
+                            cont.resumeWith(Result.success(Unit))
+                        }
+                    }
+                    override fun onFailure(call: Call<JsonObject?>, t: Throwable) {
+                        Log.e("[GroupVm]", "모임멤버검색 onFailure: " + t.message)
+                    }
+                })
+            }
+        }
+        return call
+    }
+
 
 
 
@@ -618,7 +720,7 @@ class GroupVm : ViewModel() {
 //      result - 모임상세불러오기() 데이터 구조
 //{
 //    "result": {
-//    "0": {
+//    "0": { // 모임 정보 -- groupInfo
 //    "group_no": "1",
 //    "chat_room_no": null,
 //    "user_no": "0",

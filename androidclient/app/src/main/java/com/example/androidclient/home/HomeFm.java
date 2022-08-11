@@ -34,20 +34,9 @@ public class HomeFm extends Fragment {
 
     public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         homeVm = new ViewModelProvider(requireActivity()).get(HomeVm.class);
-
         binding = HomeFmBinding.inflate(inflater, container, false);
         View root = binding.getRoot();
 
-//        final TextView textView = binding.textHome;
-//        homeVm.getText().observe(getViewLifecycleOwner(), textView::setText);
-        homeVm.getText().observe(getViewLifecycleOwner(), s -> {
-//            Spannable WordtoSpan = new SpannableString(s);
-//            WordtoSpan.setSpan(new ForegroundColorSpan(Color.BLUE), 1, 2, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
-//            textView.setText(WordtoSpan);
-            String reText = "<span style='background-color:#B7FFC4'>"+ s + "</span>";
-//            textView.setText(Html.fromHtml(reText,Html.FROM_HTML_MODE_LEGACY));
-
-        });
         return root;
     }
 
@@ -59,6 +48,19 @@ public class HomeFm extends Fragment {
         appBarConfiguration = new AppBarConfiguration.Builder(R.id.home_fm).build();
         navController = Navigation.findNavController(view);
         NavigationUI.setupWithNavController( binding.homeToolbar, navController, appBarConfiguration);
+
+
+        //        final TextView textView = binding.textHome;
+//        homeVm.getText().observe(getViewLifecycleOwner(), textView::setText);
+        homeVm.getText().observe(getViewLifecycleOwner(), s -> {
+//            Spannable WordtoSpan = new SpannableString(s);
+//            WordtoSpan.setSpan(new ForegroundColorSpan(Color.BLUE), 1, 2, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
+//            textView.setText(WordtoSpan);
+            String reText = "<span style='background-color:#B7FFC4'>"+ s + "</span>";
+//            textView.setText(Html.fromHtml(reText,Html.FROM_HTML_MODE_LEGACY));
+
+        });
+
     }
 
     @Override
@@ -85,8 +87,10 @@ public class HomeFm extends Fragment {
                 new OnBackPressedCallback(true) {
                     @Override
                     public void handleOnBackPressed() {//백버튼을 조각에서 조종하기 위한 메소드.
+//                        Toast.makeText(requireActivity(),"test1111",Toast.LENGTH_SHORT).show();
+//                            requireActivity().finish(); //AlertDialog 창으로 종료할지 물어야함
                         if(getParentFragmentManager().getBackStackEntryCount()==0){
-//                            getActivity().finish();
+//                        if(getParentFragmentManager().getBackStackEntryAt(0).getId() == R.id.startFm){
                             뒤로가기종료(); //두번 클릭시 종료처리
                         } else{
                             NavController navcon = NavHostFragment.findNavController(HomeFm.this);

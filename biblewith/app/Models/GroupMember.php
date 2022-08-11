@@ -10,7 +10,8 @@ class GroupMember extends \CodeIgniter\Model
         'user_no',
         'user_grade',
         'join_date',
-        'exit_date'
+        'exit_date',
+        'group_member_no'
     ];
-    protected $primaryKey = 'group_no';
+    protected $primaryKey = 'group_member_no';
 }

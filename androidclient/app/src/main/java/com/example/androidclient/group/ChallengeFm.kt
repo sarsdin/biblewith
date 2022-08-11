@@ -66,8 +66,12 @@ class ChallengeFm : Fragment() {
         //바텀네비 리스너 설정
         binding.chalBottomNavi.setOnItemSelectedListener {
 //            onNavDestinationSelected(it, navController)  << navigate()와 충돌함.
-            if(it.getItemId() == R.id.groupInFm){
+            if(it.itemId == R.id.groupInFm){
                 Navigation.findNavController(view).navigate(R.id.action_global_groupInFm)
+            } else if (it.itemId == R.id.groupInMemberFm){
+                Navigation.findNavController(view).navigate(R.id.action_global_groupInMemberFm)
+            } else if(it.itemId == R.id.groupChatFm){
+                Navigation.findNavController(view).navigate(R.id.action_global_groupChatFm)
             }
             return@setOnItemSelectedListener false
         }

@@ -20,29 +20,14 @@ class GroupChatFm : Fragment() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        groupVm = ViewModelProvider(requireActivity()).get(GroupVm::class.java)
     }
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
-        groupVm = ViewModelProvider(requireActivity()).get(GroupVm::class.java)
-        //true를 받으면 여기서(vm) 실행하고 결과완료된 call을 리턴. false면 완료안된 call을 리턴해서 호출한 fragment or rva에서 비동기 로직 진행.
-        // -- 비동기라서 데이터가 미리 로딩이 안됨.. bibleVm에서 미리 로딩해놔야함.
-        /*bibleVm.노트목록가져오기(true).enqueue(object : Callback<JsonArray?> {
-            override fun onResponse(call: Call<JsonArray?>, response: Response<JsonArray?>) {
-                if (response.isSuccessful) {
-                    val res = response.body()
-                    Log.e("[MyNoteFm]", "노트목록가져오기 onResponse: $res")
-                    bibleVm.noteL = res;
-                    bibleVm.liveNoteL.value = bibleVm.noteL
-                }
-            }
-            override fun onFailure(call: Call<JsonArray?>, t: Throwable) {
-                Log.e("[MyNoteFm]", "노트목록가져오기 onFailure: " + t.message)
-            }
-        })*/
 
         mbinding = GroupChatFmBinding.inflate(inflater, container, false)
 
-        rv = binding.groupChatList
+        rv = binding.chatList
 //        rv.layoutManager = GridLayoutManager(context, 2);
         rv.layoutManager = LinearLayoutManager(context)
         rv.adapter = GroupChatRva(groupVm, this)

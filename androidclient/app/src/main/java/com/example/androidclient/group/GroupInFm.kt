@@ -22,9 +22,8 @@ import com.example.androidclient.R
 import com.example.androidclient.databinding.GroupInFmBinding
 import com.example.androidclient.home.MainActivity
 import com.example.androidclient.util.ImageHelper
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.launch
+import kotlinx.coroutines.*
+import retrofit2.await
 
 class GroupInFm : Fragment() {
     lateinit var groupVm: GroupVm
@@ -43,7 +42,8 @@ class GroupInFm : Fragment() {
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
         mbinding = GroupInFmBinding.inflate(inflater, container, false)
 
-        CoroutineScope(Dispatchers.Main).launch {
+        CoroutineScope(Dispatchers.IO).launch {
+            Thread.sleep(100)
             groupVm.챌린지목록가져오기(true)
         }
 
@@ -74,6 +74,10 @@ class GroupInFm : Fragment() {
 //            onNavDestinationSelected(it, navController)  << navigate()와 충돌함.
             if(it.getItemId() == R.id.group_in_challenge_fm){
                 Navigation.findNavController(view).navigate(R.id.action_groupInFm_to_group_in_challenge_fm)
+            } else if (it.itemId == R.id.groupInMemberFm){
+                Navigation.findNavController(view).navigate(R.id.action_global_groupInMemberFm)
+            } else if(it.itemId == R.id.groupChatFm){
+                Navigation.findNavController(view).navigate(R.id.action_global_groupChatFm)
             }
             return@setOnItemSelectedListener false
         }

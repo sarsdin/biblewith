@@ -6,10 +6,10 @@ import androidx.lifecycle.ViewModel;
 
 public class HomeVm extends ViewModel {
 
-    private final MutableLiveData<String> mText;
+    public MutableLiveData<String> mText = new MutableLiveData<>();
 
     public HomeVm() {
-        mText = new MutableLiveData<>();
+//        mText = new MutableLiveData<>();
         mText.setValue("home");
     }
 
