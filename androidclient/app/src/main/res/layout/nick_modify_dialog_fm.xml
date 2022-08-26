@@ -1,0 +1,85 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:id="@+id/nick_modify_dialog_fm_root"
+    >
+
+    <com.google.android.material.textview.MaterialTextView
+        android:id="@+id/title"
+        android:layout_width="350dp"
+        android:layout_height="wrap_content"
+        android:focusableInTouchMode="true"
+        android:text="닉네임 변경"
+        android:textColor="@color/black"
+        android:textSize="18dp"
+        android:padding="10dp"
+        android:visibility="visible"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <EditText
+        android:id="@+id/content"
+        android:layout_width="350dp"
+        android:layout_height="wrap_content"
+        android:focusableInTouchMode="true"
+        android:hint="닉네임을 입력해주세요."
+        android:inputType="textNoSuggestions"
+        android:scrollbars="vertical"
+        android:text=""
+        android:textColor="@color/black"
+        android:textSize="18dp"
+        android:padding="20dp"
+        app:circularflow_defaultRadius="40dp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/title"
+        app:layout_constraintVertical_bias="0.06999999" />
+
+    <Button
+        android:id="@+id/cancelbt"
+        style="@style/Widget.AppCompat.Button.Borderless"
+        android:layout_width="170dp"
+        android:layout_height="42dp"
+        android:text="취소"
+        android:textColor="@color/black"
+        android:textStyle="bold"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toStartOf="@+id/confirmbt"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/content" />
+
+    <Button
+        android:id="@+id/confirmbt"
+        style="@style/Widget.AppCompat.Button.Borderless"
+        android:layout_width="170dp"
+        android:layout_height="42dp"
+        android:text="확인"
+        android:textColor="@color/black"
+        android:textStyle="bold"
+        android:visibility="visible"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toStartOf="@+id/modbt"
+        app:layout_constraintStart_toEndOf="@+id/cancelbt"
+        app:layout_constraintTop_toBottomOf="@+id/content"
+        tools:visibility="visible" />
+
+    <Button
+        android:id="@+id/modbt"
+        style="@style/Widget.AppCompat.Button.Borderless"
+        android:layout_width="170dp"
+        android:layout_height="42dp"
+        android:text="수정"
+        android:textColor="@color/black"
+        android:textStyle="bold"
+        android:visibility="gone"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toEndOf="@+id/confirmbt"
+        app:layout_constraintTop_toBottomOf="@+id/content"
+        tools:visibility="gone" />
+</androidx.constraintlayout.widget.ConstraintLayout>

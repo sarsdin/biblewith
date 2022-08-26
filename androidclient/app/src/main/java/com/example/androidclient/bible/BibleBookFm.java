@@ -166,6 +166,7 @@ public class BibleBookFm extends Fragment {
     @Override
     public void onStart() {
         super.onStart();
+
     }
 
 /*    @Override
@@ -183,7 +184,7 @@ public class BibleBookFm extends Fragment {
 //        Log.e("오류태그", "북 리쥼 ");
 //        Log.e("오류태그", "북 리쥼 after notifydata");
 
-
+        ((BibleFm) getParentFragment()).binding.bibleToolbarIv.setVisibility(View.VISIBLE);
     }
 
     @Override
@@ -193,11 +194,13 @@ public class BibleBookFm extends Fragment {
 //        mainA.binding.mainToolbar.getMenu().findItem(R.id.app_bar_search).setShowAsAction(0); //검색메뉴 감추기
 //        mainA.binding.mainToolbar.getMenu().findItem(R.id.app_bar_search).setVisible(false);
 //        Log.e("오류태그", "북 퍼즈 ");
+        ((BibleFm) getParentFragment()).binding.bibleToolbarIv.setVisibility(View.GONE);
     }
 
     @Override
     public void onStop() {
         super.onStop();
+
 
     }
 

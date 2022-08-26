@@ -1,0 +1,194 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.coordinatorlayout.widget.CoordinatorLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="#59DCDCDC"
+    tools:context=".group.GroupCreateFm"
+>
+<!--    android:background="#00DCDCDC"-->
+
+    <com.google.android.material.appbar.AppBarLayout
+        android:id="@+id/appbar"
+        android:layout_width="match_parent"
+        android:layout_height="45dp"
+        android:background="#00FFFFFF"
+        app:elevation="0dp">
+
+        <com.google.android.material.appbar.CollapsingToolbarLayout
+            android:id="@+id/collapsing_toolbar"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            app:contentScrim="@color/colorBlue"
+            app:expandedTitleGravity="bottom"
+            app:layout_scrollFlags="scroll|snap|exitUntilCollapsed"
+            app:toolbarId="@id/toolbar">
+            <!--            contentScrim: 접혔을때의 툴바 layout 색 -->
+
+
+            <com.google.android.material.appbar.MaterialToolbar
+                android:id="@+id/toolbar"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:background="#FFFFFF"
+                app:layout_collapseMode="pin"
+            >
+                <com.google.android.material.textview.MaterialTextView
+                    android:id="@+id/toolbar_tv"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:fontFamily="monospace"
+                    android:text="챌린지 인증"
+                    android:textSize="14sp"
+                    android:textStyle="bold" />
+
+                <com.google.android.material.imageview.ShapeableImageView
+                    android:id="@+id/toolbar_iv"
+                    android:layout_width="20dp"
+                    android:layout_height="20dp"
+                    android:layout_marginEnd="15dp"
+                    android:layout_gravity="end"
+                    android:contentDescription="이미지 입니다."
+                    android:scaleType="centerCrop"
+                    android:background="#818080"
+                    app:tintMode="screen"
+                    android:visibility="gone"
+                    app:shapeAppearanceOverlay="@style/ShapeAppearanceOverlay.App.CornerSize50Percent"
+                    app:srcCompat="@drawable/ic_baseline_person_24"
+                    app:layout_collapseMode="pin"
+                    tools:visibility="visible"
+                    />
+                
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/saveBt"
+                    style="@style/Widget.Material3.Button.OutlinedButton"
+                    android:layout_width="70dp"
+                    android:layout_height="40dp"
+                    android:layout_gravity="end"
+                    android:layout_marginEnd="16dp"
+                    android:padding="5dp"
+                    android:text="인증하기"
+                    android:textColor="#171717"
+                    android:textSize="14sp"
+                    android:visibility="gone"
+                    app:strokeColor="#9A9A9A"
+                    tools:visibility="visible" />
+              
+            </com.google.android.material.appbar.MaterialToolbar>
+        </com.google.android.material.appbar.CollapsingToolbarLayout>
+    </com.google.android.material.appbar.AppBarLayout>
+
+    <com.google.android.exoplayer2.ui.PlayerView
+        android:id="@+id/video_view"
+        android:layout_width="match_parent"
+        android:layout_height="240dp"
+        android:layout_marginTop="45dp"
+        app:resize_mode="fit"
+        app:show_timeout="5000"
+        app:use_controller="true"
+        android:background="@color/black"
+        />
+
+
+    <androidx.core.widget.NestedScrollView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="285dp"
+    >
+        <!--  collapsingToolbarLayout의 스크롤옵션과 같이 쓴다면 설정해야함 -->
+        <!--        app:layout_behavior="@string/appbar_scrolling_view_behavior"-->
+        <androidx.constraintlayout.widget.ConstraintLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+        >
+
+            <LinearLayout
+                android:id="@+id/linear_layout"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintHorizontal_bias="0.0"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent">
+
+                <com.google.android.material.button.MaterialButtonToggleGroup
+                    android:id="@+id/toggleGroup"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    app:selectionRequired="false"
+                    app:singleSelection="true">
+<!--                    app:checkedButton="@id/btn1"-->
+
+                    <com.google.android.material.button.MaterialButton
+                        android:id="@+id/btn1"
+                        style="@style/Widget.MaterialComponents.Button.TextButton"
+                        android:layout_width="70dp"
+                        android:layout_height="wrap_content"
+                        android:text="😆0"
+                        android:textAlignment="textStart"
+                         />
+<!--                    android:textStyle="bold"-->
+<!--                        android:textSize="18sp"-->
+<!--                        android:textColor="#B71C1C"-->
+
+                    <com.google.android.material.button.MaterialButton
+                        android:id="@+id/btn2"
+                        style="@style/Widget.MaterialComponents.Button.TextButton"
+                        android:layout_width="70dp"
+                        android:layout_height="wrap_content"
+                        android:text="👍0"
+                        android:textAlignment="textStart" />
+
+                    <com.google.android.material.button.MaterialButton
+                        android:id="@+id/btn3"
+                        style="@style/Widget.MaterialComponents.Button.TextButton"
+                        android:layout_width="70dp"
+                        android:layout_height="wrap_content"
+                        android:text="❤0"
+                        android:textAlignment="textStart" />
+
+                    <com.google.android.material.button.MaterialButton
+                        android:id="@+id/btn4"
+                        style="@style/Widget.MaterialComponents.Button.TextButton"
+                        android:layout_width="70dp"
+                        android:layout_height="wrap_content"
+                        android:text="😮0"
+                        android:textAlignment="textStart" />
+
+                    <com.google.android.material.button.MaterialButton
+                        android:id="@+id/btn5"
+                        style="@style/Widget.MaterialComponents.Button.TextButton"
+                        android:layout_width="70dp"
+                        android:layout_height="50dp"
+                        android:text="😍0"
+                        android:textAlignment="textStart" />
+
+                </com.google.android.material.button.MaterialButtonToggleGroup>
+
+            </LinearLayout>
+
+            <androidx.recyclerview.widget.RecyclerView
+                android:id="@+id/verse_list"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:minHeight="400dp"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/linear_layout" />
+
+
+        </androidx.constraintlayout.widget.ConstraintLayout>
+
+    </androidx.core.widget.NestedScrollView>
+
+      <ProgressBar
+            android:id="@+id/progress_bar"
+            android:layout_width="150dp"
+            android:layout_height="150dp"
+            android:visibility="gone"
+            android:layout_gravity="center|center_horizontal" />
+
+</androidx.coordinatorlayout.widget.CoordinatorLayout>

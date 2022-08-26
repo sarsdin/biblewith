@@ -1,20 +1,80 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:layout_width="wrap_content"
-    android:layout_height="wrap_content"
-    android:orientation="horizontal">
+<com.google.android.material.card.MaterialCardView
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/link_card"
+    android:layout_width="match_parent"
+    android:layout_height="100dp"
+    android:background="#48FB6C6C"
+    app:cardCornerRadius="8dp"
+    app:cardElevation="0dp"
+    app:cardUseCompatPadding="true"
+    app:contentPaddingRight="15dp"
+    app:layout_constraintEnd_toEndOf="parent"
+    app:layout_constraintStart_toStartOf="parent"
+    app:layout_constraintTop_toBottomOf="@+id/tv1"
+    app:strokeColor="#B1B0B0"
+    app:strokeWidth="0dp">
 
-    <TextView
-        android:id="@+id/item_number"
+    <com.google.android.material.imageview.ShapeableImageView
+        android:id="@+id/chat_iv"
+        android:layout_width="50dp"
+        android:layout_height="50dp"
+        android:layout_gravity="center|start"
+        android:layout_marginStart="16dp"
+        android:contentDescription="메인 이미지"
+        android:scaleType="centerCrop"
+        app:shapeAppearanceOverlay="@style/ShapeAppearanceOverlay.App.CornerSize50Percent"
+        app:srcCompat="@drawable/ic_baseline_add_link_24"
+        app:tintMode="screen" />
+<!--        android:background="#43A047"-->
+
+    <com.google.android.material.textview.MaterialTextView
+        android:id="@+id/chat_title"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_margin="@dimen/text_margin"
-        android:textAppearance="?attr/textAppearanceListItem" />
+        android:layout_marginStart="80dp"
+        android:layout_marginTop="17dp"
+        android:text="웃끼님의 하루(2)"
+        android:textColor="#232323"
+        android:textSize="18sp"
+        android:textStyle="bold" />
 
-    <TextView
-        android:id="@+id/content"
+    <com.google.android.material.textview.MaterialTextView
+        android:id="@+id/last_chat"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_margin="@dimen/text_margin"
-        android:textAppearance="?attr/textAppearanceListItem" />
-</LinearLayout>
+        android:layout_marginStart="80dp"
+        android:layout_marginTop="50dp"
+        android:maxWidth="270dp"
+        android:singleLine="true"
+        android:text=""
+        android:textColor="#232323"
+        android:textSize="16sp" />
+
+    <com.google.android.material.textview.MaterialTextView
+        android:id="@+id/chat_date"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="end"
+        android:layout_marginStart="80dp"
+        android:layout_marginTop="20dp"
+        android:text="8월 11일"
+        android:textColor="#232323"
+        android:textSize="16sp" />
+
+    <com.google.android.material.imageview.ShapeableImageView
+        android:id="@+id/noti_ea"
+        android:layout_width="25dp"
+        android:layout_height="25dp"
+        android:layout_gravity="center|end"
+        android:layout_marginStart="80dp"
+        android:layout_marginTop="16dp"
+        android:contentDescription="메인 이미지"
+        android:scaleType="centerCrop"
+        app:shapeAppearanceOverlay="@style/ShapeAppearanceOverlay.App.CornerSize50Percent"
+        app:srcCompat="@drawable/ic_baseline_add_link_24"
+        app:tintMode="screen" />
+
+</com.google.android.material.card.MaterialCardView>

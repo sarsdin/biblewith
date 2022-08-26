@@ -55,6 +55,10 @@ public class MoreFm extends Fragment {
         for (int id: binding.moreFmNoteGroup.getReferencedIds()){
             binding.getRoot().findViewById(id).setOnClickListener(v -> Navigation.findNavController(v).navigate(R.id.action_more_fm_to_myNoteFm));
         }
+        //내정보 클릭시 이동
+        for (int id: binding.moreFmProfileGroup.getReferencedIds()){
+            binding.getRoot().findViewById(id).setOnClickListener(v -> Navigation.findNavController(v).navigate(R.id.action_more_fm_to_myProfileFm));
+        }
 
 
 

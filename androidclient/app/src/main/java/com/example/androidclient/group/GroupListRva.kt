@@ -13,6 +13,9 @@ import com.example.androidclient.moreinfo.MyNoteRvaInner
 import com.example.androidclient.util.Http.UPLOADS_URL
 import com.example.androidclient.util.ImageHelper
 import com.google.gson.JsonObject
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
 
 class GroupListRva(val groupVm: GroupVm, val groupListFm: GroupListFm) : RecyclerView.Adapter<GroupListRva.GroupListFmVh>() {
 
@@ -47,7 +50,17 @@ class GroupListRva(val groupVm: GroupVm, val groupListFm: GroupListFm) : Recycle
             //홀더 클릭시 해당하는 모임 상세 페이지로 이동
             binding.root.setOnClickListener(View.OnClickListener {
                 groupVm.currentGroupIn = mItem.get("group_no").asInt
-                groupVm.모임상세불러오기(true)
+//                CoroutineScope(Dispatchers.Main).launch {
+//                    //모임상세불러오기() - groupInfo 가 챌린지목록가져오기()안에서 참조되기 때문에 모임상세불러오기()의 안전(임시)?한 로딩을 위해 약간의 지연을 둠
+//                    //원래는 모임상세불러오기() 자체가 코루틴등으로 안전한 비동기 로직이 수행되어야함..
+//                    groupVm.모임상세불러오기2(true)
+////            Thread.sleep(100)
+//                    groupVm.챌린지목록가져오기(true)
+////            val handler = Handler(Looper.getMainLooper())
+////            handler.post {
+////                rva.notifyDataSetChanged()
+////            }
+//                }
                 Navigation.findNavController(it).navigate(R.id.action_group_fm_to_groupInFm)
 
             })

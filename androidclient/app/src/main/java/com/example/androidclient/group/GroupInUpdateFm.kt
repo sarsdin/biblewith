@@ -254,7 +254,7 @@ class GroupInUpdateFm : Fragment() {
 
         }
 
-        //완료 버튼 클릭시
+        //글수정에서 완료 버튼 클릭시
         binding.groupInUpdateToolbarAddBt.setOnClickListener {
             Toast.makeText(requireActivity(),"test bt", Toast.LENGTH_SHORT).show()
             it.isEnabled = false //버튼 잠금 두번클릭 방지
@@ -276,7 +276,6 @@ class GroupInUpdateFm : Fragment() {
                 CoroutineScope(Dispatchers.Main).launch {
                     //FileHelper 에서 uri를 이용해 MultipartBody.Part 객체를 생성해서 가져옴
                     writeImage = fileHelper.업데이트용멀티파트리스트만들기(requireContext(), groupWriteImageUriL!!, "gboard_image[]")
-
 
 
                     //서버로 수정된 모임 정보 전송
@@ -411,9 +410,9 @@ class GroupInUpdateFm : Fragment() {
                         intent.data = Uri.parse("package:" + requireActivity().packageName)
                         startActivity(intent)
                     }
-                    .setPositiveButton(
-                        "확인"
-                    ) { dialogInterface, i -> requireActivity().finish() }
+                    .setPositiveButton("확인") { dialogInterface, i ->
+                        requireActivity().finish()
+                    }
                     .setCancelable(false)
                     .create()
                     .show()

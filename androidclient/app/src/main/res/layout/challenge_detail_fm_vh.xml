@@ -1,37 +1,63 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<com.google.android.material.card.MaterialCardView xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="wrap_content"
     android:layout_height="wrap_content"
-    android:orientation="horizontal">
+    android:layout_marginTop="7dp"
+    android:layout_marginHorizontal="0dp"
+    android:background="#48FB6C6C"
+    app:cardCornerRadius="0dp"
+    app:cardElevation="0dp">
 
-    <com.google.android.material.imageview.ShapeableImageView
-        android:id="@+id/complete_iv"
-        android:layout_width="40dp"
-        android:layout_height="40dp"
-        android:layout_gravity="end"
-        android:layout_marginStart="16dp"
-        android:layout_marginTop="12dp"
-        android:contentDescription="profile 사진 입니다."
-        android:tint="#F4511E"
-        android:scaleType="centerCrop"
-        android:visibility="invisible"
-        app:shapeAppearanceOverlay="@style/ShapeAppearanceOverlay.App.CornerSize50Percent"
-        app:srcCompat="@drawable/ic_baseline_done_24" />
-<!--        android:background="#818080"-->
 
-    <TextView
-        android:id="@+id/verseNo"
+    <LinearLayout
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_margin="@dimen/text_margin"
-        android:textAppearance="?attr/textAppearanceListItem" />
+        android:orientation="horizontal">
 
-    <TextView
-        android:id="@+id/verseContent"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_margin="@dimen/text_margin"
-        android:textAppearance="?attr/textAppearanceListItem" />
-</LinearLayout>
+        <com.google.android.material.imageview.ShapeableImageView
+            android:id="@+id/complete_iv"
+            android:layout_width="40dp"
+            android:layout_height="40dp"
+            android:layout_gravity="center_vertical"
+            android:layout_marginEnd="16dp"
+            android:contentDescription="is checked?"
+            android:scaleType="centerCrop"
+            android:tint="#F4511E"
+            android:visibility="invisible"
+            app:shapeAppearanceOverlay="@style/ShapeAppearanceOverlay.App.CornerSize50Percent"
+            app:srcCompat="@drawable/ic_baseline_done_24" />
+        <!--        android:background="#818080"-->
+
+        <LinearLayout
+            android:id="@+id/linear_layout"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical">
+
+
+            <TextView
+                android:id="@+id/verseNo"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_margin="8dp"
+                android:fontFamily="@font/binggraebold"
+                android:textAppearance="?attr/textAppearanceListItem"
+                android:textColor="@color/colorDarkSemiTransparent"
+                tools:text="사사기 1장 1절" />
+
+            <TextView
+                android:id="@+id/verseContent"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_margin="8dp"
+                android:fontFamily="@font/binggraetaom"
+                tools:text="사사기 1장 1절"
+                android:textAppearance="?attr/textAppearanceListItem" />
+
+
+        </LinearLayout>
+    </LinearLayout>
+
+</com.google.android.material.card.MaterialCardView>

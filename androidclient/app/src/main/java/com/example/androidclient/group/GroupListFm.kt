@@ -114,6 +114,7 @@ class GroupListFm : Fragment() {
             return@run sort
         }
         rva.notifyDataSetChanged()
+
     }
 
     override fun onDestroyView() {

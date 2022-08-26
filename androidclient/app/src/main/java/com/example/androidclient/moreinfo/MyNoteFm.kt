@@ -12,13 +12,16 @@ import androidx.fragment.app.Fragment
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.Navigation
+import androidx.navigation.fragment.findNavController
 import androidx.navigation.ui.AppBarConfiguration
 import androidx.navigation.ui.NavigationUI
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
+import com.example.androidclient.MyApp
 import com.example.androidclient.R
 import com.example.androidclient.bible.BibleVm
 import com.example.androidclient.databinding.MyNoteFmListBinding
+import com.example.androidclient.util.ImageHelper
 import com.google.gson.JsonArray
 import retrofit2.Call
 import retrofit2.Callback
@@ -76,9 +79,19 @@ class MyNoteFm : Fragment() {
         rva.notifyDataSetChanged()
         //노트수정 시그널
         bibleVm.liveNoteL.observe(viewLifecycleOwner, Observer {
-                rva.notifyDataSetChanged()
+            rva.notifyDataSetChanged()
 //                Log.e("오류태그", "it:${it}")
         })
+
+
+        //상단바 프로필 이미지 클릭시
+        binding.noteToolbarIv.setOnClickListener {
+            findNavController().navigate(R.id.action_global_myProfileFm)
+        }
+        //상단바 프로필 이미지 로딩
+        ImageHelper.getImageUsingGlide(requireActivity(), MyApp.userInfo.user_image, binding.noteToolbarIv)
+
+
     }
 
 

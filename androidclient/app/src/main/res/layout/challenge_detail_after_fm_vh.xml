@@ -1,0 +1,70 @@
+<?xml version="1.0" encoding="utf-8"?>
+<com.google.android.material.card.MaterialCardView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:layout_marginHorizontal="0dp"
+    android:layout_marginTop="7dp"
+    android:background="#D4E157"
+    app:cardCornerRadius="13dp"
+    app:cardElevation="1dp"
+    >
+<!--    app:cardUseCompatPadding="true"-->
+<!--  2순위적용  app:cardBackgroundColor="#42A5F5"-->
+<!--  1순위적용-항상Tint부터 적용됨 android:backgroundTint="#7A551D"-->
+<!--  0순위는 자식뷰의 background 부터-->
+
+    <LinearLayout
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal">
+<!--        android:background="#9CCC65"-->
+
+        <com.google.android.material.imageview.ShapeableImageView
+            android:id="@+id/complete_iv"
+            android:layout_width="40dp"
+            android:layout_height="40dp"
+            android:layout_gravity="center_vertical"
+            android:layout_marginEnd="16dp"
+            android:contentDescription="is checked?"
+            android:scaleType="centerCrop"
+            android:tint="#F4511E"
+            android:visibility="gone"
+            app:shapeAppearanceOverlay="@style/ShapeAppearanceOverlay.App.CornerSize50Percent"
+            app:srcCompat="@drawable/ic_baseline_done_24" />
+        <!--        android:background="#818080"-->
+
+        <LinearLayout
+            android:id="@+id/linear_layout"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical">
+
+
+            <TextView
+                android:id="@+id/verseNo"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginHorizontal="18dp"
+                android:layout_marginVertical="8dp"
+                android:fontFamily="@font/binggraebold"
+                android:textAppearance="?attr/textAppearanceListItem"
+                android:textColor="@color/colorDarkSemiTransparent"
+                tools:text="사사기 1장 1절" />
+
+            <TextView
+                android:id="@+id/verseContent"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginHorizontal="18dp"
+                android:layout_marginVertical="8dp"
+                android:fontFamily="@font/binggraetaom"
+                android:textAppearance="?attr/textAppearanceListItem"
+                tools:text="사사기 1장 1절" />
+
+
+        </LinearLayout>
+    </LinearLayout>
+
+</com.google.android.material.card.MaterialCardView>

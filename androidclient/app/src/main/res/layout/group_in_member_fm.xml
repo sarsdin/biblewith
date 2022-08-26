@@ -1,0 +1,269 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.coordinatorlayout.widget.CoordinatorLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context=".group.GroupInMemberFm"
+>
+    <com.google.android.material.appbar.AppBarLayout
+        android:id="@+id/appbar"
+        android:layout_width="match_parent"
+        android:layout_height="?attr/actionBarSize"
+        android:background="#00FFFFFF"
+        app:elevation="1dp">
+
+        <com.google.android.material.appbar.MaterialToolbar
+            android:id="@+id/toolbar"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:background="#FFFFFF"
+        >
+            <com.google.android.material.textview.MaterialTextView
+                android:id="@+id/toolbar_tv"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:fontFamily="monospace"
+                android:text="모임 멤버"
+                android:textSize="20sp"
+                android:textStyle="bold" />
+
+            <com.google.android.material.imageview.ShapeableImageView
+                android:id="@+id/toolbar_iv"
+                android:layout_width="20dp"
+                android:layout_height="20dp"
+                android:layout_marginEnd="15dp"
+                android:layout_gravity="end"
+                android:contentDescription="이미지 입니다."
+                android:scaleType="centerCrop"
+                android:background="#818080"
+                app:tintMode="screen"
+                app:shapeAppearanceOverlay="@style/ShapeAppearanceOverlay.App.CornerSize50Percent"
+                app:srcCompat="@drawable/ic_baseline_person_24"
+                />
+
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/toolbar_add_bt"
+                style="@style/Widget.Material3.Button.OutlinedButton"
+                android:layout_width="wrap_content"
+                android:layout_height="40dp"
+                android:layout_gravity="end"
+                android:layout_marginEnd="16dp"
+                android:padding="5dp"
+                android:text="초대하기"
+                android:textColor="#171717"
+                android:textSize="14sp"
+                android:visibility="visible"
+                app:strokeColor="#9A9A9A"
+                tools:visibility="visible" />
+
+        </com.google.android.material.appbar.MaterialToolbar>
+    </com.google.android.material.appbar.AppBarLayout>
+
+
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="?attr/actionBarSize"
+        >
+
+       <!-- <com.google.android.material.textfield.TextInputLayout
+            android:id="@+id/text_ly"
+            android:layout_width="0dp"
+            android:layout_height="60dp"
+            android:hint="멤버 검색"
+            app:boxBackgroundMode="filled"
+            app:errorEnabled="false"
+
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent">
+            &lt;!&ndash;        app:counterEnabled="true"&ndash;&gt;
+            &lt;!&ndash;        app:counterMaxLength="40"&ndash;&gt;
+
+            <androidx.constraintlayout.utils.widget.ImageFilterView
+                android:layout_width="30dp"
+                android:layout_height="30dp" />
+
+            <com.google.android.material.textfield.TextInputEditText
+                android:id="@+id/text_input"
+                android:layout_width="match_parent"
+                android:layout_height="60dp"
+                android:layout_marginStart="1dp"
+                android:inputType="textNoSuggestions" />
+        </com.google.android.material.textfield.TextInputLayout>-->
+        <com.google.android.material.card.MaterialCardView
+            android:id="@+id/search_card"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:background="#48FB6C6C"
+            app:cardCornerRadius="20dp"
+            app:cardElevation="1dp"
+            app:cardUseCompatPadding="true"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent">
+
+            <androidx.appcompat.widget.SearchView
+                android:id="@+id/search_view"
+                android:layout_width="match_parent"
+                android:layout_height="56dp"
+                android:autofillHints="멤버 검색"
+                android:background="@color/colorBlueGray"
+                app:defaultQueryHint="멤버 검색"
+                app:iconifiedByDefault="false"
+                app:queryBackground="@null"
+                app:queryHint="멤버 검색" />
+<!--                android:focusableInTouchMode="true"-->
+
+        </com.google.android.material.card.MaterialCardView>
+
+        <com.google.android.material.textview.MaterialTextView
+            android:id="@+id/text_view"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="16dp"
+            android:layout_marginTop="24dp"
+            android:text="멤버"
+            android:textColor="@color/black"
+            android:textSize="16sp"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/search_card" />
+
+        <com.google.android.material.textview.MaterialTextView
+            android:id="@+id/member_sort"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="24dp"
+            android:layout_marginEnd="16dp"
+            android:text="@string/member_name_sort"
+            android:textColor="@color/black"
+            android:textSize="16sp"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/search_card" />
+
+        <androidx.constraintlayout.widget.ConstraintLayout
+            android:id="@+id/me_cy"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="8dp"
+            android:minHeight="65dp"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintHorizontal_bias="0.0"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/text_view">
+            <!--            tools:visibility="visible"-->
+            <!--        android:background="@drawable/borderline_bottom"-->
+
+            <com.google.android.material.imageview.ShapeableImageView
+                android:id="@+id/iv"
+                android:layout_width="40dp"
+                android:layout_height="40dp"
+                android:layout_gravity="end"
+                android:layout_marginStart="16dp"
+                android:layout_marginTop="12dp"
+                android:background="#818080"
+                android:contentDescription="profile 사진 입니다."
+                android:scaleType="centerCrop"
+                app:tintMode="screen"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent"
+                app:shapeAppearanceOverlay="@style/ShapeAppearanceOverlay.App.CornerSize50Percent"
+                app:srcCompat="@drawable/ic_baseline_person_24" />
+
+            <com.google.android.material.floatingactionbutton.FloatingActionButton
+                android:id="@+id/profile_writer_fab"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginEnd="-18dp"
+                android:layout_marginBottom="-17dp"
+                android:visibility="visible"
+                app:backgroundTint="#99DDDDDD"
+                app:fabCustomSize="14dp"
+                app:fabSize="mini"
+                app:layout_constraintBottom_toBottomOf="@+id/iv"
+                app:layout_constraintEnd_toEndOf="@+id/iv"
+                app:maxImageSize="14dp"
+                app:srcCompat="@drawable/ic_baseline_brightness_7_24"
+                app:tint="#E78602"
+                app:useCompatPadding="true" />
+
+
+            <com.google.android.material.textview.MaterialTextView
+                android:id="@+id/writer_tv"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="20dp"
+                android:textAppearance="?attr/textAppearanceListItem"
+                android:textSize="20sp"
+                android:text="닉네임"
+                app:layout_constraintBottom_toBottomOf="@+id/iv"
+                app:layout_constraintStart_toEndOf="@+id/iv"
+                app:layout_constraintTop_toTopOf="@+id/iv"
+                tools:text="글쓴이" />
+
+            <com.google.android.material.textview.MaterialTextView
+                android:id="@+id/date_tv"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginEnd="16dp"
+                android:text="참가일 2022.6.29"
+                android:textAppearance="?attr/textAppearanceListItem"
+                android:textColor="#707070"
+                android:textSize="14sp"
+                app:layout_constraintBottom_toBottomOf="@+id/option_bt"
+                app:layout_constraintEnd_toStartOf="@+id/option_bt"
+                app:layout_constraintTop_toTopOf="@+id/option_bt" />
+            <!--        tools:text="2022-6-29 00:00:11"-->
+
+            <androidx.constraintlayout.utils.widget.ImageFilterButton
+                android:id="@+id/option_bt"
+                android:layout_width="35dp"
+                android:layout_height="35dp"
+                android:layout_marginEnd="16dp"
+                android:background="#00FFFFFF"
+                android:scaleType="centerCrop"
+                android:src="@drawable/ic_baseline_settings_24"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintTop_toTopOf="parent" />
+
+        </androidx.constraintlayout.widget.ConstraintLayout>
+
+        <View
+            android:id="@+id/view3"
+            android:layout_width="match_parent"
+            android:layout_height="1dp"
+            android:background="@color/colorDivider"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/me_cy" />
+
+        <androidx.recyclerview.widget.RecyclerView
+            android:id="@+id/member_list"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:paddingBottom="350dp"
+            app:layoutManager="LinearLayoutManager"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/view3" />
+        <!--            android:name="com.example.androidclient.group.GroupInFm"-->
+        <!--            tools:listitem="@layout/group_in_fm_vh"-->
+
+
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
+
+
+    <com.google.android.material.bottomnavigation.BottomNavigationView
+        android:id="@+id/bottom_navi"
+        android:layout_width="match_parent"
+        android:layout_height="40dp"
+        android:layout_gravity="bottom"
+        app:labelVisibilityMode="unlabeled"
+        app:menu="@menu/group_in_bottom_navi_menu"
+        />
+</androidx.coordinatorlayout.widget.CoordinatorLayout>

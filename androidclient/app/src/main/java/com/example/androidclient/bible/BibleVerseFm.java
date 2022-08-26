@@ -88,7 +88,7 @@ public class BibleVerseFm extends Fragment {
 
 
         //바텀시트뷰 감추기
-        btsb.setState(BottomSheetBehavior.STATE_HIDDEN);
+        btsb.setState(BottomSheetBehavior.STATE_HIDDEN); //일단 시작을 감추기로 시작함
 
         btsb.addBottomSheetCallback(new BottomSheetBehavior.BottomSheetCallback() {
             @Override

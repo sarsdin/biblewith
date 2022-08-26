@@ -56,8 +56,8 @@
                 android:background="#818080"
                 android:contentDescription="이미지 입니다."
                 android:scaleType="centerCrop"
-                android:tint="#FFFFFF"
-                android:visibility="gone"
+                app:tintMode="screen"
+                android:visibility="visible"
                 app:layout_collapseMode="pin"
                 app:shapeAppearanceOverlay="@style/ShapeAppearanceOverlay.App.CornerSize50Percent"
                 app:srcCompat="@drawable/ic_baseline_person_24" />

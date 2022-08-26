@@ -1,50 +1,46 @@
 package com.example.androidclient.home;
+import android.app.PendingIntent;
+import android.content.ComponentName;
+import android.content.ServiceConnection;
+import android.net.Uri;
+import android.os.IBinder;
 import android.util.Log;
 
-import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
-import android.view.Menu;
-import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
-import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.appcompat.widget.SearchView;
-import androidx.core.view.MenuProvider;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.navigation.NavController;
+import androidx.navigation.NavDeepLinkBuilder;
 import androidx.navigation.NavDestination;
-import androidx.navigation.NavGraph;
-import androidx.navigation.NavOptions;
 import androidx.navigation.Navigation;
 import androidx.navigation.ui.AppBarConfiguration;
 import androidx.navigation.ui.NavigationUI;
 
 import com.example.androidclient.MyApp;
+import com.example.androidclient.MyService;
 import com.example.androidclient.R;
-import com.example.androidclient.bible.BibleDto;
 import com.example.androidclient.bible.BibleVm;
 import com.example.androidclient.databinding.MainActivityBinding;
 import com.example.androidclient.login.LoginActivity;
-import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.google.android.material.navigation.NavigationBarView;
 import com.google.gson.Gson;
 import com.google.gson.JsonArray;
-import com.google.gson.JsonElement;
+import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
-import com.google.gson.reflect.TypeToken;
 
-import java.util.ArrayList;
-import java.util.List;
+import kotlinx.coroutines.Dispatchers;
 
 public class MainActivity extends AppCompatActivity {
 
+    public String tagName = "[MainActivity]";
     public MainActivityBinding binding;
     public AppBarConfiguration appBarConfiguration;
     private NavController navController;
@@ -61,7 +57,9 @@ public class MainActivity extends AppCompatActivity {
         setContentView(binding.getRoot());
 //        setSupportActionBar(binding.mainToolbar);
 //        쉐어드에서책정보불러오기(); //JsonArray bibleinfo 에 저장 -- 7/9 쉐어드까지 배포가 안되므로 결국 서버에서 데이터를 로딩해오는 방식으로 가야함
-        bibleVm = new ViewModelProvider(this).get(BibleVm.class);
+        if(MyApp.userInfo != null){
+            bibleVm = new ViewModelProvider(this).get(BibleVm.class);
+        }
 //        Gson gson = new Gson();
         //책 제목 정보 vm에 초기화넣어주기 - 노트목록가져오기 뷰홀더 where_tv에서 참조함 - notefm: vm에서 미리 로딩하는게 되더라..createView에서 안하고 vm안에서 비동기통신하니깐 미리 로딩되어있더라
 //        bibleVm.bookL = gson.fromJson(bookinfo, new TypeToken<ArrayList<BibleDto>>(){}.getType()); 
@@ -98,17 +96,20 @@ public class MainActivity extends AppCompatActivity {
                     navController.popBackStack(R.id.more_fm, false);
 //                    navController.popBackStack(R.id.more_navigation, false);
                 }
+//                else if(item.getItemId()  == R.id.home_fm){
+//                    navController.navigate(R.id.home_fm); // deeplink 에서 앱이 꺼져있고 자동로그인상태일때 바로 들어가면 홈fm이 클릭이 안되는 현상이있음. 테스트!
+//                }
 //                if(item.getItemId()  == R.id.more_navigation){
 //                    navController.popBackStack(R.id.myHighLightFm, true);
 //                    navController.popBackStack(R.id.more_fm, false);
 //                    navController.popBackStack(R.id.more_navigation, false);
 //                }
 
-               /*if(item.getItemId()  == R.id.myHighLightFm){
-//                    navController.popBackStack(R.id.myHighLightFm, false, false);
-                    navController.popBackStack(R.id.more_fm, false, false);
-//                    navController.popBackStack(R.id.more_navigation, false);
-                }*/
+//               if(item.getItemId()  == R.id.myHighLightFm){
+////                    navController.popBackStack(R.id.myHighLightFm, false, false);
+//                    navController.popBackStack(R.id.more_fm, false, false);
+////                    navController.popBackStack(R.id.more_navigation, false);
+//                }
 
                 return false;
             }
@@ -147,6 +148,12 @@ public class MainActivity extends AppCompatActivity {
 //                    binding.mainToolbar.setVisibility(View.GONE);  // << 이것이 위와 달리 적용되는 이유는 toolbar는 menu가 아니고 상위 액티비티 레이아웃
                     //에 소속한 view 이기 때문에 onCreate()에서 이미 inflate 되었기 때문에 작동하는 것!
                 }*/
+//                if(navController.getPreviousBackStackEntry() != null){
+//                    if(navController.getPreviousBackStackEntry().getDestination().getId() == R.id.startFm){ //이전 위치 정보를 알 수 있으면 그 위치에서 왔다면 백스택 팝을 하는 로직을 짤수 있을 것! 그래서 home_fm이 탑으로!
+//                        Toast.makeText(getApplicationContext(), "test2222",Toast.LENGTH_SHORT).show();
+//                        navController.popBackStack(R.id.home_fm, false);
+//                    }
+//                }
 
                 //노트 추가 화면으로 이동시 바텀 네비게이션 숨김
                 switch(navDestination.getId()){
@@ -160,7 +167,12 @@ public class MainActivity extends AppCompatActivity {
                     case  R.id.challengeCreateFm:
                     case  R.id.challengeCreateNextFm:
                     case  R.id.challengeDetailFm:
+                    case  R.id.challengeDetailAfterFm:
                     case  R.id.challengeDetailListFm:
+                    case  R.id.groupChatFm:
+                    case  R.id.groupInChatFm:
+                    case  R.id.groupChatInnerFm:
+                    case  R.id.groupInMemberFm:
 //                    case  R.id.challengeCreateNextFm:
                         binding.mainBottomNav.setVisibility(View.GONE);
 //                        binding.mainAppbarNoteAddBt.setVisibility(View.VISIBLE);
@@ -228,7 +240,83 @@ public class MainActivity extends AppCompatActivity {
             }
         });*/
 
+        //초대 링크 처리 부분
+//        Intent intent = getIntent();
+//        boolean is_invited = intent.getBooleanExtra("is_invited", false);
+//        if(is_invited){
+//            String group_no = intent.getStringExtra("group_no");
+//            String invite_code = intent.getStringExtra("invite_code");
+////            Uri uri = Uri.parse("http://biblewith.com/groupfm/" + group_no + "/c/" + invite_code + "?is_invited=true");
+////            NavDeepLinkRequest request = NavDeepLinkRequest.Builder.fromUri(uri).build();
+////            navController.navigate(request);
+////            navController.navigate(R.id.actiongroupfm);
+//
+//            Bundle bd = new Bundle();
+//            bd.putString("group_no", group_no); //getPathSegments: [invite, 1, c, 660998]
+//            bd.putString("invite_code", invite_code);
+//            //초대링크를 타고 들어왔냐는 시그널용도 - 모임 홈에서 viewmodel 처리후 이 시그널에 따른 로직을 처리 후(서버에 invite_code 검증 후 멤버추가)
+//            // 위의 group_no를 이용해 해당 모임으로이동
+//            bd.putBoolean("is_invited", true);
+//            navController.navigate(R.id.group_fm, bd);
+//            binding.mainBottomNav.invalidate();
+//            Log.e("[뭐야]", "진짜: "   );
+//            //onResume()에 초대 링크 처리 부분을 넣으면.. navigation이 startFm에서 startDestination이 지정된 경우
+//            // 잠깐 작업관리자로 나갔다 들와도 Bundle이 계속해서 (코드가)재실행되기에 무한 초대가 뜨게 된다..주의!
+//            //startDestination이 home_fm 으로 지정된 경우는 이상하게 괜찮더라..
+//        }
+
+        //서비스 시작 - BIND_AUTO_CREATE : 서비스가 켜저있으면 자동으로 바인딩하고, 없으면 만들어서 바인딩함
+        Intent intent = new Intent(this, MyService.class);
+        bindService(intent, serviceConn, Context.BIND_AUTO_CREATE);
     }
+
+
+
+    //서비스 관련 변수들 및 바인딩 서비스 연결 구현
+    public MyService myService; // 서비스 객체
+    public boolean isService = false; // 서비스 중인 확인용
+    public ServiceConnection serviceConn = new ServiceConnection() {
+        public void onServiceConnected(ComponentName name, IBinder service) {
+            // 서비스와 연결되었을 때 호출되는 메서드
+            // 서비스 객체를 전역변수로 저장
+            MyService.MyBinder binder = (MyService.MyBinder) service; //서비스에서 받아온 MyBinder 객체
+            myService = binder.getService();                //위의 객체로부터 MyService 객체를 얻어옴
+            // 서비스쪽 객체를 전달받을수 있음
+            isService = true;// 서비스가 실행중이면 true - 서비스 On 이라고 처리
+            Log.e(tagName, "서비스: MyService에 연결되었습니다.");
+            //서비스를 통해 채팅서버에 접속하여, 유저번호에 해당하는 스레드가 있는지 확인하고 있으면 재활용(재연결), 없으면 만드는 메소드
+            클라이언트스레드등록확인();
+        }
+        public void onServiceDisconnected(ComponentName name) {
+            //서비스 Off 이라고 처리. 이 메소드는 비정상 서비스 종료시에만 호출됨. 정상 종료시에는 호출안되니 주의!!
+            isService = false;
+            Log.e(tagName, "서비스: MyService가 비정상 종료되었습니다.");
+        }
+    };
+
+    public void 클라이언트스레드등록확인() {
+//        cli = ChatClient("10.0.2.2", groupVm) //127.0.0.1 << avd에서 안드로이드os 자신을 가리킴. 내 컴퓨터의 로컬 서버가 아님..!
+//        cli.start()
+        Gson gson = new Gson();
+        JsonObject jo = new JsonObject();
+        jo.addProperty("user_no", MyApp.userInfo.getUser_no());
+        jo.addProperty("user_nick", MyApp.userInfo.getUser_nick());
+        jo.addProperty("user_image", MyApp.userInfo.getUser_image());
+        jo.addProperty("cmd", "초기화");
+        jo.addProperty("cmd_type", "초기화");
+        Thread thread = new Thread(() -> {
+            try{
+                myService.cli.outMsg.println(gson.toJson(jo));
+
+            }catch(Exception e){
+                e.printStackTrace();
+            }
+        });
+        thread.start();
+//            myService.putHandler(handler); // 이 fm에 등록된 핸들러를 서비스를 초기화 시키면서 보내줌
+
+    }
+
 
     @Override
     protected void onResume() {
@@ -237,6 +325,92 @@ public class MainActivity extends AppCompatActivity {
 //        binding.mainToolbar.getMenu().findItem(R.id.app_bar_search).setShowAsAction(MenuItem.SHOW_AS_ACTION_ALWAYS);
 //        binding.mainToolbar.getMenu().findItem(R.id.app_bar_search).setVisible(true);
         Log.e("오류태그", "MainActivity onResume");
+
+
+    }
+
+//    public TestDeep listenerDeepLink;
+//    public interface TestDeep {
+//        void sendIntentDeep(Intent intent, MainActivity mainActivity);
+//    }
+
+    //새로운 인텐트 발생시 설정 - 하위 프래그먼트에서 사용하기 위함 - 딥링크등..
+    //앱이 이미 켜져있는 상태에서는 외부 딥링크가 안먹히는 것 같다..자동으로 인식이 안돼는 것 같지만, 여기서 수동으로 받는 것은
+    //가능하다!
+    @Override
+    protected void onNewIntent(Intent intent) {
+        super.onNewIntent(intent);
+        setIntent(intent);
+//        listenerDeepLink.sendIntentDeep(intent, this);
+
+//        Intent intent = getIntent();
+        String action = intent.getAction();
+        Uri data = intent.getData();
+        Log.e(tagName, "deepLinkInfo: "+ action+", "+data ); //android.intent.action.VIEW, http://biblewith.com/invite/1
+        if(data != null){
+            Log.e(tagName, "getPath: "+ data.getPath() );                             //  /invite/1
+            Log.e(tagName, "getPathSegments: "+ data.getPathSegments() );             // [invite, 1]
+            Log.e(tagName, "getLastPathSegment: "+ data.getLastPathSegment() );       // 1
+            Log.e(tagName, "getQuery: "+ data.getQuery() );                           // null
+            Log.e(tagName, "getScheme: "+ data.getScheme() );                         // http
+            Log.e(tagName, "getSchemeSpecificPart: "+ data.getSchemeSpecificPart() ); //  //biblewith.com/invite/1
+            Log.e(tagName, "getFragment: "+ data.getFragment() );                     // null
+            Log.e(tagName, "getHost: "+ data.getHost() );                             // biblewith.com
+            Log.e(tagName, "getQuery: "+ data.getQuery() );                             //
+
+            if(MyApp.userInfo != null){
+                if (data != null && data.getPathSegments().get(0).equals("invite") ) {
+                    Log.e(tagName, "group_fm으로 가기전");
+
+                    String group_no = data.getPathSegments().get(1);
+                    String invite_code = data.getPathSegments().get(3);
+//
+                    Bundle bd = new Bundle();
+                    bd.putString("group_no", group_no); //getPathSegments: [invite, 1, c, 660998]
+                    bd.putString("invite_code", invite_code);
+                    //초대링크를 타고 들어왔냐는 시그널용도 - 모임 홈에서 viewmodel 처리후 이 시그널에 따른 로직을 처리 후(서버에 invite_code 검증 후 멤버추가)
+                    // 위의 group_no를 이용해 해당 모임으로이동
+                    bd.putBoolean("is_invited", true);
+                    Log.e(tagName, "group_fm으로 가기전2: "+ group_no + " "+ invite_code);
+                    navController.navigate(R.id.group_fm, bd);
+                    Log.e(tagName, "group_fm으로 가기후: "+ group_no + " "+ invite_code);
+
+
+                    //조건에 맞지 않으면 일반적인 앱의 흐름으로서 home_fm 화면으로 간다.
+                } else {
+                    Log.e(tagName, "home_fm으로 간다");
+                    navController.navigate(R.id.action_startFm_to_home_fm);
+                }
+
+                //LoginActivity 로 보내서 로그인 진행 처리
+            } else {
+                Log.e(tagName, "LoginActivity으로 돌아간다");
+                Intent toLogin = new Intent(MyApp.getApplication(), LoginActivity.class);
+                startActivity(toLogin);
+                finish();
+            }
+
+
+            //그냥 group_fm으로 보내도 되지만... 로직을 위해 startFm 으로 보내봄..
+//            if(data.getPathSegments().get(0).equals("invite") ){
+//                Log.e(tagName, "data.getPathSegments().get(0) inPendingIntent: "+ data.getPathSegments().get(0) );                             //
+//                PendingIntent pi = new NavDeepLinkBuilder(this)
+//                        .setGraph(R.navigation.main_navi)
+//                        .setDestination(R.id.startFm)
+////                        .setArguments(bd)
+////                        .setComponentName(MainActivity.class)
+//                        .createPendingIntent();
+//                try {
+//                    pi.send();
+////                    pi.send(this, 14, intent);
+//                } catch (PendingIntent.CanceledException e) {
+//                    e.printStackTrace();
+//                }
+//            }
+
+        }
+
+
     }
 
     //로컬db에서 책제목 정보 불러와서 사용. 원격db에서 불러오는 것과 비슷한 용도.

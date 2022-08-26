@@ -1,0 +1,106 @@
+<?xml version="1.0" encoding="utf-8"?>
+<com.google.android.material.card.MaterialCardView
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:layout_marginVertical="5dp"
+    android:background="#48FB6C6C"
+    app:cardCornerRadius="5dp"
+    app:cardElevation="1dp"
+    >
+    <!--app:cardUseCompatPadding="true"-->
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:id="@+id/member_cy"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:minHeight="65dp"
+        tools:visibility="visible"
+        >
+        <!--        android:background="@drawable/borderline_bottom"-->
+
+        <com.google.android.material.imageview.ShapeableImageView
+            android:id="@+id/member_iv"
+            android:layout_width="40dp"
+            android:layout_height="40dp"
+            android:layout_gravity="end"
+            android:layout_marginStart="16dp"
+            android:layout_marginTop="12dp"
+            android:background="#818080"
+            android:contentDescription="profile 사진 입니다."
+            android:scaleType="centerCrop"
+            app:tintMode="screen"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            app:shapeAppearanceOverlay="@style/ShapeAppearanceOverlay.App.CornerSize50Percent"
+            app:srcCompat="@drawable/ic_baseline_person_24" />
+
+        <com.google.android.material.floatingactionbutton.FloatingActionButton
+            android:id="@+id/member_profile_writer_fab"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginEnd="-18dp"
+            android:layout_marginBottom="-17dp"
+            android:visibility="gone"
+            app:fabCustomSize="14dp"
+            app:fabSize="mini"
+            app:layout_constraintBottom_toBottomOf="@+id/member_iv"
+            app:layout_constraintEnd_toEndOf="@+id/member_iv"
+            app:maxImageSize="14dp"
+            app:srcCompat="@drawable/ic_baseline_brightness_7_24"
+            app:tint="#E78602"
+            app:backgroundTint="#99DDDDDD"
+            app:useCompatPadding="true" />
+
+
+        <com.google.android.material.textview.MaterialTextView
+            android:id="@+id/member_writer_tv"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="20dp"
+            android:textAppearance="?attr/textAppearanceListItem"
+            android:textSize="20sp"
+            app:layout_constraintBottom_toBottomOf="@+id/member_iv"
+            app:layout_constraintStart_toEndOf="@+id/member_iv"
+            app:layout_constraintTop_toTopOf="@+id/member_iv"
+            tools:text="글쓴이" />
+
+        <com.google.android.material.textview.MaterialTextView
+            android:id="@+id/member_date_tv"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginEnd="16dp"
+            android:text="참가일 2022.6.29"
+            android:textAppearance="?attr/textAppearanceListItem"
+            android:textColor="#707070"
+            android:textSize="14sp"
+            app:layout_constraintBottom_toBottomOf="@+id/option_bt"
+            app:layout_constraintEnd_toStartOf="@+id/option_bt"
+            app:layout_constraintTop_toTopOf="@+id/option_bt" />
+        <!--        tools:text="2022-6-29 00:00:11"-->
+
+        <androidx.constraintlayout.utils.widget.ImageFilterButton
+            android:id="@+id/option_bt"
+            android:layout_width="35dp"
+            android:layout_height="35dp"
+            android:layout_marginEnd="16dp"
+            android:background="#00FFFFFF"
+            android:scaleType="centerCrop"
+            android:src="@drawable/ic_baseline_admin_panel_settings_24"
+            android:visibility="gone"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            tools:visibility="visible"/>
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
+
+    <ProgressBar
+        android:id="@+id/progress_bar"
+        android:layout_width="150dp"
+        android:layout_height="150dp"
+        android:visibility="gone"
+        android:layout_gravity="center|center_horizontal" />
+</com.google.android.material.card.MaterialCardView>

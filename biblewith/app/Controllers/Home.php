@@ -2,6 +2,7 @@
 
 namespace App\Controllers;
 
+use App\Models\GroupMember;
 use App\Models\Tempinfo;
 use App\Models\User;
 use CodeIgniter\Database\Exceptions\DataException;
@@ -308,7 +309,113 @@ class Home extends BaseController
     }
 
 
+    // 사용자 이미지 선택 버튼 클릭시 (MyProfile - image_fab)
+    public function userProfileImageSelect() : ResponseInterface
+    {
+        helper('filesystem');
+        $user = new User();
+        $req = $this->request;
+        $res = $this->response;
+//        $data = $req->getJson(true);
+        $data = $req->getVar();
+        log_message("debug", "[home] userProfileImageSelect \$data: ". print_r($data, true));
+//        $imgData3 = $req->getFileMultiple('product_image');
+//        log_message("debug", "[Group] createGroup \$getFileMultiple: ".print_r($imgData3, true));
+        $imgData = $req->getFile('user_image');
+//        $imgData = $req->getFiles();
+        log_message("debug", "[home] userProfileImageSelect \$getFiles: ".print_r($imgData, true));
 
+        $validationRule = [
+            'user_image' => [
+                'label' => 'Image File',
+                'rules' => 'uploaded[user_image]'
+                    . '|is_image[user_image]'
+                    . '|mime_in[user_image,image/jpg,image/jpeg,image/gif,image/png,image/webp]'
+                    . '|max_size[user_image,1000]'
+                    . '|max_dims[user_image,1924,1924]',
+            ],
+        ];
+
+        try {
+            //요청 데이터 중 user_image 요소에 대한 이미지 검증
+            if (! $this->validate($validationRule)) { //이미지파일 검증실패시 result false로 에러메시지 리턴.
+                $data = [
+                    'result' => false,
+                    'errors' => $this->validator->getErrors()
+                ];
+                return $res->setJSON($data);
+            }
+
+            //이미지파일을 ci 기본 upload 경로(writable/uploads)에 저장. 그후 경로 반환된걸로 db에 insert
+            $filePath = $imgData->store();
+            log_message("debug", "[Home] userProfileImageSelect \$filePath: ".print_r($filePath, true));
+
+            //기존의 사진 파일 서버저장소에서 삭제
+            $imgPre = $user->where('user_no', $req->getVar('user_no'))->findColumn('user_image');
+            log_message("debug", "[Home] userProfileImageSelect \$imgPre delete: ".print_r($imgPre, true));
+            if ($imgPre != null && count($imgPre) != 0) {
+                if ($imgPre[0] != null && $imgPre[0] != "") {  // 연관배열 [0] =>     <<이것때문에 몇번이나 파일 다날라감..주의!!
+                    delete_files('../writable/uploads/'.$imgPre[0]); //경로의 파일 삭제
+                }
+            }
+
+            //위에서 얻은 이미지 경로를 db에 업데이트시켜줌
+            $result = $user->set('user_image', $filePath)->update($req->getVar('user_no'));
+            log_message("debug", "[Home] userProfileImageSelect \$result: ". print_r($result, true));
+
+            $result = $user->where('user_no', $req->getVar('user_no'))->findColumn('user_image');
+
+            return $res->setJSON([
+                "result" => $result[0],
+                "msg" => "ok"
+            ]);
+            //배열로 반환되면 클라이언트에서 Dto객체로 변환이 안된다. Dto는 Object 타입이기때문. arrayL라면 arrayL 로 변환되어야함.
+
+        } catch (\ReflectionException | DataException $e){
+            return $res->setJSON($e->getMessage());
+        }
+    }
+
+    // 유저닉 수정
+    public function nickModify() : ResponseInterface
+    {
+        $user = new User();
+        $req = $this->request;
+        $res = $this->response;
+        $data = $req->getVar();
+        log_message("debug", "[Home] nickModify \$data: ". print_r($data, true));
+
+        try {
+            $user->db->transStart();
+            $result = $user->set('user_nick', $data['user_nick'])->update($data['user_no']);
+            log_message("debug", "[Home] nickModify \$result: ". print_r($result, true));
+
+//            if ($result == true) { //유저정보가 정상적이라면
+//                return $res->setJSON($data['user_nick']); //배열로 반환되면 클라이언트에서 Dto객체로 변환이 안된다. Dto는 Object 타입이기때문
+//
+//            } else {
+//                log_message("debug", "[Home] nickModify \$result is null: ". print_r($result, true));
+//                return $res->setJSON("");
+//            }
+
+            if ($user->db->transComplete()){
+                $user->db->transCommit();
+                return $res->setJSON([
+                    "result" => $data['user_nick'],
+                    "msg" => "ok"
+                ]);
+            } else {
+                $user->db->transRollback();
+                return $res->setJSON([
+                    "result" => "failed",
+                    "msg" => "fail"
+                ]);
+            }
+
+        } catch (\ReflectionException | DataException $e){
+            return $res->setJSON($e->getMessage());
+        }
+    }
 
 
 

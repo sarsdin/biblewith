@@ -5,8 +5,11 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".group.GroupCreateFm"
+    android:background="#59DCDCDC"
+    tools:context=".group.ChallengeDetailFm"
 >
+<!--    android:background="#00DCDCDC"-->
+
     <com.google.android.material.appbar.AppBarLayout
         android:id="@+id/appbar"
         android:layout_width="match_parent"
@@ -20,15 +23,10 @@
             android:layout_height="wrap_content"
             app:contentScrim="@color/colorBlue"
             app:expandedTitleGravity="bottom"
-            app:layout_scrollFlags="scroll|snap|exitUntilCollapsed"
+            app:layout_scrollFlags="scroll|snap"
             app:toolbarId="@id/toolbar">
             <!--            contentScrim: 접혔을때의 툴바 layout 색 -->
 
-            <SurfaceView
-                android:id="@+id/surface_view"
-                android:layout_width="match_parent"
-                android:layout_height="300dp"
-                />
 
             <com.google.android.material.appbar.MaterialToolbar
                 android:id="@+id/toolbar"
@@ -42,8 +40,8 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:fontFamily="monospace"
-                    android:text="챌린지title"
-                    android:textSize="20sp"
+                    android:text="챌린지 인증"
+                    android:textSize="14sp"
                     android:textStyle="bold" />
 
                 <com.google.android.material.imageview.ShapeableImageView
@@ -55,32 +53,75 @@
                     android:contentDescription="이미지 입니다."
                     android:scaleType="centerCrop"
                     android:background="#818080"
-                    android:tint="#FFFFFF"
-                    android:visibility="gone"
+                    app:tintMode="screen"
+                    android:visibility="visible"
                     app:shapeAppearanceOverlay="@style/ShapeAppearanceOverlay.App.CornerSize50Percent"
                     app:srcCompat="@drawable/ic_baseline_person_24"
                     app:layout_collapseMode="pin"
                     tools:visibility="visible"
                     />
-                
+
                 <com.google.android.material.button.MaterialButton
-                    android:id="@+id/group_create_toolbar_add_bt"
+                    android:id="@+id/saveBt"
                     style="@style/Widget.Material3.Button.OutlinedButton"
-                    android:layout_width="50dp"
+                    android:layout_width="70dp"
                     android:layout_height="40dp"
                     android:layout_gravity="end"
                     android:layout_marginEnd="16dp"
                     android:padding="5dp"
-                    android:text="만들기"
+                    android:text="보내기"
                     android:textColor="#171717"
                     android:textSize="14sp"
                     android:visibility="gone"
                     app:strokeColor="#9A9A9A"
                     tools:visibility="visible" />
-              
+
             </com.google.android.material.appbar.MaterialToolbar>
         </com.google.android.material.appbar.CollapsingToolbarLayout>
     </com.google.android.material.appbar.AppBarLayout>
+
+
+    <androidx.coordinatorlayout.widget.CoordinatorLayout
+        android:id="@+id/viewFinderP"
+        android:layout_width="match_parent"
+        android:layout_height="240dp"
+        android:layout_marginTop="56dp"
+        android:background="@color/black"
+        android:orientation="horizontal"
+        >
+<!--        android:backgroundTint="@color/black"-->
+
+        <androidx.camera.view.PreviewView
+            android:id="@+id/viewFinder"
+            android:layout_width="match_parent"
+            android:layout_height="240dp"
+            >
+<!--            android:layout_marginTop="56dp"-->
+
+            <!--<Button
+                android:id="@+id/image_capture_button"
+                android:layout_width="60dp"
+                android:layout_height="60dp"
+                android:layout_gravity="bottom|center"
+                android:layout_marginEnd="0dp"
+                android:layout_marginBottom="1dp"
+                android:elevation="2dp"
+                android:text="사진찍기" />-->
+        </androidx.camera.view.PreviewView>
+
+        <Button
+            android:id="@+id/video_capture_button"
+            android:layout_width="wrap_content"
+            android:layout_height="60dp"
+            android:layout_gravity="bottom|right"
+            android:layout_marginStart="0dp"
+            android:layout_marginEnd="30dp"
+            android:layout_marginBottom="1dp"
+            android:backgroundTint="#A34D4D"
+            android:elevation="2dp"
+            android:text="인증시작" />
+    </androidx.coordinatorlayout.widget.CoordinatorLayout>
+
 
     <androidx.core.widget.NestedScrollView
         android:layout_width="match_parent"
@@ -98,11 +139,8 @@
                 android:id="@+id/verse_list"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginStart="1dp"
-                android:layout_marginTop="22dp"
-                android:layout_marginEnd="1dp"
+                android:layout_marginTop="5dp"
                 android:minHeight="400dp"
-                android:paddingHorizontal="25dp"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toTopOf="parent" />
@@ -111,5 +149,16 @@
         </androidx.constraintlayout.widget.ConstraintLayout>
 
     </androidx.core.widget.NestedScrollView>
+
+    <ProgressBar
+        android:id="@+id/progress_bar"
+        android:layout_width="match_parent"
+        android:layout_height="150dp"
+        android:layout_gravity="center|center_horizontal"
+        android:layout_marginVertical="500dp"
+        android:background="#1AFFFFFF"
+        android:visibility="gone" />
+        <!--    android:layout_width="150dp"-->
+        <!--    android:layout_height="150dp"-->
 
 </androidx.coordinatorlayout.widget.CoordinatorLayout>

@@ -7,6 +7,9 @@ import com.google.gson.GsonBuilder;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
+
 import java.util.List;
 import java.util.Map;
 
@@ -43,6 +46,7 @@ public class Http {
     public static final String CHANNEL_ID_LALIGA = "UCTv-XvfzLX3i4IGWAm4sbmA";                             //채널 ID - laliga 공식 채널
     public static final String Q_LALIGA = "highlight";                             //검색어
     public static final String UPLOADS_URL = "http://15.165.174.226/uploads/";                             //검색어
+    public static final String HOST_IP = "15.165.174.226";                             //서버 ip
 
 
     public static Retrofit getRetrofitInstance(String host){
@@ -107,6 +111,17 @@ public class Http {
         //자동로그인시 쉐어드에 유저정보가 있으면 서버에서 그 유저 정보 불러오면서 자동로그인하기
         @GET("home/getAutoLoginInfo")
         Call<LoginDto> getAutoLoginInfo(@Query("user_email") String user_email);
+
+
+        @Multipart
+        @POST("home/userProfileImageSelect")
+        Call<JsonObject> 사용자이미지선택(@PartMap Map<String, RequestBody> userInfo,
+                                     @Part/*("group_main_image")*/ MultipartBody.Part userImage);
+
+        @POST("home/nickModify")
+        Call<JsonObject> 유저닉네임수정( @Query("user_no") int user_no,
+                                  @Query("user_nick") String user_nick
+        );
     }
 
 
@@ -169,12 +184,17 @@ public class Http {
     }
 
 
-    public interface HttpGroup{
+    public interface HttpGroup {
         //모임 만들기
         @Multipart
         @POST("group/createGroup")
         Call<JsonObject> createGroup(@PartMap Map<String, RequestBody> groupInfo,
                                      @Part/*("group_main_image")*/ MultipartBody.Part groupImage);
+
+        @Multipart
+        @POST("group/groupProfileImageSelect")
+        Call<JsonObject> 모임이미지선택(@PartMap Map<String, RequestBody> groupInfo,
+                                  @Part/*("group_main_image")*/ MultipartBody.Part groupImage);
 
         //모임 목록 가져오기
         @Headers("content-type: application/json")
@@ -185,24 +205,24 @@ public class Http {
         //모임 상세 가져오기
         @Headers("content-type: application/json")
         @POST("group/getGroupIn")
-        Call<JsonObject> getGroupIn(@Query("group_no") int currentGroupIn, @Query("sortStateGroupIn") String sortStateGroupIn, @Query("user_no")int userNo);
+        Call<JsonObject> getGroupIn(@Query("group_no") int currentGroupIn, @Query("sortStateGroupIn") String sortStateGroupIn, @Query("user_no") int userNo);
 
         //모임 게시물 목록 가져오기
         @Headers("content-type: application/json")
         @POST("group/getGroupInL")
-        Call<JsonObject> getGroupInL(@Query("group_no")int currentGroupIn, @Query("sortStateGroupIn") String sortStateGroupIn);
+        Call<JsonObject> getGroupInL(@Query("group_no") int currentGroupIn, @Query("sortStateGroupIn") String sortStateGroupIn);
 
         //모임 글쓰기
         @Multipart
         @POST("group/writeGroupIn")
         Call<JsonObject> writeGroupIn(@PartMap Map<String, RequestBody> writeInfo,
-                                     @Part List<MultipartBody.Part> writeImage);
+                                      @Part List<MultipartBody.Part> writeImage);
 
         //모임 글수정
         @Multipart
         @POST("group/updateBoardGroupIn")
         Call<JsonObject> updateBoardGroupIn(@PartMap Map<String, RequestBody> updateInfo,
-                                      @Part List<MultipartBody.Part> updateImage);
+                                            @Part List<MultipartBody.Part> updateImage);
 
         //모임 글삭제
         @Headers("content-type: application/json")
@@ -233,6 +253,115 @@ public class Http {
         @Headers("content-type: application/json")
         @POST("group/clickGboardLike")
         Call<JsonObject> clickGboardLike(@Query("gboard_no") int gboard_no, @Query("user_no") int user_no);
+
+
+        //챌린지만들기총분량수계산
+        @Headers("content-type: application/json")
+        @POST("group/getCountVerseForChalCreate")
+        Call<JsonObject> 챌린지만들기총분량수계산(@Body JsonArray params);
+
+        //챌린지만들기완료하기
+        @Headers("content-type: application/json")
+        @POST("group/createChallenge")
+        Call<JsonObject> 챌린지만들기완료하기(@Body JsonObject params);
+
+        //챌린지목록가져오기
+        @Headers("content-type: application/json")
+        @POST("group/getChallengeList")
+        Call<JsonObject> 챌린지목록가져오기(@Query("user_no") int user_no, @Query("group_no") int group_no);
+
+
+        //챌린지상세목록가져오기
+        @Headers("content-type: application/json")
+        @POST("group/getChallengeDetailList")
+        Call<JsonObject> 챌린지상세목록가져오기(@Query("chal_no") int chal_no, @Query("user_no") int user_no, @Query("group_no") int group_no);
+
+
+        @Headers("content-type: application/json")
+        @POST("group/getChallengeDetailVerseList")
+        Call<JsonObject> 챌린지인증진행하기(@Body JsonObject params);
+
+        @Headers("content-type: application/json")
+        @POST("group/updateChallengeDetailVerse")
+        Call<JsonObject> 챌린지인증체크업데이트(@Body JsonObject params);
+
+        @Multipart
+        @POST("group/createChalDetailVideo")
+        Call<JsonObject> 챌린지인증영상업로드(@PartMap Map<String, RequestBody> groupInfo,
+                                          @Part MultipartBody.Part groupImage);
+
+        @POST("group/createChalDetailVideoFirstWork")
+        Call<JsonObject> 챌린지인증영상업로드사전작업(@Query("chal_detail_no") int chal_detail_no);
+
+        @POST("group/chalLikeClicked")
+        Call<JsonObject> 챌린지상세좋아요클릭(@Body JsonObject params);
+
+
+        //////////////모임 초대 관련
+        @POST("group/isInviteNumber")
+        Call<JsonObject> 모임초대번호있는지확인(@Body JsonObject params);
+
+        @POST("group/memberInviteNumber")
+        Call<JsonObject> 모임초대번호재생성요청(@Body JsonObject params);
+
+        @POST("group/memberInviteLink")
+        Call<JsonObject> 모임초대링크생성(@Body JsonObject params);
+
+
+        @POST("group/memberInviteLinkConfirm")
+        Call<JsonObject> 모임초대링크유효한지확인(@Query("group_no") int group_no,
+                                      @Query("invite_code") String invite_code,
+                                      @Query("user_no") int user_no
+        );
+
+        @POST("group/memberInviteLinkMemberAdd")
+        Call<JsonObject> 모임초대링크로멤버추가하기(@Query("group_no") int group_no,
+                                      @Query("invite_code") String invite_code,
+                                      @Query("user_no") int user_no
+        );
+
+        @POST("group/memberInviteNumberMemberAdd")
+        Call<JsonObject> 모임초대번호로멤버추가하기(/*@Query("group_no") int group_no,*/
+                                      @Query("invite_code") String invite_code,
+                                      @Query("user_no") int user_no
+        );
+        @POST("group/memberInviteNumberVerify")
+        Call<JsonObject> 모임초대번호로멤버추가하기전유효성확인(/*@Query("group_no") int group_no,*/
+                                      @Query("invite_code") String invite_code,
+                                      @Query("user_no") int user_no
+        );
+
+        @POST("group/memberListLoad")
+        Call<JsonObject> 모임멤버목록로드(@Body JsonObject params);
+
+        @POST("group/memberOut")
+        Call<JsonObject> 모임멤버탈퇴(@Body JsonObject params);
+
+        @POST("group/memberFire")
+        Call<JsonObject> 모임멤버추방(@Body JsonObject params);
+
+        @POST("group/memberListSearch")
+        Call<JsonObject> 모임멤버검색(@Body JsonObject params);
+        
+        
+        
+
+        //채팅방 만들기 - 만들기 후 채팅방 정보+참가자목록 가져옴
+        @Multipart
+        @POST("group/chatRoomCreate")
+        Call<JsonObject> 채팅방만들기(@PartMap Map<String, RequestBody> chatRoomInfo,
+                                  @Part/*("group_main_image")*/ MultipartBody.Part chatRoomImage);
+
+         //채팅방 목록 가져오기
+        @POST("group/chatRoomList")
+        Call<JsonObject> 채팅방목록(@Body JsonObject params);
+
+        //채팅방 정보 및 채팅 내역 가져오기 - 채팅방 정보+참가자목록, 채팅 내역 목록+채팅쓴사람
+        @POST("group/chatRoomJoin")
+        Call<JsonObject> 채팅방참가클릭(@Query("chat_room_no") int chat_room_no,
+                                 @Query("user_no") int user_no,
+                                 @Query("group_no") int group_no
+        );
 
 
 

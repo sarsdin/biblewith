@@ -4,12 +4,12 @@ plugins {
 }
 
 android {
-    compileSdk 31
+    compileSdk 32
 
     defaultConfig {
         applicationId "com.example.androidclient"
         minSdk 28
-        targetSdk 31
+        targetSdk 32
         versionCode 1
         versionName "1.0"
 
@@ -94,6 +94,7 @@ dependencies {
     implementation "androidx.core:core-ktx:1.8.0"
     implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk8:$kotlin_version"
     implementation 'org.jetbrains.kotlinx:kotlinx-coroutines-android:1.5.2'
+    implementation "androidx.work:work-runtime-ktx:2.7.1"
 
     // Retrofit 라이브러리
     implementation 'com.squareup.retrofit2:retrofit:2.9.0'
@@ -124,5 +125,25 @@ dependencies {
 
     //이미지 편집
     implementation 'com.burhanrashid52:photoeditor:2.0.0'
+
+    //exoPlayer
+    implementation 'com.google.android.exoplayer:exoplayer-core:2.18.1'
+    implementation 'com.google.android.exoplayer:exoplayer-dash:2.18.1'
+    implementation 'com.google.android.exoplayer:exoplayer-ui:2.18.1'
+
+    //camerax
+    def camerax_version = "1.2.0-alpha04"
+    implementation "androidx.camera:camera-core:1.2.0-alpha04"
+    implementation "androidx.camera:camera-camera2:${camerax_version}"
+    implementation "androidx.camera:camera-lifecycle:${camerax_version}"
+    implementation "androidx.camera:camera-video:${camerax_version}"
+    implementation "androidx.camera:camera-view:${camerax_version}"
+    implementation "androidx.camera:camera-extensions:${camerax_version}"
+
+    //멤버초대 번호입력 view
+    implementation 'com.github.onstonboy:VerificationCodeView:2.0.7'
+
+    //토스트 애니메이션 적용된 것
+    implementation 'com.github.GrenderG:Toasty:1.5.2'
 
 }

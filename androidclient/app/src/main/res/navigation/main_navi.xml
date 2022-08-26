@@ -3,7 +3,7 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/main_navi"
-    app:startDestination="@id/home_fm">
+    app:startDestination="@id/startFm">
 
     <fragment
         android:id="@+id/home_fm"
@@ -18,8 +18,8 @@
     <fragment
         android:id="@+id/group_fm"
         android:name="com.example.androidclient.group.GroupFm"
-        android:label="모임 main"
-        tools:layout="@layout/group_fm" >
+        android:label=""
+        tools:layout="@layout/group_fm">
         <action
             android:id="@+id/action_group_fm_to_groupCreateFm"
             app:destination="@id/groupCreateFm" />
@@ -29,6 +29,9 @@
             app:enterAnim="@anim/nav_default_enter_anim"
             app:exitAnim="@anim/nav_default_exit_anim"
             app:launchSingleTop="true" />
+        <deepLink
+            android:id="@+id/deepLink4"
+            app:uri="biblewith.com/groupfm/{group_no}/c/{invite_code}?dest=group_fm" />
     </fragment>
     <fragment
         android:id="@+id/bibleVerseFm"
@@ -87,6 +90,11 @@
             app:destination="@id/myHighLightFm"
             app:enterAnim="@anim/nav_default_enter_anim"
             app:exitAnim="@anim/nav_default_exit_anim" />
+        <action
+            android:id="@+id/action_more_fm_to_myProfileFm"
+            app:destination="@id/myProfileFm"
+            app:enterAnim="@anim/nav_default_enter_anim"
+            app:exitAnim="@anim/nav_default_exit_anim" />
     </fragment>
 <!--            app:restoreState="true"-->
     <fragment
@@ -123,7 +131,7 @@
         android:id="@+id/groupInFm"
         android:name="com.example.androidclient.group.GroupInFm"
         android:label=""
-        tools:layout="@layout/group_in_fm" >
+        tools:layout="@layout/group_in_fm">
         <action
             android:id="@+id/action_groupInFm_to_groupInWriteFm"
             app:destination="@id/groupInWriteFm" />
@@ -138,9 +146,11 @@
             app:enterAnim="@anim/nav_default_enter_anim"
             app:exitAnim="@anim/nav_default_exit_anim" />
         <action
-            android:id="@+id/action_groupInFm_to_group_in_challenge_fm2"
-            app:destination="@id/group_in_challenge_fm"
-            app:launchSingleTop="true" />
+            android:id="@+id/action_groupInFm_to_group_in_challenge_fm"
+            app:destination="@id/group_in_challenge_fm" />
+        <action
+            android:id="@+id/action_groupInFm_to_groupInInviteFm"
+            app:destination="@id/groupInInviteFm" />
     </fragment>
     <fragment
         android:id="@+id/groupInWriteFm"
@@ -170,7 +180,7 @@
     <fragment
         android:id="@+id/group_in_challenge_fm"
         android:name="com.example.androidclient.group.ChallengeFm"
-        android:label="challenge_fm"
+        android:label=""
         tools:layout="@layout/challenge_fm" >
         <action
             android:id="@+id/action_group_in_challenge_fm_to_challengeCreateFm"
@@ -182,7 +192,7 @@
     <fragment
         android:id="@+id/challengeCreateFm"
         android:name="com.example.androidclient.group.ChallengeCreateFm"
-        android:label="ChallengeCreateFm"
+        android:label=""
         tools:layout="@layout/challenge_create_fm"
         >
         <action
@@ -192,32 +202,140 @@
     <fragment
         android:id="@+id/challengeCreateNextFm"
         android:name="com.example.androidclient.group.ChallengeCreateNextFm"
-        android:label="challenge_create_next_fm"
+        android:label=""
         tools:layout="@layout/challenge_create_next_fm" >
         <action
             android:id="@+id/action_challengeCreateNextFm_to_group_in_challenge_fm"
             app:destination="@id/group_in_challenge_fm"
-            app:popUpTo="@id/group_in_challenge_fm" />
+            app:popUpTo="@id/group_in_challenge_fm"
+            app:popUpToInclusive="true" />
     </fragment>
     <fragment
         android:id="@+id/challengeDetailFm"
         android:name="com.example.androidclient.group.ChallengeDetailFm"
-        android:label="ChallengeDetailFm"
+        android:label=""
         tools:layout="@layout/challenge_detail_fm"/>
     <fragment
         android:id="@+id/challengeDetailListFm"
         android:name="com.example.androidclient.group.ChallengeDetailListFm"
-        android:label="challenge_detail_list_fm"
+        android:label=""
         tools:layout="@layout/challenge_detail_list_fm" >
         <action
             android:id="@+id/action_challengeDetailListFm_to_challengeDetailFm"
             app:destination="@id/challengeDetailFm" />
+        <action
+            android:id="@+id/action_challengeDetailListFm_to_challengeDetailAfterFm"
+            app:destination="@id/challengeDetailAfterFm" />
     </fragment>
     <action
         android:id="@+id/action_global_groupInFm"
         app:destination="@id/groupInFm"
         app:launchSingleTop="true"
         app:popUpTo="@id/groupInFm" />
+    <fragment
+        android:id="@+id/challengeDetailAfterFm"
+        android:name="com.example.androidclient.group.ChallengeDetailAfterFm"
+        android:label=""
+        tools:layout="@layout/challenge_detail_after_fm"/>
+    <fragment
+        android:id="@+id/groupInMemberFm"
+        android:name="com.example.androidclient.group.GroupInMemberFm"
+        android:label=""
+        tools:layout="@layout/group_in_member_fm">
+    </fragment>
+    <action android:id="@+id/action_global_groupInMemberFm"
+        app:destination="@id/groupInMemberFm" />
+    <fragment
+        android:id="@+id/myProfileFm"
+        android:name="com.example.androidclient.moreinfo.MyProfileFm"
+        android:label="내정보"
+        tools:layout="@layout/my_profile_fm" >
+        <action
+            android:id="@+id/action_myProfileFm_to_groupInviteVerifyFm"
+            app:destination="@id/groupInviteVerifyFm" />
+    </fragment>
+    <action android:id="@+id/action_global_groupChatFm" app:destination="@id/groupChatFm" />
+    <fragment
+        android:id="@+id/groupInInviteFm"
+        android:name="com.example.androidclient.group.GroupInInviteFm"
+        android:label=""
+        tools:layout="@layout/group_in_invite_fm" />
+    <fragment
+        android:id="@+id/groupInviteVerifyFm"
+        android:name="com.example.androidclient.group.GroupInviteVerifyFm"
+        android:label=""
+        tools:layout="@layout/group_invite_verify_fm" />
+    <action
+        android:id="@+id/action_global_groupInInviteFm"
+        app:destination="@id/groupInInviteFm"
+        app:enterAnim="@anim/nav_default_enter_anim"
+        app:exitAnim="@anim/nav_default_exit_anim" />
+    <fragment
+        android:id="@+id/startFm"
+        android:name="com.example.androidclient.home.StartFm"
+        android:label="StartFm">
+        <action
+            android:id="@+id/action_startFm_to_home_fm"
+            app:destination="@id/home_fm" />
+        <deepLink
+            android:id="@+id/deepLink"
+            app:uri="biblewith.com/invite/{group_no}/c/{invite_code}" />
+    </fragment>
+    <action android:id="@+id/action_global_group_fm"
+        app:destination="@id/group_fm" />
+    <dialog
+        android:id="@+id/nickModifyDialogFm"
+        android:name="com.example.androidclient.moreinfo.NickModifyDialogFm"
+        android:label="NickModifyDialogFm" />
+    <action
+        android:id="@+id/action_global_nickModifyDialogFm"
+        app:destination="@id/nickModifyDialogFm"
+        app:enterAnim="@anim/nav_default_enter_anim"
+        app:exitAnim="@anim/nav_default_exit_anim"
+        app:popEnterAnim="@anim/nav_default_pop_enter_anim"
+        app:popExitAnim="@anim/nav_default_pop_exit_anim" />
+    <dialog
+        android:id="@+id/groupInChatCreateDialogFm"
+        android:name="com.example.androidclient.group.GroupInChatCreateDialogFm"
+        android:label="GroupInChatCreateDialogFm"
+        tools:layout="@layout/group_in_chat_create_dialog_fm"/>
+    <fragment
+        android:id="@+id/groupInChatFm"
+        android:name="com.example.androidclient.group.GroupInChatFm"
+        android:label="group_in_chat_fm"
+        tools:layout="@layout/group_in_chat_fm" >
+        <action
+            android:id="@+id/action_groupInChatFm_to_groupInChatCreateDialogFm"
+            app:destination="@id/groupInChatCreateDialogFm"
+            app:enterAnim="@anim/nav_default_enter_anim"
+            app:exitAnim="@anim/nav_default_exit_anim" />
+    </fragment>
+    <action
+        android:id="@+id/action_global_groupInChatFm"
+        app:destination="@id/groupInChatFm"
+        app:enterAnim="@anim/nav_default_enter_anim"
+        app:exitAnim="@anim/nav_default_exit_anim" />
+    <action android:id="@+id/action_global_group_in_challenge_fm"
+        app:destination="@id/group_in_challenge_fm"/>
+    <fragment
+        android:id="@+id/groupChatInnerFm"
+        android:name="com.example.androidclient.group.GroupChatInnerFm"
+        android:label="GroupChatInnerFm"
+        tools:layout="@layout/group_chat_inner_fm"/>
+    <action
+        android:id="@+id/action_global_groupChatInnerFm"
+        app:destination="@id/groupChatInnerFm"
+        app:enterAnim="@anim/nav_default_enter_anim"
+        app:exitAnim="@anim/nav_default_exit_anim"
+        app:popEnterAnim="@anim/nav_default_pop_enter_anim"
+        app:popExitAnim="@anim/nav_default_pop_exit_anim" />
+    <action
+        android:id="@+id/action_global_myProfileFm"
+        app:destination="@id/myProfileFm"
+        app:enterAnim="@anim/nav_default_enter_anim"
+        app:exitAnim="@anim/nav_default_exit_anim"
+        app:popEnterAnim="@anim/nav_default_pop_enter_anim"
+        app:popExitAnim="@anim/nav_default_pop_exit_anim" />
 
 
 </navigation>

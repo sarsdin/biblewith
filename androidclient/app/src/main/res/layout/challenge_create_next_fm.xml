@@ -51,10 +51,10 @@
                 android:layout_gravity="end"
                 android:layout_marginEnd="16dp"
                 android:padding="5dp"
-                android:text="완료"
-                android:textColor="#171717"
                 android:textSize="14sp"
-                android:visibility="visible"
+                android:text="완료"
+                android:visibility="gone"
+                android:textColor="#171717"
                 app:strokeColor="#9A9A9A"
                 tools:visibility="visible" />
 
@@ -75,36 +75,48 @@
 
             <com.google.android.material.button.MaterialButton
                 android:id="@+id/verse_bt"
-                style="@android:style/Widget.Material.Button.Borderless.Small"
+                style="@style/Widget.MaterialComponents.Button.OutlinedButton"
                 android:layout_width="120dp"
                 android:layout_height="wrap_content"
-                android:layout_marginStart="88dp"
-                android:layout_marginTop="60dp"
+                android:layout_marginStart="56dp"
+                android:layout_marginTop="32dp"
+                android:backgroundTint="@color/white"
                 android:checkable="true"
-                android:padding="7dp"
+                android:padding="10dp"
                 android:text="분량으로 계산"
-                android:textColor="#000000"
+                android:textColor="#171717"
+                android:textSize="14sp"
+                app:cornerRadius="10dp"
+                app:layout_constraintEnd_toStartOf="@+id/day_bt"
                 app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toTopOf="parent" />
+                app:layout_constraintTop_toTopOf="parent"
+                app:strokeColor="#9A9A9A"
+                app:strokeWidth="2dp" />
 
             <com.google.android.material.button.MaterialButton
                 android:id="@+id/day_bt"
-                style="@android:style/Widget.Material.Button.Borderless.Small"
+                style="@style/Widget.MaterialComponents.Button.OutlinedButton"
                 android:layout_width="120dp"
                 android:layout_height="wrap_content"
-                android:layout_marginStart="60dp"
+                android:layout_marginEnd="56dp"
+                android:backgroundTint="@color/white"
                 android:checkable="true"
-                android:padding="7dp"
+                android:padding="10dp"
                 android:text="일수로 계산"
-                android:textColor="#000000"
+                android:textColor="#171717"
+                android:textSize="14sp"
+                app:cornerRadius="10dp"
+                app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toEndOf="@+id/verse_bt"
-                app:layout_constraintTop_toTopOf="@+id/verse_bt" />
+                app:layout_constraintTop_toTopOf="@+id/verse_bt"
+                app:strokeColor="#9A9A9A"
+                app:strokeWidth="2dp" />
 
             <com.google.android.material.textview.MaterialTextView
                 android:id="@+id/select_list_tv"
                 android:layout_width="300dp"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="132dp"
+                android:layout_marginTop="104dp"
                 android:text="선택한 목록: 1.창세기, 2.에레미아, 3.역대사, 4.잠언, 5.시편"
                 android:textSize="16sp"
                 app:layout_constraintEnd_toEndOf="parent"
@@ -117,11 +129,12 @@
                 android:layout_height="wrap_content"
                 android:visibility="gone"
                 app:constraint_referenced_ids="select_info_tv,seekBar_verse,select_number_tv,select_total_tv,select_info_tv3,select_expect_tv,select_duration_tv"
+                tools:visibility="gone"
                 />
 
             <com.google.android.material.textview.MaterialTextView
                 android:id="@+id/select_info_tv"
-                android:layout_width="300dp"
+                android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="32dp"
                 android:text="하루에 진행할 구절 수를 선택해주세요."
@@ -206,13 +219,14 @@
                 android:id="@+id/day_group"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:visibility="visible"
+                android:visibility="gone"
                 app:constraint_referenced_ids="create_day_info_tv,seekBar_day,create_day_number_tv,create_day_total_verse_tv,create_day_info_tv3,create_day_expect_tv,create_day_duration_tv"
+                tools:visibility="visible"
                 />
             
             <com.google.android.material.textview.MaterialTextView
                 android:id="@+id/create_day_info_tv"
-                android:layout_width="300dp"
+                android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="32dp"
                 android:text="몇일 동안 진행할 지 선택해주세요."
@@ -313,4 +327,10 @@
         app:backgroundTint="#4DB6AC"
         app:rippleColor="#009688" />
 
+    <ProgressBar
+        android:id="@+id/progress_bar"
+        android:layout_width="150dp"
+        android:layout_height="150dp"
+        android:visibility="gone"
+        android:layout_gravity="center|center_horizontal" />
 </androidx.coordinatorlayout.widget.CoordinatorLayout>

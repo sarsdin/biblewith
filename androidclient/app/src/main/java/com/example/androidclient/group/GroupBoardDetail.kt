@@ -17,6 +17,7 @@ import androidx.fragment.app.Fragment
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.Navigation
+import androidx.navigation.fragment.findNavController
 import androidx.navigation.ui.AppBarConfiguration
 import androidx.navigation.ui.NavigationUI
 import androidx.recyclerview.widget.LinearLayoutManager
@@ -288,6 +289,15 @@ class GroupBoardDetail : Fragment() {
         }
         binding.gboardDetailFmLLHitBt.text = if (!gboardInfo.get("gboard_hit").isJsonNull) gboardInfo.get("gboard_hit").asString else 0.toString()
         binding.gboardDetailFmLLReplyEaBt.text = groupVm.gboardReplyL.size().toString()
+
+
+        //상단바 프로필 이미지 클릭시
+        binding.gboardDetailToolbarIv.setOnClickListener {
+            findNavController().navigate(R.id.action_global_myProfileFm)
+        }
+        //상단바 프로필 이미지 로딩
+        ImageHelper.getImageUsingGlide(requireActivity(), MyApp.userInfo.user_image, binding.gboardDetailToolbarIv)
+
 
 
     }

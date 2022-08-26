@@ -1,0 +1,171 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.coordinatorlayout.widget.CoordinatorLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context=".group.GroupInviteVerifyFm"
+>
+    <com.google.android.material.appbar.AppBarLayout
+        android:id="@+id/appbar"
+        android:layout_width="match_parent"
+        android:layout_height="?attr/actionBarSize"
+        android:background="#00FFFFFF"
+        app:elevation="1dp">
+
+        <com.google.android.material.appbar.MaterialToolbar
+            android:id="@+id/toolbar"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:background="#FFFFFF"
+        >
+            <com.google.android.material.textview.MaterialTextView
+                android:id="@+id/toolbar_tv"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:fontFamily="monospace"
+                android:text="초대 확인"
+                android:textSize="20sp"
+                android:textStyle="bold" />
+
+            <com.google.android.material.imageview.ShapeableImageView
+                android:id="@+id/toolbar_iv"
+                android:layout_width="20dp"
+                android:layout_height="20dp"
+                android:layout_marginEnd="15dp"
+                android:layout_gravity="end"
+                android:contentDescription="이미지 입니다."
+                android:scaleType="centerCrop"
+                android:background="#818080"
+                app:tintMode="screen"
+                android:visibility="gone"
+                app:shapeAppearanceOverlay="@style/ShapeAppearanceOverlay.App.CornerSize50Percent"
+                app:srcCompat="@drawable/ic_baseline_person_24"
+                />
+
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/toolbar_add_bt"
+                style="@style/Widget.Material3.Button.OutlinedButton"
+                android:layout_width="wrap_content"
+                android:layout_height="40dp"
+                android:layout_gravity="end"
+                android:layout_marginEnd="16dp"
+                android:padding="5dp"
+                android:text="초대하기"
+                android:textColor="#171717"
+                android:textSize="14sp"
+                android:visibility="gone"
+                app:strokeColor="#9A9A9A"
+                tools:visibility="visible" />
+
+        </com.google.android.material.appbar.MaterialToolbar>
+    </com.google.android.material.appbar.AppBarLayout>
+
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:layout_width="match_parent"
+        android:layout_height="700dp"
+        android:layout_marginTop="?attr/actionBarSize">
+
+        <!-- <com.google.android.material.textfield.TextInputLayout
+            android:id="@+id/text_ly"
+            android:layout_width="0dp"
+            android:layout_height="60dp"
+            android:hint="멤버 검색"
+            app:boxBackgroundMode="filled"
+            app:errorEnabled="false"
+
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent">
+            &lt;!&ndash;        app:counterEnabled="true"&ndash;&gt;
+            &lt;!&ndash;        app:counterMaxLength="40"&ndash;&gt;
+
+            <androidx.constraintlayout.utils.widget.ImageFilterView
+                android:layout_width="30dp"
+                android:layout_height="30dp" />
+
+            <com.google.android.material.textfield.TextInputEditText
+                android:id="@+id/text_input"
+                android:layout_width="match_parent"
+                android:layout_height="60dp"
+                android:layout_marginStart="1dp"
+                android:inputType="textNoSuggestions" />
+        </com.google.android.material.textfield.TextInputLayout>-->
+
+        <com.google.android.material.textview.MaterialTextView
+            android:id="@+id/group_name_tv"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="24dp"
+            android:text="공유 받은 비밀번호를 이용해 모임에 참가해 보세요."
+            android:textColor="#232323"
+            android:textSize="18sp"
+            android:textStyle="bold"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
+
+        <com.google.android.material.textview.MaterialTextView
+            android:id="@+id/tv1"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="8dp"
+            android:text="참가 비밀번호를 입력해주세요."
+            android:textColor="#232323"
+            android:textSize="16sp"
+            app:layout_constraintEnd_toEndOf="@+id/group_name_tv"
+            app:layout_constraintStart_toStartOf="@+id/group_name_tv"
+            app:layout_constraintTop_toBottomOf="@+id/group_name_tv" />
+
+        <com.ccc.vcv.VerificationCodeView
+            android:id="@+id/verificationView"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="32dp"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/tv1"
+            app:vcv_cursorColor="#B7BCD6"
+            app:vcv_inputHeight="@dimen/dp_56"
+            app:vcv_inputWidth="@dimen/dp_50"
+            app:vcv_lineColor="#B7BCD6"
+            app:vcv_radius="@dimen/dp_8"
+            app:vcv_spacingItem="@dimen/dp_10"
+            app:vcv_style="box"
+            app:vcv_textColor="@android:color/black"
+            app:vcv_textSize="@dimen/sp_24" />
+
+        <com.google.android.material.card.MaterialCardView
+            android:id="@+id/verify_card"
+            android:layout_width="400dp"
+            android:layout_height="70dp"
+            android:layout_marginTop="32dp"
+            android:backgroundTint="#AAAAAA"
+            android:clickable="false"
+            app:cardCornerRadius="7dp"
+            app:cardElevation="1dp"
+            app:cardUseCompatPadding="true"
+            app:contentPaddingRight="15dp"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/verificationView"
+            app:strokeColor="#B1B0B0"
+            app:strokeWidth="1dp">
+
+            <com.google.android.material.textview.MaterialTextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center|center_horizontal"
+                android:text="참가 번호 확인"
+                android:textColor="#FFFFFF"
+                android:textSize="25sp"
+                android:textStyle="bold" />
+
+        </com.google.android.material.card.MaterialCardView>
+    </androidx.constraintlayout.widget.ConstraintLayout>
+
+
+
+</androidx.coordinatorlayout.widget.CoordinatorLayout>

@@ -67,7 +67,7 @@ class GroupCreateFm : Fragment() {
     //랜덤이미지 api
     val url = "https://random.responsiveimages.io/v1/docs"
     val url2 = "https://picsum.photos/200/300"
-    var groupMainImageUri : Uri? = null  //그룹 메인 이미지픽커로 선택한 파일의 Uri
+    var groupMainImageUri : Uri? = null  //모임 메인 이미지픽커로 선택한 파일의 Uri
 
     lateinit var startForProfileImageResult : ActivityResultLauncher<Intent>
 

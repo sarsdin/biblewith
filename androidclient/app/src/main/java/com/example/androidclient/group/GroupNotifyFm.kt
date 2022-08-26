@@ -9,10 +9,13 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.lifecycle.ViewModelProvider
+import androidx.navigation.fragment.findNavController
+import com.example.androidclient.MyApp
 import com.example.androidclient.R
 import com.example.androidclient.databinding.GroupListFmBinding
 import com.example.androidclient.databinding.GroupNotifyFmBinding
 import com.example.androidclient.group.placeholder.PlaceholderContent
+import com.example.androidclient.util.ImageHelper
 
 class GroupNotifyFm : Fragment() {
     lateinit var groupVm: GroupVm
@@ -55,6 +58,17 @@ class GroupNotifyFm : Fragment() {
     }
 
 
+    override fun onResume() {
+        super.onResume()
+
+        //상단바 프로필 이미지 클릭시
+//        binding.homeToolbarIv.setOnClickListener {
+//            findNavController().navigate(R.id.action_global_myProfileFm)
+//        }
+//        //상단바 프로필 이미지 로딩
+//        ImageHelper.getImageUsingGlide(requireActivity(), MyApp.userInfo.user_image, binding.homeToolbarIv)
+
+    }
 
     override fun onDestroyView() {
         super.onDestroyView()

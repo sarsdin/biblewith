@@ -1,0 +1,75 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content">
+
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:id="@+id/alim_layout"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:visibility="visible"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.0"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        tools:visibility="visible">
+
+        <com.google.android.material.card.MaterialCardView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="16dp"
+            android:layout_marginBottom="16dp"
+            android:background="#48FB6C6C"
+            android:backgroundTint="#E8EAF6"
+            app:cardCornerRadius="10dp"
+            app:cardElevation="0dp"
+            app:contentPaddingLeft="14dp"
+            app:contentPaddingRight="14dp"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            app:strokeColor="#B1B0B0"
+            app:strokeWidth="0dp">
+            <!--        app:cardUseCompatPadding="true"-->
+            <!--        app:contentPaddingTop="4dp"-->
+            <!--        app:contentPaddingBottom="4dp"-->
+
+            <!--        android:background="#43A047"-->
+            <!--        android:tint="#FFFFFF"-->
+<!--            <com.google.android.material.imageview.ShapeableImageView-->
+<!--                android:layout_width="wrap_content"-->
+<!--                android:layout_height="wrap_content"-->
+<!--                android:layout_gravity="center|start"-->
+<!--                android:contentDescription="메인 이미지"-->
+<!--                android:maxWidth="250dp"-->
+<!--                android:maxHeight="300dp"-->
+<!--                android:paddingVertical="7dp"-->
+<!--                android:scaleType="fitXY"-->
+<!--                app:srcCompat="@drawable/ic_baseline_calendar_month_24"-->
+<!--                app:tint="#8C8C8C"-->
+<!--                app:tintMode="src_in" />-->
+            <!--                android:visibility="gone"-->
+
+            <com.google.android.material.textview.MaterialTextView
+                android:id="@+id/alim_delimiter_tv"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center_vertical"
+                android:maxWidth="250dp"
+                android:paddingVertical="5dp"
+                android:text="웃끼님이 접속하셨습니다."
+                android:textColor="#232323"
+                android:textSize="16sp" />
+<!--                android:layout_marginStart="30dp"-->
+
+
+        </com.google.android.material.card.MaterialCardView>
+    </androidx.constraintlayout.widget.ConstraintLayout>
+
+
+</androidx.constraintlayout.widget.ConstraintLayout>

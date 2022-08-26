@@ -1,5 +1,6 @@
 <resources>
-    <string name="app_name">androidclient</string>
+<!--    <string name="app_name">androidclient</string>-->
+    <string name="app_name">성경with</string>
     <!-- Strings related to login -->
     <string name="prompt_email">Email</string>
     <string name="prompt_password">Password</string>
@@ -19,4 +20,9 @@
     <string name="group_name_sort">모임이름순 ▼</string>
     <string name="group_member_sort">멤버 순 ▼</string>
     <string name="group_board_sort">게시글 순 ▼</string>
+    <string name="member_name_sort">이름 순 ▼</string>
+    <string name="member_member_sort">가입 순 ▼</string>
+    <string name="media_url_mp4">https://storage.googleapis.com/exoplayer-test-media-0/BigBuckBunny_320x180.mp4</string>
+    <string name="media_url_dash"><![CDATA[https://www.youtube.com/api/manifest/dash/id/bf5bb2419360daf1/source/youtube?as=fmp4_audio_clear,fmp4_sd_hd_clear&sparams=ip,ipbits,expire,source,id,as&ip=0.0.0.0&ipbits=0&expire=19000000000&signature=51AF5F39AB0CEC3E5497CD9C900EBFEAECCCB5C7.8506521BFC350652163895D4C26DEE124209AA9E&key=ik0]]></string>
+    <string name="media_url_dash2"><![CDATA[http://15.165.174.226/uploads/20220803/1659464813_820b2e37dc05132dd8b6mpd.mpd]]></string>
 </resources>

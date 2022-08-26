@@ -33,10 +33,10 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:fontFamily="monospace"
-                android:text="모임명"
-                android:textColor="@color/white"
-                android:textSize="20sp"
+                android:text="모임명 - 사용자"
+                android:textSize="16sp"
                 android:textStyle="bold" />
+<!--                android:textColor="@color/colorSecondaryText"-->
 
             <com.google.android.material.imageview.ShapeableImageView
                 android:id="@+id/chal_toolbar_iv"
@@ -47,7 +47,7 @@
                 android:background="#818080"
                 android:contentDescription="성경 사진 입니다."
                 android:scaleType="centerCrop"
-                android:tint="#FFFFFF"
+                app:tintMode="screen"
                 app:layout_collapseMode="pin"
                 app:shapeAppearanceOverlay="@style/ShapeAppearanceOverlay.App.CornerSize50Percent"
                 app:srcCompat="@drawable/ic_baseline_person_24" />
@@ -139,7 +139,7 @@
                     android:layout_height="wrap_content"
                     android:layout_marginStart="38dp"
                     android:padding="7dp"
-                    android:text="달성횟수 2회"
+                    android:text="달성횟수 0회"
                     android:textColor="#1B1B1B"
                     android:textSize="12sp"
                     app:layout_constraintBottom_toBottomOf="@+id/chal_summary_member_tv"
@@ -171,7 +171,7 @@
             <androidx.recyclerview.widget.RecyclerView
                 android:id="@+id/chal_list"
                 android:layout_width="match_parent"
-                android:layout_height="match_parent"
+                android:layout_height="wrap_content"
                 android:layout_marginTop="5dp"
                 android:paddingBottom="350dp"
                 app:layoutManager="LinearLayoutManager" />

@@ -177,7 +177,7 @@ public class JoinFm extends Fragment {
             public void run() {
                 super.run();
 
-                GmailSender gMailSender = new GmailSender("sjeys14@gmail.com", "qwkmglnfzgfgmcvt");
+                GmailSender gMailSender = new GmailSender("sjeys14@gmail.com", "tjhuubvtoqmnthsd");
                 //GMailSender.sendMail(제목, 본문내용, 받는사람);
                 try {
                     gMailSender.sendMail(subject, emailbody + gMailSender.getEmailCode(), recipient );

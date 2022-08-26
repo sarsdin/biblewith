@@ -1,24 +1,38 @@
 package com.example.androidclient.group
 
+import android.content.Intent
+import android.net.Uri
 import android.os.Bundle
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.Toast
+import androidx.appcompat.app.AlertDialog
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.Navigation
+import androidx.navigation.fragment.findNavController
 import androidx.navigation.ui.AppBarConfiguration
 import androidx.navigation.ui.setupWithNavController
 import androidx.recyclerview.widget.RecyclerView
+import com.example.androidclient.MyApp
 import com.example.androidclient.R
 import com.example.androidclient.databinding.GroupFmBinding
 import com.example.androidclient.home.MainActivity
+import com.example.androidclient.util.Http
+import com.example.androidclient.util.ImageHelper
 import com.google.android.material.tabs.TabLayout
 import com.google.android.material.tabs.TabLayoutMediator
+import com.google.gson.JsonObject
+import retrofit2.Call
+import retrofit2.Callback
+import retrofit2.Response
 
 
 class GroupFm : Fragment() {
+
+    val tagName = "[GroupFm]"
     lateinit var groupVm: GroupVm
     lateinit var groupVpa: GroupFmVpa
 //    lateinit var rva: GroupRva
@@ -116,6 +130,9 @@ class GroupFm : Fragment() {
         })
 
 
+
+
+
     }
 
     override fun onResume() {
@@ -124,7 +141,79 @@ class GroupFm : Fragment() {
         //스크롤 이벤트로 감춰진 바텀네비게이션 다시 보이게(이벤트의 의도된작동인지모르는데 네비가 사라짐. 이때 이페이지로 복귀했을때 첫화면에서는 보여야하므로)
         (requireActivity() as MainActivity).binding.mainBottomNav.visibility = View.VISIBLE
 
+        //초대 링크 처리 부분 - MainActivity(onCreate)에서 전달받은 번들의 정보를 이용해 해당 모임을 보여주고 초대에 응할건지 물어보는 dialog를 띄운다
+        arguments?.let {
+            val group_no = arguments?.get("group_no").toString().toInt()
+            val invite_code = arguments?.get("invite_code").toString()
+            Log.e(tagName, "아규먼트 확인 : $group_no, $invite_code")
+
+            val retrofit = Http.getRetrofitInstance(Http.HOST_IP)
+            val httpGroup = retrofit.create(Http.HttpGroup::class.java) // 통신 구현체 생성(미리 보낼 쿼리스트링 설정해두는거)
+
+            val call = httpGroup.모임초대링크유효한지확인(group_no, invite_code, MyApp.userInfo.user_no)
+            call.enqueue(object : Callback<JsonObject?> {
+                override fun onResponse(call: Call<JsonObject?>, response: Response<JsonObject?>) {
+                    if (response.isSuccessful) {
+                        val res = response.body()!!
+                        if(!res.get("result").isJsonNull){
+                            Log.e(tagName, "모임초대링크유효한지확인 onResponse: $res")
+
+                            //다이얼로그에 참가를 클릭하면 초대 링크에 해당하는 모임의 멤버로 사용자를 추가한다
+                            AlertDialog.Builder(requireActivity())
+                                .setTitle("${res.get("result").asJsonObject.get("group_info").asJsonObject.get("group_name").asString}")
+                                .setMessage("해당 모임에 참가하시겠습니까?")
+                                .setNeutralButton("초대거부") { dialogInterface, i ->
+                                    it.clear() //초대 거부 시 초대장 번들 제거하기 - 다시 실행되지 않도록..
+                                    arguments = null
+                                }
+                                .setPositiveButton("참가하기") { dialogInterface, i ->
+                                    //참가하면 서버와 통신하여 멤버로 추가!
+                                    val call = httpGroup.모임초대링크로멤버추가하기(group_no, invite_code, MyApp.userInfo.user_no)
+                                    call.enqueue(object : Callback<JsonObject?> {
+                                        override fun onResponse(call: Call<JsonObject?>, response: Response<JsonObject?>) {
+                                            if (response.isSuccessful) {
+                                                val res = response.body()!!
+                                                if(!res.get("result").isJsonNull){
+//                                                    val resObj = res.get("result").asJsonObject
+                                                    Toast.makeText(requireActivity(),"모임에 참가했습니다.",Toast.LENGTH_SHORT).show()
+//                                                    (pageFmList.get(0) as GroupListFm).rva.notifyDataSetChanged() // 중요!!!
+                                                    groupVm.모임목록가져오기(MyApp.userInfo.user_no, true) //옵져버가 있어서 GroupListFm은 알아서 갱신될것!
+                                                }
+                                                Log.e(tagName, "모임초대링크로멤버추가하기 onResponse: $res")
+                                            }
+                                        }
+                                        override fun onFailure(call: Call<JsonObject?>, t: Throwable) {
+                                            Log.e(tagName, "모임초대링크로멤버추가하기 onFailure: " + t.message)
+                                        }
+                                    })
+                                }
+                                .setCancelable(false)
+                                .create()
+                                .show()
+                        } else {
+                            Toast.makeText(requireActivity(),"유효하지않은 초대링크입니다.",Toast.LENGTH_LONG).show()
+                        }
+
+                    }
+                }
+                override fun onFailure(call: Call<JsonObject?>, t: Throwable) {
+                    Log.e(tagName, "모임초대링크유효한지확인 onFailure: " + t.message)
+                }
+            })
+        }
+
+
+
+        //상단바 프로필 이미지 클릭시
+        binding.groupMainToolbarIv.setOnClickListener {
+            findNavController().navigate(R.id.action_global_myProfileFm)
+        }
+        //상단바 프로필 이미지 로딩
+        ImageHelper.getImageUsingGlide(requireActivity(), MyApp.userInfo.user_image, binding.groupMainToolbarIv)
+
     }
+
+
 
     override fun onPause() {
         super.onPause()

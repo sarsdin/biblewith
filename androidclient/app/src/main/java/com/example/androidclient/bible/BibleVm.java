@@ -214,7 +214,7 @@ public class BibleVm extends ViewModel {
                     }
                     //책이름 목록에 받은 정보 업데이트
                     bookL = res;
-                Log.e("[BibleVm]", "성경책목록가져오기 tmpL: "+ tmpL );
+//                Log.e("[BibleVm]", "성경책목록가져오기 tmpL: "+ tmpL );
                     bookLForSearch = tmpL;
                     liveBookL.setValue(bookL);
 //                    Log.e("[BibleVm]", "성경책목록가져오기 onResponse: "+ res );

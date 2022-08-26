@@ -64,7 +64,7 @@
                     android:contentDescription="성경 사진 입니다."
                     android:scaleType="centerCrop"
                     android:background="#818080"
-                    android:tint="#FFFFFF"
+                    app:tintMode="screen"
                     app:shapeAppearanceOverlay="@style/ShapeAppearanceOverlay.App.CornerSize50Percent"
                     app:srcCompat="@drawable/ic_baseline_person_24"
                     app:layout_collapseMode="pin"
