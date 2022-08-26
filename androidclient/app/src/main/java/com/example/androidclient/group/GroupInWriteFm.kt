@@ -205,8 +205,11 @@ class GroupInWriteFm : Fragment() {
             val fileHelper = FileHelper()
             if(groupWriteImageUriL != null){
                 //FileHelper 에서 uri를 이용해 MultipartBody.Part 객체를 생성해서 가져옴
-                writeImage =
-                    fileHelper.getPartBodyFromUriList(requireContext(), groupWriteImageUriL!!, "gboard_image[]") as MutableList<MultipartBody.Part>
+                //formData를 보낼때 여러개의 파일이면 key이름뒤에 [] 배열표시를 꼭 붙여야 서버에서 정상 인식한다. 주의!
+                writeImage = fileHelper.getPartBodyFromUriList(
+                    requireContext(),
+                    groupWriteImageUriL!!,
+                    "gboard_image[]") as MutableList<MultipartBody.Part>
 
                 //리졸버를 이용해 이미지픽커로 받은 사진 파일의 uri를 인풋스트림에 넣고, 또 그것을 bitmap factory를 이용해 bitmap을 생성함.
                 //비트맵을 압축함. 그리고, 압축한 것을 바이트배열아웃스트림에 전달함. 그 후 multipart용 requestBody를 byteArrayOutS에서 얻어온 파일을 포함시켜 생성.

@@ -70,8 +70,8 @@ class ChallengeFm : Fragment() {
                 Navigation.findNavController(view).navigate(R.id.action_global_groupInFm)
             } else if (it.itemId == R.id.groupInMemberFm){
                 Navigation.findNavController(view).navigate(R.id.action_global_groupInMemberFm)
-            } else if(it.itemId == R.id.groupChatFm){
-                Navigation.findNavController(view).navigate(R.id.action_global_groupChatFm)
+            } else if(it.itemId == R.id.groupInChatFm){
+                Navigation.findNavController(view).navigate(R.id.action_global_groupInChatFm)
             }
             return@setOnItemSelectedListener false
         }
@@ -118,6 +118,14 @@ class ChallengeFm : Fragment() {
         super.onResume()
         //진행 챌린지 현황 개수
         binding.chalSummaryNameTvEa.text = "${groupVm.chalL.size()}개"
+
+        //상단바 프로필 이미지 클릭시
+        binding.chalToolbarIv.setOnClickListener {
+            findNavController().navigate(com.example.androidclient.R.id.action_global_myProfileFm)
+        }
+        //상단바 프로필 이미지 로딩
+        ImageHelper.getImageUsingGlide(requireActivity(), MyApp.userInfo.user_image, binding.chalToolbarIv)
+
     }
 
     override fun onDestroyView() {

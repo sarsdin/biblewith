@@ -98,13 +98,16 @@ class FileHelper {
         return res
     }
 
+    //모임의 글수정 화면에서 사용한다. 글수정 완료 버튼을 클릭시 - 업데이트할 자료들(이미지,글관련 데이터들)를
      suspend fun 업데이트용멀티파트리스트만들기(context: Context, uriL: List<Uri>?, formDataKeyName: String): List<MultipartBody.Part> {
 //        CoroutineScope(Dispatchers.Main).launch {
-        val res = mutableListOf<MultipartBody.Part>()
-        val realPathList = mutableListOf<String>()
+        val res = mutableListOf<MultipartBody.Part>() //실질적으로 리턴할 멀티파트 리스트
+        val realPathList = mutableListOf<String>() //디버깅용으로써 제대로 절대경로를 얻었는지 확인하기 위한 용도임. 다른 용도없음.
         //각 Uri 에 담긴 path 를 이용해 실제 경로를 얻고, 그경로의 파일객체를 만들고, 요청용 바디에 담아서 멀티파트 객체로 랩핑한다. 그 각 객체는 리스트에 반복적으로 추가됨.
             Log.e("[FileHelper]", "list: $uriL")
             uriL?.forEachIndexed { index, it ->
+                //분기점: 인터넷을 통해 받아온 이미지(http://시작 Uri) or 로컬에 존재하는 파일(content://, document.image: Uri) << 이 두가지 Uri 형식이 존재
+                //각 분기에 따라 수행할 메소드 명령들이 다름
                 if(it.toString().contains("http://")){ //it.path 는 http://주소 를 제외한 uri의 경로만 리턴하니 주의! 삽질했음..
 
                     //코루틴을 비동기 콜백안의 resumeWith 실행전까지 잠시 멈춘다.
@@ -117,21 +120,18 @@ class FileHelper {
                         val loaded =  requestManager.asBitmap().load(it)
                             .diskCacheStrategy(DiskCacheStrategy.NONE) //disk cache 전략을 off
                             .skipMemoryCache(true)
-                        //받은 비트맵을 requestBody 객체로 만듦
+                            //받은 비트맵을 requestBody 객체로 만듦
                             .into(object: CustomTarget<Bitmap>(){
                             override fun onResourceReady(resource: Bitmap, transition: Transition<in Bitmap>?) {
                                 val requestBody = bitmapToRequestBody(resource)
-                                //위의 바디를 파트로 만들고, 임시 멀티파트를 담을 초기화 전용 리스트에 추가
-                                /*gboardImageTmpInitL*/
-    //                        "gboard_image",
-    //                        it2.asJsonObject.get("original_file_name").asString ?:"$index ${System.currentTimeMillis().toString()}",
-
-
-                                    res.add(
-                                        requestBodyToAddMultipart(formDataKeyName,
-                                            "$index ${System.currentTimeMillis().toString()}", requestBody )
-                                    )
-                                    Log.e("[FileHelper]", "$index")
+                                //위의 바디를 멀티파트로 만들고, 리턴할 멀티파트 리스트에 추가
+                                res.add(
+                                    requestBodyToAddMultipart(
+                                        formDataKeyName,
+                                "$index ${System.currentTimeMillis().toString()}",
+                                        requestBody )
+                                )
+                                Log.e("[FileHelper]", "$index")
 
                                 //resp 에 결과인 resource 가 담기고 코루틴 재개.
                                 cont.resumeWith(Result.success(resource))
@@ -141,9 +141,11 @@ class FileHelper {
                         })
                     }
 
+                // http:// 을 포함하지 않는 Uri는 content:// 이나 document.image: 등으로 시작되는 형식(안드로이드 로컬파일)이므로
+                // 아래의 메소드를 이용해 로컬의 파일 절대경로를 얻고 그 파일을 멀티파트로 만들고 멀티파트 리스트에 담는다.
                 } else {
                     val realPath = getPathFromURI(context, it)
-                    realPathList.add(realPath)
+                    realPathList.add(realPath) //디버깅용으로써 제대로 절대경로를 얻었는지 확인하기 위한 용도임. 다른 용도없음.
                     val fileImage = createFile(realPath)
                     val requestBody = createRequestBody(fileImage)
                     res.add(createPart(fileImage, requestBody, formDataKeyName))
@@ -187,23 +189,35 @@ class FileHelper {
         return MultipartBody.Part.createFormData(formDataKeyName, file.name, requestBody)
     }
 
+    //  /document/image: 에 해당하는 형식의 Uri 를 해석하고 그 해당 파일의 절대경로를 알아내어 문자열로 반환한다.
     private fun getPathFromURI(context: Context, uri: Uri): String {
         var realPath = String()
+//        uri.path?.let { path ->
         uri.path?.let { path ->
 
+            Log.e("[FileHelper]", "getPathFromURI path: $path")
             val databaseUri: Uri
             val selection: String?
             val selectionArgs: Array<String>?
-            if (path.contains("/document/image:")) { // files selected from "Documents"
+
+            if (path.contains("/document/image:")||path.contains("/document/msf:") ) { // files selected from "Documents"
+                Log.e("[FileHelper]", "getPathFromURI path: $path")
                 databaseUri = MediaStore.Images.Media.EXTERNAL_CONTENT_URI
                 selection = "_id=?"
                 selectionArgs = arrayOf(DocumentsContract.getDocumentId(uri).split(":")[1]) //getDocumentId 가 /document/image:123 부분 uri인듯
+
+            } else if (path.contains("/document/") ) { // files selected from "Documents"
+                Log.e("[FileHelper]", "getPathFromURI path: $path")
+                databaseUri = MediaStore.Images.Media.EXTERNAL_CONTENT_URI
+                selection = "_id=?"
+                selectionArgs = arrayOf(DocumentsContract.getDocumentId(uri)) //getDocumentId 가 /document/47 부분 uri인듯 id가 47이라 :으로 split할 필요가 없다
 
             } else { // files selected from all other sources, especially on Samsung devices
                 databaseUri = uri
                 selection = null
                 selectionArgs = null
             }
+
             try {
                 val column = "_data"
                 val projection = arrayOf(column)
@@ -215,8 +229,8 @@ class FileHelper {
                     null
                 )
                 cursor?.let {
+                    val columnIndex = cursor.getColumnIndexOrThrow(column)
                     if (it.moveToFirst()) {
-                        val columnIndex = cursor.getColumnIndexOrThrow(column)
                         realPath = cursor.getString(columnIndex)
                     }
                     cursor.close()
@@ -233,7 +247,8 @@ class FileHelper {
      */
 //    else if (path.contains("media/external/video")){
 ////                outputFileResults.savedUri: content://media/external/video/media/230
-
+    //content:// 형식의 contentProvider가 제공한 Uri의 절대경로를 찾아내는 메소드이다. contentResolver의 query 메소드로 해당 cursor객체를 생성하여
+    //그 커서에 포함된 _data 컬럼의 정보(절대경로)를 가져온다.
     private fun getAbsolutePathFromUri(context: Context, contentUri: Uri): String? {
         var cursor: Cursor? = null
         return try {
@@ -246,8 +261,8 @@ class FileHelper {
                 return null
             }
             val columnIndex = cursor.getColumnIndexOrThrow(MediaStore.Images.Media.DATA)
-            cursor.moveToFirst()
-            cursor.getString(columnIndex)
+            cursor.moveToFirst() //일단 커서의 위치를 맨 처음으로 옴겨서 초기화한다.
+            cursor.getString(columnIndex) // 그후 커서의 인덱스에 해당하는 정보를 문자열로 가져온다.
         } catch (e: RuntimeException) {
             Log.e("VideoViewerFragment", String.format("Failed in getting absolute path for Uri %s with Exception %s",
                 contentUri.toString(), e.toString() ))
@@ -269,6 +284,7 @@ class FileHelper {
         val sizeIndex = cursor.getColumnIndex(OpenableColumns.SIZE)
         cursor.moveToFirst()
 
+        //블록의 결과와 더불어 호출한 해당 리소스를 정상적으로 종료해제한다.
         cursor.use {
             return it.getLong(sizeIndex)
         }

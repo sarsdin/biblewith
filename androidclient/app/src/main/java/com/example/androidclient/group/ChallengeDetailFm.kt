@@ -38,6 +38,7 @@ import com.example.androidclient.MyApp
 import com.example.androidclient.R
 import com.example.androidclient.databinding.ChallengeDetailFmBinding
 import com.example.androidclient.util.FileHelper
+import com.example.androidclient.util.ImageHelper
 import com.google.common.util.concurrent.ListenableFuture
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -155,6 +156,14 @@ class ChallengeDetailFm : Fragment() {
             .setCancelable(false)
             .create()
             .show()
+
+        //상단바 프로필 이미지 클릭시
+        binding.toolbarIv.setOnClickListener {
+            findNavController().navigate(com.example.androidclient.R.id.action_global_myProfileFm)
+        }
+        //상단바 프로필 이미지 로딩
+        ImageHelper.getImageUsingGlide(requireActivity(), MyApp.userInfo.user_image, binding.toolbarIv)
+
 
     }
 

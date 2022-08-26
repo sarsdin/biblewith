@@ -8,13 +8,16 @@ import androidx.fragment.app.Fragment
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.Navigation
+import androidx.navigation.fragment.findNavController
 import androidx.navigation.ui.AppBarConfiguration
 import androidx.navigation.ui.NavigationUI
 import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
+import com.example.androidclient.MyApp
 import com.example.androidclient.R
 import com.example.androidclient.databinding.ChallengeDetailListFmBinding
+import com.example.androidclient.util.ImageHelper
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -71,6 +74,15 @@ class ChallengeDetailListFm : Fragment() {
         super.onResume()
         binding.toolbarTv.text = "${groupVm.chalLInfo.get("user_nick").asString}님의 챌린지: ${groupVm.chalLInfo.get("chal_title").asString}"
         rva.notifyDataSetChanged()
+
+        //상단바 프로필 이미지 클릭시
+        binding.toolbarIv.setOnClickListener {
+            findNavController().navigate(com.example.androidclient.R.id.action_global_myProfileFm)
+        }
+        //상단바 프로필 이미지 로딩
+        ImageHelper.getImageUsingGlide(requireActivity(), MyApp.userInfo.user_image, binding.toolbarIv)
+
+
     }
 
     override fun onDestroyView() {

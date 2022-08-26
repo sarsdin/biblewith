@@ -282,7 +282,60 @@
             app:uri="biblewith.com/invite/{group_no}/c/{invite_code}" />
     </fragment>
     <action android:id="@+id/action_global_group_fm"
-        app:destination="@id/group_fm"/>
+        app:destination="@id/group_fm" />
+    <dialog
+        android:id="@+id/nickModifyDialogFm"
+        android:name="com.example.androidclient.moreinfo.NickModifyDialogFm"
+        android:label="NickModifyDialogFm" />
+    <action
+        android:id="@+id/action_global_nickModifyDialogFm"
+        app:destination="@id/nickModifyDialogFm"
+        app:enterAnim="@anim/nav_default_enter_anim"
+        app:exitAnim="@anim/nav_default_exit_anim"
+        app:popEnterAnim="@anim/nav_default_pop_enter_anim"
+        app:popExitAnim="@anim/nav_default_pop_exit_anim" />
+    <dialog
+        android:id="@+id/groupInChatCreateDialogFm"
+        android:name="com.example.androidclient.group.GroupInChatCreateDialogFm"
+        android:label="GroupInChatCreateDialogFm"
+        tools:layout="@layout/group_in_chat_create_dialog_fm"/>
+    <fragment
+        android:id="@+id/groupInChatFm"
+        android:name="com.example.androidclient.group.GroupInChatFm"
+        android:label="group_in_chat_fm"
+        tools:layout="@layout/group_in_chat_fm" >
+        <action
+            android:id="@+id/action_groupInChatFm_to_groupInChatCreateDialogFm"
+            app:destination="@id/groupInChatCreateDialogFm"
+            app:enterAnim="@anim/nav_default_enter_anim"
+            app:exitAnim="@anim/nav_default_exit_anim" />
+    </fragment>
+    <action
+        android:id="@+id/action_global_groupInChatFm"
+        app:destination="@id/groupInChatFm"
+        app:enterAnim="@anim/nav_default_enter_anim"
+        app:exitAnim="@anim/nav_default_exit_anim" />
+    <action android:id="@+id/action_global_group_in_challenge_fm"
+        app:destination="@id/group_in_challenge_fm"/>
+    <fragment
+        android:id="@+id/groupChatInnerFm"
+        android:name="com.example.androidclient.group.GroupChatInnerFm"
+        android:label="GroupChatInnerFm"
+        tools:layout="@layout/group_chat_inner_fm"/>
+    <action
+        android:id="@+id/action_global_groupChatInnerFm"
+        app:destination="@id/groupChatInnerFm"
+        app:enterAnim="@anim/nav_default_enter_anim"
+        app:exitAnim="@anim/nav_default_exit_anim"
+        app:popEnterAnim="@anim/nav_default_pop_enter_anim"
+        app:popExitAnim="@anim/nav_default_pop_exit_anim" />
+    <action
+        android:id="@+id/action_global_myProfileFm"
+        app:destination="@id/myProfileFm"
+        app:enterAnim="@anim/nav_default_enter_anim"
+        app:exitAnim="@anim/nav_default_exit_anim"
+        app:popEnterAnim="@anim/nav_default_pop_enter_anim"
+        app:popExitAnim="@anim/nav_default_pop_exit_anim" />
 
 
 </navigation>

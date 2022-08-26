@@ -1,4 +1,252 @@
 <?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content">
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:id="@+id/date_layout"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:visibility="gone"
+        tools:visibility="visible"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent">
+
+        <com.google.android.material.card.MaterialCardView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="16dp"
+            android:layout_marginBottom="16dp"
+            android:background="#48FB6C6C"
+            android:backgroundTint="#E8EAF6"
+            app:cardCornerRadius="10dp"
+            app:cardElevation="0dp"
+            app:contentPaddingLeft="14dp"
+            app:contentPaddingRight="14dp"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            app:strokeColor="#B1B0B0"
+            app:strokeWidth="0dp">
+            <!--        app:cardUseCompatPadding="true"-->
+            <!--        app:contentPaddingTop="4dp"-->
+            <!--        app:contentPaddingBottom="4dp"-->
+
+            <!--        android:background="#43A047"-->
+            <!--        android:tint="#FFFFFF"-->
+            <com.google.android.material.imageview.ShapeableImageView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center|start"
+                android:contentDescription="메인 이미지"
+                android:maxWidth="250dp"
+                android:maxHeight="300dp"
+                android:paddingVertical="7dp"
+                android:scaleType="fitXY"
+                app:srcCompat="@drawable/ic_baseline_calendar_month_24"
+                app:tint="#8C8C8C"
+                app:tintMode="src_in" />
+            <!--                android:visibility="gone"-->
+
+            <com.google.android.material.textview.MaterialTextView
+                android:id="@+id/date_delimiter"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center_vertical"
+                android:layout_marginStart="30dp"
+                android:maxWidth="250dp"
+                android:paddingVertical="5dp"
+                android:text="토요일, 8월 16일, 2022년"
+                android:textColor="#232323"
+                android:textSize="16sp" />
+        </com.google.android.material.card.MaterialCardView>
+    </androidx.constraintlayout.widget.ConstraintLayout>
+
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:id="@+id/constraintLayout3"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:paddingVertical="10dp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/date_layout">
+        <!--    android:layout_height="wrap_content"-->
+        <com.google.android.material.imageview.ShapeableImageView
+            android:id="@+id/profile_iv"
+            android:layout_width="50dp"
+            android:layout_height="50dp"
+            android:layout_gravity="center|start"
+            android:layout_marginStart="8dp"
+            android:contentDescription="메인 이미지"
+            android:scaleType="fitXY"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            app:shapeAppearanceOverlay="@style/ShapeAppearanceOverlay.App.CornerSize50Percent"
+            app:srcCompat="@drawable/ic_baseline_person_24"
+            app:tintMode="screen" />
+
+        <com.google.android.material.textview.MaterialTextView
+            android:id="@+id/chat_writer"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="8dp"
+            android:maxWidth="250dp"
+            android:text="아몬드"
+            android:textColor="#232323"
+            android:textSize="16sp"
+            app:layout_constraintStart_toEndOf="@+id/profile_iv"
+            app:layout_constraintTop_toTopOf="@+id/profile_iv" />
+
+        <com.google.android.material.card.MaterialCardView
+            android:id="@+id/link_card"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="8dp"
+            android:layout_marginTop="8dp"
+            android:background="#48FB6C6C"
+            android:backgroundTint="#C8E6C9"
+            app:cardCornerRadius="10dp"
+            app:cardElevation="0dp"
+            app:contentPaddingLeft="14dp"
+            app:contentPaddingRight="14dp"
+            app:layout_constraintStart_toEndOf="@+id/profile_iv"
+            app:layout_constraintTop_toBottomOf="@+id/chat_writer"
+            app:strokeColor="#B1B0B0"
+            app:strokeWidth="0dp">
+            <!--        app:cardUseCompatPadding="true"-->
+            <!--        app:contentPaddingTop="4dp"-->
+            <!--        app:contentPaddingBottom="4dp"-->
+
+            <!--        android:background="#43A047"-->
+            <!--        android:tint="#FFFFFF"-->
+
+            <com.google.android.material.textview.MaterialTextView
+                android:id="@+id/chat_content"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:maxWidth="230dp"
+                android:paddingVertical="5dp"
+                android:text="하하하하하하하하하하~!!"
+                android:textColor="#232323"
+                android:textSize="16sp" />
+
+            <com.google.android.material.imageview.ShapeableImageView
+                android:id="@+id/chat_iv"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center|end"
+                android:contentDescription="메인 이미지"
+                android:maxWidth="250dp"
+                android:maxHeight="300dp"
+                android:paddingVertical="7dp"
+                android:scaleType="fitXY"
+                android:visibility="gone"
+                app:tintMode="screen" />
+            <!--            app:srcCompat="@drawable/ic_baseline_person_24"-->
+
+        </com.google.android.material.card.MaterialCardView>
+
+
+        <com.google.android.material.textview.MaterialTextView
+            android:id="@+id/chat_date"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="end"
+            android:layout_marginStart="8dp"
+            android:text="8월 11일"
+            android:textColor="#232323"
+            android:textSize="10sp"
+            app:layout_constraintBottom_toBottomOf="@+id/link_card"
+            app:layout_constraintStart_toEndOf="@+id/link_card" />
+
+        <com.google.android.material.textview.MaterialTextView
+            android:id="@+id/unread_tv"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="end"
+            android:layout_marginStart="8dp"
+            android:text="7"
+            android:textColor="#F57F17"
+            android:textSize="13sp"
+            android:visibility="gone"
+            app:layout_constraintBottom_toTopOf="@+id/chat_date"
+            app:layout_constraintStart_toEndOf="@+id/link_card"
+            tools:visibility="visible" />
+    </androidx.constraintlayout.widget.ConstraintLayout>
+
+
+<!--    여기까지 읽으셨습니다. -->
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:id="@+id/read_position_layout"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:visibility="gone"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/constraintLayout3"
+        tools:visibility="visible">
+
+        <com.google.android.material.card.MaterialCardView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="16dp"
+            android:layout_marginBottom="16dp"
+            android:background="#48FB6C6C"
+            android:backgroundTint="#E8EAF6"
+            app:cardCornerRadius="10dp"
+            app:cardElevation="0dp"
+            app:contentPaddingLeft="14dp"
+            app:contentPaddingRight="14dp"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            app:strokeColor="#B1B0B0"
+            app:strokeWidth="0dp">
+            <!--        app:cardUseCompatPadding="true"-->
+            <!--        app:contentPaddingTop="4dp"-->
+            <!--        app:contentPaddingBottom="4dp"-->
+
+            <!--        android:background="#43A047"-->
+            <!--        android:tint="#FFFFFF"-->
+<!--            <com.google.android.material.imageview.ShapeableImageView-->
+<!--                android:layout_width="wrap_content"-->
+<!--                android:layout_height="wrap_content"-->
+<!--                android:layout_gravity="center|start"-->
+<!--                android:contentDescription="메인 이미지"-->
+<!--                android:maxWidth="250dp"-->
+<!--                android:maxHeight="300dp"-->
+<!--                android:paddingVertical="7dp"-->
+<!--                android:scaleType="fitXY"-->
+<!--                app:srcCompat="@drawable/ic_baseline_calendar_month_24"-->
+<!--                app:tint="#8C8C8C"-->
+<!--                app:tintMode="src_in" />-->
+
+            <com.google.android.material.textview.MaterialTextView
+                android:id="@+id/read_tv"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center_vertical"
+                android:maxWidth="250dp"
+                android:paddingVertical="5dp"
+                android:text="여기까지 읽으셨습니다."
+                android:textColor="#232323"
+                android:textSize="16sp" />
+        </com.google.android.material.card.MaterialCardView>
+    </androidx.constraintlayout.widget.ConstraintLayout>
+
+
+</androidx.constraintlayout.widget.ConstraintLayout>
+
+
+<!--
+
 <com.google.android.material.card.MaterialCardView
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
@@ -23,12 +271,11 @@
         android:layout_height="50dp"
         android:layout_gravity="center|start"
         android:layout_marginStart="16dp"
-        android:background="#43A047"
         android:contentDescription="메인 이미지"
-        android:scaleType="centerInside"
-        android:tint="#FFFFFF"
+        android:scaleType="fitXY"
         app:shapeAppearanceOverlay="@style/ShapeAppearanceOverlay.App.CornerSize50Percent"
-        app:srcCompat="@drawable/ic_baseline_add_link_24" />
+        app:srcCompat="@drawable/ic_baseline_person_24"
+        app:tintMode="screen" />
 
     <com.google.android.material.textview.MaterialTextView
         android:id="@+id/chat_title"
@@ -63,3 +310,4 @@
         android:textSize="16sp" />
 
 </com.google.android.material.card.MaterialCardView>
+-->

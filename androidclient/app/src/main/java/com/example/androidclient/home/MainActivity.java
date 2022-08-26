@@ -1,6 +1,9 @@
 package com.example.androidclient.home;
 import android.app.PendingIntent;
+import android.content.ComponentName;
+import android.content.ServiceConnection;
 import android.net.Uri;
+import android.os.IBinder;
 import android.util.Log;
 
 import android.content.Context;
@@ -22,13 +25,18 @@ import androidx.navigation.ui.AppBarConfiguration;
 import androidx.navigation.ui.NavigationUI;
 
 import com.example.androidclient.MyApp;
+import com.example.androidclient.MyService;
 import com.example.androidclient.R;
 import com.example.androidclient.bible.BibleVm;
 import com.example.androidclient.databinding.MainActivityBinding;
 import com.example.androidclient.login.LoginActivity;
 import com.google.android.material.navigation.NavigationBarView;
+import com.google.gson.Gson;
 import com.google.gson.JsonArray;
+import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
+
+import kotlinx.coroutines.Dispatchers;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -162,6 +170,8 @@ public class MainActivity extends AppCompatActivity {
                     case  R.id.challengeDetailAfterFm:
                     case  R.id.challengeDetailListFm:
                     case  R.id.groupChatFm:
+                    case  R.id.groupInChatFm:
+                    case  R.id.groupChatInnerFm:
                     case  R.id.groupInMemberFm:
 //                    case  R.id.challengeCreateNextFm:
                         binding.mainBottomNav.setVisibility(View.GONE);
@@ -255,7 +265,58 @@ public class MainActivity extends AppCompatActivity {
 //            //startDestination이 home_fm 으로 지정된 경우는 이상하게 괜찮더라..
 //        }
 
+        //서비스 시작 - BIND_AUTO_CREATE : 서비스가 켜저있으면 자동으로 바인딩하고, 없으면 만들어서 바인딩함
+        Intent intent = new Intent(this, MyService.class);
+        bindService(intent, serviceConn, Context.BIND_AUTO_CREATE);
     }
+
+
+
+    //서비스 관련 변수들 및 바인딩 서비스 연결 구현
+    public MyService myService; // 서비스 객체
+    public boolean isService = false; // 서비스 중인 확인용
+    public ServiceConnection serviceConn = new ServiceConnection() {
+        public void onServiceConnected(ComponentName name, IBinder service) {
+            // 서비스와 연결되었을 때 호출되는 메서드
+            // 서비스 객체를 전역변수로 저장
+            MyService.MyBinder binder = (MyService.MyBinder) service; //서비스에서 받아온 MyBinder 객체
+            myService = binder.getService();                //위의 객체로부터 MyService 객체를 얻어옴
+            // 서비스쪽 객체를 전달받을수 있음
+            isService = true;// 서비스가 실행중이면 true - 서비스 On 이라고 처리
+            Log.e(tagName, "서비스: MyService에 연결되었습니다.");
+            //서비스를 통해 채팅서버에 접속하여, 유저번호에 해당하는 스레드가 있는지 확인하고 있으면 재활용(재연결), 없으면 만드는 메소드
+            클라이언트스레드등록확인();
+        }
+        public void onServiceDisconnected(ComponentName name) {
+            //서비스 Off 이라고 처리. 이 메소드는 비정상 서비스 종료시에만 호출됨. 정상 종료시에는 호출안되니 주의!!
+            isService = false;
+            Log.e(tagName, "서비스: MyService가 비정상 종료되었습니다.");
+        }
+    };
+
+    public void 클라이언트스레드등록확인() {
+//        cli = ChatClient("10.0.2.2", groupVm) //127.0.0.1 << avd에서 안드로이드os 자신을 가리킴. 내 컴퓨터의 로컬 서버가 아님..!
+//        cli.start()
+        Gson gson = new Gson();
+        JsonObject jo = new JsonObject();
+        jo.addProperty("user_no", MyApp.userInfo.getUser_no());
+        jo.addProperty("user_nick", MyApp.userInfo.getUser_nick());
+        jo.addProperty("user_image", MyApp.userInfo.getUser_image());
+        jo.addProperty("cmd", "초기화");
+        jo.addProperty("cmd_type", "초기화");
+        Thread thread = new Thread(() -> {
+            try{
+                myService.cli.outMsg.println(gson.toJson(jo));
+
+            }catch(Exception e){
+                e.printStackTrace();
+            }
+        });
+        thread.start();
+//            myService.putHandler(handler); // 이 fm에 등록된 핸들러를 서비스를 초기화 시키면서 보내줌
+
+    }
+
 
     @Override
     protected void onResume() {
@@ -266,7 +327,6 @@ public class MainActivity extends AppCompatActivity {
         Log.e("오류태그", "MainActivity onResume");
 
 
-
     }
 
 //    public TestDeep listenerDeepLink;
@@ -275,6 +335,8 @@ public class MainActivity extends AppCompatActivity {
 //    }
 
     //새로운 인텐트 발생시 설정 - 하위 프래그먼트에서 사용하기 위함 - 딥링크등..
+    //앱이 이미 켜져있는 상태에서는 외부 딥링크가 안먹히는 것 같다..자동으로 인식이 안돼는 것 같지만, 여기서 수동으로 받는 것은
+    //가능하다!
     @Override
     protected void onNewIntent(Intent intent) {
         super.onNewIntent(intent);

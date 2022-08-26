@@ -111,6 +111,17 @@ public class Http {
         //자동로그인시 쉐어드에 유저정보가 있으면 서버에서 그 유저 정보 불러오면서 자동로그인하기
         @GET("home/getAutoLoginInfo")
         Call<LoginDto> getAutoLoginInfo(@Query("user_email") String user_email);
+
+
+        @Multipart
+        @POST("home/userProfileImageSelect")
+        Call<JsonObject> 사용자이미지선택(@PartMap Map<String, RequestBody> userInfo,
+                                     @Part/*("group_main_image")*/ MultipartBody.Part userImage);
+
+        @POST("home/nickModify")
+        Call<JsonObject> 유저닉네임수정( @Query("user_no") int user_no,
+                                  @Query("user_nick") String user_nick
+        );
     }
 
 
@@ -179,6 +190,11 @@ public class Http {
         @POST("group/createGroup")
         Call<JsonObject> createGroup(@PartMap Map<String, RequestBody> groupInfo,
                                      @Part/*("group_main_image")*/ MultipartBody.Part groupImage);
+
+        @Multipart
+        @POST("group/groupProfileImageSelect")
+        Call<JsonObject> 모임이미지선택(@PartMap Map<String, RequestBody> groupInfo,
+                                  @Part/*("group_main_image")*/ MultipartBody.Part groupImage);
 
         //모임 목록 가져오기
         @Headers("content-type: application/json")
@@ -326,6 +342,28 @@ public class Http {
 
         @POST("group/memberListSearch")
         Call<JsonObject> 모임멤버검색(@Body JsonObject params);
+        
+        
+        
+
+        //채팅방 만들기 - 만들기 후 채팅방 정보+참가자목록 가져옴
+        @Multipart
+        @POST("group/chatRoomCreate")
+        Call<JsonObject> 채팅방만들기(@PartMap Map<String, RequestBody> chatRoomInfo,
+                                  @Part/*("group_main_image")*/ MultipartBody.Part chatRoomImage);
+
+         //채팅방 목록 가져오기
+        @POST("group/chatRoomList")
+        Call<JsonObject> 채팅방목록(@Body JsonObject params);
+
+        //채팅방 정보 및 채팅 내역 가져오기 - 채팅방 정보+참가자목록, 채팅 내역 목록+채팅쓴사람
+        @POST("group/chatRoomJoin")
+        Call<JsonObject> 채팅방참가클릭(@Query("chat_room_no") int chat_room_no,
+                                 @Query("user_no") int user_no,
+                                 @Query("group_no") int group_no
+        );
+
+
 
     }
 

@@ -10,6 +10,7 @@ import androidx.fragment.app.Fragment
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.Navigation
+import androidx.navigation.fragment.findNavController
 import androidx.navigation.ui.AppBarConfiguration
 import androidx.navigation.ui.NavigationUI
 import androidx.recyclerview.widget.LinearLayoutManager
@@ -22,6 +23,7 @@ import com.example.androidclient.databinding.MyHighLightFmListBinding
 import com.example.androidclient.home.MainActivity
 import com.example.androidclient.util.Http
 import com.example.androidclient.util.Http.HttpBible
+import com.example.androidclient.util.ImageHelper
 import retrofit2.Call
 import retrofit2.Callback
 import retrofit2.Response
@@ -76,6 +78,14 @@ class MyHighLightFm : Fragment() {
     override fun onResume() {
         super.onResume()
 //        (requireActivity() as MainActivity).setNavigation(true)
+
+        //상단바 프로필 이미지 클릭시
+        binding.highlightToolbarIv.setOnClickListener {
+            findNavController().navigate(R.id.action_global_myProfileFm)
+        }
+        //상단바 프로필 이미지 로딩
+        ImageHelper.getImageUsingGlide(requireActivity(), MyApp.userInfo.user_image, binding.highlightToolbarIv)
+
     }
 
     override fun onPause() {

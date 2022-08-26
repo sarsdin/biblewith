@@ -10,7 +10,9 @@ class ChatRoomInfo extends \CodeIgniter\Model
         'owner_no',
         'chat_room_title',
         'create_date',
-        'chat_room_image'
+        'chat_room_image',
+        'chat_room_desc',
+        'group_no'
     ];
     protected $primaryKey = 'chat_room_no';
 }

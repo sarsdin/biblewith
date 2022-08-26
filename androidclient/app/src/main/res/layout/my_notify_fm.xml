@@ -40,7 +40,7 @@
                 android:background="#818080"
                 android:contentDescription="이미지 입니다."
                 android:scaleType="centerCrop"
-                android:tint="#FFFFFF"
+                app:tintMode="screen"
                 android:visibility="gone"
                 app:shapeAppearanceOverlay="@style/ShapeAppearanceOverlay.App.CornerSize50Percent"
                 app:srcCompat="@drawable/ic_baseline_person_24" />

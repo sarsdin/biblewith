@@ -21,6 +21,7 @@ import com.example.androidclient.R
 import com.example.androidclient.databinding.GroupFmBinding
 import com.example.androidclient.home.MainActivity
 import com.example.androidclient.util.Http
+import com.example.androidclient.util.ImageHelper
 import com.google.android.material.tabs.TabLayout
 import com.google.android.material.tabs.TabLayoutMediator
 import com.google.gson.JsonObject
@@ -129,6 +130,9 @@ class GroupFm : Fragment() {
         })
 
 
+
+
+
     }
 
     override fun onResume() {
@@ -186,6 +190,8 @@ class GroupFm : Fragment() {
                                 .setCancelable(false)
                                 .create()
                                 .show()
+                        } else {
+                            Toast.makeText(requireActivity(),"유효하지않은 초대링크입니다.",Toast.LENGTH_LONG).show()
                         }
 
                     }
@@ -197,7 +203,17 @@ class GroupFm : Fragment() {
         }
 
 
+
+        //상단바 프로필 이미지 클릭시
+        binding.groupMainToolbarIv.setOnClickListener {
+            findNavController().navigate(R.id.action_global_myProfileFm)
+        }
+        //상단바 프로필 이미지 로딩
+        ImageHelper.getImageUsingGlide(requireActivity(), MyApp.userInfo.user_image, binding.groupMainToolbarIv)
+
     }
+
+
 
     override fun onPause() {
         super.onPause()

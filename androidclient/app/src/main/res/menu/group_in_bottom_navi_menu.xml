@@ -10,7 +10,7 @@
         android:title="홈"
         app:showAsAction="always" />
     <item
-        android:id="@+id/groupChatFm"
+        android:id="@+id/groupInChatFm"
         android:icon="@drawable/ic_baseline_chat_24"
         android:iconTint="#4E4D4D"
         android:title="채팅"

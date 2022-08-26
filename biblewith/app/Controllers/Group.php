@@ -8,6 +8,10 @@ use App\Models\ChallengeDetailLike;
 use App\Models\ChallengeDetailVerse;
 use App\Models\ChallengeSelectedBible;
 use App\Models\ChallengeVideo;
+use App\Models\Chat;
+use App\Models\ChatImage;
+use App\Models\ChatRoom;
+use App\Models\ChatRoomInfo;
 use App\Models\GboardLike;
 use App\Models\GroupBoard;
 use App\Models\GroupBoardImage;
@@ -90,6 +94,75 @@ class Group extends \CodeIgniter\Controller
 
             return $res->setJSON([
                 "result" => $result,
+                "msg" => "ok"
+            ]);
+            //배열로 반환되면 클라이언트에서 Dto객체로 변환이 안된다. Dto는 Object 타입이기때문. arrayL라면 arrayL 로 변환되어야함.
+
+        } catch (\ReflectionException | DataException $e){
+            return $res->setJSON($e->getMessage());
+        }
+    }
+
+
+    // 모임 이미지 선택 버튼 클릭시 (GroupInFm - image)
+    public function groupProfileImageSelect() : ResponseInterface
+    {
+        helper('filesystem');
+        $user = new User();
+        $group = new \App\Models\Group();
+        $req = $this->request;
+        $res = $this->response;
+//        $data = $req->getJson(true);
+        $data = $req->getVar();
+        log_message("debug", "[Group] groupProfileImageSelect \$data: ". print_r($data, true));
+//        $imgData3 = $req->getFileMultiple('product_image');
+//        log_message("debug", "[Group] createGroup \$getFileMultiple: ".print_r($imgData3, true));
+        $imgData = $req->getFile('group_main_image');
+//        $imgData = $req->getFiles();
+        log_message("debug", "[Group] groupProfileImageSelect \$getFiles: ".print_r($imgData, true));
+
+        $validationRule = [
+            'group_main_image' => [
+                'label' => 'Image File',
+                'rules' => 'uploaded[group_main_image]'
+                    . '|is_image[group_main_image]'
+                    . '|mime_in[group_main_image,image/jpg,image/jpeg,image/gif,image/png,image/webp]'
+                    . '|max_size[group_main_image,1000]'
+                    . '|max_dims[group_main_image,1924,1924]',
+            ],
+        ];
+
+        try {
+            //요청 데이터 중 user_image 요소에 대한 이미지 검증
+            if (! $this->validate($validationRule)) { //이미지파일 검증실패시 result false로 에러메시지 리턴.
+                $data = [
+                    'result' => false,
+                    'errors' => $this->validator->getErrors()
+                ];
+                return $res->setJSON($data);
+            }
+
+            //이미지파일을 ci 기본 upload 경로(writable/uploads)에 저장. 그후 경로 반환된걸로 db에 insert
+            $filePath = $imgData->store();
+            log_message("debug", "[Group] groupProfileImageSelect \$filePath: ".print_r($filePath, true));
+
+            //기존의 사진 파일 서버저장소에서 삭제
+            $imgPre = $group->where('group_no', $req->getVar('group_no'))->findColumn('group_main_image');
+            log_message("debug", "[Group] groupProfileImageSelect \$imgPre delete: ".print_r($imgPre, true));
+            if ($imgPre != null && count($imgPre) != 0) {
+                if ($imgPre[0] != null && $imgPre[0] != "") {  // 연관배열 [0] =>     <<이것때문에 몇번이나 파일 다날라감..주의!!
+                    delete_files('../writable/uploads/' . $imgPre[0]); //경로의 파일 삭제
+                }
+            }
+
+            //위에서 얻은 이미지 경로를 db에 업데이트시켜줌
+            $result = $group->set('group_main_image', $filePath)->update($req->getVar('group_no'));
+            log_message("debug", "[Group] groupProfileImageSelect \$result: ". print_r($result, true));
+
+            $result = $group->where('group_no', $req->getVar('group_no'))->findColumn('group_main_image');
+
+            return $res->setJSON([
+                "result" => $result[0],
                 "msg" => "ok"
             ]);
             //배열로 반환되면 클라이언트에서 Dto객체로 변환이 안된다. Dto는 Object 타입이기때문. arrayL라면 arrayL 로 변환되어야함.
@@ -2015,6 +2088,282 @@ class Group extends \CodeIgniter\Controller
     }
 
 
+    // 채팅방 만들기 클릭시 (GroupInChatCreateDialogFm)
+    public function chatRoomCreate() : ResponseInterface
+    {
+        helper('filesystem');
+        $user = new User();
+        $chatRoom = new ChatRoom();
+        $chatRoomInfo = new ChatRoomInfo();
+        $req = $this->request;
+        $res = $this->response;
+//        $data = $req->getJson(true);
+        $data = $req->getVar();
+        log_message("debug", "[group] chatRoomCreate \$data: ". print_r($data, true));
+//        $imgData3 = $req->getFileMultiple('product_image');
+//        log_message("debug", "[Group] createGroup \$getFileMultiple: ".print_r($imgData3, true));
+        $imgData = $req->getFile('chat_room_image');
+//        $imgData = $req->getFiles();
+        log_message("debug", "[group] chatRoomCreate \$getFiles: ".print_r($imgData, true));
+
+        $validationRule = [
+            'chat_room_image' => [
+                'label' => 'Image File',
+                'rules' => 'uploaded[chat_room_image]'
+                    . '|is_image[chat_room_image]'
+                    . '|mime_in[chat_room_image,image/jpg,image/jpeg,image/gif,image/png,image/webp]'
+                    . '|max_size[chat_room_image,1000]'
+                    . '|max_dims[chat_room_image,1924,1924]',
+            ],
+        ];
+
+        try {
+            $user->db->transStart();
+            //요청 데이터 중 chat_room_image 요소에 대한 이미지 검증
+            if (! $this->validate($validationRule)) { //이미지파일 검증실패시 result false로 에러메시지 리턴.
+                $data = [
+                    'result' => false,
+                    'errors' => $this->validator->getErrors()
+                ];
+                return $res->setJSON($data);
+            }
+
+            //이미지파일을 ci 기본 upload 경로(writable/uploads)에 저장. 그후 경로 반환된걸로 db에 insert
+            $filePath = $imgData->store();
+            log_message("debug", "[group] chatRoomCreate \$filePath: ".print_r($filePath, true));
+
+            //채팅방 만들고 그 채팅방 pk를 이용해서 채팅방 참가자리스트 테이블에 owner_no(방장)을 추가
+            $result = $chatRoomInfo->insert([
+                'chat_room_title' => $data['chat_room_title'],
+                'chat_room_desc' => $data['chat_room_desc'],
+                'owner_no' => $data['user_no'],
+                'create_date' => date('Y-m-d H:i:s'),
+                'chat_room_image' => $filePath,
+                'group_no' => $data['group_no'],
+            ]);
+            $chatRoom->insert([
+                'chat_room_no' => $result,
+                'user_no' => $data['user_no'],
+                'user_chat_join_date' => date('Y-m-d H:i:s')
+            ]);
+
+            log_message("debug", "[group] chatRoomCreate \$result: ". print_r($result, true));
+
+//            //추가된 방번호를 이용해 그 방의 유저목록을 클라이언트로 내보내준다.
+//            $result = $chatRoomInfo->join('ChatRoom', 'ChatRoomInfo.chat_room_no = ChatRoom.chat_room_no')
+//                ->join('User', 'User.user_no = ChatRoom.user_no')
+//                ->where('chat_room_no', $result)
+//                ->findAll();
+
+            //채팅방 정보를 클라이언트에 보내준다.
+            $res1 = $chatRoomInfo->join('ChatRoom', 'ChatRoomInfo.chat_room_no = ChatRoom.chat_room_no')
+                ->join('User', 'User.user_no = ChatRoomInfo.owner_no')
+                ->where('ChatRoomInfo.chat_room_no', $result)
+                ->where('group_no', $data['group_no'])
+                ->find();
+
+            //추가된 정보를 포함한 채팅방 유저리스트 정보를 클라이언트에 보내준다.
+            $res2 = $chatRoomInfo->join('ChatRoom', 'ChatRoomInfo.chat_room_no = ChatRoom.chat_room_no')
+                ->join('User', 'User.user_no = ChatRoom.user_no')
+                ->where('ChatRoomInfo.chat_room_no', $result) // todo 문제 생길여지 있음 - 생기면 ChatRoom으로 바꿔보기
+                ->where('group_no', $data['group_no'])
+                ->findAll();
+
+            //각유저가 쓴 채팅 리스트를 클라이언트에 보내준다.
+//            $res3 = $chat->join('User', 'User.user_no = Chat.user_no')
+//                ->join('ChatImage', 'ChatImage.chat_no = Chat.chat_no')
+//                ->where('chat_room_no', $data['chat_room_no'])
+//                ->where('group_no', $data['group_no'])
+//                ->findAll();
+//            log_message("debug", "[group] chatRoomJoin \$res2: ". print_r($res2, true));
+
+            $result = [
+                'chat_room_info' => $res1,
+                'chat_room_userL' => $res2
+//                'chat_list' => $res3
+            ];
+            log_message("debug", "[group] chatRoomCreate \$result: ". print_r($result, true));
+
+            if ($user->db->transComplete()){
+                $user->db->transCommit();
+                return $res->setJSON([
+                    "result" => $result,
+                    "msg" => "ok"
+                ]);
+            } else {
+                $user->db->transRollback();
+                return $res->setJSON([
+                    "result" => "failed",
+                    "msg" => "fail"
+                ]);
+            }
+            //배열로 반환되면 클라이언트에서 Dto객체로 변환이 안된다. Dto는 Object 타입이기때문. arrayL라면 arrayL 로 변환되어야함.
+
+        } catch (\ReflectionException | DataException $e){
+            return $res->setJSON($e->getMessage());
+        }
+    }
+
+
+    // 채팅방 목록 (GroupInChatFm)
+    public function chatRoomList() : ResponseInterface
+    {
+        $user = new User();
+        $chatRoom = new ChatRoom();
+        $chatRoomInfo = new ChatRoomInfo();
+        $req = $this->request;
+        $res = $this->response;
+//        $data = $req->getJson(true);
+        $data = $req->getVar();
+        log_message("debug", "[group] chatRoomCreate \$data: ". print_r($data, true));
+
+        try {
+            $user->db->transStart();
+
+            $result = $chatRoomInfo
+//                ->join('ChatRoom', 'ChatRoomInfo.chat_room_no = ChatRoom.chat_room_no')
+                ->join('User', 'User.user_no = ChatRoomInfo.owner_no')
+                ->where('group_no', $data['group_no'])
+                ->findAll();
+
+
+
+            if ($user->db->transComplete()){
+                $user->db->transCommit();
+                return $res->setJSON([
+                    "result" => $result,
+                    "msg" => "ok"
+                ]);
+            } else {
+                $user->db->transRollback();
+                return $res->setJSON([
+                    "result" => "failed",
+                    "msg" => "fail"
+                ]);
+            }
+            //배열로 반환되면 클라이언트에서 Dto객체로 변환이 안된다. Dto는 Object 타입이기때문. arrayL라면 arrayL 로 변환되어야함.
+
+        } catch (\ReflectionException | DataException $e){
+            return $res->setJSON($e->getMessage());
+        }
+    }
+
+
+    // 채팅방 클릭시 (GroupInChatRva)
+    public function chatRoomJoin() : ResponseInterface
+    {
+        $user = new User();
+        $chatRoom = new ChatRoom();
+        $chatRoomInfo = new ChatRoomInfo();
+        $chatImage = new ChatImage();
+        $chat = new Chat();
+        $req = $this->request;
+        $res = $this->response;
+//        $data = $req->getJson(true);
+        $data = $req->getVar();
+        log_message("debug", "[group] chatRoomJoin \$data: ". print_r($data, true));
+
+        try {
+            $user->db->transStart();
+
+            //참가한 유저가 이방에 이미 참가해 있다면 유저를 추가하지 않고 채팅방과 채팅내역 정보만 보내준다.
+            //참가하지 않았으면 insert 작업 해준다.
+            $count = $chatRoom->where('user_no', $data['user_no'])
+                ->where('chat_room_no', $data['chat_room_no'])
+                ->countAllResults();
+            log_message("debug", "[group] chatRoomJoin \$count: ". print_r($count, true));
+            if ( $count == 0) {
+                //채팅방 입장시 해당 유저를 채팅방 참가자 테이블에 추가시키고
+                $chatRoom->where('chat_room_no', $data['chat_room_no'])
+                ->insert([
+                    'chat_room_no' => $data['chat_room_no'],
+                    'user_no' => $data['user_no'],
+                    'user_chat_join_date' => date('Y-m-d H:i:s', strtotime("-5 seconds"))
+                ]);
+                //채팅 소켓서버와 http 웹서버의 시간이 미묘하게 다를수 있다. 그러면 :s 이부분이 web쪽이 조금더 느릴수도있는데
+                //이러면 접속알림을 업데이트하는 소켓채팅서버의 date작업시간이 더 빠르게 기록될수도있다.
+                //그러면 접속알림을 보여주는 쿼리가 찰나의 시간차이로 포함되지 않을 수 있음.
+                //http웹쪽 서버의 db업데이트 기록시간이 좀더 빨라야 나중에 채팅데이터를 정상적으로 가져올 수 있을듯!
+                //그래서 strtotime 에 -5초를 함
+            }
+
+            //채팅방 정보를 클라이언트에 보내준다.
+            $res1 = $chatRoomInfo->join('ChatRoom', 'ChatRoomInfo.chat_room_no = ChatRoom.chat_room_no')
+                ->join('User', 'User.user_no = ChatRoomInfo.owner_no')
+                ->where('ChatRoomInfo.chat_room_no', $data['chat_room_no'])
+                ->where('ChatRoomInfo.group_no', $data['group_no'])
+                ->find();
+
+            log_message("debug", "[group] chatRoomJoin \$res1: ". print_r($res1, true));
+            //추가된 정보를 포함한 채팅방 유저리스트 정보를 클라이언트에 보내준다.
+            $res2 = $chatRoomInfo->join('ChatRoom', 'ChatRoomInfo.chat_room_no = ChatRoom.chat_room_no')
+                ->join('User', 'User.user_no = ChatRoom.user_no')
+                ->where('ChatRoomInfo.chat_room_no', $data['chat_room_no'])
+                ->where('ChatRoomInfo.group_no', $data['group_no'])
+                ->findAll();
+            log_message("debug", "[group] chatRoomJoin \$res2: ". print_r($res2, true));
+
+            //각유저가 쓴 채팅 리스트를 클라이언트에 보내준다.
+            $sql = "select *,
+                    (select read_date from ChatIsRead cir where cir.chat_no = c.chat_no and cir.user_no = ? ) my_read_date,
+                    ((select count(*) from ChatRoom cr where cr.chat_room_no = ?) - (select count(*) from ChatIsRead cir where cir.chat_no = c.chat_no)) unread_count 
+                    from Chat c 
+                    join `User` u on u.user_no = c.user_no 
+                    where c.chat_room_no = ? and
+                        c.create_date BETWEEN 
+                        (select user_chat_join_date from ChatRoom cr where chat_room_no = ? and user_no = ? )
+                        and CURRENT_TIMESTAMP()
+                    order by create_date ";
+//            $sql = "select c.*, u.*
+//                    from Chat c
+//                    join `User` u on u.user_no = c.user_no
+//                    where chat_room_no = ?
+//                    order by create_date ";
+//            (select절), ci.stored_file_name, ci.chat_image_no //(조인절)Left join ChatImage ci on ci.chat_no = c.chat_no
+//                    Left join (select chat_no, read_date from ChatIsRead where user_no = ? ) cir
+//                        on c.chat_no = cir.chat_no
+//            $res3 = $chat->join('User', 'User.user_no = Chat.user_no')
+//                ->join('ChatImage', 'ChatImage.chat_no = Chat.chat_no', 'left')
+//                ->where('chat_room_no', $data['chat_room_no'])
+////                ->where('group_no', $data['group_no'])
+//                ->findAll();
+            $res3 = $chat->db->query($sql, [ $data['user_no'], $data['chat_room_no'], $data['chat_room_no'], $data['chat_room_no'], $data['user_no']]);
+            $res3 = $res3->getResultArray();
+            //각 채팅에 이미지가 있으면 이미지를 넣어줌
+            foreach ($res3 as $key => $item){
+                if ($item['chat_type'] == '이미지') {
+                    $res3[$key]['chat_image'] = $chatImage->where('chat_no', $item['chat_no'])->findAll(); //없으면 [] 빈배열반환
+                } else {
+                    $res3[$key]['chat_image'] = [];
+                }
+            }
+            log_message("debug", "[group] chatRoomJoin \$res3: ". print_r($res3, true));
+
+            $result = [
+                'chat_room_info' => $res1[0],
+                'chat_room_userL' => $res2,
+                'chat_list' => $res3
+            ];
+
+            if ($user->db->transComplete()){
+                $user->db->transCommit();
+                return $res->setJSON([
+                    "result" => $result,
+                    "msg" => "ok"
+                ]);
+            } else {
+                $user->db->transRollback();
+                return $res->setJSON([
+                    "result" => "failed",
+                    "msg" => "fail"
+                ]);
+            }
+            //배열로 반환되면 클라이언트에서 Dto객체로 변환이 안된다. Dto는 Object 타입이기때문. arrayL라면 arrayL 로 변환되어야함.
+
+        } catch (\ReflectionException | DataException $e){
+            return $res->setJSON($e->getMessage());
+        }
+    }
 
 
 

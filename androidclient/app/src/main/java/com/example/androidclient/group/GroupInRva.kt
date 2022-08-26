@@ -49,6 +49,10 @@ class GroupInRva(val groupVm: GroupVm, val groupInFm: GroupInFm) : RecyclerView.
         return groupVm.gboardL.size()
     }
 
+    override fun onViewAttachedToWindow(holder: GroupInFmVh) {
+//        holder.setIsRecyclable(false) //홀더뷰 재사용 안함으로 설정하여 홀더의 절 ui들이 독립적으로 작동하게 함
+        super.onViewAttachedToWindow(holder)
+    }
 
 
     inner class GroupInFmVh(var binding: GroupInFmVhBinding) : RecyclerView.ViewHolder(binding.root) {
@@ -61,14 +65,23 @@ class GroupInRva(val groupVm: GroupVm, val groupInFm: GroupInFm) : RecyclerView.
         //mItem -- 모임상세가져오기() - 데이터 구조 제일 아래에 예시 써놓음 gboardL[i] == mItem
         @SuppressLint("ClickableViewAccessibility")
         fun bind(mItem: JsonObject) {
+//            Log.e("오류태그", "하하하하하핳 ${bindingAdapterPosition} ${groupVm.gson.toJson(mItem.get("gboard_image").asJsonArray)} ")
             //이미지 리사이클러뷰 셋팅 - gboardL-gboard_image 리스트가 있을때만 어댑터 설정 & 보이기
-            if(mItem.get("gboard_image").asJsonArray.size() > 0) { //jsonArray 타입은 isJsonNull 로 검사가 안됨. 요소가 없어도 []로 표시됨
+            if(mItem.get("gboard_image").asJsonArray.size() != 0) { //jsonArray 타입은 isJsonNull 로 검사가 안됨. 요소가 없어도 []로 표시됨
+                //여기 매우 중요!! 지금 배열 요소가 없으면 이 코드가 실행이 안되는 조건문인데, 요소(데이터)가 없으면 자식 뷰홀더가 새로 생성되지 않기에
+                //기존의 자식 뷰홀더를 리사이클러뷰풀에서 찾아서 재활용하게되는 기본 리사이클러뷰 로직을 따르게 된다.
+                //그러면 다른 프래그먼트에서 썼던(다른모임) 리사이클러뷰(부모) 뷰홀더의 리사이클러뷰(자식)의 홀더는 재생성되지 않았기에 재활용되게 되며
+                //기존의 해당 부모뷰홀더 인덱스의 리사이클러뷰(자식)에 이미지가 있었다면, 현재 리사이클러뷰(자식)에 이미지가 그대로 재활용되어 보이게 된다.
 //                Log.e("[GroupInRva]", "mItem: ${groupVm.gson.toJson(mItem)}")
                 rv = binding.groupInFmVhImageList
                 rv?.visibility = View.VISIBLE
                 rv?.layoutManager = LinearLayoutManager(groupInFm.requireContext()).apply { orientation = LinearLayoutManager.HORIZONTAL }
                 rv?.adapter = GroupInVhImageRva(groupVm, mItem.get("gboard_image").asJsonArray, groupInFm) //이미지 리스트를 이미지 어댑터로 넘김
                 rva = rv?.adapter as GroupInVhImageRva
+            } else {
+//                rv = binding.groupInFmVhImageList
+                rv?.visibility = View.GONE
+//                rv!!.adapter?.notifyDataSetChanged()
             }
 
             //닉네임, 프로필 이미지
@@ -120,7 +133,7 @@ class GroupInRva(val groupVm: GroupVm, val groupInFm: GroupInFm) : RecyclerView.
                         ImageHelper.getImageUsingGlide(groupInFm.requireContext(), replyL.get(1).asJsonObject.get("user_image").asString, binding.groupInFmVhReplyClSecIv)
                     }
                     binding.groupInFmVhReplyClSecContentTv.text = replyL.get(1).asJsonObject.get("reply_content").asString
-                    binding.groupInFmVhReplyClSecDateTv.text = replyL.get(1).asJsonObject.get("reply_writedate").asString
+                    binding.groupInFmVhReplyClSecDateTv.text = MyApp.getTime("ui",replyL.get(1).asJsonObject.get("reply_writedate").asString)
                     //댓글 클릭시
                     binding.groupInFmVhReplyClSec.setOnTouchListener { _, event ->
                         groupVm.clickedReplyNoGroupIn = replyL.get(1).asJsonObject.get("reply_no").asInt
@@ -142,7 +155,7 @@ class GroupInRva(val groupVm: GroupVm, val groupInFm: GroupInFm) : RecyclerView.
                 }
             }
 
-            //게시글 클릭시
+            //게시글 클릭시 - 게시글 상세화면으로 가야함
             binding.root.setOnClickListener {
 //                groupVm.gboardInfo = mItem //게시글
                 binding.progressBar.visibility = View.VISIBLE
@@ -168,6 +181,13 @@ class GroupInRva(val groupVm: GroupVm, val groupInFm: GroupInFm) : RecyclerView.
                 }
             }
 
+
+
+            if(mItem.get("user_no").asInt == MyApp.userInfo.user_no){
+                binding.groupInFmVhMenuIbt.visibility = View.VISIBLE
+            } else {
+                binding.groupInFmVhMenuIbt.visibility = View.GONE
+            }
 
             //글 팝업 메뉴 클릭시 - 수정, 삭제
             binding.groupInFmVhMenuIbt.setOnClickListener {

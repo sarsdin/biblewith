@@ -1,4 +1,6 @@
 package com.example.androidclient.bible;
+import static com.example.androidclient.MyApp.userInfo;
+
 import android.util.Log;
 
 import android.os.Bundle;
@@ -13,10 +15,13 @@ import androidx.fragment.app.Fragment;
 import androidx.lifecycle.Observer;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.navigation.Navigation;
+import androidx.navigation.ui.NavigationUI;
 
+import com.example.androidclient.MyApp;
 import com.example.androidclient.R;
 import com.example.androidclient.databinding.BibleFmBinding;
 import com.example.androidclient.home.MainActivity;
+import com.example.androidclient.util.ImageHelper;
 import com.google.android.material.tabs.TabLayout;
 import com.google.android.material.tabs.TabLayoutMediator;
 
@@ -120,7 +125,20 @@ public class BibleFm extends Fragment  { //implements BibleBookRav.뷰페이저�
             }
         });
 
+
+
+        //상단바 프로필 이미지 클릭시
+        binding.bibleToolbarIv.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Navigation.findNavController(v).navigate(com.example.androidclient.R.id.action_global_myProfileFm);
+            }
+        });
+        //상단바 프로필 이미지 로딩
+        ImageHelper.Companion.getImageUsingGlide(requireActivity(), MyApp.userInfo.getUser_image() , binding.bibleToolbarIv);
     }
+
+
 
     @Override
     public void onDestroyView() {

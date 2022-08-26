@@ -80,7 +80,7 @@ class GroupInMemberRva(val groupVm: GroupVm, val groupInMemberFm: GroupInMemberF
 
 
 
-            //멤버 메뉴
+            //멤버 메뉴 - 모임장의 추방
             팝업메뉴(mItem)
 
 
@@ -103,7 +103,7 @@ class GroupInMemberRva(val groupVm: GroupVm, val groupInMemberFm: GroupInMemberF
                 //각 메뉴항목 클릭했을때의 동작 설정
                 groupPopupMenu.setOnMenuItemClickListener { menuItem ->
                     when(menuItem.itemId){
-                        //탈퇴 클릭시
+                        //탈퇴 클릭시 - 현재 탈퇴는 이 메뉴로 하지 않고, fm의 내정보view의 톱니아이콘으로 구현함. 이 메뉴는 확장용으로 내비둠
                         R.id.group_in_member_popup_0 -> {
                             Toast.makeText(groupInMemberFm.requireActivity(), "탈퇴", Toast.LENGTH_SHORT).show()
 

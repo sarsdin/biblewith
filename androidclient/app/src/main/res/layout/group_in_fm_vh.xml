@@ -6,10 +6,10 @@
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:layout_marginVertical="5dp"
-    android:background="#48FB6C6C"
     app:cardCornerRadius="10dp"
     app:cardElevation="1dp"
     >
+<!--    android:background="#48FB6C6C"-->
 <!--app:cardUseCompatPadding="true"-->
 
     <androidx.constraintlayout.widget.ConstraintLayout
@@ -25,14 +25,16 @@
             android:layout_gravity="end"
             android:layout_marginStart="16dp"
             android:layout_marginTop="12dp"
-            android:background="#818080"
             android:contentDescription="profile 사진 입니다."
             android:scaleType="centerCrop"
-            android:tint="#FFFFFF"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent"
             app:shapeAppearanceOverlay="@style/ShapeAppearanceOverlay.App.CornerSize50Percent"
-            app:srcCompat="@drawable/ic_baseline_person_24" />
+            app:srcCompat="@drawable/ic_baseline_person_24"
+            app:tintMode="screen" />
+<!--            app:tint="#959595"-->
+<!--            android:background="#818080"-->
+<!--            android:tint="#FFFFFF"-->
 
         <com.google.android.material.textview.MaterialTextView
             android:id="@+id/group_in_fm_vh_writer_tv"
@@ -228,7 +230,7 @@
                 android:background="#818080"
                 android:contentDescription="profile 사진 입니다."
                 android:scaleType="centerCrop"
-                android:tint="#FFFFFF"
+                app:tintMode="screen"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toTopOf="parent"
                 app:shapeAppearanceOverlay="@style/ShapeAppearanceOverlay.App.CornerSize50Percent"
@@ -296,7 +298,7 @@
                 android:background="#818080"
                 android:contentDescription="profile 사진 입니다."
                 android:scaleType="centerCrop"
-                android:tint="#FFFFFF"
+                app:tintMode="screen"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toTopOf="parent"
                 app:shapeAppearanceOverlay="@style/ShapeAppearanceOverlay.App.CornerSize50Percent"

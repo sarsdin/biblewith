@@ -12,6 +12,7 @@
         android:layout_width="match_parent"
         android:layout_height="?attr/actionBarSize"
         android:background="#00FFFFFF"
+        android:visibility="gone"
         app:elevation="1dp">
 
         <com.google.android.material.appbar.MaterialToolbar
@@ -38,7 +39,7 @@
                 android:contentDescription="이미지 입니다."
                 android:scaleType="centerCrop"
                 android:background="#818080"
-                android:tint="#FFFFFF"
+                app:tintMode="screen"
                 app:shapeAppearanceOverlay="@style/ShapeAppearanceOverlay.App.CornerSize50Percent"
                 app:srcCompat="@drawable/ic_baseline_person_24"
                 app:layout_collapseMode="pin"  />
@@ -65,14 +66,17 @@
 
     <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="match_parent"
-        android:layout_height="800dp"
-        android:layout_marginTop="56dp"
+        android:layout_height="wrap_content"
+        android:minHeight="500dp"
     >
+<!--        android:layout_marginTop="56dp"-->
+
         <com.google.android.material.card.MaterialCardView
             android:id="@+id/search_card"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:background="#48FB6C6C"
+            android:visibility="gone"
             app:cardCornerRadius="14dp"
             app:cardElevation="1dp"
             app:cardUseCompatPadding="true"
@@ -109,7 +113,6 @@
 
         <androidx.recyclerview.widget.RecyclerView
             android:id="@+id/chat_list"
-            android:name="com.example.androidclient.group.GroupChatFm"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             app:layoutManager="LinearLayoutManager"

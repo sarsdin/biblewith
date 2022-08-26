@@ -5,6 +5,8 @@ import android.content.SharedPreferences;
 import android.preference.PreferenceManager;
 import android.util.Log;
 
+import androidx.annotation.NonNull;
+
 import com.example.androidclient.login.LoginDto;
 
 import java.io.ByteArrayInputStream;
@@ -18,6 +20,8 @@ import java.time.ZoneOffset;
 import java.time.format.DateTimeFormatter;
 import java.util.Date;
 
+import es.dmoral.toasty.Toasty;
+
 public class MyApp extends Application {
 
     public static Application application;
@@ -25,11 +29,24 @@ public class MyApp extends Application {
 //    public static boolean isnaver = false;
     public static SharedPreferences sp;
     private static String TAG = "내앱정보";
+    public static boolean inChat = false; //채팅방 안에 있는지 확인여부 - GroupChatinnerfm 안에 있으면 true 그외는 false 처리해야함
 
 
     public void onCreate() {
         super.onCreate();
         MyApp.application = this;
+
+        //토스트 라이브러리 옵션 설정 - 선택사항임 - 앱클래스파일 어디서든 이명령을 통해 설정 가능
+//        Toasty.Config.getInstance()
+//            .tintIcon(boolean tintIcon) // optional (apply textColor also to the icon)
+//            .setToastTypeface(@NonNull Typeface typeface) // optional
+//            .setTextSize(14) // optional
+//            .allowQueue(true) // optional (prevents several Toastys from queuing)
+//            .setGravity(boolean isRTL, int xOffset, int yOffset) // optional (set toast gravity, offsets are optional)
+//            .supportDarkTheme(boolean isRTL) // optional (whether to support dark theme or not)
+//            .setRTL(boolean isRTL) // optional (icon is on the right)
+//            .apply(); // required
+//        Toasty.Config.reset(); // 앱클래스파일 어디서든 이명령을 통해 초기화 가능
     }
 
     //객체를 깊은 복사하는 메소드 - 데이터주소까지 완전히 다른 객체가 된다
@@ -70,10 +87,10 @@ public class MyApp extends Application {
     public static void setUserInfo(LoginDto userInfo) {
         MyApp.userInfo = userInfo;
     }
-
+    
     public static String getTime(String ui표시orData, String datetime){
         if (ui표시orData.equals("ui")) {
-            DateTimeFormatter format = DateTimeFormatter.ofPattern("yyyy-MM-dd H:mm:ss");
+            DateTimeFormatter format = DateTimeFormatter.ofPattern("yyyy-MM-dd H:mm:ss"); // H(0-23) hh(1-12)
             DateTimeFormatter out_format = DateTimeFormatter.ofPattern("yyyy-MM-dd H:mm");
             DateTimeFormatter out_format2 = DateTimeFormatter.ofPattern("yyyy-MM-dd hh:mm");
             DateTimeFormatter out_format3 = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm");
@@ -123,7 +140,7 @@ public class MyApp extends Application {
 //            mDate.toInstant().getEpochSecond();
             SimpleDateFormat mtime = new SimpleDateFormat();
 
-            return new SimpleDateFormat("yyyy-MM-dd hh:mm:ss").format(mDate);
+            return new SimpleDateFormat("yyyy-MM-dd H:mm:ss").format(mDate);
 
         } else if (ui표시orData.equals(".")) { //현재 시간을 "yyyy-MM-dd hh:mm:ss" 형태의 포맷으로 리턴해줌
             long mNow = System.currentTimeMillis();

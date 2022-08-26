@@ -40,7 +40,7 @@
                 android:background="#818080"
                 android:contentDescription="이미지 입니다."
                 android:scaleType="centerCrop"
-                android:tint="#FFFFFF"
+                app:tintMode="screen"
                 android:visibility="gone"
                 app:shapeAppearanceOverlay="@style/ShapeAppearanceOverlay.App.CornerSize50Percent"
                 app:srcCompat="@drawable/ic_baseline_person_24" />
@@ -64,15 +64,20 @@
                     android:layout_width="184dp"
                     android:layout_height="153dp"
                     android:layout_marginTop="32dp"
-                    android:background="#B1B0B0"
                     android:contentDescription="프로필 이미지"
                     android:scaleType="fitXY"
-                    android:tint="#FFFFFF"
                     app:layout_constraintEnd_toEndOf="parent"
                     app:layout_constraintStart_toStartOf="parent"
                     app:layout_constraintTop_toTopOf="parent"
                     app:round="30dp"
-                    app:srcCompat="@drawable/ic_baseline_add_photo_alternate_24" />
+                    app:srcCompat="@drawable/ic_baseline_add_photo_alternate_24"
+                    app:tintMode="screen" />
+<!--                    android:tintMode="screen"-->
+<!--                    android:backgroundTintMode="src_in"-->
+<!--                    app:tint="#8E7E7E"-->
+<!--                    android:backgroundTint="#FFFFFF"-->
+<!--                    android:background="#B1B0B0"-->
+<!--                    android:tint="#FFFFFF"-->
 
                 <com.google.android.material.floatingactionbutton.FloatingActionButton
                     android:id="@+id/camera_fab"

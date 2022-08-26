@@ -9,7 +9,11 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.lifecycle.ViewModelProvider
+import androidx.navigation.fragment.findNavController
+import com.example.androidclient.MyApp
+import com.example.androidclient.R
 import com.example.androidclient.databinding.GroupChatFmBinding
+import com.example.androidclient.util.ImageHelper
 
 class GroupChatFm : Fragment() {
     lateinit var groupVm: GroupVm
@@ -37,6 +41,10 @@ class GroupChatFm : Fragment() {
     }
 
 
+    override fun onResume() {
+        super.onResume()
+
+    }
 
     override fun onDestroyView() {
         super.onDestroyView()

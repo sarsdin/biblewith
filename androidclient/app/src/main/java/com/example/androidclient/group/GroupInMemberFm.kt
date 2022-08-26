@@ -79,9 +79,9 @@ class GroupInMemberFm : Fragment() {
             if(it.itemId == R.id.groupInFm){
                 Navigation.findNavController(view).navigate(R.id.action_global_groupInFm)
             } else if(it.itemId == R.id.group_in_challenge_fm){
-                Navigation.findNavController(view).navigate(R.id.action_global_groupInMemberFm)
-            } else if(it.itemId == R.id.groupChatFm){
-                Navigation.findNavController(view).navigate(R.id.action_global_groupChatFm)
+                Navigation.findNavController(view).navigate(R.id.action_global_group_in_challenge_fm)
+            } else if(it.itemId == R.id.groupInChatFm){
+                Navigation.findNavController(view).navigate(R.id.action_global_groupInChatFm)
             }
             return@setOnItemSelectedListener false
         }
@@ -95,7 +95,7 @@ class GroupInMemberFm : Fragment() {
 ////                putExtra(Intent.EXTRA_TEXT, "http://biblewith.com/group/${groupVm.groupInfo.get("group_no").asString}")
 //                type = "text/plain"
 //            }
-//
+//              //순수 텍스트를 공유하는 인텐트 - type에 따라 이미지도 공유가능할듯
 //            val shareIntent = Intent.createChooser(sendIntent, "성경with 모임 멤버 초대링크 공유")
 //            startActivity(shareIntent)
 
@@ -133,7 +133,7 @@ class GroupInMemberFm : Fragment() {
     override fun onResume() {
         super.onResume()
 
-        //멤버 목록 제일 상단의 내정보를 업데이트함 - 모임상세정보가져오기의 memberL 에서 내정보만 뽑아내어 넣음
+        //멤버 목록 제일 상단의 내정보 view를 업데이트함 - 모임상세정보가져오기의 memberL 에서 내정보만 뽑아내어 넣음
         binding.writerTv.text = MyApp.userInfo.user_nick
         val myInfo = groupVm.memberL.run {
             val me = this.filter {
@@ -173,10 +173,16 @@ class GroupInMemberFm : Fragment() {
                 .setCancelable(false)
                 .create()
                 .show()
-
-
-
         }
+
+
+        //상단바 프로필 이미지 클릭시
+        binding.toolbarIv.setOnClickListener {
+            findNavController().navigate(R.id.action_global_myProfileFm)
+        }
+        //상단바 프로필 이미지 로딩
+        ImageHelper.getImageUsingGlide(requireActivity(), MyApp.userInfo.user_image, binding.toolbarIv)
+
 
     }
 

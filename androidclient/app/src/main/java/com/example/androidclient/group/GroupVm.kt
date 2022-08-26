@@ -16,6 +16,7 @@ import okhttp3.RequestBody
 import retrofit2.Call
 import retrofit2.Callback
 import retrofit2.Response
+import java.time.LocalDateTime
 import kotlin.coroutines.Continuation
 import kotlin.coroutines.suspendCoroutine
 
@@ -24,18 +25,18 @@ class GroupVm : ViewModel() {
     val host = "15.165.174.226"
     val gson = GsonBuilder().setPrettyPrinting().create()
 
-    var groupL = JsonArray() //모임 목록
+    var groupL = JsonArray() //모임 목록 - 모임목록가져오기()
     var liveGroupL = MutableLiveData<JsonArray>()
-    var gboardL = JsonArray() //모임 상세페이지 게시물 목록
+    var gboardL = JsonArray() //모임 상세페이지 게시물 목록 - 모임상세불러오기()
     var liveGboardL = MutableLiveData<JsonArray>()
-    var memberL = JsonArray() //모임 상세페이지 멤버 목록
+    var memberL = JsonArray() //모임 상세페이지 멤버 목록 - 모임상세불러오기(), 모임멤버목록로드(), 모임멤버추방,탈퇴,검색()
     var liveMemberL = MutableLiveData<JsonArray>()
-    var groupInfo = JsonObject() //모임 상세페이지 모임요약 정보
+    var groupInfo = JsonObject() //모임 상세페이지 모임요약 정보 - 모임상세불러오기()에서 불러옴
     var liveGroupInfo = MutableLiveData<JsonObject>()
 
-    var gboardInfo = JsonObject() //모임 게시물 디테일 정보 - 내용(글,좋아요수,히트수,) + 이미지목록 + 댓글 목록
+    var gboardInfo = JsonObject() //모임 게시물 디테일 정보 - 모임글상세가져오기() - 내용(글,좋아요수,히트수,) + 이미지목록 + 댓글 목록
     var liveGboardInfo = MutableLiveData<JsonObject>()
-    var gboardReplyL = JsonArray() //모임 게시물 디테일 댓글 정보
+    var gboardReplyL = JsonArray() //모임 게시물 디테일 댓글 정보 - 모임글상세가져오기()
     var liveGboardReplyL = MutableLiveData<JsonArray>()
 
 
@@ -77,6 +78,21 @@ class GroupVm : ViewModel() {
     var whatIsSelected = "day"     //선택한 계산방식 - 챌린지 만들기2
     var computedDay = 0               //계산된 완료예정일수 - 서버전송용
 
+
+    //채팅 관련 변수들
+    var chatRoomInfo = JsonObject() //채팅방 정보
+    var liveChatRoomInfo =  MutableLiveData<JsonObject>()
+    var chatRoomInfoL = JsonArray() //채팅방 정보+참가자목록 - GroupInChatRva(모임 채팅페이지 채팅목록) 에서 쓰임
+    var liveChatRoomInfoL =  MutableLiveData<JsonArray>()
+    var chatRoomUserL = JsonArray() //채팅방 참가자목록 - GroupChatInnerRva(채팅방안) 에서 쓰임
+    var liveChatRoomUserL =  MutableLiveData<JsonArray>()
+    var chatL = JsonArray() //채팅+쓴사람 목록 정보
+    var liveChatL =  MutableLiveData<JsonArray>()
+
+    var liveChatCreateDialogFmIsDismiss = MutableLiveData<Boolean>()
+    var noticount = 0
+
+    var dayChangeVerify : LocalDateTime? = null //날짜 지났는지 확인용. 이날짜와 chatDate의 값을 비교해보고 일자부분이 변했으면 +1 해주고 dateLayout 을 visible처리해줌!
 
 
     init {
@@ -158,6 +174,35 @@ class GroupVm : ViewModel() {
         }
         return call
     }
+    suspend fun 모임상세불러오기2(isExeInVm: Boolean): Call<JsonObject>? {
+        val retrofit = Http.getRetrofitInstance(host)
+        val httpGroup = retrofit.create(Http.HttpGroup::class.java) // 통신 구현체 생성(미리 보낼 쿼리스트링 설정해두는거)
+        val call = httpGroup.getGroupIn(currentGroupIn, sortStateGroupIn, MyApp.userInfo.user_no)
+        if (isExeInVm) { //true를 받으면 여기서(vm) 실행하고 결과완료된 call을 리턴. false면 완료안된 call을 리턴해서 호출한 fragment or rva에서 비동기 로직 진행.
+            val resp = suspendCoroutine { cont: Continuation<Unit> ->
+                call.enqueue(object : Callback<JsonObject?> {
+                    override fun onResponse(call: Call<JsonObject?>, response: Response<JsonObject?>) {
+                        if (response.isSuccessful) {
+                            val res = response.body()!!
+    //                        Log.e("[GroupVm]", "모임상세불러오기 onResponse: ${gson.toJson(res)}")
+                            gboardL = res.get("result").asJsonObject.get("gboardL").asJsonArray
+                            liveGboardL.value = gboardL
+                            memberL = res.get("result").asJsonObject.get("memberL").asJsonArray
+                            liveMemberL.value = memberL
+                            groupInfo = res.get("result").asJsonObject.get("0").asJsonObject
+                            liveGroupInfo.value = groupInfo
+                            cont.resumeWith(Result.success(Unit))
+                        }
+                    }
+                    override fun onFailure(call: Call<JsonObject?>, t: Throwable) {
+                        Log.e("[GroupVm]", "모임상세불러오기 onFailure: " + t.message)
+                    }
+                })
+            }
+        }
+        return call
+    }
+
 
 
     fun 모임글쓰기(writeInfo: Map<String, RequestBody>, writeImage: List<MultipartBody.Part>, isExeInVm: Boolean): Call<JsonObject>? {
@@ -706,6 +751,102 @@ class GroupVm : ViewModel() {
         return call
     }
 
+
+//    suspend fun 채팅방만들기(roomInfo: Map<String, RequestBody>, chatRoomImage: MultipartBody.Part, isExeInVm: Boolean): Call<JsonObject>? {
+//        val retrofit = Http.getRetrofitInstance(host)
+//        val httpGroup = retrofit.create(Http.HttpGroup::class.java) // 통신 구현체 생성(미리 보낼 쿼리스트링 설정해두는거)
+//        val call = httpGroup.채팅방만들기(roomInfo, chatRoomImage)
+//        if (isExeInVm) { //true를 받으면 여기서(vm) 실행하고 결과완료된 call을 리턴. false면 완료안된 call을 리턴해서 호출한 fragment or rva에서 비동기 로직 진행.
+//            val resp = suspendCoroutine { cont: Continuation<Unit> ->
+//                call.enqueue(object : Callback<JsonObject?> {
+//                    override fun onResponse(call: Call<JsonObject?>, response: Response<JsonObject?>) {
+//                        if (response.isSuccessful) {
+//                            val res = response.body()!!
+//                            //채팅방정보 - 방제, 방장정보, 생성일...
+//                            chatRoomInfo = res.get("result").asJsonObject.get("chat_room_info").asJsonObject
+//                            liveChatRoomInfo.value = chatRoomInfo
+//                            //참가유저목록
+//                            chatRoomInfoL = res.get("result").asJsonObject.get("chat_room_userL").asJsonArray
+//                            liveChatRoomInfoL.value = chatRoomInfoL
+//                            //채팅리스트
+////                            chatL = res.get("result").asJsonObject.get("chat_list").asJsonArray
+////                            liveChatL.value = chatL
+////                            Log.e("[GroupVm]", "채팅방만들기 onResponse: $res")
+//                            cont.resumeWith(Result.success(Unit))
+//                        }
+//                    }
+//                    override fun onFailure(call: Call<JsonObject?>, t: Throwable) {
+//                        Log.e("[GroupVm]", "채팅방만들기 onFailure: " + t.message)
+//                    }
+//                })
+//            }
+//        }
+//        return call
+//    }
+
+
+    suspend fun 채팅방목록(jo: JsonObject, isExeInVm: Boolean): Call<JsonObject>? {
+        val retrofit = Http.getRetrofitInstance(host)
+        val httpGroup = retrofit.create(Http.HttpGroup::class.java) // 통신 구현체 생성(미리 보낼 쿼리스트링 설정해두는거)
+        val call = httpGroup.채팅방목록(jo )
+        if (isExeInVm) { //true를 받으면 여기서(vm) 실행하고 결과완료된 call을 리턴. false면 완료안된 call을 리턴해서 호출한 fragment or rva에서 비동기 로직 진행.
+            val resp = suspendCoroutine { cont: Continuation<Unit> ->
+                call.enqueue(object : Callback<JsonObject?> {
+                    override fun onResponse(call: Call<JsonObject?>, response: Response<JsonObject?>) {
+                        if (response.isSuccessful) {
+                            val res = response.body()!!
+                            if (res.get("result") != null) {
+                                chatRoomInfoL = res.get("result").asJsonArray
+                                liveChatRoomInfoL.value = chatRoomInfoL
+    //                            Log.e("[GroupVm]", "채팅방목록 onResponse: $res")
+                            }
+                            cont.resumeWith(Result.success(Unit))
+                        }
+                    }
+                    override fun onFailure(call: Call<JsonObject?>, t: Throwable) {
+                        Log.e("[GroupVm]", "채팅방목록 onFailure: " + t.message)
+                    }
+                })
+            }
+        }
+        return call
+    }
+
+
+
+    suspend fun 채팅방참가클릭(chat_room_no: Int, user_no: Int, group_no: Int, isExeInVm: Boolean): Call<JsonObject>? {
+        val retrofit = Http.getRetrofitInstance(host)
+        val httpGroup = retrofit.create(Http.HttpGroup::class.java) // 통신 구현체 생성(미리 보낼 쿼리스트링 설정해두는거)
+        val call = httpGroup.채팅방참가클릭(chat_room_no, user_no, group_no )
+        if (isExeInVm) { //true를 받으면 여기서(vm) 실행하고 결과완료된 call을 리턴. false면 완료안된 call을 리턴해서 호출한 fragment or rva에서 비동기 로직 진행.
+            val resp = suspendCoroutine { cont: Continuation<Unit> ->
+                call.enqueue(object : Callback<JsonObject?> {
+                    override fun onResponse(call: Call<JsonObject?>, response: Response<JsonObject?>) {
+                        if (response.isSuccessful) {
+                            val res = response.body()!!
+                            if(!res.get("result").isJsonNull){
+                                //채팅방정보 - 방제, 방장정보, 생성일...
+                                chatRoomInfo = res.get("result").asJsonObject.get("chat_room_info").asJsonObject
+                                liveChatRoomInfo.value = chatRoomInfo
+                                //참가유저목록
+                                chatRoomUserL = res.get("result").asJsonObject.get("chat_room_userL").asJsonArray
+                                liveChatRoomUserL.value = chatRoomUserL
+                                //채팅리스트
+                                chatL = res.get("result").asJsonObject.get("chat_list").asJsonArray
+                                liveChatL.value = chatL
+    //                            Log.e("[GroupVm]", "채팅방참가클릭 onResponse: $res")
+                            }
+                            cont.resumeWith(Result.success(Unit))
+                        }
+                    }
+                    override fun onFailure(call: Call<JsonObject?>, t: Throwable) {
+                        Log.e("[GroupVm]", "채팅방참가클릭 onFailure: " + t.message)
+                    }
+                })
+            }
+        }
+        return call
+    }
 
 
 

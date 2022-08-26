@@ -38,7 +38,7 @@
                 android:contentDescription="이미지 입니다."
                 android:scaleType="centerCrop"
                 android:background="#818080"
-                android:tint="#FFFFFF"
+                app:tintMode="screen"
                 app:shapeAppearanceOverlay="@style/ShapeAppearanceOverlay.App.CornerSize50Percent"
                 app:srcCompat="@drawable/ic_baseline_person_24"
                 />
@@ -167,7 +167,7 @@
                 android:background="#818080"
                 android:contentDescription="profile 사진 입니다."
                 android:scaleType="centerCrop"
-                android:tint="#FFFFFF"
+                app:tintMode="screen"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toTopOf="parent"
                 app:shapeAppearanceOverlay="@style/ShapeAppearanceOverlay.App.CornerSize50Percent"
