@@ -1,11 +1,19 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.coordinatorlayout.widget.CoordinatorLayout
+<androidx.drawerlayout.widget.DrawerLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".group.GroupChatFm"
+    tools:context=".group.GroupChatInnerFm"
+    >
+
+
+<androidx.coordinatorlayout.widget.CoordinatorLayout
+
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+
 >
     <com.google.android.material.appbar.AppBarLayout
         android:id="@+id/appbar"
@@ -28,6 +36,20 @@
                 android:text="모임 채팅"
                 android:textSize="20sp"
                 android:textStyle="bold" />
+
+            <com.google.android.material.imageview.ShapeableImageView
+                android:id="@+id/toolbar_slide"
+                android:layout_width="30dp"
+                android:layout_height="20dp"
+                android:layout_gravity="end"
+                android:layout_marginEnd="15dp"
+                android:background="#FFFFFF"
+                android:clickable="true"
+                android:contentDescription="이미지 입니다."
+                android:scaleType="centerCrop"
+                app:layout_collapseMode="pin"
+                app:srcCompat="@drawable/ic_baseline_segment_24"
+                app:tintMode="src_in" />
 
             <com.google.android.material.imageview.ShapeableImageView
                 android:id="@+id/toolbar_iv"
@@ -172,3 +194,7 @@
 </androidx.coordinatorlayout.widget.CoordinatorLayout>
 
 
+    <include layout="@layout/group_chat_inner_slide"
+        android:id="@+id/included_layout"
+        />
+</androidx.drawerlayout.widget.DrawerLayout>

@@ -75,7 +75,7 @@
         android:paddingVertical="10dp"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/date_layout">
+        app:layout_constraintTop_toBottomOf="@+id/read_position_layout">
         <!--    android:layout_height="wrap_content"-->
         <com.google.android.material.imageview.ShapeableImageView
             android:id="@+id/profile_iv"
@@ -171,12 +171,13 @@
             android:layout_height="wrap_content"
             android:layout_gravity="end"
             android:layout_marginStart="8dp"
-            android:text="7"
+            android:text=""
             android:textColor="#F57F17"
             android:textSize="13sp"
             android:visibility="gone"
             app:layout_constraintBottom_toTopOf="@+id/chat_date"
             app:layout_constraintStart_toEndOf="@+id/link_card"
+            tools:text="7"
             tools:visibility="visible" />
     </androidx.constraintlayout.widget.ConstraintLayout>
 
@@ -189,7 +190,7 @@
         android:visibility="gone"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/constraintLayout3"
+        app:layout_constraintTop_toBottomOf="@+id/date_layout"
         tools:visibility="visible">
 
         <com.google.android.material.card.MaterialCardView
@@ -215,18 +216,18 @@
 
             <!--        android:background="#43A047"-->
             <!--        android:tint="#FFFFFF"-->
-<!--            <com.google.android.material.imageview.ShapeableImageView-->
-<!--                android:layout_width="wrap_content"-->
-<!--                android:layout_height="wrap_content"-->
-<!--                android:layout_gravity="center|start"-->
-<!--                android:contentDescription="메인 이미지"-->
-<!--                android:maxWidth="250dp"-->
-<!--                android:maxHeight="300dp"-->
-<!--                android:paddingVertical="7dp"-->
-<!--                android:scaleType="fitXY"-->
-<!--                app:srcCompat="@drawable/ic_baseline_calendar_month_24"-->
-<!--                app:tint="#8C8C8C"-->
-<!--                app:tintMode="src_in" />-->
+            <!--            <com.google.android.material.imageview.ShapeableImageView-->
+            <!--                android:layout_width="wrap_content"-->
+            <!--                android:layout_height="wrap_content"-->
+            <!--                android:layout_gravity="center|start"-->
+            <!--                android:contentDescription="메인 이미지"-->
+            <!--                android:maxWidth="250dp"-->
+            <!--                android:maxHeight="300dp"-->
+            <!--                android:paddingVertical="7dp"-->
+            <!--                android:scaleType="fitXY"-->
+            <!--                app:srcCompat="@drawable/ic_baseline_calendar_month_24"-->
+            <!--                app:tint="#8C8C8C"-->
+            <!--                app:tintMode="src_in" />-->
 
             <com.google.android.material.textview.MaterialTextView
                 android:id="@+id/read_tv"

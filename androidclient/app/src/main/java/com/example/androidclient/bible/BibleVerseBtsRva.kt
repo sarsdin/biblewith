@@ -106,7 +106,8 @@ class BibleVerseBtsRva( val bibleVm: BibleVm, val bibleVerseFm: BibleVerseFm) : 
                                     delHighL.forEach bk@ { delNo ->
                                         if (it.bible_no == delNo ) {    //삭제 리스트에 있었던 절의 번호와 같은 절의 색깔을 없앤다.
                                             it.highlight_color = 0
-                                            return@bk
+                                            return@bk       //8/28일 추가 - 코틀린의 foreach return문은 continue처럼 작동함.
+                                                        // break 가 아님!! break 처럼 작동하게 할려면 Loop 절을 써서 범위밖으로 나가야함!
                                         }
                                     }
                                 }

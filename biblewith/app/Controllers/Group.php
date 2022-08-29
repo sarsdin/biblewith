@@ -2305,8 +2305,8 @@ class Group extends \CodeIgniter\Controller
 
             //각유저가 쓴 채팅 리스트를 클라이언트에 보내준다.
             $sql = "select *,
-                    (select read_date from ChatIsRead cir where cir.chat_no = c.chat_no and cir.user_no = ? ) my_read_date,
-                    ((select count(*) from ChatRoom cr where cr.chat_room_no = ?) - (select count(*) from ChatIsRead cir where cir.chat_no = c.chat_no)) unread_count 
+                    (select COUNT(*) from  ChatIsRead cir where cir.chat_no = c.chat_no ) unread_count ,
+                    (select count(*) from ChatIsRead cir where cir.chat_no = c.chat_no  and cir.user_no = ? and cir.chat_room_no = ?) is_unread  
                     from Chat c 
                     join `User` u on u.user_no = c.user_no 
                     where c.chat_room_no = ? and

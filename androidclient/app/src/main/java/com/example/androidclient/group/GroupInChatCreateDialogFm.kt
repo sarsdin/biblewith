@@ -213,7 +213,7 @@ class GroupInChatCreateDialogFm : DialogFragment() {
     override fun onDismiss(dialog: DialogInterface) {
         super.onDismiss(dialog)
         dismiss()
-        //true로바꾸면 방생성이 취소됐다는 것을 vm을 통해 옵저버에 알리고 groupinchatfm채팅방목록갱신을 다시 시작함
+        //true로바꾸면 방생성이 취소됐다는 것을 vm을 통해 옵저버에 알리고 groupInChatFm 채팅방목록갱신을 다시 시작함
         groupVm.liveChatCreateDialogFmIsDismiss.value = true
     }
 
