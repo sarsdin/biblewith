@@ -7,6 +7,7 @@ import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import com.bumptech.glide.Glide.init
 import com.example.androidclient.MyApp
+import com.example.androidclient.util.Helper.날짜표시기
 import com.example.androidclient.util.Http
 import com.google.gson.GsonBuilder
 import com.google.gson.JsonArray
@@ -88,11 +89,19 @@ class GroupVm : ViewModel() {
     var liveChatRoomUserL =  MutableLiveData<JsonArray>()
     var chatL = JsonArray() //채팅+쓴사람 목록 정보
     var liveChatL =  MutableLiveData<JsonArray>()
+    //채팅방안 슬라이드쪽 변수들
+    var chatImageVhL = JsonArray() //채팅방 전체 이미지 목록 정보
+    var liveChatImageVhL =  MutableLiveData<JsonArray>()
+    var chatJoinerVhL = JsonArray() //채팅 참가자 목록 정보
+    var liveChatJoinerVhL =  MutableLiveData<JsonArray>()
 
+    //GroupInChatCreateDialogFm onDismiss()에서 dismiss하고 true로바꾸면 방생성이 취소됐다는 것을 vm을 통해 옵저버에 알리고 groupInChatFm 채팅방목록갱신을 다시 시작함
     var liveChatCreateDialogFmIsDismiss = MutableLiveData<Boolean>()
     var noticount = 0
 
     var dayChangeVerify : LocalDateTime? = null //날짜 지났는지 확인용. 이날짜와 chatDate의 값을 비교해보고 일자부분이 변했으면 +1 해주고 dateLayout 을 visible처리해줌!
+    var daySaved : LocalDateTime? = null //날짜 지났는지 확인용. 이날짜와 chatDate의 값을 비교해보고 일자부분이 변했으면 +1 해주고 dateLayout 을 visible처리해줌!
+    var isDaySaved = false
 
 
     init {
@@ -833,6 +842,7 @@ class GroupVm : ViewModel() {
                                 liveChatRoomUserL.value = chatRoomUserL
                                 //채팅리스트
                                 chatL = res.get("result").asJsonObject.get("chat_list").asJsonArray
+                                날짜표시기(chatL)
                                 liveChatL.value = chatL
     //                            Log.e("[GroupVm]", "채팅방참가클릭 onResponse: $res")
                             }

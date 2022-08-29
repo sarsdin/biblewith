@@ -1,4 +1,5 @@
 package com.example.androidclient.group
+import android.util.Log
 
 import androidx.recyclerview.widget.RecyclerView
 import android.view.LayoutInflater
@@ -18,6 +19,7 @@ import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter
 
 class GroupChatInnerRva(val groupVm: GroupVm, val groupChatInnerFm: GroupChatInnerFm) : RecyclerView.Adapter<GroupChatInnerRva.GroupChatInnerFmVh>() {
+    val tagName = "[GroupChatInnerRva]"
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): GroupChatInnerRva.GroupChatInnerFmVh {
 
@@ -37,7 +39,16 @@ class GroupChatInnerRva(val groupVm: GroupVm, val groupChatInnerFm: GroupChatInn
         holder.bind(groupVm.chatL[position] as JsonObject)
     }
 
+
+    override fun onViewAttachedToWindow(holder: GroupChatInnerFmVh) {
+        holder.setIsRecyclable(false)
+        super.onViewAttachedToWindow(holder)
+    }
+
     override fun getItemCount(): Int {
+        if(groupVm.chatL.isJsonNull || groupVm.chatL.size() == 0){
+            return 0
+        }
         return groupVm.chatL.size()
     }
 
@@ -83,25 +94,96 @@ class GroupChatInnerRva(val groupVm: GroupVm, val groupChatInnerFm: GroupChatInn
                     lBinding.profileIv)
 //                lBinding.unreadTv.text = mItem.get("chat_content").asString
 
-                val now = LocalDateTime.now()
-                val chatDate = LocalDateTime.parse(mItem.get("create_date").asString, DateTimeFormatter.ofPattern("yyyy-MM-dd H:mm:ss"))
-                val todayStartTime = now.format(DateTimeFormatter.ofPattern("yyyy-MM-dd"))
-                val todayStartTime2 = LocalDateTime.parse("$todayStartTime 00:00:00", DateTimeFormatter.ofPattern("yyyy-MM-dd H:mm:ss"))
-//                val chatDate2 = chatDate.format(DateTimeFormatter.ofPattern("yyyy-MM-dd"))
-                if(chatDate.isAfter(todayStartTime2) ){ //채팅쓴날짜시간이 오늘의 시작시간(0시 0분) 보다 더 이후(지났다)면 true
-                    //검증일이 널이 아니고, 하루시작시간+24시간의 값이 채팅쓴시간보다 이전일 경우 true
-                    if(groupVm.dayChangeVerify != null){
-                        if(todayStartTime2.plusDays(1L).isAfter(chatDate)){
-                            if(groupVm.dayChangeVerify!!.isBefore(chatDate)){
-                                groupVm.dayChangeVerify = chatDate
-                            } else {
-                                val uiDate = chatDate.format(DateTimeFormatter.ofPattern("MM월 dd일 yyyy년"))
-                                lBinding.dateLayout.visibility = View.VISIBLE
-                                lBinding.dateDelimiter.text = uiDate
-                            }
-                        }
-                    }
+                //날짜 표시기 처리 - 3가지 깐깐한 조건이 충족되지 않으면 표시되지않으니 안심!
+                if (mItem.get("is_dayChanged") != null && !mItem.get("is_dayChanged").isJsonNull && mItem.get("is_dayChanged").asInt == 1) {
+                    lBinding.dateLayout.visibility = View.VISIBLE
+                    val chatDate = LocalDateTime.parse(mItem.get("create_date").asString, DateTimeFormatter.ofPattern("yyyy-MM-dd H:mm:ss"))
+                    val uiDate = chatDate.format(DateTimeFormatter.ofPattern("MM월 dd일 yyyy년"))
+                    lBinding.dateDelimiter.text = uiDate
+                } else {
+                    lBinding.dateLayout.visibility = View.GONE
                 }
+
+
+
+
+//                val now = LocalDateTime.now()
+//                val chatDate = LocalDateTime.parse(mItem.get("create_date").asString, DateTimeFormatter.ofPattern("yyyy-MM-dd H:mm:ss"))
+//                val todayStartTime = now.format(DateTimeFormatter.ofPattern("yyyy-MM-dd"))
+//                val todayStartTime2 = LocalDateTime.parse("$todayStartTime 00:00:00", DateTimeFormatter.ofPattern("yyyy-MM-dd H:mm:ss"))
+
+                //0번 홀더 일경우 일단 초기화 하고 로직 시작
+//                Log.e(tagName, "lbinding absoluteAdapterPosition:${absoluteAdapterPosition}, ${mItem.get("chat_content")}")
+//                if(absoluteAdapterPosition == 0){
+//                    groupVm.daySaved = null
+//                    Log.e(tagName, "groupVm.daySaved = null  실행")
+//                }
+//                if(groupVm.daySaved != null){
+//                    //하루가 지나고 다음날이 시작하는 시점에 검사한 현재뷰홀더의 날짜시간이 그전날에 계산한 (다음날)시간을 지났을때 == 하루일과 종료(0시) 이후
+//                    //바뀌고 처음 통과하는 뷰홀더의 시간 기준으로 다시 날짜딜리미터를 보여주고, 로직 반복..
+//                    if(chatDate.isAfter(groupVm.dayChangeVerify)){
+//                        //바뀌고 처음이면 이 chatDate 를 daySaved에 넣어야함
+//                        groupVm.daySaved = chatDate //null 유무만 판단기준으로 사용 - 다른용도는 아직 없음
+//                        val st뷰홀더기준그날시작시간 = chatDate.format(DateTimeFormatter.ofPattern("yyyy-MM-dd"))
+//                        val 뷰홀더기준그날시작시간 = LocalDateTime.parse("$st뷰홀더기준그날시작시간 00:00:00", DateTimeFormatter.ofPattern("yyyy-MM-dd H:mm:ss"))
+//                        val 뷰홀더기준그다음날시작시간 = 뷰홀더기준그날시작시간.plusDays(1L)
+//                        groupVm.dayChangeVerify = 뷰홀더기준그다음날시작시간
+//
+//                        val uiDate = chatDate.format(DateTimeFormatter.ofPattern("MM월 dd일 yyyy년"))
+//                        lBinding.dateLayout.visibility = View.VISIBLE
+//                        lBinding.dateDelimiter.text = uiDate
+//                        Log.e(tagName, "2 ${groupVm.dayChangeVerify}")
+//
+//
+//                    //현재 뷰홀더가 저장된 그다음날 전까지의 시간이라면(아직하루일과중: 새벽0시전 이라면) 데이딜리미터가 안보여야함
+//                    } else {
+//                        lBinding.dateLayout.visibility = View.GONE
+//                        Log.e(tagName, "3 ${groupVm.dayChangeVerify}")
+//                    }
+
+                
+                //저장된 현재 시간이 없다면 : 보통 포지션0번 일때 - 그 0번 포지션값을 기준으로 초기화함
+//                } else {
+//                    groupVm.daySaved = chatDate
+//                    val st뷰홀더기준그날시작시간 = chatDate.format(DateTimeFormatter.ofPattern("yyyy-MM-dd"))
+//                    val 뷰홀더기준그날시작시간 = LocalDateTime.parse("$st뷰홀더기준그날시작시간 00:00:00", DateTimeFormatter.ofPattern("yyyy-MM-dd H:mm:ss"))
+//                    val 뷰홀더기준그다음날시작시간 = 뷰홀더기준그날시작시간.plusDays(1L)
+//                    groupVm.dayChangeVerify = 뷰홀더기준그다음날시작시간
+//                    Log.e(tagName, "$absoluteAdapterPosition st뷰홀더기준그날시작시간:$st뷰홀더기준그날시작시간 , 뷰홀더기준그날시작시간:$뷰홀더기준그날시작시간 , 뷰홀더기준그다음날시작시간:$뷰홀더기준그다음날시작시간")
+//
+//                    val uiDate = chatDate.format(DateTimeFormatter.ofPattern("MM월 dd일 yyyy년"))
+//                    lBinding.dateLayout.visibility = View.VISIBLE
+//                    lBinding.dateDelimiter.text = uiDate
+//
+//                }
+
+
+
+//                if(chatDate.isAfter(todayStartTime2) ){ //채팅쓴날짜시간이 오늘의 시작시간(0시 0분) 보다 더 이후(지났다)면 true
+//                    //검증일이 널이 아니고, 하루시작시간+24시간의 값이 채팅쓴시간보다 이전일 경우 true
+//                    if(groupVm.dayChangeVerify != null){
+//                        if(todayStartTime2.plusDays(1L).isAfter(chatDate)){
+//                            if(groupVm.dayChangeVerify!!.isBefore(chatDate)){
+//                                groupVm.dayChangeVerify = chatDate
+//                            } else {
+//                                val uiDate = chatDate.format(DateTimeFormatter.ofPattern("MM월 dd일 yyyy년"))
+//                                lBinding.dateLayout.visibility = View.VISIBLE
+//                                lBinding.dateDelimiter.text = uiDate
+//                            }
+//                        }
+//
+//                    //0번인덱스 기준으로 잡고 dayChangeVerify 에 0번인덱스의 날짜를 집어넣어함 그리고 그 이후로 +1 day 식 날짜 계산해서 주욱 이어가야함..
+//                    } else {
+//                        groupVm.dayChangeVerify = chatDate
+//                        val uiDate = chatDate.format(DateTimeFormatter.ofPattern("MM월 dd일 yyyy년"))
+//                        lBinding.dateLayout.visibility = View.VISIBLE
+//                        lBinding.dateDelimiter.text = uiDate
+//                    }
+//                }
+
+
+
+
 
                 //0이 아니면 읽지않은수 표시
                 if(mItem.get("unread_count") != null && mItem.get("unread_count").asString != "0"){
@@ -109,6 +191,20 @@ class GroupChatInnerRva(val groupVm: GroupVm, val groupChatInnerFm: GroupChatInn
                     lBinding.unreadTv.visibility = View.VISIBLE
                 } else {
                     lBinding.unreadTv.visibility = View.GONE
+                }
+
+//                Log.e(tagName, "groupChatInnerFm.여기까지읽음: $absoluteAdapterPosition ${groupChatInnerFm.여기까지읽음}")
+                //여기까지 읽었습니다. 표시
+                // 0번 포지션일때는 참이되니 그냥 false 되게 조건하나 더걸어줌
+                if(absoluteAdapterPosition == groupChatInnerFm.여기까지읽음 && absoluteAdapterPosition != 0){
+                    lBinding.readPositionLayout.visibility = View.VISIBLE
+//                    groupChatInnerFm.여기까지읽음 = 0 //0으로 바꿔서 핸들러에서 두번 반응하지 않게 초기화 시켜줌
+                    //이것을 true로 바꾸면 groupChatInnerFm에서 스크롤이벤트시 여기까지읽음=0 으로 바꿔서 읽음표시 없애기!
+                    //이러면 다른참가자의 스크롤이벤트로 인한 소켓통신으로 인해 옵저버의 갱신에 영향을 받지 않고
+                    // 나의 스크롤이벤트에만 반응하여 여기까지읽음 뷰를 초기화할 수 있다!
+                    groupChatInnerFm.여기까지읽음스크롤시초기화여부 = true
+                } else {
+                    lBinding.readPositionLayout.visibility = View.GONE
                 }
 
                 //문자열일 경우와 이미지일 경우 값이 넣어지는 뷰를 달리해준다 - 에러방지위함
@@ -131,25 +227,37 @@ class GroupChatInnerRva(val groupVm: GroupVm, val groupChatInnerFm: GroupChatInn
 
 //                rBinding.unreadTv.text = mItem.get("chat_content").asString
 
-                val now = LocalDateTime.now()
-                val chatDate = LocalDateTime.parse(mItem.get("create_date").asString, DateTimeFormatter.ofPattern("yyyy-MM-dd H:mm:ss"))
-                val todayStartTime = now.format(DateTimeFormatter.ofPattern("yyyy-MM-dd"))
-                val todayStartTime2 = LocalDateTime.parse("$todayStartTime 00:00:00", DateTimeFormatter.ofPattern("yyyy-MM-dd H:mm:ss"))
-//                val chatDate2 = chatDate.format(DateTimeFormatter.ofPattern("yyyy-MM-dd"))
-                if(chatDate.isAfter(todayStartTime2) ){ //채팅쓴날짜시간이 오늘의 시작시간(0시 0분) 보다 더 이후(지났다)면 true
-                    //검증일이 널이 아니고, 하루시작시간+24시간의 값이 채팅쓴시간보다 이전일 경우 true
-                    if(groupVm.dayChangeVerify != null){
-                        if(todayStartTime2.plusDays(1L).isAfter(chatDate)){
-                            if(groupVm.dayChangeVerify!!.isBefore(chatDate)){
-                                groupVm.dayChangeVerify = chatDate
-                            } else {
-                                val uiDate = chatDate.format(DateTimeFormatter.ofPattern("MM월 dd일 yyyy년"))
-                                rBinding.dateLayout.visibility = View.VISIBLE
-                                rBinding.dateDelimiter.text = uiDate
-                            }
-                        }
-                    }
+
+                //날짜 표시기 처리 - 3가지 깐깐한 조건이 충족되지 않으면 표시되지않으니 안심!
+                if (mItem.get("is_dayChanged") != null && !mItem.get("is_dayChanged").isJsonNull && mItem.get("is_dayChanged").asInt == 1) {
+                    rBinding.dateLayout.visibility = View.VISIBLE
+                    val chatDate = LocalDateTime.parse(mItem.get("create_date").asString, DateTimeFormatter.ofPattern("yyyy-MM-dd H:mm:ss"))
+                    val uiDate = chatDate.format(DateTimeFormatter.ofPattern("MM월 dd일 yyyy년"))
+                    rBinding.dateDelimiter.text = uiDate
+                } else {
+                    rBinding.dateLayout.visibility = View.GONE
                 }
+                
+
+//                val now = LocalDateTime.now()
+//                val chatDate = LocalDateTime.parse(mItem.get("create_date").asString, DateTimeFormatter.ofPattern("yyyy-MM-dd H:mm:ss"))
+//                val todayStartTime = now.format(DateTimeFormatter.ofPattern("yyyy-MM-dd"))
+//                val todayStartTime2 = LocalDateTime.parse("$todayStartTime 00:00:00", DateTimeFormatter.ofPattern("yyyy-MM-dd H:mm:ss"))
+////                val chatDate2 = chatDate.format(DateTimeFormatter.ofPattern("yyyy-MM-dd"))
+//                if(chatDate.isAfter(todayStartTime2) ){ //채팅쓴날짜시간이 오늘의 시작시간(0시 0분) 보다 더 이후(지났다)면 true
+//                    //검증일이 널이 아니고, 하루시작시간+24시간의 값이 채팅쓴시간보다 이전일 경우 true
+//                    if(groupVm.dayChangeVerify != null){
+//                        if(todayStartTime2.plusDays(1L).isAfter(chatDate)){
+//                            if(groupVm.dayChangeVerify!!.isBefore(chatDate)){
+//                                groupVm.dayChangeVerify = chatDate
+//                            } else {
+//                                val uiDate = chatDate.format(DateTimeFormatter.ofPattern("MM월 dd일 yyyy년"))
+//                                rBinding.dateLayout.visibility = View.VISIBLE
+//                                rBinding.dateDelimiter.text = uiDate
+//                            }
+//                        }
+//                    }
+//                }
 
                 //0이 아니면 읽지않은수 표시
                 if(mItem.get("unread_count")!=null && mItem.get("unread_count").asString != "0"){

@@ -149,11 +149,12 @@
             android:layout_height="wrap_content"
             android:layout_gravity="end"
             android:layout_marginEnd="8dp"
-            android:text="7"
+            android:text=""
             android:textColor="#F57F17"
             android:textSize="13sp"
             android:visibility="gone"
             tools:visibility="visible"
+            tools:text="7"
             app:layout_constraintBottom_toTopOf="@+id/chat_date"
             app:layout_constraintEnd_toStartOf="@+id/link_card" />
 

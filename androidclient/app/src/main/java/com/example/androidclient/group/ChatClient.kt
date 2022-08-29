@@ -147,13 +147,19 @@ class ChatClient(private val ip: String, val myService: MyService /*, val groupV
                 //todo 이 위치에 노티피케이션 작업을 해야할듯하다.. 핸들러는 null이 아닐때만 제할일 하니깐 냅두고 수신받은 메시지를
                 // 분석하여 채팅전달 cmd 라면 액티비티 or 프래그먼트 위치에 관계없이 서비스만 살아있으면 어느위치에서도 알림을 보여 줄 수 있어야함
 
-                if(!MyApp.inChat){ //채팅방 안에 있는지 확인여부 - GroupChatinnerfm 안에 있으면 true 그외는 false 처리해야함.
-                    if (!jin.isJsonNull && jin != null) {
-                        if(jin.get("cmd").asString == "채팅전달" || jin.get("cmd").asString == "채팅갱신" ){
+                //현재 참가한 채팅방 번호를 MyApp에 저장해야할듯!? 현재것은 단순 채팅방에 있는지 없는지만 분별되는데, 그게 아니라
+                //현재 채팅방에서 전달되어온 채팅알림만 꺼야함. 그럴려면 현재 내가 채팅방에 들어갈때 그 번호를 MyApp에 저장해야한다.
+                //그리고, 그것을 알림이 오는 이곳에서 jin의 채팅방 번호와 비교한 후 현재 참가된 곳이 아니라면 알림을 생성, 아니면 알림생성안함으로 짜야함!
+
+                if (jin != null && !jin.isJsonNull) {
+//                        if(jin.get("cmd").asString == "채팅전달" || jin.get("cmd").asString == "채팅갱신" ){
+                    if(jin.get("cmd").asString == "채팅통합"  ){
+                        if(MyApp.inChatRoom != jin.get("rawChat").asJsonObject.get("chat_room_no").asInt){
                             ct++
                             Log.e(tagName, "알림 실행 준비")
-                            알림(jin)
+                            알림(jin.get("rawChat").asJsonObject)
                         }
+
                     }
                 }
 

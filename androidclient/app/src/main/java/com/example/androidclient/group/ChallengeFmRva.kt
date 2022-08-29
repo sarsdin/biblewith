@@ -10,6 +10,7 @@ import com.example.androidclient.MyApp
 import com.example.androidclient.R
 import com.example.androidclient.databinding.ChallengeFmListVhBinding
 import com.example.androidclient.moreinfo.MyNoteRvaInner
+import com.example.androidclient.util.ImageHelper
 import com.google.android.material.button.MaterialButton
 import com.google.gson.JsonObject
 import kotlinx.coroutines.CoroutineScope
@@ -48,6 +49,7 @@ class ChallengeFmRva(val groupVm: GroupVm, val challengeFm: ChallengeFm)
             binding.chalVhFmVhDateTv.text =
                 "${MyApp.getTime(".ui", mItem.get("chal_create_date").asString)}일 시작. ${MyApp.getTime("ui", mItem.get("chal_create_date").asString)}"
             binding.chalVhFmVhContentTv.text = mItem.get("chal_title").asString
+            ImageHelper.getImageUsingGlide(challengeFm.requireActivity(), mItem.get("user_image").asString, binding.chalVhFmVhIv)
 
             //선택한 목록 표시 - 선택된 성경책 목록을 표시
             val st = StringBuilder()

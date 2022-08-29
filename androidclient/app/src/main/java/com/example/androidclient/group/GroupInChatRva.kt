@@ -43,6 +43,9 @@ class GroupInChatRva(val groupVm: GroupVm, val groupInChatFm: GroupInChatFm) : R
     }
 
     override fun getItemCount(): Int {
+        if(groupVm.chatRoomInfoL.isJsonNull || groupVm.chatRoomInfoL.size() == 0){
+            return 0
+        }
         return groupVm.chatRoomInfoL.size()
     }
 
@@ -55,40 +58,53 @@ class GroupInChatRva(val groupVm: GroupVm, val groupInChatFm: GroupInChatFm) : R
         init {
         }
 
-        //mItem -- 노트목록가져오기() :getNoteList 메소드로부터
+        //mItem -
         fun bind(mItem: JsonObject) {
 //            this.mItem = mItem;
 
             ImageHelper.getImageUsingGlide(groupInChatFm.requireContext(), mItem.get("chat_room_image").asString, binding.chatIv)
             binding.chatTitle.text = mItem.get("chat_room_title").asString
-            binding.chatDate.text = if (mItem.get("last_msg_date").isJsonNull) MyApp.getTime(".", mItem.get("create_date").asString)
-                                    else MyApp.getTime(".", mItem.get("last_msg_date").asString)
+            if (mItem.get("last_msg_date") != null && !mItem.get("last_msg_date").isJsonNull) {
+                binding.chatDate.text = MyApp.getTime("ui4", mItem.get("last_msg_date").asString)
+            }
+            else {
+                binding.chatDate.text = MyApp.getTime(".", mItem.get("create_date").asString) //아무런 메시지가 없으면 방생성일 보여줌
+            }
 
-            if (!mItem.get("last_user_nick").isJsonNull){
-                if(!mItem.get("last_chat_content").isJsonNull){
-                    if(!mItem.get("last_chat_type").isJsonNull){
-                        when (mItem.get("last_chat_type").asString) {
-                            "이미지" -> {
-                                binding.lastChat.text = "${mItem.get("last_user_nick").asString}: 이미지"
+            // todo 여기에 방에 참가했는지 여부를 체크하고 안했으면 안했다는 메시지 분기문을 짜야함
+            // 현재 뷰홀더가 나타내고 있는 채팅방에 내가 참가했는지 여부를 검사한다. 1이면 참가했다는 것! 0이면 아님.
+            if (mItem.get("my_is_joined") != null && mItem.get("my_is_joined").asInt == 1) {
+                if (mItem.get("last_user_nick") != null && !mItem.get("last_user_nick").isJsonNull){
+                    if(!mItem.get("last_chat_content").isJsonNull){
+                        if(!mItem.get("last_chat_type").isJsonNull){
+                            when (mItem.get("last_chat_type").asString) {
+                                "이미지" -> {
+                                    binding.lastChat.text = "${mItem.get("last_user_nick").asString}: 이미지"
 
-                            }
-                            "접속알림" -> {
-                                binding.lastChat.text = "${mItem.get("last_user_nick").asString}: 접속알림"
+                                }
+                                "접속알림" -> {
+                                    binding.lastChat.text = "${mItem.get("last_user_nick").asString}: 접속알림"
 
-                            }
-                            else -> {
-                                binding.lastChat.text = "${mItem.get("last_user_nick").asString}: ${mItem.get("last_chat_content").asString}"
+                                }
+                                else -> {
+                                    binding.lastChat.text = "${mItem.get("last_user_nick").asString}: ${mItem.get("last_chat_content").asString}"
+                                }
                             }
                         }
                     }
                 }
+
+            //그래서, 채팅방에 참가 안했으면 참가안했다는 메세지를 보여줘야함!
+            } else {
+                binding.lastChat.text = "\uD83D\uDE38 방에 참가해 모임원들과 소통하세요!"
             }
+
 
             //마지막 채팅내용을 실시간으로 표시해야하는데, 백그라운드의 소켓통신 스트림의 받은 채팅내용을 채팅리스트변수에 업데이트 시켜줌과 동시에
 //            binding.lastChat.text = mItem.asJsonObject.get("chat_room_title").asString
 //            binding.chatDate.text = mItem.asJsonObject.get("chat_room_title").asString
             //알림의 읽지않은 채팅 개수 유무도 표시해야함 - 숫자: 서버에서 읽지않은 레코드를 계산된 것으로 가져와야할듯?
-            if(mItem.get("my_unread_count").asInt != 0) {
+            if(mItem.get("my_unread_count") != null && mItem.get("my_unread_count").asInt != 0) {
                 숫자이미지넣기(binding.notiEa, mItem.get("my_unread_count").asInt, groupInChatFm.requireContext())
                 binding.notiEa.visibility = View.VISIBLE
             } else {
@@ -114,7 +130,7 @@ class GroupInChatRva(val groupVm: GroupVm, val groupInChatFm: GroupInChatFm) : R
 
         //숫자를 드로어블로 표현할 뷰객체, 거기에 넣을 숫자
         fun 숫자이미지넣기(view: ImageView, position: Int, context:Context){
-            val fontSize = 40 //set your font size
+            val fontSize = if(position < 100) 40 else 28
 //            val baseImage = BitmapFactory.decodeResource(challengeCreateFm.requireContext().resources, R.drawable.ic_baseline_circle_24) //load the hexagon image
 //            val baseImage = AppCompatResources.getDrawable(challengeCreateFm.requireContext(), R.drawable.ic_baseline_circle_24)!!
 //                .toBitmap(50, 50)
