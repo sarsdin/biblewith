@@ -13,6 +13,53 @@ use CodeIgniter\HTTP\ResponseInterface;
 class Bible extends \CodeIgniter\Controller
 {
 
+    //성경 일독 로드
+    public function getTodayLang() : ResponseInterface
+    {
+        $book = new Book();
+        $req = $this->request;
+        $res = $this->response;
+//        $data = $req->getVar();
+//        log_message("debug", "[Bible] getBookList \$data: ". print_r($data, true));
+
+//        $랜덤구절번호생성 = sprintf("%06d", mt_rand(1, 999999));
+        $sql = " select * from bible_korHRV bkh join book b on bkh.book = b.book_no  where book_name in ('시편','잠언', '전도서', '아가' )
+                or (bkh.bible_no BETWEEN 23146 and 31102) 
+                order by RAND() LIMIT 1  ";
+
+        try {
+            $book->db->transStart();
+            //book_no가 아닌 book으로 해야되는 이유: gson serialize 할때 Dto에 맵핑시 어디서는 book으로 쓰이고 어디서는 book_no로 쓰여서
+            //헷갈리고 어디서는 맵핑도 안된다. 애초에 book_no가 아닌 book으로 통일했으면 dto에서 헷갈릴 일도 없지..ㅠㅠ
+//            $sql = " select book_no book, book_name, book_category from book ";
+            $result = $book->db->query($sql);
+            $result = $result->getResultArray();
+//            log_message("debug", "[Bible] getTodayLang \$result: ". print_r($result, true));
+
+            if ($book->db->transComplete()) {
+                $book->db->transCommit();
+                return $res->setJSON([
+                    "result" => $result[0],
+                    "msg" => "ok"
+                ]); //배열로 반환되면 클라이언트에서 Dto객체로 변환이 안된다. Dto는 Object 타입이기때문
+
+            } else {
+                $book->db->transRollback();
+                log_message("debug", "[Bible] getTodayLang \$book->db->error(): ". print_r($book->db->error(), true));
+                return $res->setJSON([
+                    "result" => $book->db->error(),
+                    "msg" => "fail"
+                ]);
+            }
+
+        } catch (\ReflectionException | DataException $e){
+            return $res->setJSON($e->getMessage());
+        }
+    }
+
+
+
+///////////////////////////////////////////////////////////////////////////////////성경 시작
 
     // 성경 책 이름 정보 반환
     public function getBookList() : ResponseInterface
@@ -394,6 +441,9 @@ class Bible extends \CodeIgniter\Controller
             return $res->setJSON($e->getMessage());
         }
     }
+
+
+
 
 
 }

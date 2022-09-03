@@ -1,5 +1,7 @@
 package com.example.androidclient.util;
 
+import android.util.Log;
+
 import com.example.androidclient.bible.BibleDto;
 import com.example.androidclient.login.LoginDto;
 import com.google.gson.Gson;
@@ -47,6 +49,7 @@ public class Http {
     public static final String Q_LALIGA = "highlight";                             //검색어
     public static final String UPLOADS_URL = "http://15.165.174.226/uploads/";                             //검색어
     public static final String HOST_IP = "15.165.174.226";                             //서버 ip
+    public static final String UNSPLASH_API_URL = "https://api.unsplash.com";
 
 
     public static Retrofit getRetrofitInstance(String host){
@@ -59,13 +62,24 @@ public class Http {
         interceptor.level(HttpLoggingInterceptor.Level.BODY);
         OkHttpClient client = new OkHttpClient.Builder().addInterceptor(interceptor).build();
 
-        Retrofit retrofit = new Retrofit.Builder()
-                .baseUrl(BASE_URL + host + "/")
-                .client(client)
-                .addConverterFactory(GsonConverterFactory.create(gson))
-                .build();
+        Retrofit retrofit = null;
+        if(host.equals(HOST_IP)){
+            retrofit =new Retrofit.Builder()
+                    .baseUrl(BASE_URL + host + "/")
+                    .client(client)
+                    .addConverterFactory(GsonConverterFactory.create(gson))
+                    .build();
+
+        } else if (host.equals(UNSPLASH_API_URL)){
+            retrofit = new Retrofit.Builder()
+                    .baseUrl(UNSPLASH_API_URL)
+                    .client(client)
+                    .addConverterFactory(GsonConverterFactory.create(gson))
+                    .build();
+        }
         return retrofit;
     }
+
 
 
     //retrofit2 service interface 설정
@@ -124,8 +138,23 @@ public class Http {
         );
     }
 
+    public interface HttpHome {
 
-    public interface HttpBible{
+        //성경일독
+        @GET("bible/getTodayLang")
+        Call<JsonObject> 성경일독();
+
+        //Unsplash Api 랜덤 이미지 10장
+        @Headers({
+            "Authorization: Client-ID yEG1lot43cUerBQv3RUNkymPmzAMrXiSxV1mkUGj5JQ",
+            "content-type: application/json"
+        })
+        @GET("/photos/random")
+        Call<JsonArray> 랜덤이미지(@Query("query") String query, @Query("count") int count);
+    }
+
+
+        public interface HttpBible{
 
         //성경책 목록
         @GET("bible/getBookList")
@@ -363,6 +392,10 @@ public class Http {
                                  @Query("group_no") int group_no
         );
 
+        @Multipart
+        @POST("group/chatRoomUploadImages")
+        Call<JsonObject> 채팅방이미지업로드클릭(@PartMap Map<String, RequestBody> chatInfo,
+                                     @Part List<MultipartBody.Part> uploadImages);
 
 
     }

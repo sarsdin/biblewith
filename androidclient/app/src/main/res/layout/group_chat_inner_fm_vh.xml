@@ -105,28 +105,49 @@
             <!--        android:background="#43A047"-->
             <!--        android:tint="#FFFFFF"-->
 
-            <com.google.android.material.textview.MaterialTextView
-                android:id="@+id/chat_content"
+            <LinearLayout
+                android:id="@+id/linear_layout"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:maxWidth="250dp"
-                android:paddingVertical="5dp"
-                android:text="하하하하하하하하하하~!!"
-                android:textColor="#232323"
-                android:textSize="16sp" />
+                android:orientation="vertical">
 
-            <com.google.android.material.imageview.ShapeableImageView
-                android:id="@+id/chat_iv"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_gravity="center|end"
-                android:contentDescription="메인 이미지"
-                android:maxWidth="250dp"
-                android:maxHeight="300dp"
-                android:paddingVertical="7dp"
-                android:scaleType="fitXY"
-                android:visibility="gone"
-                app:tintMode="screen" />
+                <com.google.android.material.textview.MaterialTextView
+                    android:id="@+id/chat_content"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:maxWidth="230dp"
+                    android:paddingVertical="5dp"
+                    android:text="보낸 이미지 2장"
+                    android:textColor="#232323"
+                    tools:visibility="visible"
+                    android:textSize="16sp" />
+
+                <androidx.recyclerview.widget.RecyclerView
+                    android:id="@+id/chat_irv"
+                    android:layout_width="200dp"
+                    android:layout_height="wrap_content"
+                    android:maxWidth="250dp"
+                    android:minWidth="200dp"
+                    android:orientation="horizontal"
+                    android:paddingVertical="7dp"
+                    android:visibility="gone"
+                    tools:visibility="visible" />
+            </LinearLayout>
+<!--                    android:layout_gravity="center|end"-->
+
+<!--            <com.google.android.material.imageview.ShapeableImageView-->
+<!--                android:id="@+id/chat_iv"-->
+<!--                android:layout_width="wrap_content"-->
+<!--                android:layout_height="wrap_content"-->
+<!--                android:layout_gravity="center|end"-->
+<!--                android:contentDescription="메인 이미지"-->
+<!--                android:maxWidth="250dp"-->
+<!--                android:maxHeight="300dp"-->
+<!--                android:paddingVertical="7dp"-->
+<!--                android:scaleType="fitXY"-->
+<!--                android:visibility="gone"-->
+<!--                app:tintMode="screen" />-->
             <!--            app:srcCompat="@drawable/ic_baseline_person_24"-->
 
         </com.google.android.material.card.MaterialCardView>

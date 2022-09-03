@@ -50,6 +50,7 @@ class ImageHelper {
                 .error(R.drawable.ic_xmark) //이미지를 불러오는데 실패 했을때 보여질 이미지를 정함
                 .into(view) //받아온 이미지를 받을 공간(ex. ImageView)
         }
+
     }
 
 }

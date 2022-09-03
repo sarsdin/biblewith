@@ -14,7 +14,6 @@ import android.util.Log
 import androidx.core.app.NotificationCompat
 import androidx.core.app.NotificationManagerCompat
 import com.example.androidclient.MyApp
-import com.example.androidclient.MyApp.application
 import com.example.androidclient.MyService
 import com.example.androidclient.R
 import com.example.androidclient.home.MainActivity
@@ -143,7 +142,7 @@ class ChatClient(private val ip: String, val myService: MyService /*, val groupV
                 //fm 에서 등록된 핸들러 객체를 서비스로 받아와서 서비스에서 이 스레드를 생성할때 참조로 넣어준다.
                 //이 후 그 참조된 핸들러를 이용해 서버로부터 메시지를 수신하면 수신된 메시지를 핸들러 메시지로 fm에 전달해준다.
                 val jin = JsonParser.parseString(msg).asJsonObject
-                Log.e(tagName, "서버로부터 수신 받은 메시지: ${gson.toJson(jin)}")
+                Log.i(tagName, "서버로부터 수신 받은 메시지: ${gson.toJson(jin)}")
                 //todo 이 위치에 노티피케이션 작업을 해야할듯하다.. 핸들러는 null이 아닐때만 제할일 하니깐 냅두고 수신받은 메시지를
                 // 분석하여 채팅전달 cmd 라면 액티비티 or 프래그먼트 위치에 관계없이 서비스만 살아있으면 어느위치에서도 알림을 보여 줄 수 있어야함
 
@@ -155,6 +154,16 @@ class ChatClient(private val ip: String, val myService: MyService /*, val groupV
 //                        if(jin.get("cmd").asString == "채팅전달" || jin.get("cmd").asString == "채팅갱신" ){
                     if(jin.get("cmd").asString == "채팅통합"  ){
                         if(MyApp.inChatRoom != jin.get("rawChat").asJsonObject.get("chat_room_no").asInt){
+//                            val sp = MyApp.getApplication().getSharedPreferences("scrollverse", Context.MODE_PRIVATE)
+//                            val spEditor = sp.edit()
+//                            val save = JsonObject()
+//                            save.addProperty("user_email", MyApp.getUserInfo().user_email)
+//                            spEditor.putString(MyApp.getUserInfo().user_email, save.toString())
+//                                .apply() //저장하는 키값을 이메일(id)로 이용
+//
+//                            if () {
+//
+//                            }
                             ct++
                             Log.e(tagName, "알림 실행 준비")
                             알림(jin.get("rawChat").asJsonObject)

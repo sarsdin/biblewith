@@ -1,10 +1,17 @@
 package com.example.androidclient.group
 
+import android.content.Intent
 import android.content.ServiceConnection
+import android.net.Uri
 import android.os.*
 import android.util.Log
 import android.view.*
 import android.widget.Toast
+import androidx.activity.result.ActivityResultLauncher
+import androidx.activity.result.contract.ActivityResultContracts
+import androidx.activity.result.launch
+import androidx.activity.result.registerForActivityResult
+import androidx.appcompat.app.AlertDialog
 import androidx.core.view.GravityCompat
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.Observer
@@ -18,13 +25,24 @@ import com.example.androidclient.MyApp
 import com.example.androidclient.MyService
 import com.example.androidclient.databinding.GroupChatInnerFmBinding
 import com.example.androidclient.home.MainActivity
+import com.example.androidclient.util.FileHelper
+import com.example.androidclient.util.Helper.날짜표시기
+import com.example.androidclient.util.Http
 import com.example.androidclient.util.ImageHelper
 import com.google.gson.*
 import kotlinx.coroutines.*
+import okhttp3.MediaType.Companion.toMediaTypeOrNull
+import okhttp3.RequestBody
+import okhttp3.RequestBody.Companion.toRequestBody
+import retrofit2.Call
+import retrofit2.Callback
+import retrofit2.Response
 import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter
 import java.time.temporal.ChronoUnit
 import java.time.temporal.TemporalUnit
+import kotlin.coroutines.Continuation
+import kotlin.coroutines.suspendCoroutine
 
 
 class GroupChatInnerFm : Fragment() {
@@ -36,6 +54,10 @@ class GroupChatInnerFm : Fragment() {
     var mbinding: GroupChatInnerFmBinding? = null
     val binding get() = mbinding!! //null체크를 매번 안하게끔 재 선언
 
+    lateinit var imgRv: RecyclerView
+    lateinit var imgRva: GroupChatInnerImageRva
+    lateinit var joinerRv: RecyclerView
+    lateinit var joinerRva: GroupChatInnerJoinerRva
     val gson = Gson()
 
 //    lateinit var cli: ChatClient
@@ -48,7 +70,7 @@ class GroupChatInnerFm : Fragment() {
             if(msg.what == 1){
                 val getJin = msg.data.getString("jin") //서비스에서 들어온 채팅 json 문자열 - 이걸 파싱해야함 여기서
                 val jin = JsonParser.parseString(getJin).asJsonObject
-                Log.e(tagName, "service -> handler -> main: 수신 받은 메시지: $jin")
+                Log.i(tagName, "service -> handler -> main: 수신 받은 메시지: $jin")
 
                 //현재 참가한 이 채팅방 번호가 받은 메시지에 있는 채팅방 번호와 같으면 현재 보여지는 채팅 리스트에 채팅을 추가함
 //                if(jin.get("cmd_type").asString == "채팅" && jin.get("cmd").asString == "채팅전달" ){
@@ -64,11 +86,26 @@ class GroupChatInnerFm : Fragment() {
 //                }
 
                 if(jin.get("cmd").asString == "채팅방접속") {
+                    //전달받은 원본채팅(채팅을보낸클라로부터)의 채팅방 번호가 현재 접속한 채팅방과 같은 경우 수행!
+                    if(jin.get("rawChat").asJsonObject.get("chat_room_no").asInt == groupVm.chatRoomInfo.get("chat_room_no").asInt){
+                        groupVm.chatL = jin.get("chat").asJsonObject.get("chatL").asJsonArray
+                        날짜표시기(groupVm.chatL) //받은 채팅리스트의 각 채팅들을 서로 비교해 날짜가 변경되면 날짜표시기를 나타낼 수 있는 속성을 추가함
+                        groupVm.liveChalL.value = groupVm.chatL
+                        groupVm.chatRoomUserL = jin.get("memberL").asJsonArray //참가원이 변하면 슬라이드뷰도 업데이트해야함
+                        groupVm.liveChatRoomUserL.value = groupVm.chatRoomUserL
+                        스크롤컨트롤("") //내가 읽지 않은 곳으로 이동함
+                    }
+
+                } else if(jin.get("cmd").asString == "방나가기") {
                     if(jin.get("rawChat").asJsonObject.get("chat_room_no").asInt == groupVm.chatRoomInfo.get("chat_room_no").asInt){
                         groupVm.chatL = jin.get("chat").asJsonObject.get("chatL").asJsonArray
                         날짜표시기(groupVm.chatL)
                         groupVm.liveChalL.value = groupVm.chatL
-                        스크롤컨트롤("")
+
+                        //참가원이 변하면 슬라이드뷰의 참가원목록도 업데이트해야함
+                        groupVm.chatRoomUserL = jin.get("memberL").asJsonArray
+                        groupVm.liveChatRoomUserL.value = groupVm.chatRoomUserL
+//                        스크롤컨트롤("")
                     }
 
                 } else if (jin.get("cmd").asString == "채팅통합" || jin.get("cmd").asString == "채팅읽음처리") {
@@ -77,12 +114,17 @@ class GroupChatInnerFm : Fragment() {
                         날짜표시기(groupVm.chatL)
                         groupVm.liveChalL.value = groupVm.chatL
 
-                        if (jin.get("cmd").asString == "채팅읽음처리") {
+                        //이미지를 업로드하면 슬라이드뷰의 전체목록도 업데이트해야함
+                        if(jin.get("imageL") != null){ //채팅읽음처리로 오는 통신은 서버에서 imageL를 포함해서 데이터를 주지않음. 그래서 예외처리
+                            groupVm.chatImageVhL = jin.get("imageL").asJsonArray
+                            groupVm.liveChatImageVhL.value = groupVm.chatImageVhL
+                        }
+
+//                        if (jin.get("cmd").asString == "채팅읽음처리") {
                             //여기까지읽음 값은 유지해야함..ㅜㅜ 어떻게하지? 일단 읽음처리는 리스트데이터의 개수는 변하진 않잖아?
                             //그럼, 현재 뷰홀더의 포지션 번호도 변하진 않겠네? 그렇다면!? 포지션번호를 저장했다가 다시 바로위의
                             //소켓통신으로 인한 갱신이 이루어지고 포지션번호를 적용하고 rva재갱신하면 ...안되네..ㅜ
-
-                        }
+//                        }
 
                         if (jin.get("cmd").asString == "채팅통합") { //스크롤을 이동시켜준다..
                             //현재 리사이클러뷰가 제일 하단(마지막 채팅홀더)에 있으면 스크롤컨트롤("맨아래로")를 이용해 갱신해준다.
@@ -217,6 +259,17 @@ class GroupChatInnerFm : Fragment() {
 //        binding.inputEt.inputType = InputType.TYPE_CLASS_TEXT
 //        binding.inputEt.setImeActionLabel("Custom text",  KeyEvent.KEYCODE_ENTER)
 
+        imgRv = binding.includedLayout.imgRv
+        imgRv.layoutManager = LinearLayoutManager(context).apply { orientation = LinearLayoutManager.HORIZONTAL}
+        imgRv.adapter = GroupChatInnerImageRva(groupVm, this)
+        imgRva = imgRv.adapter as GroupChatInnerImageRva
+
+        joinerRv = binding.includedLayout.joinerRv
+        joinerRv.layoutManager = LinearLayoutManager(context)
+        joinerRv.adapter = GroupChatInnerJoinerRva(groupVm, this)
+        joinerRva = joinerRv.adapter as GroupChatInnerJoinerRva
+
+
         //채팅방 안에 있는지 확인여부 - GroupChatinnerfm 안에 있으면 true 그외는 false 처리해야함 - 변경: 방번호로 비교해서 그 방외에만 알림
         MyApp.inChatRoom = groupVm.chatRoomInfo.get("chat_room_no").asInt
         채팅방접속() //채팅서버와 연결하여 지금 들어가는 방있는지 확인하고
@@ -247,7 +300,17 @@ class GroupChatInnerFm : Fragment() {
         //채팅 갱신
         groupVm.liveChalL.observe(viewLifecycleOwner, Observer {
             rva.notifyDataSetChanged()
-            Log.e(tagName, "옵져버에서 수신 받은 메시지 chatL: ${groupVm.gson.toJson(groupVm.chatL)}")
+            Log.i(tagName, "옵져버에서 수신 받은 메시지 chatL: ${groupVm.gson.toJson(groupVm.chatL)}")
+        })
+        //채팅방안 전체 이미지 목록 갱신
+        groupVm.liveChatImageVhL.observe(viewLifecycleOwner, Observer {
+            imgRva.notifyDataSetChanged()
+            Log.i(tagName, "옵져버에서 수신 받은 메시지 chatImageVhL: ${groupVm.gson.toJson(groupVm.chatImageVhL)}")
+        })
+        //참가원 목록 갱신
+        groupVm.liveChatRoomUserL.observe(viewLifecycleOwner, Observer {
+            joinerRva.notifyDataSetChanged()
+            Log.i(tagName, "옵져버에서 수신 받은 메시지 chatRoomUserL: ${groupVm.gson.toJson(groupVm.chatRoomUserL)}")
         })
 
 
@@ -308,8 +371,149 @@ class GroupChatInnerFm : Fragment() {
             }
         })
 
+        //방제목,이미지변경 버튼활성 - 방장일 경우만하기
+        if(groupVm.chatRoomInfo.get("owner_no").asInt == MyApp.userInfo.user_no){
+            binding.includedLayout.titleModify.setOnClickListener {
+                onResume()
+            }
+            binding.includedLayout.imageModify.setOnClickListener {
+
+            }
+        }
+
+
+        //이미지 업로드 버튼 클릭시
+        binding.imageIbt.setOnClickListener {
+            getImageContent.launch()
+        }
+
+        //방나가기 클릭시
+        binding.includedLayout.exitIb.setOnClickListener {
+            AlertDialog.Builder(requireActivity())
+                .setTitle("방나가기")
+                .setMessage("채팅방에서 나가시겠습니까?")
+                .setNegativeButton("취소") { dialog, which ->
+                    //취소누르면 뒤로가기함
+//                findNavController().popBackStack(R.id.challengeDetailListFm, false)
+//                    findNavController().navigateUp()
+                }
+                .setPositiveButton("확인") { dialogInterface, i ->
+                    val jo = JsonObject()
+                    jo.addProperty("group_no", groupVm.groupInfo.get("group_no").asInt)
+                    jo.addProperty("chat_room_no", groupVm.chatRoomInfo.get("chat_room_no").asInt)
+                    jo.addProperty("user_no", MyApp.userInfo.user_no)
+                    jo.addProperty("user_nick", MyApp.userInfo.user_nick)
+                    jo.addProperty("user_image", MyApp.userInfo.user_image?:"")
+                    jo.addProperty("chat_content", "")
+                    jo.addProperty("create_date", MyApp.getTime("data", ""))
+                    jo.addProperty("chat_type", "나가기알림")
+                    jo.addProperty("cmd_type", "채팅")
+                    jo.addProperty("cmd", "방나가기")
+
+                    CoroutineScope(Dispatchers.IO).launch {
+                        myService!!.cli.outMsg.println(jo.toString())
+                    }
+                    findNavController().navigateUp()
+                }
+
+                .create()
+                .show()
+
+        }
+
+
+
 
     } // onViewCreated
+
+//    var groupWriteImageUriL : List<Uri>? = null  //모임 글쓰기 이미지 추가용 리스트
+//    lateinit var startForImageResult : ActivityResultLauncher<Intent>
+    //이미지+ 버튼 클릭시 - 포토앱에서 선택한 이미지 uri 목록을 받아오는 intent result 의 콜백을 받는 리스너 등록
+    val getImageContent = registerForActivityResult(ActivityResultContracts.GetMultipleContents(), "image/*"){
+        if(it.size == 0){
+            Toast.makeText(requireActivity(), "선택을 취소했습니다.", Toast.LENGTH_SHORT).show()
+            return@registerForActivityResult
+        }
+        it?.let {
+//            Toast.makeText(requireActivity(), "uri get! ", Toast.LENGTH_SHORT).show()
+//            Log.e("getImageContent", "$it")
+//            groupWriteImageUriL = it
+//            groupVm.groupWriteImageUriL = it //이미지 리사이클러뷰 어뎁터에 쓰임
+//            binding.groupInWriteImageList.visibility = View.VISIBLE //리사이클러 뷰 보이게 처리
+//            binding.groupInWriteToolbarAddImageBt.text = "이미지 ${groupVm.groupWriteImageUriL?.size?:"+" }"
+//            binding.groupInWriteToolbarAddImageBt.text = "이미지 ${ if (groupVm.groupWriteImageUriL?.size==0) "+" else groupVm.groupWriteImageUriL?.size }"
+
+            val uploadO = mutableMapOf<String, RequestBody>()
+            uploadO.put("user_no", MyApp.userInfo.user_no.toString().toRequestBody("text/plain".toMediaTypeOrNull()))
+            uploadO.put("chat_room_no", groupVm.chatRoomInfo.get("chat_room_no").asString.toRequestBody("text/plain".toMediaTypeOrNull()))
+            uploadO.put("group_no", groupVm.chatRoomInfo.get("group_no").asString.toRequestBody("text/plain".toMediaTypeOrNull()))
+            val fileHelper = FileHelper()
+            val uploadImages = fileHelper.getPartBodyFromUriList(requireActivity(), it, "chat_image[]")
+            CoroutineScope(Dispatchers.IO).launch {
+
+                val retrofit = Http.getRetrofitInstance(Http.HOST_IP)
+                val httpGroup = retrofit.create(Http.HttpGroup::class.java) // 통신 구현체 생성(미리 보낼 쿼리스트링 설정해두는거)
+                val call = httpGroup.채팅방이미지업로드클릭(uploadO, uploadImages )
+                val resp = suspendCoroutine { cont: Continuation<Unit> ->
+                    call.enqueue(object : Callback<JsonObject?> {
+                        override fun onResponse(call: Call<JsonObject?>, response: Response<JsonObject?>) {
+                            if (response.isSuccessful) {
+                                val res = response.body()!!
+                                if(!res.get("result").isJsonNull){
+                                    //채팅방 전체 이미지리스트
+            //                                chatImageVhL = res.get("result").asJsonObject
+            //                                liveChatImageVhL.value = chatImageVhL
+                                    //                            Log.e("[GroupVm]", "채팅방이미지업로드클릭 onResponse: $res")
+                                    val chat = res.get("result").asJsonObject
+
+                                    val jo = JsonObject()
+                                    jo.addProperty("group_no", groupVm.groupInfo.get("group_no").asInt)
+                                    jo.addProperty("chat_room_no", groupVm.chatRoomInfo.get("chat_room_no").asInt)
+                                    jo.addProperty("user_no", MyApp.userInfo.user_no)
+                                    jo.addProperty("user_nick", MyApp.userInfo.user_nick)
+                                    jo.addProperty("user_image", MyApp.userInfo.user_image?:"")
+                                    jo.addProperty("create_date", MyApp.getTime("data", ""))
+//                                    jo.addProperty("chat_content", sendMsg.toString())
+                                    jo.addProperty("chat_type", "이미지")
+                                    jo.addProperty("cmd_type", "채팅")
+                                    jo.addProperty("cmd", "채팅통합")  //채팅전달에서 변경
+                                    jo.addProperty("first_chat_no", groupVm.chatL.get(0).asJsonObject.get("chat_no").asString) //채팅을 쓰면 모두 읽음 처리 해야함. 그때 사용
+                                    jo.add("chat_image", chat.get("chat_image").asJsonArray) //web서버로 부터 받은 insert한 chat_image 정보(서버의 uploads경로가 담겨있음)
+                                    jo.add("chat", chat) //web서버로 부터 받은 insert한 chat 정보(chat_no, user_no, chat_room_no, chat_type)
+                                    jo.addProperty("chat_no", chat.get("chat_no").asInt) //chat_no까지 최상단에 넣어줌. 통일성 위함(혹시모를게 쓸일 잇을듯)
+
+                                    //todo 여기 실행안되는듯하다.. 테스트 더해보자
+                                    val handler = Handler(Looper.getMainLooper())
+                                    handler.post {
+                                        Log.e(tagName, "이미지전송하나??1") //2
+                                    }
+                                    CoroutineScope(Dispatchers.IO).launch {
+                                        handler.post {
+                                            Log.e(tagName, "이미지전송하나??2") //3
+                                        }
+                                        myService!!.cli.outMsg.println(jo.toString())
+                                        스크롤컨트롤("맨아래로")
+                                    }
+                                    handler.post {
+                                        Log.e(tagName, "이미지전송했나3") //4
+                                    }
+
+                                    cont.resumeWith(Result.success(Unit))
+                                }
+                            }
+                        }
+                        override fun onFailure(call: Call<JsonObject?>, t: Throwable) {
+                            Log.e("[GroupVm]", "채팅방이미지업로드클릭 onFailure: " + t.message)
+                        }
+                    })
+                }
+//                rva.notifyDataSetChanged()
+                                    Log.e(tagName, "이미지전송했나4") //5
+            }
+                                    Log.e(tagName, "이미지전송했나5")  //1
+
+        }
+    }
 
     fun 채팅전체읽음처리(){
         val jo = JsonObject()
@@ -359,7 +563,12 @@ class GroupChatInnerFm : Fragment() {
             jo.addProperty("chat_type", "문자열")
             jo.addProperty("cmd_type", "채팅")
             jo.addProperty("cmd", "채팅통합")  //채팅전달에서 변경
-            jo.addProperty("first_chat_no", groupVm.chatL.get(0).asJsonObject.get("chat_no").asString) //채팅을 쓰면 모두 읽음 처리 해야함. 그때 사용
+            //클라에서 처음 채팅방에 들어가서 채팅 목록이 하나도 없으면 first_chat_no 의 값은 null 이 된다.
+            //그러면, 클라에서 먼저 npe가 걸리고 이어 여기서도 npe가 걸릴 것이다.
+            // 채팅목록이 없는 경우에 대비해, 없는 경우 오류 방지를 위해 채팅읽음처리를 하지 않는다.
+            if(groupVm.chatL.size() > 0){
+                jo.addProperty("first_chat_no", groupVm.chatL.get(0).asJsonObject.get("chat_no").asString) //채팅을 쓰면 모두 읽음 처리 해야함. 그때 사용
+            }
             CoroutineScope(Dispatchers.IO).launch {
                 myService!!.cli.outMsg.println(jo.toString())
                 스크롤컨트롤("맨아래로")
@@ -523,6 +732,17 @@ class GroupChatInnerFm : Fragment() {
         }
         //상단바 프로필 이미지 로딩
         ImageHelper.getImageUsingGlide(requireActivity(), MyApp.userInfo.user_image, binding.toolbarIv)
+
+
+        //채팅방 정보들
+        binding.includedLayout.title.text = "${groupVm.chatRoomInfo.get("chat_room_title").asString}"
+        binding.includedLayout.joinCount.text = "${groupVm.chatRoomUserL.size()}명 참여중"
+        binding.includedLayout.createDate.text = "개설일 ${MyApp.getTime(".ui", groupVm.chatRoomInfo.get("create_date").asString)}"
+        binding.includedLayout.chatRoomDesc.text = "${groupVm.chatRoomInfo.get("chat_room_desc").asString}"
+        binding.includedLayout.roomOwner.text = "방장:${groupVm.chatRoomInfo.get("user_nick").asString}"
+
+
+
 
 
     }

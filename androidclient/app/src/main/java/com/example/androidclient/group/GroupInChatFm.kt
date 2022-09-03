@@ -58,7 +58,7 @@ class GroupInChatFm : Fragment() {
 //                        groupVm.liveChatRoomInfoL.value = groupVm.chatRoomInfoL
 //                    }
 //                }
-                if(jin.get("cmd").asString == "채팅방목록") {
+                if(jin.get("cmd").asString == "채팅방목록" ) {
                     if (jin.get("group_no").asInt == groupVm.groupInfo.get("group_no").asInt) {
                         groupVm.chatRoomInfoL = jin.get("chatRoomInfoL").asJsonArray
                         groupVm.liveChatRoomInfoL.value = groupVm.chatRoomInfoL
@@ -67,7 +67,8 @@ class GroupInChatFm : Fragment() {
                 //다른 클라에서 소켓을 통하고 서버를 통해 이클라의 핸들러로 전달되어져 온 채팅 데이터들에 반응하기 위한 명령으로
                 //핸들러에서 "채팅통합" 이라는 명령으로 채팅방과 채팅목록에 둘다 보내게된다. 굳이 채팅통합이라고 명령을 서버에서 합치는 이유는
                 //여기 클라의 채팅방과 채팅목록에서 채팅알림을 받기 위함이다!
-                } else if (jin.get("cmd").asString == "채팅통합") {
+                //해당하는 명령만 목록의 알림내용이 뜸. 채팅통합을 제외하고 헤드업 알림은 안뜸! - 이건 서비스 채팅스레드쪽에 관리 코드가 있다.
+                } else if (jin.get("cmd").asString == "채팅통합" || jin.get("cmd").asString == "채팅방접속" || jin.get("cmd").asString == "방나가기") {
                     if (jin.get("chatRoom").asJsonObject.get("group_no").asInt == groupVm.groupInfo.get("group_no").asInt) {
                         groupVm.chatRoomInfoL = jin.get("chatRoom").asJsonObject.get("chatRoomInfoL").asJsonArray
                         groupVm.liveChatRoomInfoL.value = groupVm.chatRoomInfoL

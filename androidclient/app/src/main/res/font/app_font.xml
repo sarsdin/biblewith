@@ -24,7 +24,6 @@
             />
 
 
-
         <font
             android:font="@font/binggraetaom"
             android:fontStyle="normal"
@@ -34,6 +33,28 @@
             android:fontStyle="normal"
             />
 
+
+
+        <font
+            android:font="@font/maruburibold"
+            android:fontStyle="normal"
+            />
+        <font
+            android:font="@font/maruburiemibold"
+            android:fontStyle="normal"
+            />
+        <font
+            android:font="@font/maruburiextralight"
+            android:fontStyle="normal"
+            />
+        <font
+            android:font="@font/maruburilight"
+            android:fontStyle="normal"
+            />
+        <font
+            android:font="@font/maruburiregular"
+            android:fontStyle="normal"
+            />
 
 
 </font-family>

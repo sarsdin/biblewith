@@ -43,13 +43,16 @@ class GroupInChatRva(val groupVm: GroupVm, val groupInChatFm: GroupInChatFm) : R
     }
 
     override fun getItemCount(): Int {
-        if(groupVm.chatRoomInfoL.isJsonNull || groupVm.chatRoomInfoL.size() == 0){
+        if(groupVm.chatRoomInfoL.size() == 0 || groupVm.chatRoomInfoL.isJsonNull ){
             return 0
         }
         return groupVm.chatRoomInfoL.size()
     }
 
-
+    override fun onViewAttachedToWindow(holder: GroupChatFmVh) {
+        holder.setIsRecyclable(false)
+        super.onViewAttachedToWindow(holder)
+    }
 
     inner class GroupChatFmVh(var binding: GroupChatFmVhBinding) : RecyclerView.ViewHolder(binding.root) {
         var rva: MyNoteRvaInner? = null
@@ -75,20 +78,22 @@ class GroupInChatRva(val groupVm: GroupVm, val groupInChatFm: GroupInChatFm) : R
             // 현재 뷰홀더가 나타내고 있는 채팅방에 내가 참가했는지 여부를 검사한다. 1이면 참가했다는 것! 0이면 아님.
             if (mItem.get("my_is_joined") != null && mItem.get("my_is_joined").asInt == 1) {
                 if (mItem.get("last_user_nick") != null && !mItem.get("last_user_nick").isJsonNull){
-                    if(!mItem.get("last_chat_content").isJsonNull){
-                        if(!mItem.get("last_chat_type").isJsonNull){
-                            when (mItem.get("last_chat_type").asString) {
-                                "이미지" -> {
-                                    binding.lastChat.text = "${mItem.get("last_user_nick").asString}: 이미지"
+                    if(!mItem.get("last_chat_type").isJsonNull){
+                        when (mItem.get("last_chat_type").asString) {
+                            "이미지" -> {
+                                binding.lastChat.text = "${mItem.get("last_user_nick").asString}: 이미지"
 
-                                }
-                                "접속알림" -> {
-                                    binding.lastChat.text = "${mItem.get("last_user_nick").asString}: 접속알림"
+                            }
+                            "접속알림" -> {
+                                binding.lastChat.text = "${mItem.get("last_user_nick").asString}: 접속알림"
 
-                                }
-                                else -> {
-                                    binding.lastChat.text = "${mItem.get("last_user_nick").asString}: ${mItem.get("last_chat_content").asString}"
-                                }
+                            }
+                            "나가기알림" -> {
+                                binding.lastChat.text = "${mItem.get("last_user_nick").asString}: 나가기알림"
+
+                            }
+                            else -> {
+                                binding.lastChat.text = "${mItem.get("last_user_nick").asString}: ${mItem.get("last_chat_content").asString}"
                             }
                         }
                     }

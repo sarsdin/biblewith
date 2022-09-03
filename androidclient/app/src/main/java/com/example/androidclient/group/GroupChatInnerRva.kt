@@ -5,6 +5,7 @@ import androidx.recyclerview.widget.RecyclerView
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.viewbinding.ViewBinding
 import com.example.androidclient.MyApp
 import com.example.androidclient.databinding.GroupChatInnerFmVhBinding
@@ -59,7 +60,8 @@ class GroupChatInnerRva(val groupVm: GroupVm, val groupChatInnerFm: GroupChatInn
             //최초 접속시 chat_type 을 접속알림이라고 정해서 보내고 다시 받은 메시지가 chatL 에 추가되어
             // 뷰홀더를 갱신하면 2번 viewType 을 인플레이트해야한다. 최초 방에 접속시에만 알리고 그후 방에서 나가기를 하지 않으면
             // 다름 접속시부터는 알리지 않는다.
-            return if(groupVm.chatL.get(position).asJsonObject.get("chat_type").asString == "접속알림") {
+            return if(groupVm.chatL.get(position).asJsonObject.get("chat_type").asString == "접속알림"
+                || groupVm.chatL.get(position).asJsonObject.get("chat_type").asString == "나가기알림") {
                 2
             } else if(groupVm.chatL.get(position).asJsonObject.get("user_no").asInt == MyApp.userInfo.user_no){
                 1
@@ -85,6 +87,7 @@ class GroupChatInnerRva(val groupVm: GroupVm, val groupChatInnerFm: GroupChatInn
         //mItem -- chatL
         fun bind(mItem: JsonObject) {
 //            this.mItem = mItem;
+
             //다른 사용자의 뷰홀더일때
             if (mBinding is GroupChatInnerFmVhLeftBinding){
                 lBinding = mBinding as GroupChatInnerFmVhLeftBinding
@@ -196,9 +199,10 @@ class GroupChatInnerRva(val groupVm: GroupVm, val groupChatInnerFm: GroupChatInn
 //                Log.e(tagName, "groupChatInnerFm.여기까지읽음: $absoluteAdapterPosition ${groupChatInnerFm.여기까지읽음}")
                 //여기까지 읽었습니다. 표시
                 // 0번 포지션일때는 참이되니 그냥 false 되게 조건하나 더걸어줌
-                if(absoluteAdapterPosition == groupChatInnerFm.여기까지읽음 && absoluteAdapterPosition != 0){
+                if(absoluteAdapterPosition == groupChatInnerFm.여기까지읽음 && absoluteAdapterPosition != 0 && absoluteAdapterPosition != 1){
                     lBinding.readPositionLayout.visibility = View.VISIBLE
 //                    groupChatInnerFm.여기까지읽음 = 0 //0으로 바꿔서 핸들러에서 두번 반응하지 않게 초기화 시켜줌
+
                     //이것을 true로 바꾸면 groupChatInnerFm에서 스크롤이벤트시 여기까지읽음=0 으로 바꿔서 읽음표시 없애기!
                     //이러면 다른참가자의 스크롤이벤트로 인한 소켓통신으로 인해 옵저버의 갱신에 영향을 받지 않고
                     // 나의 스크롤이벤트에만 반응하여 여기까지읽음 뷰를 초기화할 수 있다!
@@ -210,13 +214,22 @@ class GroupChatInnerRva(val groupVm: GroupVm, val groupChatInnerFm: GroupChatInn
                 //문자열일 경우와 이미지일 경우 값이 넣어지는 뷰를 달리해준다 - 에러방지위함
                 if(mItem.get("chat_type") !=null && mItem.get("chat_type").asString == "문자열"){
                     lBinding.chatContent.text = mItem.get("chat_content").asString
-                    lBinding.chatWriter.text = mItem.get("user_nick").asString
-                    lBinding.chatDate.text = mItem.get("create_date").asString
+                    lBinding.chatIrv.visibility = View.GONE
 
                 } else {
 //                    lBinding.chatIv.setImageURI()
+                    //chat_type 이 '이미지' 일때는 리사이클러뷰 adapter 를 만들어줘야한다.
+                    lBinding.chatIrv.visibility = View.VISIBLE
+                    val rv = lBinding.chatIrv
+                    rv.layoutManager = LinearLayoutManager(groupChatInnerFm.requireActivity()).apply { orientation = LinearLayoutManager.HORIZONTAL}
+                    rv.adapter = GroupChatInnerRvaInImgRva(groupVm, mItem.get("chat_image").asJsonArray, groupChatInnerFm) //이미지가 있으니 '이미지' 타입으로 저장됐겠지!?
+                    val rva = rv.adapter as GroupChatInnerRvaInImgRva
+                    //이미지일때는 content의 값은 문자열이 없으니 이미지 개수를 표시해준다
+                    lBinding.chatContent.text = "받은 이미지 ${mItem.get("chat_image").asJsonArray.size()}장"
                 }
 
+                lBinding.chatWriter.text = mItem.get("user_nick").asString
+                lBinding.chatDate.text = mItem.get("create_date").asString
 
 
 
@@ -270,15 +283,21 @@ class GroupChatInnerRva(val groupVm: GroupVm, val groupChatInnerFm: GroupChatInn
                 //문자열일 경우와 이미지일 경우 값이 넣어지는 뷰를 달리해준다 - npe 에러방지위함
                 if(mItem.get("chat_type")!=null && mItem.get("chat_type").asString == "문자열"){
                     rBinding.chatContent.text = mItem.get("chat_content").asString
-                    rBinding.chatDate.text = mItem.get("create_date").asString
+                    rBinding.chatIrv.visibility = View.GONE
 
+                } else {
+//                    rBinding.chatIv.setImageURI()
+                    //chat_type 이 '이미지' 일때는 리사이클러뷰 adapter 를 만들어줘야한다.
+                    rBinding.chatIrv.visibility = View.VISIBLE
+                    val rv = rBinding.chatIrv
+                    rv.layoutManager = LinearLayoutManager(groupChatInnerFm.requireActivity()).apply { orientation = LinearLayoutManager.HORIZONTAL}
+                    rv.adapter = GroupChatInnerRvaInImgRva(groupVm, mItem.get("chat_image").asJsonArray, groupChatInnerFm) //이미지가 있으니 '이미지' 타입으로 저장됐겠지!?
+                    val rva = rv.adapter as GroupChatInnerRvaInImgRva
+                    //이미지일때는 content의 값은 문자열이 없으니 이미지 개수를 표시해준다
+                    rBinding.chatContent.text = "보낸 이미지 ${mItem.get("chat_image").asJsonArray.size()}장"
                 }
-//                else if(mItem.get("chat_type").asString == "접속알림"){
-//
-//
-//                } else {
-////                    rBinding.chatIv.setImageURI()
-//                }
+
+                rBinding.chatDate.text = mItem.get("create_date").asString
 
 
 
@@ -286,7 +305,13 @@ class GroupChatInnerRva(val groupVm: GroupVm, val groupChatInnerFm: GroupChatInn
             //접속알림 뷰일때 사용자 접속알림 알림
             } else if (mBinding is GroupChatInnerFmVhConnNotiBinding){
                 this.conBinding = (mBinding as GroupChatInnerFmVhConnNotiBinding)
-                conBinding.alimDelimiterTv.text = "${mItem.get("user_nick").asString}님이 접속하셨습니다."
+                if (mItem.get("chat_type").asString == "접속알림") {
+                    conBinding.alimDelimiterTv.text = "${mItem.get("user_nick").asString}님이 접속하셨습니다."
+
+                } else { // '나가기알림' 일 경우
+                    conBinding.alimDelimiterTv.text = "${mItem.get("user_nick").asString}님이 나가셨습니다."
+
+                }
             }
 
 
