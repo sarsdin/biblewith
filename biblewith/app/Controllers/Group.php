@@ -1164,15 +1164,18 @@ class Group extends \CodeIgniter\Controller
                 $minSql = "select * from ChallengeDetailVerse cd 
                         join bible_korHRV bk on bk.bible_no = cd.bible_no
                         join book b on b.book_no = bk.book
-                        where cd.bible_no = (select MIN(bible_no)  from ChallengeDetailVerse where progress_day = ? )
+                        where cd.bible_no = (select MIN(bible_no)  from ChallengeDetailVerse where progress_day = ? and chal_no = ? )
                         and cd.chal_no = ? ";
                 $maxSql = "select * from ChallengeDetailVerse cd 
                         join bible_korHRV bk on bk.bible_no = cd.bible_no
                         join book b on b.book_no = bk.book
-                        where cd.bible_no = (select MAX(bible_no)  from ChallengeDetailVerse where progress_day = ? )
+                        where cd.bible_no = (select MAX(bible_no)  from ChallengeDetailVerse where progress_day = ? and chal_no = ? )
                          and cd.chal_no = ? ";
-                $tmpMin= $cDetail->db->query($minSql, [$i+1, $item['chal_no']])->getResultObject(); //i+1 이유: progress_day 시작이 1부터 시작이기 때문에 싱크맞춰야함
-                $tmpMax= $cDetail->db->query($maxSql, [$i+1, $item['chal_no']])->getResultObject();
+                $tmpMin= $cDetail->db->query($minSql, [$i+1, $item['chal_no'], $item['chal_no']])->getResultObject(); //i+1 이유: progress_day 시작이 1부터 시작이기 때문에 싱크맞춰야함
+                $tmpMax= $cDetail->db->query($maxSql, [$i+1, $item['chal_no'], $item['chal_no']])->getResultObject();
+                //백업
+//                $tmpMin= $cDetail->db->query($minSql, [$i+1, $item['chal_no']])->getResultObject(); //i+1 이유: progress_day 시작이 1부터 시작이기 때문에 싱크맞춰야함
+//                $tmpMax= $cDetail->db->query($maxSql, [$i+1, $item['chal_no']])->getResultObject();
 
                 $result[$i]['first_verse'] = $tmpMin; //첫번째 절 데이터
                 $result[$i]['last_verse'] = $tmpMax; // 두번째 절 데이터
