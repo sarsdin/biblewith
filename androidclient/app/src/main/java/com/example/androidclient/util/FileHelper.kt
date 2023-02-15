@@ -1,37 +1,37 @@
 package com.example.androidclient.util
 
-import android.R
 import android.content.Context
+import android.content.Intent
 import android.database.Cursor
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
 import android.graphics.drawable.Drawable
 import android.net.Uri
+import android.os.Environment
 import android.provider.DocumentsContract
 import android.provider.MediaStore
 import android.provider.OpenableColumns
 import android.util.Log
+import android.widget.Toast
 import androidx.appcompat.content.res.AppCompatResources.getDrawable
-import androidx.core.content.ContentProviderCompat.requireContext
 import androidx.core.graphics.drawable.toBitmap
 import com.bumptech.glide.Glide
 import com.bumptech.glide.load.engine.DiskCacheStrategy
 import com.bumptech.glide.request.target.CustomTarget
 import com.bumptech.glide.request.transition.Transition
-import kotlinx.coroutines.*
+import com.example.androidclient.home.MainActivity
 import okhttp3.MediaType.Companion.toMediaTypeOrNull
 import okhttp3.MultipartBody
 import okhttp3.RequestBody
 import okhttp3.RequestBody.Companion.asRequestBody
 import okhttp3.RequestBody.Companion.toRequestBody
-import okhttp3.Response
 import java.io.ByteArrayOutputStream
 import java.io.File
+import java.io.FileOutputStream
+import java.io.OutputStream
 import java.lang.RuntimeException
-import java.nio.file.Files.createFile
+import java.util.concurrent.ExecutionException
 import kotlin.coroutines.Continuation
-import kotlin.coroutines.resume
-import kotlin.coroutines.resumeWithException
 import kotlin.coroutines.suspendCoroutine
 
 
@@ -41,9 +41,12 @@ import kotlin.coroutines.suspendCoroutine
  */
 class FileHelper {
     val mediaType = "multipart/form-data".toMediaTypeOrNull()
+    val UriUtil = UtilsFile()  //각종 안드로이드 Uri 를 분석하여 file_paths 가져오기
 
     fun getPartBodyFromUri(context: Context, uri: Uri, formDataKeyName: String): MultipartBody.Part {
-        val realPath = getPathFromURI(context, uri)
+//        val realPath = getPathFromURI(context, uri) //일단 기존에 쓰던것인데, DownloadsProvider 로 받은 파일은 인식안됨 따로 작업해야함.
+//        val realPath = UriHelper.getPath(context, uri) //-- 안됨...ㅠㅠ
+        val realPath = UriUtil.getFullPathFromContentUri(context, uri) //됨
         val fileImage = createFile(realPath)
         val requestBody = createRequestBody(fileImage)
         Log.e("[FileHelper]", "uri: $uri")
@@ -87,7 +90,8 @@ class FileHelper {
         val realPathList = mutableListOf<String>()
         //각 Uri 에 담긴 path 를 이용해 실제 경로를 얻고, 그경로의 파일객체를 만들고, 요청용 바디에 담아서 멀티파트 객체로 랩핑한다. 그 각 객체는 리스트에 반복적으로 추가됨.
         uriL?.forEach {
-            val realPath = getPathFromURI(context, it)
+//            val realPath = getPathFromURI(context, it)
+            val realPath = UriUtil.getFullPathFromContentUri(context, it)
             realPathList.add(realPath)
             val fileImage = createFile(realPath)
             val requestBody = createRequestBody(fileImage)
@@ -169,6 +173,7 @@ class FileHelper {
     fun bitmapToRequestBody(glideBitmap: Bitmap): RequestBody {
         val bitmap = glideBitmap /*BitmapFactory.decodeStream(requireActivity().contentResolver.openInputStream(groupMainImageUri!!))*/
         val byteArrayOutS = ByteArrayOutputStream()
+        //글라이드로 받은 bitmap을 압축해서 byteArray스트림에 넣음. 그리고, 그 스트림을 출력하여 새로운 byteArray를 만들고 그것을 다시 requestBody로 만들어 리턴
         bitmap.compress(Bitmap.CompressFormat.JPEG, 80, byteArrayOutS)
         val requestBody = byteArrayOutS.toByteArray().run {
             toRequestBody("image/jpeg".toMediaTypeOrNull(),0, size )
@@ -207,7 +212,7 @@ class FileHelper {
                 selectionArgs = arrayOf(DocumentsContract.getDocumentId(uri).split(":")[1]) //getDocumentId 가 /document/image:123 부분 uri인듯
 
             } else if (path.contains("/document/") ) { // files selected from "Documents"
-                Log.e("[FileHelper]", "getPathFromURI path: $path")
+                Log.e("[FileHelper]", "getPathFromURI path: $path DocumentsContract.getDocumentId(uri):${DocumentsContract.getDocumentId(uri)}")
                 databaseUri = MediaStore.Images.Media.EXTERNAL_CONTENT_URI
                 selection = "_id=?"
                 selectionArgs = arrayOf(DocumentsContract.getDocumentId(uri)) //getDocumentId 가 /document/47 부분 uri인듯 id가 47이라 :으로 split할 필요가 없다
@@ -241,6 +246,101 @@ class FileHelper {
         }
         return realPath
     }
+
+
+    //글라이드를 이용해 단순 Bitmap 반환하는 메소드
+    suspend fun bitmapReturnUsingGlide(context: Context, url: String) : Bitmap?{
+        var bitmap : Bitmap? = null
+        try {
+            //글라이드를 통해 파일 다운로드
+            val resp = suspendCoroutine { cont: Continuation<Unit> ->
+                val requestManager = Glide.with(context)
+                val loaded = requestManager.asBitmap().load(url) //받은 url 을 이용해 이미지를 Bitmap으로 불러옴
+                    .diskCacheStrategy(DiskCacheStrategy.NONE) //disk cache 전략을 off
+                    .skipMemoryCache(true)
+                //받은 비트맵을 외부스토리지에 저장.
+                loaded.into(object: CustomTarget<Bitmap>(){
+                    override fun onResourceReady(resource: Bitmap, transition: Transition<in Bitmap>?) {
+                        bitmap = resource //받아와서 전달부터 해주고
+                        cont.resumeWith(Result.success(Unit))  //중지된 루틴을 재개해주고 밑에서 bitmap 을 호출한 함수쪽으로 리턴해줌
+                    }
+                    override fun onLoadCleared(placeholder: Drawable?) {
+                    }
+                })
+    //            val file: File = requestManager.downloadOnly().load(url).submit().get()
+            }
+        } catch (e: ExecutionException) {
+            e.printStackTrace()
+        } catch (e: InterruptedException) {
+            e.printStackTrace()
+        }
+        return bitmap
+    }
+
+    ///////////////////////////////////////////////////////   글라이드로 받은 파일 로컬에 다운로드
+    fun downLoadFile(context: Context, url: String) {
+        try {
+            //글라이드를 통해 파일 다운로드
+            val requestManager = Glide.with(context)
+            val loaded = requestManager.asBitmap().load(url) //받은 url 을 이용해 이미지를 Bitmap으로 불러옴
+                .diskCacheStrategy(DiskCacheStrategy.NONE) //disk cache 전략을 off
+                .skipMemoryCache(true)
+            //받은 비트맵을 외부스토리지에 저장.
+            loaded.into(object: CustomTarget<Bitmap>(){
+                override fun onResourceReady(resource: Bitmap, transition: Transition<in Bitmap>?) {
+                    saveImage(resource, context ) //받은 Bitmap 을 로컬에 저장함
+                }
+                override fun onLoadCleared(placeholder: Drawable?) {
+                }
+            })
+//            val file: File = requestManager.downloadOnly().load(url).submit().get()
+        } catch (e: ExecutionException) {
+            e.printStackTrace()
+        } catch (e: InterruptedException) {
+            e.printStackTrace()
+        }
+    }
+
+    //글라이드로 받은 bitmap 이미지 압축하여 파일로 외부스토리지에 저장
+    private fun saveImage(image: Bitmap, context: Context) {
+        //디렉토리 만들기용 먼저 선언. 외부 스토리지: 이미지폴더 << 에 경로를 지정함. 폴더는 안드로이드 기기마다 디폴트가 다를 수 있음
+        var storageDir = File(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_PICTURES).path)
+        if (!storageDir.exists()) {
+            storageDir.mkdir()  //해당 경로에 디렉토리가 없으면 만듦
+        }
+        if (storageDir.exists()) {
+            val imageFile = File(storageDir, "${System.currentTimeMillis()}.jpeg") //저장될 파일 객체 만들기 (앞은 디렉토리위치, 뒤는 파일명)
+//            requireContext().cacheDir.path
+//            val savedImagePath = imageFile.absolutePath
+            try {
+                val fOut: OutputStream = FileOutputStream(imageFile)
+                image.compress(Bitmap.CompressFormat.JPEG, 80, fOut) //글라이드로 받아온 비트맵 파일을 jpeg로 압축하고 파일을 실제로 아웃풋함
+                fOut.close()
+                scanMedia(imageFile, context) //미디어db갱신
+                Toast.makeText(context, "이미지 저장완료", Toast.LENGTH_SHORT).show()
+            } catch (e: java.lang.Exception) {
+                Toast.makeText(context, "저장 중 오류발생", Toast.LENGTH_SHORT).show()
+                e.printStackTrace()
+            }
+        } else {
+            Toast.makeText(context, "폴더 만들기 실패!", Toast.LENGTH_SHORT).show()
+        }
+    }
+
+    fun scanMedia(file: File?, context: Context) {
+        val intent = Intent(Intent.ACTION_MEDIA_SCANNER_SCAN_FILE)
+        intent.data = Uri.fromFile(file)
+        (context as MainActivity).sendBroadcast(intent)
+    }
+
+/////////////////////////////////////////////////////////////////////////  글라이드로 로컬에 다운받기 끝
+
+
+
+
+
+
+
 
     /**
      * A helper function to get the captured file location.

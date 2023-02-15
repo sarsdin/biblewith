@@ -324,7 +324,7 @@ public class MainActivity extends AppCompatActivity {
         //일단 검색버튼이 계속 보여야함 안그러면 ui갱신이 안되더라..버근가?
 //        binding.mainToolbar.getMenu().findItem(R.id.app_bar_search).setShowAsAction(MenuItem.SHOW_AS_ACTION_ALWAYS);
 //        binding.mainToolbar.getMenu().findItem(R.id.app_bar_search).setVisible(true);
-        Log.e("오류태그", "MainActivity onResume");
+        Log.e("-- MainActivity --", "MainActivity onResume");
 
 
     }

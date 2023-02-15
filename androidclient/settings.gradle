@@ -15,3 +15,4 @@ dependencyResolutionManagement {
 }
 rootProject.name = "androidclient"
 include ':app'
+include ':photoeditor'

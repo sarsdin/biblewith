@@ -3,7 +3,9 @@ package com.example.androidclient.group
 import androidx.recyclerview.widget.RecyclerView
 import android.view.LayoutInflater
 import android.view.ViewGroup
+import com.example.androidclient.MyApp
 import com.example.androidclient.databinding.GroupChatInnerJoinerRvVhBinding
+import com.example.androidclient.util.ImageHelper
 
 import com.google.gson.JsonObject
 
@@ -15,7 +17,7 @@ class GroupChatInnerJoinerRva(val groupVm: GroupVm, val groupChatInnerFm: GroupC
     }
 
     override fun onBindViewHolder(holder: GroupChatInnerJoinerRva.GroupChatInnerJoinnerVh, position: Int) {
-        holder.bind(groupVm.chatL[position] as JsonObject)
+        holder.bind(groupVm.chatRoomUserL[position] as JsonObject)
     }
 
 //    override fun onViewAttachedToWindow(holder: GroupChatInnerJoinnerVh) {
@@ -24,10 +26,11 @@ class GroupChatInnerJoinerRva(val groupVm: GroupVm, val groupChatInnerFm: GroupC
 //    }
 
     override fun getItemCount(): Int {
-        if(groupVm.chatL.isJsonNull || groupVm.chatL.size() == 0){
+        if(groupVm.chatRoomUserL.size() == 0 || groupVm.chatRoomUserL.isJsonNull ){
             return 0
         }
-        return groupVm.chatL.size()
+        return groupVm.chatRoomUserL.size()
+//        return groupVm.chatJoinerVhL.size()
     }
 
     inner class GroupChatInnerJoinnerVh(var binding: GroupChatInnerJoinerRvVhBinding) : RecyclerView.ViewHolder(binding.root) {
@@ -40,7 +43,12 @@ class GroupChatInnerJoinerRva(val groupVm: GroupVm, val groupChatInnerFm: GroupC
         //mItem -- chatL
         fun bind(mItem: JsonObject) {
 //            this.mItem = mItem;
-            //다른 사용자의 뷰홀더일때
+
+            binding.memberWriterTv.text = mItem.get("user_nick").asString
+            binding.memberDateTv.text = "${MyApp.getTime(".ui", mItem.get("user_chat_join_date").asString)}"
+            if(mItem.get("user_image") != null && !mItem.get("user_image").isJsonNull){
+                ImageHelper.getImageUsingGlide(groupChatInnerFm.requireActivity(), mItem.get("user_image").asString, binding.memberIv)
+            }
 
 
         }

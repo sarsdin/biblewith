@@ -1,12 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.coordinatorlayout.widget.CoordinatorLayout
-    xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.coordinatorlayout.widget.CoordinatorLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
-    android:layout_height="wrap_content"
-    tools:context=".home.HomeFm"
-    >
+    android:layout_height="match_parent"
+    android:background="#E4E4E4"
+    tools:context=".home.HomeFm">
 
     <com.google.android.material.appbar.AppBarLayout
         android:id="@+id/home_appbar"
@@ -19,8 +18,7 @@
             android:id="@+id/home_toolbar"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:background="#FFFFFF"
-            >
+            android:background="#FFFFFF">
 
             <com.google.android.material.textview.MaterialTextView
                 android:id="@+id/home_toolbar_tv"
@@ -40,11 +38,10 @@
                 android:background="#818080"
                 android:contentDescription="이미지 입니다."
                 android:scaleType="centerCrop"
-                app:tintMode="screen"
                 app:layout_collapseMode="pin"
                 app:shapeAppearanceOverlay="@style/ShapeAppearanceOverlay.App.CornerSize50Percent"
-                app:srcCompat="@drawable/ic_baseline_person_24" />
-
+                app:srcCompat="@drawable/ic_baseline_person_24"
+                app:tintMode="screen" />
 
 
         </com.google.android.material.appbar.MaterialToolbar>
@@ -52,42 +49,189 @@
 
     <androidx.core.widget.NestedScrollView
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="?attr/actionBarSize"
-    >
+        android:layout_height="match_parent"
+        android:layout_marginTop="?attr/actionBarSize">
         <!--  collapsingToolbarLayout의 스크롤옵션과 같이 쓴다면 설정해야함 -->
         <!--        app:layout_behavior="@string/appbar_scrolling_view_behavior"-->
         <androidx.constraintlayout.widget.ConstraintLayout
             android:layout_width="match_parent"
-            android:layout_height="match_parent"
-        >
+            android:layout_height="wrap_content"
+            android:minHeight="700dp">
 
             <com.google.android.material.card.MaterialCardView
-                android:id="@+id/group_create_cardview"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
+                android:id="@+id/materialCardView"
+                android:layout_width="match_parent"
+                android:layout_height="420dp"
+                android:layout_marginTop="10dp"
                 android:background="#48FB6C6C"
+                app:cardCornerRadius="25dp"
+                app:cardElevation="1dp"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent">
+
+                <androidx.constraintlayout.widget.ConstraintLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent">
+
+                    <!--                    android:tintMode="screen"-->
+                    <!--                    android:backgroundTintMode="src_in"-->
+                    <!--                    app:tint="#8E7E7E"-->
+                    <!--                    android:backgroundTint="#FFFFFF"-->
+                    <!--                    android:background="#B1B0B0"-->
+                    <!--                    android:tint="#FFFFFF"-->
+
+                    <androidx.constraintlayout.utils.widget.ImageFilterView
+                        android:id="@+id/profile_iv"
+                        android:layout_width="0dp"
+                        android:layout_height="280dp"
+                        android:layout_marginTop="76dp"
+                        android:layout_marginEnd="16dp"
+                        android:contentDescription="프로필 이미지"
+                        android:scaleType="fitXY"
+                        app:layout_constraintEnd_toEndOf="parent"
+                        app:layout_constraintStart_toEndOf="@+id/verse_tv"
+                        app:layout_constraintTop_toTopOf="parent"
+                        app:round="15dp"
+                        app:srcCompat="@drawable/ic_baseline_add_photo_alternate_24"
+                        app:tintMode="screen" />
+
+                    <com.google.android.material.textview.MaterialTextView
+                        android:id="@+id/tv1"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="36dp"
+                        android:fontFamily="monospace"
+                        android:text="성경 일독"
+                        android:textSize="14sp"
+                        android:textStyle="bold"
+                        app:layout_constraintEnd_toEndOf="parent"
+                        app:layout_constraintHorizontal_bias="0.065"
+                        app:layout_constraintStart_toStartOf="parent"
+                        app:layout_constraintTop_toTopOf="parent" />
+
+                    <ImageButton
+                        android:id="@+id/ibt"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="28dp"
+                        android:layout_marginEnd="24dp"
+                        android:background="#FFFFFF"
+                        android:scaleType="centerInside"
+                        android:src="@drawable/ic_baseline_more_vert_24"
+                        app:layout_constraintEnd_toEndOf="parent"
+                        app:layout_constraintTop_toTopOf="parent" />
+
+                    <ImageButton
+                        android:id="@+id/share_ibt"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginEnd="16dp"
+                        android:background="#FFFFFF"
+                        android:scaleType="centerInside"
+                        android:src="@drawable/ic_baseline_share_24"
+                        app:layout_constraintEnd_toStartOf="@+id/ibt"
+                        app:layout_constraintTop_toTopOf="@+id/ibt" />
+
+                    <com.google.android.material.textview.MaterialTextView
+                        android:id="@+id/verse_tv"
+                        android:layout_width="229dp"
+                        android:layout_height="wrap_content"
+                        android:layout_marginStart="16dp"
+                        android:layout_marginTop="24dp"
+                        android:fontFamily="@font/maruburibold"
+                        android:maxHeight="300dp"
+                        android:text="너는 기도할 때에 네 골방에 들어가 문을 닫고 은밀한 중에 계신 네 아버지께 기도하라 은밀한 중에 보시는 네 아버지께서 갚으리시리라"
+                        android:textColor="#3C3C3C"
+                        android:textSize="22sp"
+                        app:autoSizeMaxTextSize="25sp"
+                        app:autoSizeMinTextSize="15sp"
+                        app:layout_constraintStart_toStartOf="parent"
+                        app:layout_constraintTop_toBottomOf="@+id/tv1"
+                        app:lineHeight="50dp" />
+
+                    <com.google.android.material.textview.MaterialTextView
+                        android:id="@+id/book_tv"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginStart="16dp"
+                        android:layout_marginTop="8dp"
+                        android:layout_marginBottom="8dp"
+                        android:fontFamily="monospace"
+                        android:text="마테복음 6:6"
+                        android:textColor="#292929"
+                        android:textSize="16sp"
+                        android:textStyle="bold"
+                        app:layout_constraintBottom_toBottomOf="parent"
+                        app:layout_constraintStart_toStartOf="parent"
+                        app:layout_constraintTop_toBottomOf="@+id/verse_tv"
+                        app:layout_constraintVertical_bias="0.192" />
+
+
+                </androidx.constraintlayout.widget.ConstraintLayout>
+
+            </com.google.android.material.card.MaterialCardView>
+
+            <com.google.android.material.card.MaterialCardView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="16dp"
+                android:layout_marginBottom="16dp"
+                android:background="#48FB6C6C"
+                android:minHeight="250dp"
                 app:cardCornerRadius="15dp"
                 app:cardElevation="1dp"
                 app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toTopOf="parent">
+                app:layout_constraintTop_toBottomOf="@+id/materialCardView">
 
-                <com.google.android.material.imageview.ShapeableImageView
-                    android:id="@+id/group_create_iv"
-                    android:layout_width="184dp"
-                    android:layout_height="153dp"
-                    android:background="#B1B0B0"
-                    android:contentDescription="모임 메인 이미지"
-                    android:scaleType="fitXY"
-                    android:tint="#FFFFFF"
-                    app:layout_collapseMode="pin"
-                    app:srcCompat="@drawable/ic_home_black_24dp" />
+                <com.google.android.material.textview.MaterialTextView
+                    android:id="@+id/more_tv"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="right"
+                    android:layout_marginTop="16dp"
+                    android:layout_marginEnd="16dp"
+                    android:layout_marginBottom="8dp"
+                    android:fontFamily="monospace"
+                    android:text="더보기"
+                    android:textColor="#292929"
+                    android:textSize="16sp"
+                    android:textStyle="bold" />
+
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical">
+
+                    <androidx.viewpager2.widget.ViewPager2
+                        android:id="@+id/img_vp"
+                        android:layout_width="match_parent"
+                        android:layout_height="200dp"
+                        android:layout_marginTop="50dp"
+                        android:layout_marginBottom="17dp"
+                        android:paddingHorizontal="70dp" />
+
+                    <androidx.recyclerview.widget.RecyclerView
+                        android:id="@+id/img_rv"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_gravity="bottom"
+                        android:layout_marginTop="50dp"
+                        android:padding="7dp" />
+                </LinearLayout>
             </com.google.android.material.card.MaterialCardView>
 
 
         </androidx.constraintlayout.widget.ConstraintLayout>
 
     </androidx.core.widget.NestedScrollView>
+
+<!--    <ja.burhanrashid52.photoeditor.PhotoEditorView-->
+<!--        android:id="@+id/photo_editor_view"-->
+<!--        android:layout_width="match_parent"-->
+<!--        android:layout_height="match_parent"-->
+<!--        />-->
 </androidx.coordinatorlayout.widget.CoordinatorLayout>

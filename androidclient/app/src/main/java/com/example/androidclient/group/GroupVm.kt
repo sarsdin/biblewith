@@ -17,6 +17,7 @@ import okhttp3.RequestBody
 import retrofit2.Call
 import retrofit2.Callback
 import retrofit2.Response
+import retrofit2.http.Part
 import java.time.LocalDateTime
 import kotlin.coroutines.Continuation
 import kotlin.coroutines.suspendCoroutine
@@ -844,6 +845,9 @@ class GroupVm : ViewModel() {
                                 chatL = res.get("result").asJsonObject.get("chat_list").asJsonArray
                                 날짜표시기(chatL)
                                 liveChatL.value = chatL
+                                //채팅방 전체 이미지리스트
+                                chatImageVhL = res.get("result").asJsonObject.get("chat_room_image_list").asJsonArray
+                                liveChatImageVhL.value = chatImageVhL
     //                            Log.e("[GroupVm]", "채팅방참가클릭 onResponse: $res")
                             }
                             cont.resumeWith(Result.success(Unit))
@@ -851,6 +855,35 @@ class GroupVm : ViewModel() {
                     }
                     override fun onFailure(call: Call<JsonObject?>, t: Throwable) {
                         Log.e("[GroupVm]", "채팅방참가클릭 onFailure: " + t.message)
+                    }
+                })
+            }
+        }
+        return call
+    }
+
+
+   suspend fun 채팅방이미지업로드클릭(chatInfo :Map<String, RequestBody>, uploadImages :List<MultipartBody.Part>, isExeInVm: Boolean): Call<JsonObject>? {
+        val retrofit = Http.getRetrofitInstance(host)
+        val httpGroup = retrofit.create(Http.HttpGroup::class.java) // 통신 구현체 생성(미리 보낼 쿼리스트링 설정해두는거)
+        val call = httpGroup.채팅방이미지업로드클릭(chatInfo, uploadImages )
+        if (isExeInVm) { //true를 받으면 여기서(vm) 실행하고 결과완료된 call을 리턴. false면 완료안된 call을 리턴해서 호출한 fragment or rva에서 비동기 로직 진행.
+            val resp = suspendCoroutine { cont: Continuation<Unit> ->
+                call.enqueue(object : Callback<JsonObject?> {
+                    override fun onResponse(call: Call<JsonObject?>, response: Response<JsonObject?>) {
+                        if (response.isSuccessful) {
+                            val res = response.body()!!
+                            if(!res.get("result").isJsonNull){
+                                //채팅방 전체 이미지리스트
+//                                chatImageVhL = res.get("result").asJsonObject
+//                                liveChatImageVhL.value = chatImageVhL
+    //                            Log.e("[GroupVm]", "채팅방이미지업로드클릭 onResponse: $res")
+                            }
+                            cont.resumeWith(Result.success(Unit))
+                        }
+                    }
+                    override fun onFailure(call: Call<JsonObject?>, t: Throwable) {
+                        Log.e("[GroupVm]", "채팅방이미지업로드클릭 onFailure: " + t.message)
                     }
                 })
             }
