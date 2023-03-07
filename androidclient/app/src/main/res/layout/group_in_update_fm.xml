@@ -5,7 +5,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    tools:context=".group.GroupInUpdateFm"
+    tools:context=".group.band.GroupInUpdateFm"
     >
 
     <com.google.android.material.appbar.AppBarLayout

@@ -1,7 +1,5 @@
 package com.example.androidclient.group
 
-import android.content.Intent
-import android.net.Uri
 import android.os.Bundle
 import android.util.Log
 import android.view.LayoutInflater
@@ -19,6 +17,7 @@ import androidx.recyclerview.widget.RecyclerView
 import com.example.androidclient.MyApp
 import com.example.androidclient.R
 import com.example.androidclient.databinding.GroupFmBinding
+import com.example.androidclient.group.chat.GroupChatFm
 import com.example.androidclient.home.MainActivity
 import com.example.androidclient.util.Http
 import com.example.androidclient.util.ImageHelper

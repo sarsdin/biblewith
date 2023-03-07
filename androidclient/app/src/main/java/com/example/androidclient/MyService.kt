@@ -5,18 +5,10 @@ import android.content.Intent
 import android.os.Binder
 import android.os.Handler
 import android.os.IBinder
-import android.os.Message
 import android.util.Log
-import com.example.androidclient.group.ChatClient
+import com.example.androidclient.group.chat.ChatClient
 import com.google.gson.Gson
 import com.google.gson.JsonObject
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.launch
-import java.io.BufferedReader
-import java.io.InputStreamReader
-import java.io.PrintWriter
-import java.net.Socket
 
 
 class MyService : Service() {
@@ -72,7 +64,9 @@ class MyService : Service() {
         return super.onStartCommand(intent, flags, startId)
     }
 
-    //액티비티에서 보내온 핸들러 - 서비스시작시 액티비티에서 실행해줌
+    /**
+     * 액티비티에서 전달되어져 온 핸들러 - 서비스시작시 액티비티에서 실행해줌
+     */
     fun putHandler(handler: Handler) {
         this.handler = handler
     }

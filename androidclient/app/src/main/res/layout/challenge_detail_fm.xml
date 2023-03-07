@@ -6,7 +6,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="#59DCDCDC"
-    tools:context=".group.ChallengeDetailFm"
+    tools:context=".group.challenge.ChallengeDetailFm"
 >
 <!--    android:background="#00DCDCDC"-->
 

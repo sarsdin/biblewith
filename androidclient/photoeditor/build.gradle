@@ -8,8 +8,6 @@ android {
 //        applicationId "com.example.androidclient"
         minSdkVersion 28
         targetSdkVersion 32
-        versionCode 7
-        versionName "2.0.0"
         multiDexEnabled = true
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
 
@@ -28,6 +26,7 @@ android {
         sourceCompatibility JavaVersion.VERSION_1_8
         targetCompatibility JavaVersion.VERSION_1_8
     }
+    namespace 'com.burhanrashid52.photoediting'
 }
 
 dependencies {

@@ -5,7 +5,7 @@ xmlns:tools="http://schemas.android.com/tools"
 android:layout_width="match_parent"
 android:layout_height="match_parent"
 android:background="#59DCDCDC"
-tools:context=".group.GroupInFm">
+tools:context=".group.band.GroupInFm">
 <!--    android:fitsSystemWindows="true"-->
 
 <com.google.android.material.appbar.AppBarLayout
@@ -196,7 +196,7 @@ tools:context=".group.GroupInFm">
             android:layout_marginTop="5dp"
             android:paddingBottom="350dp"
             app:layoutManager="LinearLayoutManager" />
-<!--            android:name="com.example.androidclient.group.GroupInFm"-->
+<!--            android:name="com.example.androidclient.group.band.GroupInFm"-->
         <!--            tools:listitem="@layout/group_in_fm_vh"-->
 
     </LinearLayout>

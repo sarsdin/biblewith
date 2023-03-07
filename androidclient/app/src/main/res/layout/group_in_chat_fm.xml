@@ -5,7 +5,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".group.GroupInChatFm"
+    tools:context=".group.chat.GroupInChatFm"
 >
     <com.google.android.material.appbar.AppBarLayout
         android:id="@+id/appbar"
@@ -38,7 +38,7 @@
                 android:layout_gravity="end"
                 android:contentDescription="이미지 입니다."
                 android:scaleType="centerCrop"
-                android:background="#818080"
+                android:background="#BABABA"
                 app:tintMode="screen"
                 app:shapeAppearanceOverlay="@style/ShapeAppearanceOverlay.App.CornerSize50Percent"
                 app:srcCompat="@drawable/ic_baseline_person_24"

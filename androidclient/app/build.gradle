@@ -8,12 +8,13 @@ Properties properties = new Properties()
 properties.load(project.rootProject.file('local.properties').newDataInputStream())
 
 android {
-    compileSdk 32
+    namespace 'com.example.androidclient'
+    compileSdk 33
 
     defaultConfig {
         applicationId "com.example.androidclient"
         minSdk 28
-        targetSdk 32
+        targetSdk 33
         versionCode 1
         versionName "1.0"
 
@@ -22,6 +23,10 @@ android {
         //local.properties 에 등록한 api key를 사용하기 위해 가져오기
         buildConfigField "String", "API_KEY", properties["api.key"]
         buildConfigField "String", "API_SKEY", properties["api.skey"]
+
+        buildConfigField "String", "SIGNALING_SERVER_IP_ADDRESS",
+                properties["SIGNALING_SERVER_IP_ADDRESS"]
+
     }
 
     buildTypes {
@@ -38,10 +43,21 @@ android {
         sourceCompatibility JavaVersion.VERSION_1_8
         targetCompatibility JavaVersion.VERSION_1_8
     }
+
+    kotlinOptions {
+        jvmTarget = "1.8"
+    }
+
     buildFeatures {
         viewBinding true
         dataBinding true
+        compose = true
     }
+
+    composeOptions {
+        kotlinCompilerExtensionVersion = "1.4.0"
+    }
+
 }
 
 dependencies {
@@ -100,9 +116,9 @@ dependencies {
     implementation 'androidx.recyclerview:recyclerview:1.2.1'
 
     //코틀린 라이브러리
-    implementation "androidx.core:core-ktx:1.8.0"
+    implementation "androidx.core:core-ktx:$kotlin_version"
     implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk8:$kotlin_version"
-    implementation 'org.jetbrains.kotlinx:kotlinx-coroutines-android:1.5.2'
+    implementation 'org.jetbrains.kotlinx:kotlinx-coroutines-android:1.6.4'
     implementation "androidx.work:work-runtime-ktx:2.7.1"
 
     // Retrofit 라이브러리
@@ -115,7 +131,9 @@ dependencies {
     implementation 'com.squareup.retrofit2:converter-scalars:2.6.4'
 
     //로그를 남기기 위한 라이브러리
-    implementation 'com.squareup.okhttp3:logging-interceptor:4.2.1'
+    implementation 'com.squareup.okhttp3:logging-interceptor:4.10.0'
+    //okhttpprofiler
+    implementation 'com.localebro:okhttpprofiler:1.0.8'
 
 //    // https://mvnrepository.com/artifact/com.sun.mail/javax.mail
 //    implementation 'com.sun.mail:javax.mail:1.6.2'
@@ -136,9 +154,9 @@ dependencies {
     implementation 'com.burhanrashid52:photoeditor:2.0.0'
 
     //exoPlayer
-    implementation 'com.google.android.exoplayer:exoplayer-core:2.18.1'
-    implementation 'com.google.android.exoplayer:exoplayer-dash:2.18.1'
-    implementation 'com.google.android.exoplayer:exoplayer-ui:2.18.1'
+    implementation 'com.google.android.exoplayer:exoplayer-core:2.18.4'
+    implementation 'com.google.android.exoplayer:exoplayer-dash:2.18.4'
+    implementation 'com.google.android.exoplayer:exoplayer-ui:2.18.4'
 
     //camerax
     def camerax_version = "1.2.0-alpha04"
@@ -157,5 +175,26 @@ dependencies {
 
     //Unsplash 무료 사진 Api
     implementation 'com.github.unsplash:unsplash-photopicker-android:1.0.1'
+
+
+    //compose 관련
+    def androidxCompose = "1.3.1"
+    def androidxComposeMaterial = "1.3.1"
+    def androidxComposeMaterial3 = "1.0.0-alpha13"
+    def androidxActivity = "1.4.0"
+    implementation "io.getstream:stream-log-android:1.1.3"
+    implementation "io.getstream:stream-webrtc-android:1.0.0"
+    implementation "androidx.activity:activity-compose:${androidxActivity}"
+//    implementation "androidx.constraintlayout:constraintlayout-compose:${androidxCompose}"
+    implementation "androidx.compose.runtime:runtime:${androidxCompose}"
+    implementation "androidx.compose.ui:ui:${androidxCompose}"
+    implementation "androidx.compose.ui:ui-tooling:${androidxCompose}"
+    implementation "androidx.compose.ui:ui-tooling-preview:${androidxCompose}"
+    implementation "androidx.compose.foundation:foundation:${androidxCompose}"
+    implementation "androidx.compose.foundation:foundation-layout:${androidxCompose}"
+    implementation "androidx.compose.material:material:${androidxComposeMaterial}"
+    implementation "androidx.compose.material3:material3:${androidxComposeMaterial3}"
+
+
 
 }

@@ -21,6 +21,8 @@ import java.time.format.DateTimeFormatter;
 import java.util.Date;
 
 import es.dmoral.toasty.Toasty;
+import io.getstream.log.Priority;
+import io.getstream.log.android.AndroidStreamLogger;
 
 public class MyApp extends Application {
 
@@ -38,6 +40,7 @@ public class MyApp extends Application {
     public void onCreate() {
         super.onCreate();
         MyApp.application = this;
+        AndroidStreamLogger.Companion.installOnDebuggableApp(this, Priority.DEBUG, 23);
 
         //토스트 라이브러리 옵션 설정 - 선택사항임 - 앱클래스파일 어디서든 이명령을 통해 설정 가능
 //        Toasty.Config.getInstance()

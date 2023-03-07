@@ -5,7 +5,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".group.GroupChatInnerFm"
+    tools:context=".group.chat.GroupChatInnerFm"
     >
 
 
@@ -127,7 +127,7 @@
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@+id/search_card"
-            tools:context=".group.GroupChatInnerFm"
+            tools:context=".group.chat.GroupChatInnerFm"
             tools:listitem="@layout/group_chat_inner_fm_vh" />
 
     </androidx.constraintlayout.widget.ConstraintLayout>
