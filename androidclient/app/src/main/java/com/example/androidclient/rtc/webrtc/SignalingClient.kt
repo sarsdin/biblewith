@@ -1,22 +1,8 @@
-/*
- * Copyright 2023 Stream.IO, Inc. All Rights Reserved.
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- * http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
-
 package com.example.androidclient.rtc.webrtc
 import android.util.Log
 import com.example.androidclient.BuildConfig
+import com.google.gson.JsonObject
+import com.google.gson.JsonParser
 
 import io.getstream.log.taggedLogger
 import kotlinx.coroutines.CoroutineScope
@@ -60,24 +46,46 @@ class SignalingClient {
     // signaling commands to send commands to value pairs to the subscribers
     // 시그널링 서버로부터 온 message text에 따른 SignalingCommand의 값을 변화시켜(flow발생)
     // 이 Flow를 collect(구독)하고 있는 구독자가 collect를 실행하게함.
+    // 웹소켓의 리스너의 onMessage에 따라 해당하는 상태메시지의 handleSignalingCommand()가 실행되고 이 값이 변경됨.
     private val _signalingCommandFlow = MutableSharedFlow<Pair<SignalingCommand, String>>()
     val signalingCommandFlow: SharedFlow<Pair<SignalingCommand, String>> = _signalingCommandFlow
 
 
+    /**
+     * 시그널링 서버로 명령어와 그에 필요한 정보를 문자열로 보냄.
+     */
     fun sendCommand(signalingCommand: SignalingCommand, message: String) {
-        logger.d { "[sendCommand] $signalingCommand $message" }
+        logger.d { "[sendCommand] $signalingCommand" }
         ws.send("$signalingCommand $message")
     }
 
 
 
-    // 시그널링 서버에 request 요청하고, 거기에서 오는 메시지 등을 받았을때 동작하는 리스너.
+    /**
+     *  웹소켓 리스너 구현부 클래스.
+     *  시그널링 서버에 request 요청하고, 거기에서 오는 메시지 등을 받았을때 동작하는 리스너.
+     */
     private inner class SignalingWebSocketListener : WebSocketListener() {
         override fun onMessage(webSocket: WebSocket, text: String) {
+            JsonObject()
+            val jin = JsonParser.parseString(text).asJsonObject
+            val signalingCommand = jin["SignalingCommand"].asString
+
             // 각 응답의 내용에 따른 메소드를 호출함.
             when {
+                //text의 앞글자가 STATE 일때 실행.
+                //서버로부터 'STATE Impossible' << 서버 접속 peer가 2명 미만인 상태.
+                //'STATE Ready' << 서버 접속 peer가 2명이상일시 웹소켓을 통해 전달되어옴.
+                //'STATE Creating'  << 서버에서 OFFER 명령을 받으면
+                //'STATE Active'  << 서버에서 ANSWER 명령을 받으면
+                //'STATE ICE'  << 서버에서 ICE 명령을 받으면
                 text.startsWith(SignalingCommand.STATE.toString(), true) ->
                     handleStateMessage(text)
+
+
+                //text의 앞글자가 OFFER, ANSWER, ICE 일때 실행.
+                //WebRtcSessionManagerImpl의 init{} 에서 SignalingCommand의 값을 collect하는 코루틴이 존재.
+                //거기서 handleOffer handleAnswer handleIce 등의 명령을 실행함.
                 text.startsWith(SignalingCommand.OFFER.toString(), true) ->
                     handleSignalingCommand(SignalingCommand.OFFER, text)
                 text.startsWith(SignalingCommand.ANSWER.toString(), true) ->
@@ -87,23 +95,40 @@ class SignalingClient {
             }
         }
     }
-    //받은 메시지의 상태값에 따라 세션 상태 Flow 값을 업데이트
+
+    /**
+     * 서버로부터 받은 명령타입의 상태값이 'STATE'라면 실행하는 메소드.
+     * 세션 상태 Flow 값을 업데이트함.
+     * 서버로부터 'STATE Ready' 값을 받으면 _sessionStateFlow의 상태값을 업데이트하고
+     * 그 변화를 감지한 Ui 컴포지션은 조건에 따라 다음 작업을 진행한다.
+     */
     private fun handleStateMessage(message: String) {
         Log.w(tagName, "handleStateMessage: $message")
         val state = getSeparatedMessage(message) //message에 공백이 포함되어 있을 수 있기 때문에 텍스트 전처리함.
         _sessionStateFlow.value = WebRTCSessionState.valueOf(state)
     }
-    //받은 메시지의 상태값에 따라 시그널링 command Flow 값을 업데이트
+
+    /**
+     * 서버로부터 받은 명령타입의 상태값이 'STATE'이외(OFFER ANSWER ICE) 값이라면 실행하는 메소드.
+     * 세션 상태 Flow 값을 업데이트함.
+     */
     private fun handleSignalingCommand(command: SignalingCommand, text: String) {
         val value = getSeparatedMessage(text)
-        logger.d { "received signaling command: $command, value: $value" }
+        logger.w { "[emit!] received SignalingCommand: $command, 값(value): $value" }
         signalingScope.launch {
             //시그널링 서버로부터 받은 값에 따라 현재 WebRtc 단계의 상태값을 업데이트함.
             //emit 함으로써 _signalingCommandFlow를 구독하고 있는 모든 곳에 flow를 일으켜 collect실행하게 함.
+            //WebRtcSessionManagerImpl의 init에서 하나의 코루틴내에서 구독중임.
             _signalingCommandFlow.emit(command to value)
         }
     }
 
+
+    /**
+     * 텍스트를 ' ' 스페이스 딜리미터로 짜르고, 짜르고 난뒤의 바로 그 첫번째 요소를 반환.
+     * 여기서는 SignalingCommand를 제외하고 남은 문자열을 반환.
+     * 거의 SDP 정보에 관한 문자열임.
+     */
     private fun getSeparatedMessage(text: String) = text.substringAfter(' ')
 
 
@@ -115,6 +140,11 @@ class SignalingClient {
     }
 }
 
+
+/**
+ * VideoCallScreen()에서 처음 sessionManager.onSessionScreenReady() 가 실행되고,
+ *
+ */
 enum class WebRTCSessionState {
     Active, // Offer and Answer messages has been sent. 오퍼와 엔서 메시지가 보내졌을때.
     Creating, // Creating session, offer has been sent. 오퍼가 보내지고 세션 생성중일때.

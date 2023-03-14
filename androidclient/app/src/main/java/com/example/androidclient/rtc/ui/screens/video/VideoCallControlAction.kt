@@ -21,9 +21,8 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.painter.Painter
 import androidx.compose.ui.res.painterResource
 import com.example.androidclient.R
-import io.getstream.webrtc.sample.compose.ui.screens.video.CallMediaState
-import io.getstream.webrtc.sample.compose.ui.theme.Disabled
-import io.getstream.webrtc.sample.compose.ui.theme.Primary
+import com.example.androidclient.rtc.ui.theme.Disabled
+import com.example.androidclient.rtc.ui.theme.Primary
 
 sealed class CallAction {
     data class ToggleMicroPhone(

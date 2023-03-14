@@ -1,7 +1,5 @@
 package com.example.androidclient.util;
 
-import android.util.Log;
-
 import com.example.androidclient.bible.BibleDto;
 import com.example.androidclient.login.LoginDto;
 import com.google.gson.Gson;
@@ -10,16 +8,12 @@ import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 import com.localebro.okhttpprofiler.OkHttpProfilerInterceptor;
 
-import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
-
 import java.util.List;
 import java.util.Map;
 
 import okhttp3.MultipartBody;
 import okhttp3.OkHttpClient;
 import okhttp3.RequestBody;
-import okhttp3.logging.HttpLoggingInterceptor;
 import retrofit2.Call;
 import retrofit2.Retrofit;
 import retrofit2.converter.gson.GsonConverterFactory;
@@ -48,7 +42,9 @@ public class Http {
         // 로그를 중간에 가로채서 로그캣에 보여줌
 //        HttpLoggingInterceptor interceptor = new HttpLoggingInterceptor();
 //        interceptor.level(HttpLoggingInterceptor.Level.BODY);
-        OkHttpClient client = new OkHttpClient.Builder().addInterceptor(/*interceptor*/new OkHttpProfilerInterceptor()).build();
+        OkHttpProfilerInterceptor interceptor = new OkHttpProfilerInterceptor();
+
+        OkHttpClient client = new OkHttpClient.Builder().addInterceptor(interceptor).build();
 
         Retrofit retrofit = null;
         if(host.equals(HOST_IP)){

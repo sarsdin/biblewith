@@ -14,7 +14,9 @@
  * limitations under the License.
  */
 
-package io.getstream.webrtc.sample.compose.webrtc.audio
+package com.example.androidclient.rtc.webrtc.audio
+
+import com.example.androidclient.rtc.webrtc.audio.AudioDevice
 
 typealias AudioDeviceChangeListener = (
     audioDevices: List<AudioDevice>,

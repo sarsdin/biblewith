@@ -14,14 +14,13 @@
  * limitations under the License.
  */
 
-package io.getstream.webrtc.sample.compose.ui.theme
+package com.example.androidclient.rtc.ui.theme
 
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.material.MaterialTheme
 import androidx.compose.material.darkColors
 import androidx.compose.material.lightColors
 import androidx.compose.runtime.Composable
-import androidx.compose.ui.tooling.preview.Preview
 
 private val DarkColorPalette = darkColors(
     primary = Purple200,

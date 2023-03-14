@@ -14,9 +14,9 @@
  * limitations under the License.
  */
 
-package io.getstream.webrtc.sample.compose.webrtc.utils
+package com.example.androidclient.rtc.webrtc.utils
 
-import io.getstream.webrtc.sample.compose.webrtc.peer.StreamPeerType
+import com.example.androidclient.rtc.webrtc.peer.StreamPeerType
 import org.webrtc.IceCandidateErrorEvent
 import org.webrtc.MediaStreamTrack
 import org.webrtc.SessionDescription

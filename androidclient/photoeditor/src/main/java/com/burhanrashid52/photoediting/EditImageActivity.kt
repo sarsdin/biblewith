@@ -9,6 +9,7 @@ import android.graphics.Bitmap
 import android.graphics.Typeface
 import android.graphics.drawable.Drawable
 import android.net.Uri
+import android.os.Build
 import android.os.Bundle
 import android.os.Handler
 import android.os.Looper
@@ -25,6 +26,7 @@ import androidx.annotation.VisibleForTesting
 import androidx.appcompat.app.AlertDialog
 import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.constraintlayout.widget.ConstraintSet
+import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import androidx.core.content.FileProvider
 import androidx.recyclerview.widget.LinearLayoutManager
@@ -247,6 +249,7 @@ class EditImageActivity : BaseActivity(), OnPhotoEditorListener, View.OnClickLis
 
 //    @SuppressLint("NonConstantResourceId", "MissingPermission")
     override fun onClick(view: View) {
+
         when (view.id) {
             R.id.imgUndo -> mPhotoEditor?.undo()
             R.id.imgRedo -> mPhotoEditor?.redo()
@@ -291,19 +294,25 @@ class EditImageActivity : BaseActivity(), OnPhotoEditorListener, View.OnClickLis
         )
     }
 
+
     @RequiresPermission(allOf = [Manifest.permission.WRITE_EXTERNAL_STORAGE, Manifest.permission.READ_EXTERNAL_STORAGE])
     private fun saveImage() {
+        Log.d(TAG, "saveImage() 1")
         val fileName = System.currentTimeMillis().toString() /*+ ".png"*/
-        val hasStoragePermission = (ContextCompat.checkSelfPermission(
-            this,
-            Manifest.permission.WRITE_EXTERNAL_STORAGE
-        ) == PackageManager.PERMISSION_GRANTED)
-                && (ContextCompat.checkSelfPermission(
-            this,
-            Manifest.permission.READ_EXTERNAL_STORAGE
-        ) == PackageManager.PERMISSION_GRANTED)
+        val hasStoragePermission =
+            //안드로이드 12(api31) 미만일 경우 권한 체크하고, 이상일때는 그냥 true
+            //api32이상부터는 저장권한에 대해 굳이 요청할 필요가 없게끔 바뀌었다고 한다.
+            if (Build.VERSION.SDK_INT < Build.VERSION_CODES.S) { //S가 31
+                (ContextCompat.checkSelfPermission(this, Manifest.permission.WRITE_EXTERNAL_STORAGE) == PackageManager.PERMISSION_GRANTED)
+                && (ContextCompat.checkSelfPermission(this,Manifest.permission.READ_EXTERNAL_STORAGE) == PackageManager.PERMISSION_GRANTED)
 
+            } else {
+                true
+            }
+
+        Log.d(TAG, "saveImage() 2 ${hasStoragePermission}")
         if (hasStoragePermission /*|| FileSaveHelper.isSdkHigherThan28()*/) {
+            Log.d(TAG, "saveImage() 3")
             showLoading("저장중...")
             mSaveFileHelper?.createFile(fileName, object : FileSaveHelper.OnFileCreateResult {
 
@@ -347,6 +356,7 @@ class EditImageActivity : BaseActivity(), OnPhotoEditorListener, View.OnClickLis
                 }
             })
         } else {
+            Log.d(TAG, "saveImage() 4 else 부분")
             requestPermission(arrayOf(Manifest.permission.WRITE_EXTERNAL_STORAGE, Manifest.permission.READ_EXTERNAL_STORAGE))
         }
     }

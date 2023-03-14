@@ -14,7 +14,8 @@
  * limitations under the License.
  */
 
-package io.getstream.webrtc.sample.compose.ui.components
+package com.example.androidclient.rtc.ui.components
+import android.util.Log
 
 import android.content.Context
 import android.content.res.Resources
@@ -40,6 +41,8 @@ open class VideoTextureViewRenderer @JvmOverloads constructor(
     context: Context,
     attrs: AttributeSet? = null
 ) : TextureView(context, attrs), VideoSink, SurfaceTextureListener {
+
+    val tagName = "[${this.javaClass.simpleName}]"
 
     /**
      * Cached resource name.
@@ -82,6 +85,7 @@ open class VideoTextureViewRenderer @JvmOverloads constructor(
     private var frameRotation = 0
 
     init {
+        this.surfaceTexture?.setDefaultBufferSize(325, 490)
         surfaceTextureListener = this
     }
 
@@ -91,6 +95,7 @@ open class VideoTextureViewRenderer @JvmOverloads constructor(
      * @param videoFrame The [VideoFrame] received from WebRTC connection to draw on the screen.
      */
     override fun onFrame(videoFrame: VideoFrame) {
+//        Log.w(tagName, "onFrame() videoFrame: $videoFrame") // 너무 로그가 많이 뜸
         eglRenderer.onFrame(videoFrame)
         updateFrameData(videoFrame)
     }
@@ -127,6 +132,7 @@ open class VideoTextureViewRenderer @JvmOverloads constructor(
      * is scaled correctly.
      */
     override fun onLayout(changed: Boolean, left: Int, top: Int, right: Int, bottom: Int) {
+        Log.w(tagName, "onLayout() changed: $changed")
         eglRenderer.setLayoutAspectRatio((right - left) / (bottom.toFloat() - top))
     }
 
@@ -145,10 +151,18 @@ open class VideoTextureViewRenderer @JvmOverloads constructor(
         eglRenderer.init(sharedContext, EglBase.CONFIG_PLAIN, GlRectDrawer())
     }
 
+
+
+    /////////////////////////////  SurfaceTextureListener 구현부
+
     /**
      * [SurfaceTextureListener] callback that lets us know when a surface texture is ready and we can draw on it.
      */
     override fun onSurfaceTextureAvailable(surfaceTexture: SurfaceTexture, width: Int, height: Int) {
+        Log.w(tagName, "onSurfaceTextureAvailable() width: $width, height: $height")
+//        surfaceTexture.releaseTexImage()
+        surfaceTexture.setDefaultBufferSize(325, 490)
+//        surfaceTexture.updateTexImage()
         eglRenderer.createEglSurface(surfaceTexture)
     }
 
@@ -157,6 +171,7 @@ open class VideoTextureViewRenderer @JvmOverloads constructor(
      * on it.
      */
     override fun onSurfaceTextureDestroyed(surfaceTexture: SurfaceTexture): Boolean {
+        Log.w(tagName, "onSurfaceTextureDestroyed()")
         val completionLatch = CountDownLatch(1)
         eglRenderer.releaseEglSurface { completionLatch.countDown() }
         ThreadUtils.awaitUninterruptibly(completionLatch)
@@ -168,11 +183,13 @@ open class VideoTextureViewRenderer @JvmOverloads constructor(
         width: Int,
         height: Int
     ) {
+        Log.w(tagName, "onSurfaceTextureSizeChanged() width: $width, height: $height")
     }
 
     override fun onSurfaceTextureUpdated(surfaceTexture: SurfaceTexture) {}
 
     override fun onDetachedFromWindow() {
+        Log.w(tagName, "onDetachedFromWindow() ")
         eglRenderer.release()
         super.onDetachedFromWindow()
     }

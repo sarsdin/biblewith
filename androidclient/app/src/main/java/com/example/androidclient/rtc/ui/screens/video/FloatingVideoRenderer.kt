@@ -24,7 +24,6 @@ import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.Card
-import androidx.compose.material3.Card
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -43,7 +42,7 @@ import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
-import io.getstream.webrtc.sample.compose.ui.components.VideoRenderer
+import com.example.androidclient.rtc.ui.components.VideoRenderer
 import org.webrtc.VideoTrack
 
 /**
@@ -65,7 +64,6 @@ fun previewFloatingVideoRenderer(){
     ){
 
     }
-//    FloatingVideoRenderer()
 }
 
 @Composable
@@ -78,7 +76,7 @@ fun FloatingVideoRenderer(
     var videoSize by remember { mutableStateOf(IntSize(0, 0)) }
     var offsetX by remember { mutableStateOf(0f) }
     var offsetY by remember { mutableStateOf(0f) }
-    val offset by animateOffsetAsState(targetValue = Offset(offsetX, offsetY))
+    val offset by animateOffsetAsState(targetValue = Offset(offsetX, offsetY), label = "")
     val density = LocalDensity.current
 
     LaunchedEffect(parentBounds.width) {
@@ -90,14 +88,14 @@ fun FloatingVideoRenderer(
 
     Card(
         elevation = 8.dp,
-        modifier = Modifier
-            .offset { IntOffset(offset.x.toInt(), offset.y.toInt()) }
+        modifier = Modifier.offset { IntOffset(offset.x.toInt(), offset.y.toInt()) }
             .pointerInput(parentBounds) {
                 detectDragGestures { change, dragAmount ->
                     change.consume()
 
                     val newOffsetX = (offsetX + dragAmount.x)
                         .coerceAtLeast(
+                            //offset width 최소값 계산. -역수로 계산하는듯?
                             -calculateHorizontalOffsetBounds(
                                 parentBounds = parentBounds,
                                 paddingValues = paddingValues,
@@ -106,6 +104,7 @@ fun FloatingVideoRenderer(
                                 offset = paddingOffset * 2
                             )
                         )
+                        //offset width 최대값 계산
                         .coerceAtMost(
                             0f
                         )

@@ -14,7 +14,8 @@
  * limitations under the License.
  */
 
-package io.getstream.webrtc.sample.compose.webrtc.sessions
+package com.example.androidclient.rtc.webrtc.sessions
+import android.util.Log
 
 import android.content.Context
 import android.hardware.camera2.CameraCharacteristics
@@ -26,15 +27,15 @@ import android.os.Build
 import androidx.compose.runtime.ProvidableCompositionLocal
 import androidx.compose.runtime.staticCompositionLocalOf
 import androidx.core.content.getSystemService
-import io.getstream.log.taggedLogger
 import com.example.androidclient.rtc.webrtc.SignalingClient
 import com.example.androidclient.rtc.webrtc.SignalingCommand
-import io.getstream.webrtc.sample.compose.webrtc.audio.AudioHandler
-import io.getstream.webrtc.sample.compose.webrtc.audio.AudioSwitchHandler
-import io.getstream.webrtc.sample.compose.webrtc.peer.StreamPeerConnection
-import io.getstream.webrtc.sample.compose.webrtc.peer.StreamPeerConnectionFactory
-import io.getstream.webrtc.sample.compose.webrtc.peer.StreamPeerType
-import io.getstream.webrtc.sample.compose.webrtc.utils.stringify
+import com.example.androidclient.rtc.webrtc.audio.AudioHandler
+import com.example.androidclient.rtc.webrtc.audio.AudioSwitchHandler
+import com.example.androidclient.rtc.webrtc.peer.StreamPeerConnection
+import com.example.androidclient.rtc.webrtc.peer.StreamPeerConnectionFactory
+import com.example.androidclient.rtc.webrtc.peer.StreamPeerType
+import com.example.androidclient.rtc.webrtc.utils.stringify
+import io.getstream.log.taggedLogger
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
@@ -63,6 +64,8 @@ private const val ICE_SEPARATOR = '$'
 val LocalWebRtcSessionManager: ProvidableCompositionLocal<WebRtcSessionManager> =
     staticCompositionLocalOf { error("WebRtcSessionManager was not initialized!") }
 
+
+
 /**
  * 필요한 생성자로 컨텍스트, 시그널링 클라이언트, peer connection Factory 등의 객체가 필요함.
  * */
@@ -81,6 +84,7 @@ class WebRtcSessionManagerImpl(
     private val sessionManagerScope = CoroutineScope(SupervisorJob() + Dispatchers.Default)
 
     // used to send local video track to the fragment(ui를 말하는 듯)
+    //WebRtcSessionManager의 멤버변수를 오버라이드함.
     private val _localVideoTrackFlow = MutableSharedFlow<VideoTrack>()
     override val localVideoTrackFlow: SharedFlow<VideoTrack> = _localVideoTrackFlow
 
@@ -104,13 +108,16 @@ class WebRtcSessionManagerImpl(
 
     // getting front camera.
     // 전면 카메라를 찾아서 가져오는 절차.
-    private val cameraManager by lazy { context.getSystemService<CameraManager>() }//카메라 메니저 호출해서 가져옴.
-    private val videoCapturer: VideoCapturer by lazy { buildCameraCapturer() }
+    private val cameraManager by lazy { context.getSystemService<CameraManager>() }  //카메라 메니저 호출해서 가져옴.
+    private val videoCapturer: VideoCapturer by lazy{ buildCameraCapturer() }
     private val cameraEnumerator: Camera2Enumerator by lazy { //
         Camera2Enumerator(context)
     }
 
-    //카메라가 지원하는 해상도를 담고있는 객체를 받아옴.
+    /**
+     * 카메라가 지원하는 해상도를 담고있는 객체를 받아옴.
+     * 해상도를
+     */
     private val resolution: CameraEnumerationAndroid.CaptureFormat
         get() {
             val frontCamera = cameraEnumerator.deviceNames.first { cameraName ->
@@ -118,7 +125,7 @@ class WebRtcSessionManagerImpl(
             }
             val supportedFormats = cameraEnumerator.getSupportedFormats(frontCamera) ?: emptyList()
             return supportedFormats.firstOrNull {
-                (it.width == 1280 || /*it.width == 1920 ||*/ it.width == 720 || it.width == 480 || it.width == 360)
+                (it.width == 1280 || /*it.width == 1920 ||*/ it.width == 720 || it.width == 540 || it.width == 480 || it.width == 360)
             } ?: error("There is no matched resolution!")
         }
 
@@ -140,19 +147,43 @@ class WebRtcSessionManagerImpl(
             //capturerObserver의 구현부는 VideoSource 클래스에 있음.
             //결국,videoCapturer의 초기화는 this객체인 VideoSource를 이용함.
             videoCapturer.initialize(surfaceTextureHelper, context, this.capturerObserver)
-            videoCapturer.startCapture(resolution.width, resolution.height, 30)
+//            videoCapturer.startCapture(resolution.width, resolution.height, 20)
+            videoCapturer.startCapture(325, 490, 10)
+            Log.e(tagName, "makeVideoSource() 실행. videoSource 초기화 완료.")
         }
     }
 
     /**
+     * onSessionScreenReady()실행시 초기화. 즉, Ui sessionState상태값이 Ready일경우 발생.
      * 로컬 비디오 트랙을 팩토리로부터 생성함. 잘보면 videoSource객체를 peer팩토리에 넣어서 VideoTrack를 생성함
      * peerConnectionFactory가 videoSource, VideoTrack 객체 둘다 생성하는 것을 알 수 있다.
      * */
-    private val localVideoTrack: VideoTrack by lazy {
+    val localVideoTrack: VideoTrack by lazy {
+        Log.e(tagName, "localVideoTrack 초기화 시작.")
         peerConnectionFactory.makeVideoTrack(
             source = videoSource,
             trackId = "Video${UUID.randomUUID()}"
-        )
+        ).run {
+            Log.e(tagName, "localVideoTrack 초기화 완료. localVideoTrack: $this")
+            this
+        }
+    }
+
+    /**
+     * localVideoTrack가 초기화가 이상하게 잘 안되는 경우 재생성해서 플로우에 넣어줌.
+     */
+    public fun reCreateLocalVideoTrack(){
+        Log.e(tagName, "localVideoTrack 재생성 시작.")
+        peerConnectionFactory.makeVideoTrack(
+            source = videoSource,
+            trackId = "Video${UUID.randomUUID()}"
+        ).run rn@ {
+            Log.e(tagName, "localVideoTrack 재생성 완료. localVideoTrack: $this")
+//            this
+            sessionManagerScope.launch {
+                _localVideoTrackFlow.emit(this@rn)
+            }
+        }
     }
 
 
@@ -203,12 +234,16 @@ class WebRtcSessionManagerImpl(
             configuration = peerConnectionFactory.rtcConfig,
             type = StreamPeerType.SUBSCRIBER,
             mediaConstraints = mediaConstraints,
+            //Observer.onIceCandidate() 구현부에서 실행할 콜백임.
+            // 새로운 iceCandidate가 들어오면 그것을 받아서 시그널링 서버로 ICE 시그널을 보냄.
             onIceCandidateRequest = { iceCandidate, _ ->
                 signalingClient.sendCommand(
                     SignalingCommand.ICE,
                     "${iceCandidate.sdpMid}$ICE_SEPARATOR${iceCandidate.sdpMLineIndex}$ICE_SEPARATOR${iceCandidate.sdp}"
                 )
             },
+            //PeerConnection.Observer.onTrack() 구현부에서 실행할 콜백임.
+            // 새로운 rtpTransceiver가 들어오면 그것을 받아서 _remoteVideoTrackFlow(원격비디오트랙)에 값으로 넣어줌.
             onVideoTrack = { rtpTransceiver ->
                 //리시버에 트랙이 없으면 그대로 메소드 종료
                 val track = rtpTransceiver?.receiver?.track() ?: return@makePeerConnection
@@ -231,16 +266,18 @@ class WebRtcSessionManagerImpl(
     init {
         //하나의 코루틴을 생성하여 WebRtc 세션매니저가 시작될때 생성된 SignalingClient 객체의 상태를 구독시킴.
         sessionManagerScope.launch {
-            //signalingClient내의 SignalingCommand 값에 따라 handle**() 메소드가 실행된다.
+            //signalingClient내의 SignalingCommand 값에 따라,
+            // 해당 시그널 상황에서 클라이언트가 해야할 작업들인 handle**() 메소드가 실행된다.
             //handleAnswer(), handleIce()내에서 peerConnection 객체를 사용함.
             signalingClient.signalingCommandFlow.collect { commandToValue ->
-                    when (commandToValue.first) {
-                        SignalingCommand.OFFER -> handleOffer(commandToValue.second)
-                        SignalingCommand.ANSWER -> handleAnswer(commandToValue.second)
-                        SignalingCommand.ICE -> handleIce(commandToValue.second)
-                        else -> Unit
-                    }
+                //상태값의 키페어를 가져와 사용. second에는 보통 SPD 문자열이 담김.
+                when (commandToValue.first) {
+                    SignalingCommand.OFFER -> handleOffer(commandToValue.second)
+                    SignalingCommand.ANSWER -> handleAnswer(commandToValue.second)
+                    SignalingCommand.ICE -> handleIce(commandToValue.second)
+                    else -> Unit
                 }
+            }
         }
     }
 
@@ -251,18 +288,28 @@ class WebRtcSessionManagerImpl(
     //-----------------------------------------------상속받은 WebRtcSessionManager의 impl(구현부) start
     /**
      * 기기의 화면이 준비됐을때 peerConnection객체를 by lazy에 의해 초기화함.
+     * 처음은 VideoCallScreen() 컴포넌트 실행시(WebRTCSessionState.Ready상태)
      */
     override fun onSessionScreenReady() {
         setupAudio()
+        peerConnection.connection.restartIce()
         peerConnection.connection.addTrack(localVideoTrack)
         peerConnection.connection.addTrack(localAudioTrack)
         sessionManagerScope.launch {
+            Log.e(tagName, "onSessionScreenReady()실행. signalingClient.sessionStateFlow.value: ${signalingClient.sessionStateFlow.value}")
             // sending local video track to show local video from start
+            //카메라와 연결되어 만들어진 비디오 트랙 객체를 상태값으로 할당.
             _localVideoTrackFlow.emit(localVideoTrack)
 
+            // 그후 offer 메시지(여기서는 다른 peer로부터 받은 SDP 문자열)
+            // 유무에 따라 Offer or Answer 명령을 수행함.
+            // 타 peer로부터 받은 SDP 문자열이 있으면 자신은 Answer로써 SDP를 보냄.
             if (offer != null) {
                 sendAnswer()
+
             } else {
+                //offer 메시지가 없으면 처음으로 시그널링 서버에 Offer를 주는 것임.
+                //실행하면 SDP 문자열 생성과 함께 시그널링 서버로 Offer 명령을 보냄.
                 sendOffer()
             }
         }
@@ -287,30 +334,51 @@ class WebRtcSessionManagerImpl(
      * */
     override fun enableCamera(enabled: Boolean) {
         if (enabled) {
-            videoCapturer.startCapture(resolution.width, resolution.height, 30)
+            videoCapturer.startCapture(resolution.width, resolution.height, 20)
         } else {
             videoCapturer.stopCapture()
         }
     }
 
+
+    /**
+     * 원격 & 로컬 비디오, 오디오 트랙의 캐시를 videoTrack.dispose()로 비운다.
+     * 로컬의 비디오 & 오디오 트랙을 dispose()함.
+     * audioHandler, videoCapturer 를 stop() 후 disopose()
+     * 마지막으로, signalingClient.dispose()를 이용해 웹소켓을 닫는다.
+     */
     override fun disconnect() {
         // dispose audio & video tracks.
         remoteVideoTrackFlow.replayCache.forEach { videoTrack ->
             videoTrack.dispose()
         }
+        Log.e(tagName, "Session disconnect() 1")
         localVideoTrackFlow.replayCache.forEach { videoTrack ->
             videoTrack.dispose()
         }
+        Log.e(tagName, "Session disconnect() 2")
         localAudioTrack.dispose()
+        Log.e(tagName, "Session disconnect() 3")
         localVideoTrack.dispose()
+        Log.e(tagName, "Session disconnect() 4")
 
         // dispose audio handler and video capturer.
         audioHandler.stop()
+        Log.e(tagName, "Session disconnect() 5")
         videoCapturer.stopCapture()
+        Log.e(tagName, "Session disconnect() 6")
         videoCapturer.dispose()
+        Log.e(tagName, "Session disconnect() 7")
+
+        //웹소켓 연결을 해제하기 전에 먼저 peer 연결부터 끊어야된다. 순서가 바뀌면 에러로 앱이 강종된다.
+        peerConnection.connection.dispose()
+//        peerConnectionFactory.factory.stopAecDump()
 
         // dispose signaling clients and socket.
+        Log.e(tagName, "Session disconnect() 8")
         signalingClient.dispose()
+
+//        Log.e(tagName, "Session disconnect() 9")
     }
     //-----------------------------------------------상속받은 WebRtcSessionManager의 impl(구현부) End
 
@@ -321,15 +389,19 @@ class WebRtcSessionManagerImpl(
 
     /**
      * onSessionScreenReady()안에서 사용
+     * 처음으로 시그널링 서버로 Offer 명령을 보냄.
      */
     private suspend fun sendOffer() {
         //suspendCoroutine 의 Result<T>객체가 success인지 failure인지에 따라 그 결과값이 가지고 있는 T객체값을 반환함.
+        //offer ==  SessionDescription == SDP 객체를 생성해서
         val offer = peerConnection.createOffer().getOrThrow()
+        // 자신의 정보에 해당하는 설명을 SDP객체에 덧붙이고,
         val result = peerConnection.setLocalDescription(offer)
+        // Result 객체가 성공적으로 만들어지면, OFFER 명령을 시그널링서버로 전송.
         result.onSuccess {
             signalingClient.sendCommand(SignalingCommand.OFFER, offer.description)
         }
-        logger.d { "[SDP] send offer: ${offer.stringify()}" }
+//        logger.d { "[SDP를 서버로 전송] sendOffer(): ${offer.stringify()}" }
     }
 
 
@@ -344,14 +416,21 @@ class WebRtcSessionManagerImpl(
         result.onSuccess {
             signalingClient.sendCommand(SignalingCommand.ANSWER, answer.description)
         }
-        logger.d { "[SDP] send answer: ${answer.stringify()}" }
+//        logger.d { "[SDP를 서버로 전송] sendAnswer(): ${answer.stringify()}" }
     }
+
+
+
+
+
+
+
 
     /**
      * init{} 안에서 사용
      */
     private fun handleOffer(sdp: String) {
-        logger.d { "[SDP] handle offer: $sdp" }
+//        logger.d { "[$tagName] handleOffer() SDP 문자열: $sdp" }
         offer = sdp
     }
 
@@ -359,7 +438,7 @@ class WebRtcSessionManagerImpl(
      * init{} 안에서 사용
      */
     private suspend fun handleAnswer(sdp: String) {
-        logger.d { "[SDP] handle answer: $sdp" }
+//        logger.d { "[$tagName] handleAnswer() SDP 문자열: $sdp" }
         peerConnection.setRemoteDescription(SessionDescription(SessionDescription.Type.ANSWER, sdp))
     }
 
@@ -367,6 +446,7 @@ class WebRtcSessionManagerImpl(
      * init{} 안에서 사용
      */
     private suspend fun handleIce(iceMessage: String) {
+//        logger.d { "[$tagName] handleIce() iceMessage 문자열: $iceMessage" }
         val iceArray = iceMessage.split(ICE_SEPARATOR)
         peerConnection.addIceCandidate(
             IceCandidate(
@@ -379,12 +459,16 @@ class WebRtcSessionManagerImpl(
 
 
 
+
+
     /**
      * 카메라 캡처 객체를 만들어 반환함.
      * */
     private fun buildCameraCapturer(): VideoCapturer {
         //일단 카메라 매니저는 호출되어 미리 변수에 초기화 되어 있어야함.
+        Log.e(tagName, "buildCameraCapturer() 실행됨.")
         val manager = cameraManager ?: throw RuntimeException("CameraManager was not initialized!")
+        Log.e(tagName, "buildCameraCapturer() manager: $manager")
 
         val ids = manager.cameraIdList
         var foundCamera = false
@@ -402,6 +486,7 @@ class WebRtcSessionManagerImpl(
             }
         }
 
+        //프론트 카메라를 찾지 못하면, 그냥 첫번째 카메라를 사용할 카메라로 넣어줌.
         if (!foundCamera && ids.isNotEmpty()) {
             cameraId = ids.first()
         }

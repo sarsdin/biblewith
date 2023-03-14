@@ -5,6 +5,7 @@
 
     <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
+    <uses-permission android:name="android.permission.ACCESS_CELLULAR_NETWORK" />
     <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
     <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" /> <!-- READ권한 포함일걸? -->
@@ -27,6 +28,7 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.seols"
         android:usesCleartextTraffic="true"
+        android:enableOnBackInvokedCallback="true"
         android:requestLegacyExternalStorage="true"
         tools:targetApi="31"
         tools:replace="android:fullBackupContent,android:name,android:theme">

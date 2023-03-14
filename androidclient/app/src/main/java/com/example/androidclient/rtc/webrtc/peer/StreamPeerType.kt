@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package io.getstream.webrtc.sample.compose.webrtc.peer
+package com.example.androidclient.rtc.webrtc.peer
 
 /**
  * The type of peer connections, either a [PUBLISHER] that sends data to the call or a [SUBSCRIBER]

@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package io.getstream.webrtc.sample.compose.ui.screens.video
+package com.example.androidclient.rtc.ui.screens.video
 
 data class CallMediaState(
     val isMicrophoneEnabled: Boolean = true,

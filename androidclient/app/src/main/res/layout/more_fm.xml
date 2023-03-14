@@ -73,8 +73,10 @@
             app:layout_constraintTop_toTopOf="parent"
             app:shapeAppearanceOverlay="@style/ShapeAppearanceOverlay.App.CornerSize50Percent"
             app:srcCompat="@drawable/ic_baseline_person_24" />
-        <com.google.android.material.textview.MaterialTextView
+
+        <Button
             android:id="@+id/more_fm_profile_tv"
+            style="@android:style/Widget.Material.Button.Borderless"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginStart="64dp"
@@ -83,8 +85,7 @@
             android:textSize="24dp"
             app:layout_constraintBottom_toBottomOf="@+id/more_fm_profile_iv"
             app:layout_constraintStart_toEndOf="@+id/more_fm_profile_iv"
-            app:layout_constraintTop_toTopOf="@+id/more_fm_profile_iv"
-            app:layout_constraintVertical_bias="1.0" />
+            app:layout_constraintTop_toTopOf="@+id/more_fm_profile_iv" />
 
         <androidx.constraintlayout.widget.Group
             android:id="@+id/more_fm_profile_group"
@@ -99,32 +100,34 @@
             android:layout_width="32dp"
             android:layout_height="32dp"
             android:layout_marginStart="28dp"
-            android:layout_marginTop="96dp"
+            android:layout_marginTop="32dp"
             android:scaleType="centerInside"
             android:tint="#020202"
+            android:visibility="gone"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/more_fm_profile_iv"
             app:shapeAppearanceOverlay="@style/ShapeAppearanceOverlay.App.CornerSize50Percent"
-            app:srcCompat="@drawable/ic_notification_icon" />
+            app:srcCompat="@drawable/ic_baseline_photo_camera_24" />
 
-        <com.google.android.material.textview.MaterialTextView
+        <Button
             android:id="@+id/more_fm_notification_tv"
+            style="@android:style/Widget.Material.Button.Borderless"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginStart="64dp"
-            android:text="알림"
+            android:text="테스트"
             android:textColor="#070707"
             android:textSize="24dp"
             app:layout_constraintBottom_toBottomOf="@+id/more_fm_notification_iv"
             app:layout_constraintStart_toEndOf="@+id/more_fm_notification_iv"
-            app:layout_constraintTop_toTopOf="@+id/more_fm_notification_iv"
-            app:layout_constraintVertical_bias="0.0" />
+            app:layout_constraintTop_toTopOf="@+id/more_fm_notification_iv" />
+
         <androidx.constraintlayout.widget.Group
             android:id="@+id/more_fm_notification_group"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            app:constraint_referenced_ids="more_fm_notification_iv,more_fm_notification_tv"
-            />
+            android:visibility="visible"
+            app:constraint_referenced_ids="more_fm_notification_iv,more_fm_notification_tv" />
 
         <!--하이라이트-->
         <com.google.android.material.imageview.ShapeableImageView
@@ -132,15 +135,16 @@
             android:layout_width="32dp"
             android:layout_height="32dp"
             android:layout_marginStart="28dp"
-            android:layout_marginTop="164dp"
+            android:layout_marginTop="32dp"
             android:scaleType="centerInside"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/more_fm_notification_iv"
             app:shapeAppearanceOverlay="@style/ShapeAppearanceOverlay.App.CornerSize50Percent"
             app:srcCompat="@drawable/ic_highlight_icon" />
 
-        <com.google.android.material.textview.MaterialTextView
+        <Button
             android:id="@+id/more_fm_highlight_tv"
+            style="@android:style/Widget.Material.Button.Borderless"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginStart="64dp"
@@ -149,8 +153,7 @@
             android:textSize="24dp"
             app:layout_constraintBottom_toBottomOf="@+id/more_fm_highlight_iv"
             app:layout_constraintStart_toEndOf="@+id/more_fm_highlight_iv"
-            app:layout_constraintTop_toTopOf="@+id/more_fm_highlight_iv"
-            app:layout_constraintVertical_bias="0.0" />
+            app:layout_constraintTop_toTopOf="@+id/more_fm_highlight_iv" />
         <androidx.constraintlayout.widget.Group
             android:id="@+id/more_fm_highlight_group"
             android:layout_width="wrap_content"
@@ -165,15 +168,16 @@
             android:layout_width="32dp"
             android:layout_height="32dp"
             android:layout_marginStart="28dp"
-            android:layout_marginTop="236dp"
+            android:layout_marginTop="32dp"
             android:scaleType="centerInside"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/more_fm_highlight_iv"
             app:shapeAppearanceOverlay="@style/ShapeAppearanceOverlay.App.CornerSize50Percent"
             app:srcCompat="@drawable/ic_note_icon" />
 
-        <com.google.android.material.textview.MaterialTextView
+        <Button
             android:id="@+id/more_fm_note_tv"
+            style="@android:style/Widget.Material.Button.Borderless"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginStart="64dp"
@@ -182,8 +186,7 @@
             android:textSize="24dp"
             app:layout_constraintBottom_toBottomOf="@+id/more_fm_note_iv"
             app:layout_constraintStart_toEndOf="@+id/more_fm_note_iv"
-            app:layout_constraintTop_toTopOf="@+id/more_fm_note_iv"
-            app:layout_constraintVertical_bias="1.0" />
+            app:layout_constraintTop_toTopOf="@+id/more_fm_note_iv" />
         <androidx.constraintlayout.widget.Group
             android:id="@+id/more_fm_note_group"
             android:layout_width="wrap_content"

@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package io.getstream.webrtc.sample.compose.ui.screens.video
+package com.example.androidclient.rtc.ui.screens.video
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -32,6 +32,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.unit.dp
 import com.example.androidclient.rtc.ui.screens.video.CallAction
+import com.example.androidclient.rtc.ui.screens.video.CallMediaState
 import com.example.androidclient.rtc.ui.screens.video.VideoCallControlAction
 import com.example.androidclient.rtc.ui.screens.video.buildDefaultCallControlActions
 

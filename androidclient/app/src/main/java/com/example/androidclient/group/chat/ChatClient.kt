@@ -20,6 +20,7 @@ import com.example.androidclient.home.MainActivity
 import com.google.gson.GsonBuilder
 import com.google.gson.JsonObject
 import com.google.gson.JsonParser
+import com.google.gson.stream.JsonReader
 import java.io.BufferedReader
 import java.io.IOException
 import java.io.InputStreamReader
@@ -138,13 +139,14 @@ class ChatClient(private val ip: String, val myService: MyService /*, val groupV
                 }
                 break // 소켓 연결이 성공하면 while 루프 탈출
             } catch(e: SocketTimeoutException) {
-                println("[Client] Socket 연결 시간 초과.. 60초가 지났다.")
+                Log.i(tagName, "Socket 연결 시간 초과.. 60초가 지났다.")
+//                println("[$tagName] Socket 연결 시간 초과.. 60초가 지났다.")
             } catch(e: Exception) {
-                println("[Client] Socket 연결 실패. 다시 시도합니다.")
+                Log.i(tagName, "Socket 연결 실패. 다시 시도합니다.")
                 Thread.sleep(1000) // 1초 대기 후 재연결 시도
             }
         }
-        println("[Client]Server 연결 성공!!")
+        println("[$tagName]Server 연결 성공!!")
         inMsg = BufferedReader(InputStreamReader(socket.getInputStream())) //예외발생 가능성
         outMsg = PrintWriter(socket.getOutputStream(), true)
         Log.e(tagName, "채팅 Server 연결 성공!!")

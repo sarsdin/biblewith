@@ -18,11 +18,15 @@ package io.getstream.webrtc.sample.compose.webrtc.audio
 
 import android.content.Context
 import android.media.AudioManager
+import com.example.androidclient.rtc.webrtc.audio.AudioDevice
 import io.getstream.log.taggedLogger
-import io.getstream.webrtc.sample.compose.webrtc.audio.AudioDevice.BluetoothHeadset
-import io.getstream.webrtc.sample.compose.webrtc.audio.AudioDevice.Earpiece
-import io.getstream.webrtc.sample.compose.webrtc.audio.AudioDevice.Speakerphone
-import io.getstream.webrtc.sample.compose.webrtc.audio.AudioDevice.WiredHeadset
+import com.example.androidclient.rtc.webrtc.audio.AudioDevice.BluetoothHeadset
+import com.example.androidclient.rtc.webrtc.audio.AudioDevice.Earpiece
+import com.example.androidclient.rtc.webrtc.audio.AudioDevice.Speakerphone
+import com.example.androidclient.rtc.webrtc.audio.AudioDevice.WiredHeadset
+import com.example.androidclient.rtc.webrtc.audio.AudioDeviceChangeListener
+import com.example.androidclient.rtc.webrtc.audio.AudioManagerAdapter
+import com.example.androidclient.rtc.webrtc.audio.AudioManagerAdapterImpl
 import io.getstream.webrtc.sample.compose.webrtc.audio.AudioSwitch.State.ACTIVATED
 import io.getstream.webrtc.sample.compose.webrtc.audio.AudioSwitch.State.STARTED
 import io.getstream.webrtc.sample.compose.webrtc.audio.AudioSwitch.State.STOPPED

@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package io.getstream.webrtc.sample.compose.webrtc.utils
+package com.example.androidclient.rtc.webrtc.utils
 
 import org.webrtc.SdpObserver
 import org.webrtc.SessionDescription

@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package io.getstream.webrtc.sample.compose.webrtc.audio
+package com.example.androidclient.rtc.webrtc.audio
 
 import android.content.Context
 import android.media.AudioManager
@@ -22,6 +22,7 @@ import android.os.Handler
 import android.os.Looper
 import io.getstream.log.StreamLog
 import io.getstream.log.taggedLogger
+import io.getstream.webrtc.sample.compose.webrtc.audio.AudioSwitch
 
 interface AudioHandler {
     /**

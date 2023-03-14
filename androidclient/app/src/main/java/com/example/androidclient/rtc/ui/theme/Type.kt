@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package io.getstream.webrtc.sample.compose.ui.theme
+package com.example.androidclient.rtc.ui.theme
 
 import androidx.compose.material.Typography
 import androidx.compose.ui.text.TextStyle
