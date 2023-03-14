@@ -14,7 +14,6 @@ import com.example.androidclient.MyApp
 import com.example.androidclient.R
 import com.example.androidclient.databinding.GroupListFmBinding
 import com.example.androidclient.databinding.GroupNotifyFmBinding
-import com.example.androidclient.group.placeholder.PlaceholderContent
 import com.example.androidclient.util.ImageHelper
 
 class GroupNotifyFm : Fragment() {

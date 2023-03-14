@@ -1,15 +1,14 @@
 package com.example.androidclient.home;
-import android.app.PendingIntent;
-import android.content.ComponentName;
-import android.content.ServiceConnection;
-import android.net.Uri;
-import android.os.IBinder;
-import android.util.Log;
 
+import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
+import android.content.ServiceConnection;
 import android.content.SharedPreferences;
+import android.net.Uri;
 import android.os.Bundle;
+import android.os.IBinder;
+import android.util.Log;
 import android.view.MenuItem;
 import android.view.View;
 
@@ -18,7 +17,6 @@ import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.navigation.NavController;
-import androidx.navigation.NavDeepLinkBuilder;
 import androidx.navigation.NavDestination;
 import androidx.navigation.Navigation;
 import androidx.navigation.ui.AppBarConfiguration;
@@ -35,8 +33,6 @@ import com.google.gson.Gson;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
-
-import kotlinx.coroutines.Dispatchers;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -157,6 +153,7 @@ public class MainActivity extends AppCompatActivity {
 
                 //노트 추가 화면으로 이동시 바텀 네비게이션 숨김
                 switch(navDestination.getId()){
+                    case  R.id.rtcFm:
                     case  R.id.myNoteFmAdd:
                     case  R.id.myNoteFmUpdate:
                     case  R.id.groupInFm:
@@ -185,6 +182,17 @@ public class MainActivity extends AppCompatActivity {
 //                        binding.mainAppbarNoteUpdateBt.setVisibility(View.GONE);
                         break;
                 }
+
+                switch(navDestination.getId()){
+                    case  R.id.rtcFm:
+
+                        binding.mainAppbar.setVisibility(View.GONE);
+                        break;
+                    default:
+                        binding.mainAppbar.setVisibility(View.VISIBLE);
+                        break;
+                }
+
 
                 //모임탭에서 메인 앱바,툴바 감추기 처리
                 /*if(navDestination.getId() == R.id.group_fm || navDestination.getId() == R.id.groupCreateFm){

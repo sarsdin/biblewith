@@ -5,7 +5,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".group.GroupChatInnerFm"
+    tools:context=".group.chat.GroupChatInnerFm"
     >
 
 
@@ -67,7 +67,7 @@
 
             <com.google.android.material.button.MaterialButton
                 android:id="@+id/toolbar_add_bt"
-                style="@style/Widget.Material3.Button.OutlinedButton"
+                style="@style/Widget.MaterialComponents.Button.OutlinedButton"
                 android:layout_width="50dp"
                 android:layout_height="40dp"
                 android:layout_gravity="end"
@@ -77,6 +77,7 @@
                 android:textColor="#171717"
                 android:textSize="14sp"
                 android:visibility="gone"
+                app:cornerRadius="20dp"
                 app:strokeColor="#9A9A9A"
                 tools:visibility="visible" />
 
@@ -127,7 +128,7 @@
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@+id/search_card"
-            tools:context=".group.GroupChatInnerFm"
+            tools:context=".group.chat.GroupChatInnerFm"
             tools:listitem="@layout/group_chat_inner_fm_vh" />
 
     </androidx.constraintlayout.widget.ConstraintLayout>

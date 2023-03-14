@@ -1,5 +1,4 @@
 package com.example.androidclient.home
-import android.util.Log
 
 import android.annotation.SuppressLint
 import android.content.Intent
@@ -10,11 +9,8 @@ import android.view.ViewGroup
 import com.burhanrashid52.photoediting.EditImageActivity
 import com.example.androidclient.bible.BibleVm
 import com.example.androidclient.databinding.GroupChatInnerImageRvVhBinding
-import com.example.androidclient.group.GroupChatInnerFm
-import com.example.androidclient.group.GroupVm
 import com.example.androidclient.util.ImageHelper
 
-import com.google.gson.JsonObject
 import com.unsplash.pickerandroid.photopicker.data.UnsplashPhoto
 
 class HomeFmImgRva(val bibleVm: BibleVm, val homeVm: HomeVm, val homeFm: HomeFm) : RecyclerView.Adapter<HomeFmImgRva.HomeFmImgRvVh>() {

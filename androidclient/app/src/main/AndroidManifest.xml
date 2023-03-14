@@ -3,93 +3,97 @@
     xmlns:tools="http://schemas.android.com/tools"
     package="com.example.androidclient">
 
-<uses-permission android:name="android.permission.INTERNET" />
-<uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
-<uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" /> <!-- READ권한 포함일걸? -->
-<uses-permission android:name="android.permission.CAMERA" />
-<uses-permission android:name="android.permission.RECORD_AUDIO" />
-<uses-permission android:name="android.permission.SCHEDULE_EXACT_ALARM" /> <!-- 알람매니저를 사용할려면 권한등록해야함 -->
-<uses-permission android:name="android.permission.USE_FULL_SCREEN_INTENT" /> <!-- 알람매니저를 사용할려면 권한등록해야함 -->
+    <uses-permission android:name="android.permission.INTERNET" />
+    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
+    <uses-permission android:name="android.permission.ACCESS_CELLULAR_NETWORK" />
+    <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
+    <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
+    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" /> <!-- READ권한 포함일걸? -->
+    <uses-permission android:name="android.permission.CAMERA" />
+    <uses-permission android:name="android.permission.RECORD_AUDIO" />
+    <uses-permission android:name="android.permission.SCHEDULE_EXACT_ALARM" /> <!-- 알람매니저를 사용할려면 권한등록해야함 -->
+    <uses-permission android:name="android.permission.USE_FULL_SCREEN_INTENT" /> <!-- 알람매니저를 사용할려면 권한등록해야함 -->
 
-<uses-feature android:name="android.hardware.camera2" />
-<uses-feature android:name="android.hardware.camera.any" />
+    <uses-feature android:name="android.hardware.camera2" />
+    <uses-feature android:name="android.hardware.camera.any" />
 
-<application
-    android:name=".MyApp"
-    android:allowBackup="true"
-    android:dataExtractionRules="@xml/data_extraction_rules"
-    android:fullBackupContent="@xml/backup_rules"
-    android:icon="@mipmap/ic_launcher"
-    android:label="@string/app_name"
-    android:roundIcon="@mipmap/ic_launcher_round"
-    android:supportsRtl="true"
-    android:theme="@style/Theme.seols"
-    android:usesCleartextTraffic="true"
-    android:requestLegacyExternalStorage="true"
-    tools:targetApi="31"
-    tools:replace="android:fullBackupContent,android:name,android:theme">
-    <activity
-        android:name=".home.MainActivity"
-        android:exported="true"
-        android:configChanges="keyboard|keyboardHidden|orientation|screenSize|screenLayout|smallestScreenSize|uiMode"
-        android:launchMode="singleTask"
-        android:label="">
-        <!--            android:configChanges : 화면회전시 관련된 옵션들 -->
-        <intent-filter>
-            <action android:name="android.intent.action.SEND" />
-            <data android:mimeType="text/plain" />
-        </intent-filter>
-        <intent-filter>
-            <action android:name="android.intent.action.VIEW" />
-
-            <category android:name="android.intent.category.DEFAULT" />
-            <category android:name="android.intent.category.BROWSABLE" />
-
-            <data
-                android:scheme="http"
-                android:host="biblewith.com"
-                android:pathPrefix="/invite" />
-        </intent-filter>
-
-        <nav-graph android:value="@navigation/main_navi" />
-    </activity>
-    <activity
-        android:name=".login.LoginActivity"
-        android:exported="true"
+    <application
+        android:name=".MyApp"
+        android:allowBackup="true"
+        android:dataExtractionRules="@xml/data_extraction_rules"
+        android:fullBackupContent="@xml/backup_rules"
+        android:icon="@mipmap/ic_launcher"
         android:label="@string/app_name"
-        android:launchMode="singleTask"
-        android:windowSoftInputMode="adjustUnspecified">
-        <!--     android:launchMode="singleInstance" : 하나의 인스턴스만 존재함. 액티비티가 존재시 재활용함       -->
-        <intent-filter>
-            <action android:name="android.intent.action.MAIN" />
+        android:roundIcon="@mipmap/ic_launcher_round"
+        android:supportsRtl="true"
+        android:theme="@style/Theme.seols"
+        android:usesCleartextTraffic="true"
+        android:enableOnBackInvokedCallback="true"
+        android:requestLegacyExternalStorage="true"
+        tools:targetApi="31"
+        tools:replace="android:fullBackupContent,android:name,android:theme">
+        <activity
+            android:name=".home.MainActivity"
+            android:exported="true"
+            android:configChanges="keyboard|keyboardHidden|orientation|screenSize|screenLayout|smallestScreenSize|uiMode"
+            android:launchMode="singleTask"
+            android:label="">
+            <!--            android:configChanges : 화면회전시 관련된 옵션들 -->
+            <intent-filter>
+                <action android:name="android.intent.action.SEND" />
+                <data android:mimeType="text/plain" />
+            </intent-filter>
+            <intent-filter>
+                <action android:name="android.intent.action.VIEW" />
 
-            <category android:name="android.intent.category.DEFAULT" />
-            <category android:name="android.intent.category.BROWSABLE" />
-            <category android:name="android.intent.category.LAUNCHER" />
-        </intent-filter>
-        <nav-graph android:value="@navigation/login_navi" />
-    </activity>
+                <category android:name="android.intent.category.DEFAULT" />
+                <category android:name="android.intent.category.BROWSABLE" />
 
-    <!-- FileProvider used to share media with other apps -->
-    <provider
-        android:name="androidx.core.content.FileProvider"
-        android:authorities="${applicationId}.provider"
-        android:exported="false"
-        android:grantUriPermissions="true"
-        tools:replace="android:authorities">
-        <meta-data
-            android:name="android.support.FILE_PROVIDER_PATHS"
-            android:resource="@xml/file_paths" />
-    </provider>
+                <data
+                    android:scheme="http"
+                    android:host="biblewith.com"
+                    android:pathPrefix="/invite" />
+            </intent-filter>
 
-    <service
-        android:name="com.example.androidclient.MyService"
-        >
-<!--        android:enabled="true"-->
-<!--        android:exported="true"-->
+            <nav-graph android:value="@navigation/main_navi" />
+        </activity>
+        <activity
+            android:name=".login.LoginActivity"
+            android:exported="true"
+            android:label="@string/app_name"
+            android:launchMode="singleTask"
+            android:windowSoftInputMode="adjustUnspecified">
+            <!--     android:launchMode="singleInstance" : 하나의 인스턴스만 존재함. 액티비티가 존재시 재활용함       -->
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
 
-    </service>
+                <category android:name="android.intent.category.DEFAULT" />
+                <category android:name="android.intent.category.BROWSABLE" />
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+            <nav-graph android:value="@navigation/login_navi" />
+        </activity>
 
-</application>
+        <!-- FileProvider used to share media with other apps -->
+        <provider
+            android:name="androidx.core.content.FileProvider"
+            android:authorities="${applicationId}.provider"
+            android:exported="false"
+            android:grantUriPermissions="true"
+            tools:replace="android:authorities">
+            <meta-data
+                android:name="android.support.FILE_PROVIDER_PATHS"
+                android:resource="@xml/file_paths" />
+        </provider>
+
+        <service
+            android:name="com.example.androidclient.MyService"
+            >
+    <!--        android:enabled="true"-->
+    <!--        android:exported="true"-->
+
+        </service>
+
+    </application>
 
 </manifest>

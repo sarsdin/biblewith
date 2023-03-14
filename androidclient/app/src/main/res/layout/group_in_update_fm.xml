@@ -5,7 +5,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    tools:context=".group.GroupInUpdateFm"
+    tools:context=".group.band.GroupInUpdateFm"
     >
 
     <com.google.android.material.appbar.AppBarLayout
@@ -32,7 +32,7 @@
                   android:textStyle="bold" />-->
             <com.google.android.material.button.MaterialButton
                 android:id="@+id/group_in_update_toolbar_add_bt"
-                style="@style/Widget.Material3.Button.OutlinedButton"
+                style="@style/Widget.MaterialComponents.Button.OutlinedButton"
                 android:layout_width="50dp"
                 android:layout_height="40dp"
                 android:layout_gravity="end"
@@ -42,12 +42,13 @@
                 android:textColor="#171717"
                 android:textSize="14sp"
                 android:visibility="visible"
+                app:cornerRadius="20dp"
                 app:strokeColor="#9A9A9A"
                 tools:visibility="visible" />
 
             <com.google.android.material.button.MaterialButton
                 android:id="@+id/group_in_update_toolbar_add_image_bt"
-                style="@style/Widget.Material3.Button.OutlinedButton"
+                style="@style/Widget.MaterialComponents.Button.OutlinedButton"
                 android:layout_width="70dp"
                 android:layout_height="40dp"
                 android:layout_gravity="end"
@@ -57,6 +58,7 @@
                 android:textColor="#171717"
                 android:textSize="14sp"
                 android:visibility="visible"
+                app:cornerRadius="20dp"
                 app:strokeColor="#9A9A9A"
                 tools:visibility="visible" />
 

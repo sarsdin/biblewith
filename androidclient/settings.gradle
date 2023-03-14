@@ -14,5 +14,5 @@ dependencyResolutionManagement {
     }
 }
 rootProject.name = "androidclient"
-include ':app'
+include ':app', ':webrtc'
 include ':photoeditor'

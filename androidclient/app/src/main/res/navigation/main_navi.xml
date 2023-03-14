@@ -95,6 +95,9 @@
             app:destination="@id/myProfileFm"
             app:enterAnim="@anim/nav_default_enter_anim"
             app:exitAnim="@anim/nav_default_exit_anim" />
+        <action
+            android:id="@+id/action_more_fm_to_rtcFm"
+            app:destination="@id/rtcFm" />
     </fragment>
 <!--            app:restoreState="true"-->
     <fragment
@@ -119,7 +122,7 @@
         tools:layout="@layout/group_list_fm" />
     <fragment
         android:id="@+id/groupChatFm"
-        android:name="com.example.androidclient.group.GroupChatFm"
+        android:name="com.example.androidclient.group.chat.GroupChatFm"
         android:label=""
         tools:layout="@layout/group_chat_fm" />
     <fragment
@@ -129,7 +132,7 @@
         tools:layout="@layout/group_notify_fm" />
     <fragment
         android:id="@+id/groupInFm"
-        android:name="com.example.androidclient.group.GroupInFm"
+        android:name="com.example.androidclient.group.band.GroupInFm"
         android:label=""
         tools:layout="@layout/group_in_fm">
         <action
@@ -154,12 +157,12 @@
     </fragment>
     <fragment
         android:id="@+id/groupInWriteFm"
-        android:name="com.example.androidclient.group.GroupInWriteFm"
+        android:name="com.example.androidclient.group.band.GroupInWriteFm"
         android:label="글쓰기"
         tools:layout="@layout/group_in_write_fm"/>
     <fragment
         android:id="@+id/groupInUpdateFm"
-        android:name="com.example.androidclient.group.GroupInUpdateFm"
+        android:name="com.example.androidclient.group.band.GroupInUpdateFm"
         android:label="글수정하기"
         tools:layout="@layout/group_in_update_fm" >
         <action
@@ -170,7 +173,7 @@
     </fragment>
     <fragment
         android:id="@+id/groupBoardDetail"
-        android:name="com.example.androidclient.group.GroupBoardDetail"
+        android:name="com.example.androidclient.group.band.GroupBoardDetail"
         android:label=""
         tools:layout="@layout/group_board_detail" >
         <action
@@ -179,7 +182,7 @@
     </fragment>
     <fragment
         android:id="@+id/group_in_challenge_fm"
-        android:name="com.example.androidclient.group.ChallengeFm"
+        android:name="com.example.androidclient.group.challenge.ChallengeFm"
         android:label=""
         tools:layout="@layout/challenge_fm" >
         <action
@@ -191,7 +194,7 @@
     </fragment>
     <fragment
         android:id="@+id/challengeCreateFm"
-        android:name="com.example.androidclient.group.ChallengeCreateFm"
+        android:name="com.example.androidclient.group.challenge.ChallengeCreateFm"
         android:label=""
         tools:layout="@layout/challenge_create_fm"
         >
@@ -201,7 +204,7 @@
     </fragment>
     <fragment
         android:id="@+id/challengeCreateNextFm"
-        android:name="com.example.androidclient.group.ChallengeCreateNextFm"
+        android:name="com.example.androidclient.group.challenge.ChallengeCreateNextFm"
         android:label=""
         tools:layout="@layout/challenge_create_next_fm" >
         <action
@@ -212,12 +215,12 @@
     </fragment>
     <fragment
         android:id="@+id/challengeDetailFm"
-        android:name="com.example.androidclient.group.ChallengeDetailFm"
+        android:name="com.example.androidclient.group.challenge.ChallengeDetailFm"
         android:label=""
         tools:layout="@layout/challenge_detail_fm"/>
     <fragment
         android:id="@+id/challengeDetailListFm"
-        android:name="com.example.androidclient.group.ChallengeDetailListFm"
+        android:name="com.example.androidclient.group.challenge.ChallengeDetailListFm"
         android:label=""
         tools:layout="@layout/challenge_detail_list_fm" >
         <action
@@ -234,12 +237,12 @@
         app:popUpTo="@id/groupInFm" />
     <fragment
         android:id="@+id/challengeDetailAfterFm"
-        android:name="com.example.androidclient.group.ChallengeDetailAfterFm"
+        android:name="com.example.androidclient.group.challenge.ChallengeDetailAfterFm"
         android:label=""
         tools:layout="@layout/challenge_detail_after_fm"/>
     <fragment
         android:id="@+id/groupInMemberFm"
-        android:name="com.example.androidclient.group.GroupInMemberFm"
+        android:name="com.example.androidclient.group.member.GroupInMemberFm"
         android:label=""
         tools:layout="@layout/group_in_member_fm">
     </fragment>
@@ -257,12 +260,12 @@
     <action android:id="@+id/action_global_groupChatFm" app:destination="@id/groupChatFm" />
     <fragment
         android:id="@+id/groupInInviteFm"
-        android:name="com.example.androidclient.group.GroupInInviteFm"
+        android:name="com.example.androidclient.group.member.GroupInInviteFm"
         android:label=""
         tools:layout="@layout/group_in_invite_fm" />
     <fragment
         android:id="@+id/groupInviteVerifyFm"
-        android:name="com.example.androidclient.group.GroupInviteVerifyFm"
+        android:name="com.example.androidclient.group.member.GroupInviteVerifyFm"
         android:label=""
         tools:layout="@layout/group_invite_verify_fm" />
     <action
@@ -296,12 +299,12 @@
         app:popExitAnim="@anim/nav_default_pop_exit_anim" />
     <dialog
         android:id="@+id/groupInChatCreateDialogFm"
-        android:name="com.example.androidclient.group.GroupInChatCreateDialogFm"
+        android:name="com.example.androidclient.group.chat.GroupInChatCreateDialogFm"
         android:label="GroupInChatCreateDialogFm"
         tools:layout="@layout/group_in_chat_create_dialog_fm"/>
     <fragment
         android:id="@+id/groupInChatFm"
-        android:name="com.example.androidclient.group.GroupInChatFm"
+        android:name="com.example.androidclient.group.chat.GroupInChatFm"
         android:label="group_in_chat_fm"
         tools:layout="@layout/group_in_chat_fm" >
         <action
@@ -319,7 +322,7 @@
         app:destination="@id/group_in_challenge_fm"/>
     <fragment
         android:id="@+id/groupChatInnerFm"
-        android:name="com.example.androidclient.group.GroupChatInnerFm"
+        android:name="com.example.androidclient.group.chat.GroupChatInnerFm"
         android:label="GroupChatInnerFm"
         tools:layout="@layout/group_chat_inner_fm"/>
     <action
@@ -336,6 +339,11 @@
         app:exitAnim="@anim/nav_default_exit_anim"
         app:popEnterAnim="@anim/nav_default_pop_enter_anim"
         app:popExitAnim="@anim/nav_default_pop_exit_anim" />
+    <fragment
+        android:id="@+id/rtcFm"
+        android:name="com.example.androidclient.rtc.RtcFm"
+        android:label="rtc_fm"
+        tools:layout="@layout/rtc_fm" />
 
 
 </navigation>

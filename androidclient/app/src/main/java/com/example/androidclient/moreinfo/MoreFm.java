@@ -1,13 +1,13 @@
 package com.example.androidclient.moreinfo;
 
 import android.os.Bundle;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.appcompat.app.AppCompatActivity;
 import androidx.fragment.app.Fragment;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.navigation.NavController;
@@ -17,10 +17,10 @@ import androidx.navigation.ui.NavigationUI;
 
 import com.example.androidclient.R;
 import com.example.androidclient.databinding.MoreFmBinding;
-import com.example.androidclient.home.MainActivity;
 
 public class MoreFm extends Fragment {
 
+    private String tagName = "[MoreFm]";
     private MoreVm moreVm;
     private MoreFmBinding binding;
     public AppBarConfiguration appBarConfiguration;
@@ -50,6 +50,13 @@ public class MoreFm extends Fragment {
         for (int id: ids){
             binding.getRoot().findViewById(id).setOnClickListener(v -> Navigation.findNavController(v).navigate(R.id.action_more_fm_to_myHighLightFm));
         }
+
+        //테스트 클릭
+        binding.moreFmNotificationTv.setOnClickListener(v -> {
+            Log.i(tagName, "binding.moreFmNotificationTv.setOnClickListener clicked");
+            Navigation.findNavController(v).navigate(R.id.action_more_fm_to_rtcFm);
+        });
+
 
         //노트 클릭시 이동
         for (int id: binding.moreFmNoteGroup.getReferencedIds()){

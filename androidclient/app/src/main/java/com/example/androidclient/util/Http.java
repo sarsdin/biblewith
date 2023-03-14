@@ -1,16 +1,12 @@
 package com.example.androidclient.util;
 
-import android.util.Log;
-
 import com.example.androidclient.bible.BibleDto;
 import com.example.androidclient.login.LoginDto;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
-
-import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
+import com.localebro.okhttpprofiler.OkHttpProfilerInterceptor;
 
 import java.util.List;
 import java.util.Map;
@@ -18,7 +14,6 @@ import java.util.Map;
 import okhttp3.MultipartBody;
 import okhttp3.OkHttpClient;
 import okhttp3.RequestBody;
-import okhttp3.logging.HttpLoggingInterceptor;
 import retrofit2.Call;
 import retrofit2.Retrofit;
 import retrofit2.converter.gson.GsonConverterFactory;
@@ -34,19 +29,7 @@ import retrofit2.http.Query;
 public class Http {
 
     //retrofit2 클래스 설정
-//    private static final String BASE_URL = "https://www.googleapis.com/youtube/v3/";        //DataApi 기본 주소(URL)
     private static final String BASE_URL = "http://";
-    public static final String KEY = "AIzaSyCxEDgrF8yd1Vkt-m7zZivxL5cr7nWsIi4";             //개발자 키
-    public static final String PART = "snippet";                                            //id, snippet 설정가능한데 snippet 만하면 둘가 가져옴.
-    public static final int MAX_RESULTS = 15;
-    public static final String ORDER = "date";                                              //정렬을 날짜순으로
-    public static final String PUBLISHED_AFTER = "2022-02-01T00:00:00Z";                    //지정된 날짜 이후에 등록된 것만 검색
-    public static final String Q = "premier league highlights";                             //검색어
-    public static final String TYPE = "video";                                              //비디오타입으로 설정
-    public static final boolean VIDEO_EMBEDDABLE = true;                                    //퍼가기 허용인 것만 검색
-
-    public static final String CHANNEL_ID_LALIGA = "UCTv-XvfzLX3i4IGWAm4sbmA";                             //채널 ID - laliga 공식 채널
-    public static final String Q_LALIGA = "highlight";                             //검색어
     public static final String UPLOADS_URL = "http://15.165.174.226/uploads/";                             //검색어
     public static final String HOST_IP = "15.165.174.226";                             //서버 ip
     public static final String UNSPLASH_API_URL = "https://api.unsplash.com";
@@ -57,9 +40,10 @@ public class Http {
         Gson gson = new GsonBuilder().setPrettyPrinting().setLenient().create();
 
         // 로그를 중간에 가로채서 로그캣에 보여줌
-        HttpLoggingInterceptor interceptor = new HttpLoggingInterceptor();
-//        interceptor.setLevel(HttpLoggingInterceptor.Level.BODY);
-        interceptor.level(HttpLoggingInterceptor.Level.BODY);
+//        HttpLoggingInterceptor interceptor = new HttpLoggingInterceptor();
+//        interceptor.level(HttpLoggingInterceptor.Level.BODY);
+        OkHttpProfilerInterceptor interceptor = new OkHttpProfilerInterceptor();
+
         OkHttpClient client = new OkHttpClient.Builder().addInterceptor(interceptor).build();
 
         Retrofit retrofit = null;
@@ -84,7 +68,6 @@ public class Http {
 
     //retrofit2 service interface 설정
     public interface HttpLogin{
-
         // 이메일 중복확인 통신
         @GET("home/isEmailRedundant")
         Call<JsonObject> isEmailRedundant(@Query("user_email") String user_email );

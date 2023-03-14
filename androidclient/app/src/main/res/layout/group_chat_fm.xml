@@ -5,7 +5,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".group.GroupChatFm"
+    tools:context=".group.chat.GroupChatFm"
 >
     <com.google.android.material.appbar.AppBarLayout
         android:id="@+id/appbar"
@@ -45,8 +45,8 @@
                 app:layout_collapseMode="pin"  />
 
             <com.google.android.material.button.MaterialButton
+                style="@style/Widget.MaterialComponents.Button.OutlinedButton"
                 android:id="@+id/toolbar_add_bt"
-                style="@style/Widget.Material3.Button.OutlinedButton"
                 android:layout_width="50dp"
                 android:layout_height="40dp"
                 android:layout_gravity="end"
@@ -56,6 +56,7 @@
                 android:textColor="#171717"
                 android:textSize="14sp"
                 android:visibility="visible"
+                app:cornerRadius="20dp"
                 app:strokeColor="#9A9A9A"
                 tools:visibility="visible" />
 
@@ -119,7 +120,7 @@
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@+id/text_view"
-            tools:context=".group.GroupChatFm"
+            tools:context=".group.chat.GroupChatFm"
             tools:listitem="@layout/group_chat_fm_vh" />
 
     </androidx.constraintlayout.widget.ConstraintLayout>
