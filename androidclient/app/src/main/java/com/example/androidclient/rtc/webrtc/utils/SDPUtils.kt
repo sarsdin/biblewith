@@ -50,6 +50,10 @@ suspend inline fun createValue(
     call(observer)
 }
 
+
+/**
+ * 구현된 SdpObserver interface 객체를 이 함수의 파라메터에 '='을 이용해 할당해줌.
+ */
 suspend inline fun setValue(
     crossinline call: (SdpObserver) -> Unit
 ): Result<Unit> = suspendCoroutine {

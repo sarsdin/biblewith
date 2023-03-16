@@ -100,6 +100,8 @@ class GroupInFm : Fragment() {
                 Navigation.findNavController(view).navigate(R.id.action_global_groupInMemberFm)
             } else if(it.itemId == R.id.groupInChatFm){
                 Navigation.findNavController(view).navigate(R.id.action_global_groupInChatFm)
+            } else if(it.itemId == R.id.rtc_fm){
+                Navigation.findNavController(view).navigate(R.id.action_global_rtcFm)
             }
             return@setOnItemSelectedListener false
         }
@@ -131,7 +133,7 @@ class GroupInFm : Fragment() {
         })
         groupVm.liveGboardL.observe(viewLifecycleOwner, Observer {
             //게시물 갱신
-            Log.e(tagName, "게시물 갱신: ${groupVm.gson.toJson(it)}")
+//            Log.e(tagName, "게시물 갱신: ${groupVm.gson.toJson(it)}")
             rva.notifyDataSetChanged()
         })
 

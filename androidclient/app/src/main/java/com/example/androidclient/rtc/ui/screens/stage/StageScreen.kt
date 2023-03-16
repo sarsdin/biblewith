@@ -44,6 +44,9 @@ fun StageScreen(
     state: WebRTCSessionState,
     onJoinCall: () -> Unit
 ) {
+
+
+
     Box(modifier = Modifier.fillMaxSize()) {
         //현재 상태가 상대방과 화상통화가 가능한지에 대한 여부를 기억.
         var enabledCall by remember { mutableStateOf(false) }

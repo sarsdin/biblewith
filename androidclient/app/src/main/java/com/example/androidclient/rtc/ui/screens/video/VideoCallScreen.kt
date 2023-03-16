@@ -53,6 +53,11 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 
+
+/**
+ * 비디오뷰가 나오는 컴포넌트. 클라들의 상태가 ready에서 (이후 ready상태에 이르는 것은 방목록화면이 보이는 상태와 동일할것임.)
+ * offer / answer 를 주고 받으면 ice가 되어 영상이 송출된다.
+ */
 @Composable
 fun VideoCallScreen() {
 
@@ -119,7 +124,7 @@ fun VideoCallScreen() {
             )
         }
 
-        val activity = (LocalContext.current as? Activity)
+//        val activity = (LocalContext.current as? Activity)
 
 
         VideoCallControls(

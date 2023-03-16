@@ -24,6 +24,12 @@
         app:showAsAction="always" />
 
     <item
+        android:id="@+id/rtc_fm"
+        android:icon="@drawable/ic_videocam_on"
+        android:title="영상통화"
+        app:showAsAction="always" />
+
+    <item
         android:id="@+id/groupInMemberFm"
         android:icon="@drawable/ic_baseline_group_24"
         android:title="모임"

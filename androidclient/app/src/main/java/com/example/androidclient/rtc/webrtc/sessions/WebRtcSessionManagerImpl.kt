@@ -235,6 +235,8 @@ class WebRtcSessionManagerImpl(
             type = StreamPeerType.SUBSCRIBER,
             mediaConstraints = mediaConstraints,
             //Observer.onIceCandidate() 구현부에서 실행할 콜백임.
+            // onIceCandidate() <<< 이 메소드는 Offer 시, Answer시 둘다 발동된다. 그래서, offer명령을 서버
+            // 에 내리면 ice 명령이 실행되고, answer시에도 마찬가지로 ice 명령이 보내진다.
             // 새로운 iceCandidate가 들어오면 그것을 받아서 시그널링 서버로 ICE 시그널을 보냄.
             onIceCandidateRequest = { iceCandidate, _ ->
                 signalingClient.sendCommand(
@@ -406,12 +408,16 @@ class WebRtcSessionManagerImpl(
 
 
     /**
-     * onSessionScreenReady()안에서 사용
+     * onSessionScreenReady()안에서 사용.
+     * 다른 peer에 answer로써 보낼때 사용.
      */
     private suspend fun sendAnswer() {
+        //타 peer로부터온 offer 메시지를 원격sdp로써 설정하고,
         peerConnection.setRemoteDescription(SessionDescription(SessionDescription.Type.OFFER, offer))
 
+        //타 peer에 보내기 위한 answer로써의 sdp를 생성함.
         val answer = peerConnection.createAnswer().getOrThrow()
+        //그리고, 생성된 나의 sdp를 로컬sdp로써 설정.
         val result = peerConnection.setLocalDescription(answer)
         result.onSuccess {
             signalingClient.sendCommand(SignalingCommand.ANSWER, answer.description)
@@ -428,6 +434,7 @@ class WebRtcSessionManagerImpl(
 
     /**
      * init{} 안에서 사용
+     * 서버로부터(타 peer) 받은 Offer정보를 원격 sdp로써 설정.
      */
     private fun handleOffer(sdp: String) {
 //        logger.d { "[$tagName] handleOffer() SDP 문자열: $sdp" }
@@ -436,6 +443,7 @@ class WebRtcSessionManagerImpl(
 
     /**
      * init{} 안에서 사용
+     * 서버로부터(타 peer) 받은 Answer정보를 원격 sdp로써 설정.
      */
     private suspend fun handleAnswer(sdp: String) {
 //        logger.d { "[$tagName] handleAnswer() SDP 문자열: $sdp" }
@@ -444,6 +452,7 @@ class WebRtcSessionManagerImpl(
 
     /**
      * init{} 안에서 사용
+     * peerConnection.addIceCandidate() 명령 실행.
      */
     private suspend fun handleIce(iceMessage: String) {
 //        logger.d { "[$tagName] handleIce() iceMessage 문자열: $iceMessage" }
