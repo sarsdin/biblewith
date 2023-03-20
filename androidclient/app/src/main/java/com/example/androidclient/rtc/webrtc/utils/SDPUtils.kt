@@ -23,7 +23,15 @@ import kotlin.coroutines.suspendCoroutine
 
 suspend inline fun createValue(
     crossinline call: (SdpObserver) -> Unit
-): Result<SessionDescription> = suspendCoroutine {
+): Result<SessionDescription>
+
+//함수에 = 로 코드를 할당할때 동작 방식 설명: '=' 에 할당된 코드는 이 함수(createValue)가 실행될때 사전 준비운동 같은 것임.
+// 일단 suspendCoroutine이 동작하고 그 안의 내용들이 실행됨. 그리고, 옵져버 객체 생성 후, 이 함수의 매개변수인
+// 함수 call을 실행함. 이때, 함수에 아까전 구현된 옵져버 객체를 넣어주고 실행함. 함수 call의 구현부는
+// 이 함수(createValue())를 실행한 곳에 있음. call의 구현부에서 아까 넣어준 '옵져버 인터페이스의 구현부'가 실행되어
+// resume() 메서드가 실행되면, 맨처음 실행한 suspendCoroutine의 동작이 마무리되고 createValue함수가 종료됨.
+// 결국, = 에 할당된 것은 함수의 리턴값을 산출하는 코드가 됨.
+= suspendCoroutine {
     val observer = object : SdpObserver {
 
         /**

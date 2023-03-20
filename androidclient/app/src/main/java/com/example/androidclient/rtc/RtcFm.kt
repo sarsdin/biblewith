@@ -50,6 +50,7 @@ import com.example.androidclient.MyApp
 import com.example.androidclient.R
 import com.example.androidclient.databinding.RtcFmBinding
 import com.example.androidclient.group.GroupVm
+import com.example.androidclient.rtc.ui.components.CustomDialog
 import com.example.androidclient.rtc.ui.screens.stage.StageScreen
 import com.example.androidclient.rtc.ui.screens.video.VideoCallScreen
 import com.example.androidclient.rtc.ui.theme.WebrtcSampleComposeTheme
@@ -158,7 +159,7 @@ class RtcFm : Fragment() {
 
                     when (currentScreen) {
                         ScreenState.ROOM_LIST -> {
-                            RoomList(
+                            RoomList (
                                 rooms = roomL,
                                 onRoomClick = { selectedRoom ->
                                     // 원하는 방을 선택한 후 처리할 작업을 여기에 추가합니다.
@@ -178,14 +179,14 @@ class RtcFm : Fragment() {
                                     // 뒤로 가기 기능을 처리하는 로직을 여기에 추가.
                                     navigate(R.id.action_global_groupInFm)
                                 },
-                                onCreateRoom = { title, size, pwd ->
+                                onCreateRoom = { jo ->
                                     // 방 만들기 기능을 처리하는 로직을 여기에 추가.
                                     sessionManager.signalingClient.sendCommand(StandardCommand.방만들기,
                                         JsonObject().apply {
                                             addProperty("command", "방만들기")
-                                            addProperty("title", title)
-                                            addProperty("size", size)
-                                            addProperty("pwd", pwd)
+                                            addProperty("title", jo["title"].asString)
+                                            addProperty("size", jo["size"].asString)
+                                            addProperty("pwd", jo["pwd"].asString)
                                             addProperty("groupId", groupVm.groupInfo["group_no"].asString)
                                         }
                                     )
@@ -219,7 +220,7 @@ class RtcFm : Fragment() {
     fun RoomList(rooms: JsonArray/*List<String>*/,
          onRoomClick: (JsonObject) -> Unit,
          onBackPressed: () -> Unit,
-         onCreateRoom: (String, Int, String) -> Unit
+         onCreateRoom: (JsonObject) -> Unit
     ) {
 
         val showDialog = remember { mutableStateOf(false) }
@@ -268,66 +269,9 @@ class RtcFm : Fragment() {
             }
 
             if (showDialog.value) {
-                var title by remember { mutableStateOf("") }
-                var size by remember { mutableStateOf(4) }
-                var pwd by remember { mutableStateOf("") }
 
-                AlertDialog(
-                    onDismissRequest = { hideCreateRoomDialog() },
-                    title = { Text(text = "방 만들기") },
-                    text = {
-                        Column {
-                            OutlinedTextField(
-                                value = title, // 방 제목 입력란의 상태 변수
-                                onValueChange = {
-                                    title = it
-                                }, // 상태 변수 업데이트
-                                label = { Text("방 제목") },
-                                modifier = Modifier.fillMaxWidth()
-                            )
-                            OutlinedTextField(
-                                value = size.toString(), // 인원 수 설정 입력란의 상태 변수
-                                onValueChange = {input ->
-                                    if (input.all { it.isDigit() }) {
-                                        size = input.toInt()
-                                    }
-//                                    size = it.toInt()
-                                }, // 상태 변수 업데이트
-                                label = { Text("인원 수") },
-                                modifier = Modifier.fillMaxWidth(),
-                                keyboardOptions = KeyboardOptions(imeAction = ImeAction.Done),
-                                keyboardActions = KeyboardActions(onDone = {})
-                            )
-                            OutlinedTextField(
-                                value = pwd, // 비밀번호 입력란의 상태 변수
-                                onValueChange = {pwd = it}, // 상태 변수 업데이트
-                                label = { Text("비밀번호") },
-                                modifier = Modifier.fillMaxWidth()
-                            )
-                        }
-                    },
-                    // 클릭시 방을 만드는: 소켓으로 서버에 '방만들기' 명령내림.
-                    confirmButton = {
-                        TextButton(
-                            onClick = {
-                                onCreateRoom(title, size, pwd)
-                                hideCreateRoomDialog()
-                            }
-                        ) {
-                            Text("확인")
-                        }
-                    },
-                    dismissButton = {
-                        TextButton(
-                            onClick = {
-                                hideCreateRoomDialog()
-                            }
-                        ) {
-                            Text("취소")
-                        }
-                    },
-                    backgroundColor = MaterialTheme.colors.background
-                ) // AlertDialog end
+
+                CustomDialog( onCreateRoom, { hideCreateRoomDialog() }) // AlertDialog end
             }
 
 
@@ -366,6 +310,8 @@ class RtcFm : Fragment() {
 
     override fun onDestroyView() {
         super.onDestroyView()
+        //이미 세션메니저가 종료되었는지 확인해야함. nullpoint Exception 대비.
+//        if(sessionManager.isDisconnected()) sessionManager.disconnect()
         mbinding = null
     }
 

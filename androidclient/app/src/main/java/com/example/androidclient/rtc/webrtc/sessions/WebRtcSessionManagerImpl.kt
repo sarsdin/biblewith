@@ -213,6 +213,12 @@ class WebRtcSessionManagerImpl(
         )
     }
 
+
+
+    /**
+     * init{} 안에서 handleOffer()메소드를 통해 할당됨.
+     * 서버로부터(타 peer) 받은 Offer정보를 원격 sdp로써 할당한 것.
+     */
     private var offer: String? = null
 
 
@@ -343,6 +349,7 @@ class WebRtcSessionManagerImpl(
     }
 
 
+
     /**
      * 원격 & 로컬 비디오, 오디오 트랙의 캐시를 videoTrack.dispose()로 비운다.
      * 로컬의 비디오 & 오디오 트랙을 dispose()함.
@@ -382,6 +389,21 @@ class WebRtcSessionManagerImpl(
 
 //        Log.e(tagName, "Session disconnect() 9")
     }
+
+
+
+    private var isDisconnected = false
+    /**
+     * WebRtc 세션이 disconnect 되었는지 확인하는 함수.
+     * RtcFm의 destroy 생명주기때 실행되어 확인해야함. 이미 종료되었다면 nullporint Exception이 뜰것이기 때문.
+     */
+    override fun isDisconnected(): Boolean { //단순 확인용
+        return isDisconnected
+    }
+    override fun isDisconnected(execute:Boolean): Boolean { //VideoCallScreen.kt에서 통화 끊을때 변경용.
+        isDisconnected = execute
+        return isDisconnected
+    }
     //-----------------------------------------------상속받은 WebRtcSessionManager의 impl(구현부) End
 
 
@@ -413,6 +435,7 @@ class WebRtcSessionManagerImpl(
      */
     private suspend fun sendAnswer() {
         //타 peer로부터온 offer 메시지를 원격sdp로써 설정하고,
+        //(여기서 offer 변수는 signaling command로 Offer를 받고, handleOffer를 통해 할당되었던 원격의 offer sdp 이다.
         peerConnection.setRemoteDescription(SessionDescription(SessionDescription.Type.OFFER, offer))
 
         //타 peer에 보내기 위한 answer로써의 sdp를 생성함.
@@ -545,7 +568,7 @@ class WebRtcSessionManagerImpl(
 
 
     private fun setupAudio() {
-        logger.d { "[setupAudio] #sfu; no args" }
+        logger.d { "[setupAudio] no args" }
         audioHandler.start()
         audioManager?.mode = AudioManager.MODE_IN_COMMUNICATION
 
@@ -556,7 +579,7 @@ class WebRtcSessionManagerImpl(
             val device = devices.firstOrNull { it.type == deviceType } ?: return
 
             val isCommunicationDeviceSet = audioManager?.setCommunicationDevice(device)
-            logger.d { "[setupAudio] #sfu; isCommunicationDeviceSet: $isCommunicationDeviceSet" }
+            logger.d { "[setupAudio] isCommunicationDeviceSet: $isCommunicationDeviceSet" }
         }
     }
 }

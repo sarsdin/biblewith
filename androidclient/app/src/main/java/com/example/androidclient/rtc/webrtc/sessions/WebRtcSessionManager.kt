@@ -44,4 +44,7 @@ interface WebRtcSessionManager {
     fun enableCamera(enabled: Boolean)
 
     fun disconnect()
+    fun isDisconnected(): Boolean
+
+    fun isDisconnected(execute:Boolean): Boolean
 }

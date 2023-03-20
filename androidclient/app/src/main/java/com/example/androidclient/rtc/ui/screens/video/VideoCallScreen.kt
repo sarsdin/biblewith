@@ -147,9 +147,10 @@ fun VideoCallScreen() {
                     CallAction.FlipCamera -> sessionManager.flipCamera()
                     CallAction.LeaveCall -> {
                         sessionManager.disconnect()
+//                        sessionManager.isDisconnected(true)
 //                        CoroutineScope(Dispatchers.Main).launch {
 //                        }
-                        navigate(R.id.action_global_home_fm)
+                        navigate(R.id.action_global_groupInFm)
 
 //                        activity?.finish()
 //                         state를 Offline으로 만들어야함.
