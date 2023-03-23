@@ -208,7 +208,8 @@ class SignalingClient(val groupVm: GroupVm) {
                     "방접속" -> {
                         Log.e(tagName, "방접속 jin: $jin")
 //                        val userIds = jin["userIds"].asJsonArray
-
+                        // 소켓으로부터 이 응답을 받으면, 이 클라이언트의 화면을 VIDEO_CALL_SCREEN 으로 전환.
+                        // 거기서 _방접속시도시접속인원목록.value 의 값을 이용해 원격 비디오 렌더링뷰를 셋팅해야함.
                         setCurrentScreen(RtcFm.ScreenState.VIDEO_CALL_SCREEN)
 
                     }
@@ -342,5 +343,6 @@ enum class StandardCommand {
     방만들기,
     방접속,
     방목록전달,
-    방접속시도
+    방접속시도,
+    접속해제
 }

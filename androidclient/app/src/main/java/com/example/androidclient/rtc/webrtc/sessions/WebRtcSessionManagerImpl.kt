@@ -1,19 +1,3 @@
-/*
- * Copyright 2023 Stream.IO, Inc. All Rights Reserved.
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- * http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
-
 package com.example.androidclient.rtc.webrtc.sessions
 import android.util.Log
 
@@ -24,7 +8,9 @@ import android.hardware.camera2.CameraMetadata
 import android.media.AudioDeviceInfo
 import android.media.AudioManager
 import android.os.Build
+import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.ProvidableCompositionLocal
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.staticCompositionLocalOf
 import androidx.core.content.getSystemService
 import com.example.androidclient.MyApp
@@ -40,7 +26,9 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.flow.MutableSharedFlow
+import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharedFlow
+import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.launch
 import org.webrtc.AudioTrack
 import org.webrtc.Camera2Capturer
@@ -90,8 +78,18 @@ class WebRtcSessionManagerImpl(
 
     // used to send remote video track to the sender
     // 나의 비디오를 다른 원격자들에 보낸다는 건지, 원격자들의 비디오를 내 ui에 보낸다는 건지 확인필요.
-    private val _remoteVideoTrackFlow = MutableSharedFlow<VideoTrack>()
-    override val remoteVideoTrackFlow: SharedFlow<VideoTrack> = _remoteVideoTrackFlow
+//    private val _remoteVideoTrackFlow = MutableSharedFlow<VideoTrack>()
+//    override val remoteVideoTrackFlow: SharedFlow<VideoTrack> = _remoteVideoTrackFlow
+//    val _remoteVideoTracks = MutableStateFlow(mutableMapOf<String, VideoTrack>())
+//    override val remoteVideoTracks: MutableStateFlow<MutableMap<String, VideoTrack>> = _remoteVideoTracks
+//    val _remoteVideoTracks = MutableStateFlow(emptyList<VideoTrack>())
+//    override val remoteVideoTracks: MutableStateFlow<List<VideoTrack>> = _remoteVideoTracks
+
+    val _remoteVideoTracks = MutableSharedFlow<List<VideoTrack>>(replay = 1)
+    override val remoteVideoTracks: SharedFlow<List<VideoTrack>> = _remoteVideoTracks.asSharedFlow()
+
+
+
 
     // declaring video constraints and setting OfferToReceiveVideo to true.
     // this step is mandatory to create valid offer and answer.
@@ -262,8 +260,16 @@ class WebRtcSessionManagerImpl(
                 //원격 비디오 트랙을 저장하는 flow로 보냄.
                 if (track.kind() == MediaStreamTrack.VIDEO_TRACK_KIND) {
                     val videoTrack = track as VideoTrack
+                    videoTracksForRemove[peerId] = videoTrack //나중에 연결종료시 remove용도
                     sessionManagerScope.launch {
-                        _remoteVideoTrackFlow.emit(videoTrack)
+//                        _remoteVideoTrackFlow.emit(videoTrack)
+//                        _remoteVideoTracks.value[peerId] = videoTrack
+//                        _remoteVideoTracks.value = _remoteVideoTracks.value + videoTrack
+
+                        _remoteVideoTracks.emit(
+                            (_remoteVideoTracks.replayCache.firstOrNull()
+                                ?: emptyList<VideoTrack>() ) + videoTrack
+                        )
                     }
                 }
             }
@@ -271,6 +277,9 @@ class WebRtcSessionManagerImpl(
         peerConnections[peerId] = newPeerConnection
         return newPeerConnection
     }
+
+    //임시객체 - 위에서 받은 비디오트랙을 나중에 제거하기 위해 맵으로 저장해둠.
+    val videoTracksForRemove = mutableMapOf<String, VideoTrack>()
 
 
     /**
@@ -381,8 +390,13 @@ class WebRtcSessionManagerImpl(
      */
     override fun disconnect() {
         // dispose audio & video tracks.
-        remoteVideoTrackFlow.replayCache.forEach { videoTrack ->
-            videoTrack.dispose()
+//        remoteVideoTrackFlow.replayCache.forEach { videoTrack ->
+//            videoTrack.dispose()
+//        }
+        remoteVideoTracks.replayCache.forEach { map ->
+            map.forEach {
+                it.dispose()
+            }
         }
         Log.e(tagName, "Session disconnect() 1")
         localVideoTrackFlow.replayCache.forEach { videoTrack ->
