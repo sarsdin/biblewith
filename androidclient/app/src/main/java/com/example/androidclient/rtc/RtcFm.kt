@@ -13,18 +13,12 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.itemsIndexed
-import androidx.compose.foundation.text.KeyboardActions
-import androidx.compose.foundation.text.KeyboardOptions
-import androidx.compose.material.AlertDialog
 import androidx.compose.material.Icon
 import androidx.compose.material.IconButton
 import androidx.compose.material.MaterialTheme
-import androidx.compose.material.OutlinedTextField
 import androidx.compose.material.Surface
 import androidx.compose.material.Text
-import androidx.compose.material.TextButton
 import androidx.compose.material.TopAppBar
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
@@ -36,21 +30,19 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
 import androidx.compose.runtime.staticCompositionLocalOf
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.unit.dp
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
-import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.fragment.findNavController
 import com.example.androidclient.MyApp
 import com.example.androidclient.R
 import com.example.androidclient.databinding.RtcFmBinding
 import com.example.androidclient.group.GroupVm
 import com.example.androidclient.rtc.ui.components.CustomDialog
+import com.example.androidclient.rtc.ui.components.CustomDialogAtRoomClick
 import com.example.androidclient.rtc.ui.screens.stage.StageScreen
 import com.example.androidclient.rtc.ui.screens.video.VideoCallScreen
 import com.example.androidclient.rtc.ui.theme.WebrtcSampleComposeTheme
@@ -111,7 +103,7 @@ class RtcFm : Fragment() {
     }
 
     enum class ScreenState {
-        ROOM_LIST, STAGE_SCREEN, VIDEO_CALL_SCREEN
+        ROOM_LIST, STAGE_SCREEN, VIDEO_CALL_SCREEN, AT_ROOM_CLICKED, 방장접속
     }
     @Composable
     fun RtcTest(useNavigate: (Int) -> Unit ){
@@ -156,24 +148,43 @@ class RtcFm : Fragment() {
                     //되도록이면 저위의 rtcVm안에 roomList에 넣으면 좋음.
                     //?? 그냥 viewModel말고 sessionManager.signalingClient에 새 변수 넣고 사용하면 안되나?? 그러면 될듯??;;
 
+//                    var _selectedRoom by remember { mutableStateOf(JsonObject()) }
 
                     when (currentScreen) {
                         ScreenState.ROOM_LIST -> {
                             RoomList (
                                 rooms = roomL,
-                                onRoomClick = { selectedRoom ->
-                                    // 원하는 방을 선택한 후 처리할 작업을 여기에 추가합니다.
-                                    // 예를 들어, selectedRoom을 사용하여 StageScreen 및 VideoCallScreen 컴포넌트에 전달할 수 있습니다.
-                                    sessionManager.signalingClient.setCurrentScreen(ScreenState.STAGE_SCREEN)
+                                onRoomEntrance = { 방접속 ->
+//                                    // 원하는 방을 선택한 후 처리할 작업을 여기에 추가합니다.
+//                                    // 예를 들어, selectedRoom을 사용하여 StageScreen 및 VideoCallScreen 컴포넌트에 전달할 수 있습니다.
+//                                    sessionManager.signalingClient.setCurrentScreen(ScreenState.STAGE_SCREEN)
+////                                    sessionManager.signalingClient.setCurrentScreen(ScreenState.VIDEO_CALL_SCREEN)
+//                                    //방클릭시 서버소켓에 방접속 명령보내야하지 않을까?
+//                                    sessionManager.signalingClient.sendCommand(StandardCommand.방접속,
+//                                        JsonObject().apply {
+//                                            addProperty("command", "방접속")
+//                                            addProperty("makerId", selectedRoom["roomId"].asString)
+//                                            addProperty("groupId", groupVm.groupInfo["group_no"].asString)
+//                                        }
+//                                    )
+                                    //
+//                                    sessionManager.signalingClient.setCurrentScreen(ScreenState.AT_ROOM_CLICKED)
+//                                    _selectedRoom = selectedRoom
+
+                                    //CustomDialogAtRoomClick 다이얼로그에서 요청 후 참가를 클릭할때 실행됨. 서버로 전달할 명령임.
+                                    // 서버에서는 해당 방의 접속원들의 아이디를 보내줘야하고, 그것을 이용해 VideoCallScreen에서는
+                                    // onSessionScreenReady() 를 실행함. << 즉, OFFER를 시작함.
+                                    // 이때, sendOffer()를 반복문으로 돌릴때 쓰이는 것이 방금 전달받은 방접속원들 아이디 리스트임.
+                                    sessionManager.signalingClient.sendCommand(StandardCommand.방접속, 방접속)
+
+                                    // todo 그냥 화면 바꾸란 명령을 내리면, 위에서 서버로의 비동기 통신이 완료되지 않아서 데이터가
+                                    //  없을 가능성도 있음. 그렇다면 해야할 것?  데이터를 받았는지 확인하고 화면 전환 명령을 해야함.
+                                    //  받았을때 변동되는 상태값에 따라 (명령을내려)바뀌게 해야함.
+                                    //  sessionManager.signalingClient.setCurrentScreen의 값을 받는 위치에서
+                                    //  ScreenState.VIDEO_CALL_SCREEN 으로 변경해주면 이곳의 currentScreen 상태값이 바뀌니
+                                    //  알아서 전환될 것임.
 //                                    sessionManager.signalingClient.setCurrentScreen(ScreenState.VIDEO_CALL_SCREEN)
-                                    //방클릭시 서버소켓에 방접속 명령보내야하지 않을까?
-                                    sessionManager.signalingClient.sendCommand(StandardCommand.방접속,
-                                        JsonObject().apply {
-                                            addProperty("command", "방접속")
-                                            addProperty("makerId", selectedRoom["roomId"].asString)
-                                            addProperty("groupId", groupVm.groupInfo["group_no"].asString)
-                                        }
-                                    )
+
                                 },
                                 onBackPressed = {
                                     // 뒤로 가기 기능을 처리하는 로직을 여기에 추가.
@@ -190,17 +201,32 @@ class RtcFm : Fragment() {
                                             addProperty("groupId", groupVm.groupInfo["group_no"].asString)
                                         }
                                     )
+                                    // todo 방장 접속하게 하기 추가해야함.
+
                                 }
                             )
                         }
+//                        ScreenState.AT_ROOM_CLICKED -> {
+//                            CustomDialogAtRoomClick(
+//                                selectedRoom = _selectedRoom,
+//                                onConfirmClick = { 방접속 ->
+//                                    sessionManager.signalingClient.sendCommand(StandardCommand.방접속, 방접속)
+//                                } ,
+//                                onDismissClick = {    }
+//                            )
+//                        }
+
                         ScreenState.STAGE_SCREEN -> {
                             StageScreen(state = state) {
+                                //두번째 인자인 onJoinCall() 구현부.
                                 sessionManager.signalingClient.setCurrentScreen(ScreenState.VIDEO_CALL_SCREEN)
                             }
                         }
+
                         ScreenState.VIDEO_CALL_SCREEN -> {
                             VideoCallScreen()
                         }
+                        else -> {}
                     }
 
 
@@ -217,20 +243,21 @@ class RtcFm : Fragment() {
      * 리사이클러뷰 컴포넌트. 여기서 String이 웹소켓에서 받은 room하나의 정보를 담고있는 객체타입이 되야함.
      */
     @Composable
-    fun RoomList(rooms: JsonArray/*List<String>*/,
-         onRoomClick: (JsonObject) -> Unit,
-         onBackPressed: () -> Unit,
-         onCreateRoom: (JsonObject) -> Unit
+    fun RoomList(
+        rooms: JsonArray/*List<String>*/,
+        onRoomEntrance: (JsonObject) -> Unit,
+        onBackPressed: () -> Unit,
+        onCreateRoom: (JsonObject) -> Unit
     ) {
 
-        val showDialog = remember { mutableStateOf(false) }
+        val showDialog = remember { mutableStateOf("") }
 
-        fun showCreateRoomDialog() {
-            showDialog.value = true
+        fun showRoomDialog(다이얼로그종류:String) {
+            showDialog.value = 다이얼로그종류
         }
 
-        fun hideCreateRoomDialog() {
-            showDialog.value = false
+        fun hideRoomDialog() {
+            showDialog.value = ""
         }
 
         //rooms자체는 signalingClient의 리스너에서 JsonObject()로써 온전히 받기때문에 그 객체안의 속성이 있는지 확인해야함.
@@ -247,7 +274,7 @@ class RtcFm : Fragment() {
                     }
                 },
                 actions = {
-                    IconButton(onClick = { showCreateRoomDialog() }) {
+                    IconButton(onClick = { showRoomDialog("방만들기") }) {
                         Icon(Icons.Filled.Add, contentDescription = "방만들기")
                     }
                 },
@@ -262,16 +289,24 @@ class RtcFm : Fragment() {
                         text = "$index ${room["title"]}",
                         modifier = Modifier
                             .fillMaxWidth()
-                            .clickable { onRoomClick(room) }
+                            .clickable { showRoomDialog("방접속시도")/*onRoomClick(room)*/ }
                             .padding(16.dp)
                     )
+
+                    // 방목록을 클릭하면 방접속시도에 관한 다이얼로그가 뜸.
+                    if(showDialog.value == "방접속시도"){
+                        CustomDialogAtRoomClick(
+                            selectedRoom = room ,
+                            onConfirmClick = onRoomEntrance,
+                            onDismissClick = { hideRoomDialog() }
+                        )
+                    }
                 }
             }
 
-            if (showDialog.value) {
-
-
-                CustomDialog( onCreateRoom, { hideCreateRoomDialog() }) // AlertDialog end
+            if (showDialog.value == "방만들기") {
+                //상위 구현부에서 전달받은 콜백을
+                CustomDialog( onCreateRoom, { hideRoomDialog() })
             }
 
 

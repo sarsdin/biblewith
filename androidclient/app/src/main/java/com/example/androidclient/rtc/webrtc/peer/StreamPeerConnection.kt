@@ -108,7 +108,7 @@ class StreamPeerConnection(
      * @param peerConnection The connection that holds audio and video tracks.
      */
     fun initialize(peerConnection: PeerConnection) {
-        logger.d { "[initialize] #$typeTag, peerConnection: $peerConnection" }
+        logger.d { "[Peer 연결 초기화] #$typeTag, peerConnection: $peerConnection" }
         this.connection = peerConnection
     }
 
@@ -147,7 +147,7 @@ class StreamPeerConnection(
      * @return An empty [Result], if the operation has been successful or not.
      */
     suspend fun setRemoteDescription(sessionDescription: SessionDescription): Result<Unit> {
-        logger.d { "[setRemoteDescription] #$typeTag, answerSdp: ${sessionDescription.stringify()}" }
+        logger.d { "[setRemoteDescription] #$typeTag, SDP type: ${sessionDescription.type} " }
         return setValue {
             connection.setRemoteDescription(
                 it,
@@ -161,6 +161,8 @@ class StreamPeerConnection(
             //connection.addRtcIceCandidate(iceCandidate)의 네트워크 작업이 비동기(코루틴)이기 때문에 같은 iceCandidate 객체에
             //대한 중복 접근을 방지할 필요가 있다. 반복문이 진행되면서 비동기적인 작업에 의해 iceCandidate객체 중복추가가 될수 있기 때문.
             pendingIceMutex.withLock {
+                // 이전의 offer/answer 과정중 sdp를 set하느라 상대쪽으로부터 온 ICEcandidate관련메시지를  sdp 하위에 추가하지 못했
+                // 었기 때문에 pendingIceCandidate에 그동안 쌓여있고, 그것을 SDP 설정 작업이 완료되면 다 추가함.
                 pendingIceCandidates.forEach { iceCandidate ->
                     logger.i { "[setRemoteDescription] #subscriber; pendingRtcIceCandidate: $iceCandidate" }
                     connection.addRtcIceCandidate(iceCandidate)
@@ -182,7 +184,7 @@ class StreamPeerConnection(
             sessionDescription.type,
             sessionDescription.description.mungeCodecs()
         )
-        logger.d { "[setLocalDescription] #$typeTag, Sdp: ${sessionDescription.stringify()}" }
+        logger.d { "[setLocalDescription] #$typeTag, SDP type: ${sessionDescription.type}" }
         //SDPUtils.kt 안에 있는 단일 메소드. Result<>객체를 반환함.
         //connection.setLocalDescription는 최종적으로 네이티브 webrtc lib에 sdp관련 옵져버인터페이스 객체와 sdp객체를 전달함.
         // 그리고 lib에서 그 옵져버인터페이스 객체를 구현하고 같이 전달한 sdp를 업데이트하면,

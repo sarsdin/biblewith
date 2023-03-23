@@ -76,6 +76,7 @@ class StreamPeerConnectionFactory constructor(
             ))
                 .setUsername("jm")
                 .setPassword("seol")
+                .setTlsCertPolicy(PeerConnection.TlsCertPolicy.TLS_CERT_POLICY_INSECURE_NO_CHECK)
                 .createIceServer(),
 
 
@@ -149,19 +150,19 @@ class StreamPeerConnectionFactory constructor(
                 .setInjectableLogger({ message, severity, label ->
                     when (severity) {
                         Logging.Severity.LS_VERBOSE -> {
-                            webRtcLogger.v { "[onLogMessage] label: $label, message: $message" }
+//                            webRtcLogger.v { "[onLogMessage] label: $label, message: $message" }
                         }
                         Logging.Severity.LS_INFO -> {
 //                            webRtcLogger.i { "[onLogMessage] label: $label, message: $message" }
                         }
                         Logging.Severity.LS_WARNING -> {
-                            webRtcLogger.w { "[onLogMessage] label: $label, message: $message" }
+//                            webRtcLogger.w { "[onLogMessage] label: $label, message: $message" }
                         }
                         Logging.Severity.LS_ERROR -> {
-                            webRtcLogger.e { "[onLogMessage] label: $label, message: $message" }
+//                            webRtcLogger.e { "[onLogMessage] label: $label, message: $message" }
                         }
                         Logging.Severity.LS_NONE -> {
-                            webRtcLogger.d { "[onLogMessage] label: $label, message: $message" }
+//                            webRtcLogger.d { "[onLogMessage] label: $label, message: $message" }
                         }
                         else -> {}
                     }

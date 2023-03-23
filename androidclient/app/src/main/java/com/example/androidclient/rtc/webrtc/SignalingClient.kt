@@ -17,7 +17,6 @@ import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharedFlow
 import kotlinx.coroutines.flow.StateFlow
-import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 import okhttp3.*
 
@@ -49,8 +48,8 @@ class SignalingClient(val groupVm: GroupVm) {
     // 시그널링 서버로부터 온 message text에 따른 SignalingCommand의 값을 변화시켜(flow발생)
     // 이 Flow를 collect(구독)하고 있는 구독자가 collect를 실행하게함.
     // 웹소켓의 리스너의 onMessage에 따라 해당하는 상태메시지의 handleSignalingCommand()가 실행되고 이 값이 변경됨.
-    private val _signalingCommandFlow = MutableSharedFlow<Pair<SignalingCommand, String>>()
-    val signalingCommandFlow: SharedFlow<Pair<SignalingCommand, String>> = _signalingCommandFlow
+    private val _signalingCommandFlow = MutableSharedFlow<Pair<SignalingCommand, JsonObject>>()
+    val signalingCommandFlow: SharedFlow<Pair<SignalingCommand, JsonObject>> = _signalingCommandFlow
 
 
 
@@ -62,6 +61,12 @@ class SignalingClient(val groupVm: GroupVm) {
 
     private val _currentScreen = MutableStateFlow(RtcFm.ScreenState.ROOM_LIST)
     val currentScreen: StateFlow<RtcFm.ScreenState> = _currentScreen/*.asStateFlow()*/
+
+    /**
+     * RtcVm에서 관찰중임 -> CustomDialogAtRoomClick 다이얼로그에서 받아씀.
+     */
+    var _방접속시도시접속인원목록 = MutableStateFlow(JsonArray())
+    val 방접속시도시접속인원목록: StateFlow<JsonArray> = _방접속시도시접속인원목록
 
     /**
      * 웹소켓으로부터 받은 방 목록을 업데이트하는 함수를 추가합니다.
@@ -102,7 +107,7 @@ class SignalingClient(val groupVm: GroupVm) {
      * 시그널링 서버로 명령어와 그에 필요한 정보를 문자열로 보냄.
      */
     fun sendCommand(standardCommand: StandardCommand, jOut: JsonObject) {
-        logger.w { "[sendCommand 일반명령] $standardCommand, $jOut" }
+        logger.w { "sendCommand() jOut: $standardCommand, $jOut" }
 //        val jOut = JsonObject()
 //        jOut.addProperty("command", "signalingCommand")
 //        jOut.addProperty("signalingCommand", "$standardCommand")
@@ -114,12 +119,16 @@ class SignalingClient(val groupVm: GroupVm) {
     /**
      * 시그널링 서버로 명령어와 그에 필요한 정보를 문자열로 보냄.
      */
-    fun sendCommand(signalingCommand: SignalingCommand, message: String) {
-        logger.d { "[sendCommand] $signalingCommand" }
+    fun sendCommand(signalingCommand: SignalingCommand, peerId:String, message: String, peerIdOf:String = "") {
+        if(signalingCommand != SignalingCommand.ICE){
+            logger.d { "sendCommand() SignalingCommand: $signalingCommand" }
+        }
         val jOut = JsonObject()
         jOut.addProperty("command", "signalingCommand")
         jOut.addProperty("signalingCommand", "$signalingCommand")
         //OFFER, ANSWER의 경우 SDP. ICE의 경우 iceCandidate.sdpMid, sdpMLineIndex, sdp 3가지 정보.
+        jOut.addProperty("peerId", peerId)
+        jOut.addProperty("peerIdOf", peerIdOf) // sendAnswer()에서 사용됨. 다른데서는 사용x
         jOut.addProperty("sdp", message)
         ws.send(jOut.toString())
 //        ws.send("$signalingCommand $message")
@@ -133,7 +142,7 @@ class SignalingClient(val groupVm: GroupVm) {
      */
     private inner class SignalingWebSocketListener : WebSocketListener() {
         override fun onMessage(webSocket: WebSocket, text: String) {
-            Log.e(tagName, "onMessage(): $text")
+//            Log.e(tagName, "onMessage(): $text")
 
             try {
                 //websocket으로 들어오는 메시지를 json object로 해석.
@@ -158,15 +167,20 @@ class SignalingClient(val groupVm: GroupVm) {
                             //text의 앞글자가 OFFER, ANSWER, ICE 일때 실행.
                             //WebRtcSessionManagerImpl의 init{} 에서 SignalingCommand의 값을 collect하는 코루틴이 존재.
                             //거기서 handleOffer handleAnswer handleIce 등의 명령을 실행함.
-                            signalingCommand.startsWith(SignalingCommand.OFFER.toString(), true) ->
+                            signalingCommand.startsWith(SignalingCommand.OFFER.toString(), true) ->{
+                                Log.e(tagName, "onMessage() OFFER: $text")
                                 handleSignalingCommand(SignalingCommand.OFFER, jin)
-                            signalingCommand.startsWith(SignalingCommand.ANSWER.toString(), true) ->
+                            }
+                            signalingCommand.startsWith(SignalingCommand.ANSWER.toString(), true) ->{
+                                Log.e(tagName, "onMessage() ANSWER: $text")
                                 handleSignalingCommand(SignalingCommand.ANSWER, jin)
+                            }
 
                             // Observer.onIceCandidate()시 콜백을 실행하는데, 그 콜백에서 소켓으로 ice관련 명령을 보냄.
                             // onIceCandidateRequest <<< 이것임.
                             signalingCommand.startsWith(SignalingCommand.ICE.toString(), true) ->
                                 handleSignalingCommand(SignalingCommand.ICE, jin)
+
                         }
                     }
                     "방목록전달" -> {
@@ -181,14 +195,43 @@ class SignalingClient(val groupVm: GroupVm) {
                         Log.e(tagName, "방만들기 roomList: $roomList")
                         updateRoomList(roomList)
                         // todo 방만들기시에 방장이 방에 바로 접속할 수 있도록 하는 코드를 짜야함.
-
+                        // 서버로부터 방을 만든 아이디를 전달받아 비교하여, 방장본인이 만든 방이면 방장을 바로 비디오화면으로 전환함.
+                        if(jin["makerId"].asString == MyApp.userInfo.user_email){
+                            setCurrentScreen(RtcFm.ScreenState.VIDEO_CALL_SCREEN)
+                        }
+                    }
+                    "방접속시도" -> {
+                        Log.e(tagName, "방접속시도 jin: $jin")
+                        val userIds = jin["userIds"].asJsonArray
+                        _방접속시도시접속인원목록.value = userIds
                     }
                     "방접속" -> {
-                        //map을 tojson으로 변환한건데 이게 JsonObject로 변환된건지 잘모르겠네.
                         Log.e(tagName, "방접속 jin: $jin")
-                        val roomList = jin["roomList"].asJsonArray
-                        updateRoomList(roomList)
+//                        val userIds = jin["userIds"].asJsonArray
+
+                        setCurrentScreen(RtcFm.ScreenState.VIDEO_CALL_SCREEN)
+
                     }
+                    "피어연결종료신호" -> {
+                        // todo 현재 방에서 연결된 다른 peer가 연결을 종료하거나 끊켰을때, 웹소켓의 sessionClose()
+                        //  함수를 통하여 어떤 명령을 받으면, 이곳의 WebRtcSessionManagerImpl에서 관리되고 있는
+                        //  peerConnections Map에서 (종료된 peerId를 전달받아) peerConnection객체를 제거해줘야함.
+                        Log.e(tagName, "피어연결종료신호 jin: $jin")
+//                        val roomList = jin["roomList"].asJsonArray
+//                        updateRoomList(roomList)
+                    }
+                    "방종료" -> {
+                        Log.e(tagName, "방종료 jin: $jin")
+                        val roomId = jin["roomId"].asString
+                        val verifiedArray = _roomList.value.run {
+                            remove(find {
+                                it.asJsonObject["roomId"].asString == roomId
+                            })
+                        }
+                        // todo  emit 안하고도 상태값의 변화가 감지될려나? 방이 리스트에서 제대로 종료안되면 확인해봐야함.
+//                        _roomList.emit(verifiedArray)
+                    }
+
                 }
 
             } catch(e: Exception){
@@ -244,13 +287,13 @@ class SignalingClient(val groupVm: GroupVm) {
     private fun handleSignalingCommand(command: SignalingCommand, message: JsonObject) {
 //        val mType =  message["signalingCommand"].asString
 //        val value = getSeparatedMessage(text)
-        val sdp = message["sdp"].asString
-        logger.w { "[emit!] received SignalingCommand: $command, 값(value): $sdp" }
+//        val sdp = message["sdp"].asString
+//        logger.w { "handleSignalingCommand() SignalingCommand 받음: $command"/*, 값(value): $sdp"*/ }
         signalingScope.launch {
             //시그널링 서버로부터 받은 값에 따라 현재 WebRtc 단계의 상태값을 업데이트함.
             //emit 함으로써 _signalingCommandFlow를 구독하고 있는 모든 곳에 flow를 일으켜 collect실행하게 함.
             //WebRtcSessionManagerImpl의 init에서 하나의 코루틴내에서 구독중임.
-            _signalingCommandFlow.emit(command to sdp)
+            _signalingCommandFlow.emit(command to message)
         }
     }
 
@@ -265,9 +308,13 @@ class SignalingClient(val groupVm: GroupVm) {
 
     //웹소켓 연결을 끊어야 할때 사용. 세션 플로우 상태의 값을 Offline이라고 변경하고
     fun dispose() {
+        Log.e(tagName, "Session disconnect() 9")
         _sessionStateFlow.value = WebRTCSessionState.Offline
+        Log.e(tagName, "Session disconnect() 10")
         signalingScope.cancel()
+        Log.e(tagName, "Session disconnect() 11")
         ws.cancel()
+        Log.e(tagName, "Session disconnect() 12")
     }
 }
 
@@ -288,11 +335,12 @@ enum class SignalingCommand {
     STATE, // Command for WebRTCSessionState
     OFFER, // to send or receive offer
     ANSWER, // to send or receive answer
-    ICE // to send and receive ice candidates
+    ICE, // to send and receive ice candidates
+    CLOSE // peer가 종료되거나 연결 끊킴.
 }
 enum class StandardCommand {
-    방만들기, // Command for WebRTCSessionState
-    방접속, // to send or receive offer
-    방목록전달, // to send or receive answer
-    ICE // to send and receive ice candidates
+    방만들기,
+    방접속,
+    방목록전달,
+    방접속시도
 }

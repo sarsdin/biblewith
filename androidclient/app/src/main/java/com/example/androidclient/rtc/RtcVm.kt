@@ -1,11 +1,22 @@
 package com.example.androidclient.rtc
 
+import androidx.compose.runtime.collectAsState
 import androidx.lifecycle.ViewModel
+import com.example.androidclient.rtc.webrtc.sessions.WebRtcSessionManager
+import com.google.gson.JsonArray
+import com.google.gson.JsonObject
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 
 class RtcVm : ViewModel() {
+
+    lateinit var sessionManager: WebRtcSessionManager
+
+    //    private val 방접속시도시접속인원목록 = MutableStateFlow(emptyList<String>())
+    val 방접속시도시접속인원목록: StateFlow<JsonArray>
+        get() = sessionManager.signalingClient._방접속시도시접속인원목록
+
 
     private val _roomList = MutableStateFlow(emptyList<String>())
     val roomList: StateFlow<List<String>> = _roomList.asStateFlow()

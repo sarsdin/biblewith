@@ -27,6 +27,7 @@ import android.os.Build
 import androidx.compose.runtime.ProvidableCompositionLocal
 import androidx.compose.runtime.staticCompositionLocalOf
 import androidx.core.content.getSystemService
+import com.example.androidclient.MyApp
 import com.example.androidclient.rtc.webrtc.SignalingClient
 import com.example.androidclient.rtc.webrtc.SignalingCommand
 import com.example.androidclient.rtc.webrtc.audio.AudioHandler
@@ -34,7 +35,6 @@ import com.example.androidclient.rtc.webrtc.audio.AudioSwitchHandler
 import com.example.androidclient.rtc.webrtc.peer.StreamPeerConnection
 import com.example.androidclient.rtc.webrtc.peer.StreamPeerConnectionFactory
 import com.example.androidclient.rtc.webrtc.peer.StreamPeerType
-import com.example.androidclient.rtc.webrtc.utils.stringify
 import io.getstream.log.taggedLogger
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -157,11 +157,16 @@ class WebRtcSessionManagerImpl(
      * onSessionScreenReady()실행시 초기화. 즉, Ui sessionState상태값이 Ready일경우 발생.
      * 로컬 비디오 트랙을 팩토리로부터 생성함. 잘보면 videoSource객체를 peer팩토리에 넣어서 VideoTrack를 생성함
      * peerConnectionFactory가 videoSource, VideoTrack 객체 둘다 생성하는 것을 알 수 있다.
+     *
+     * 다자간 연결에서 remoteVideoTrack의 경우는 각 peer에 해당하는 영상을 받아와야 되고, 해당하는 Track을
+     * 각 peerConnection 객체든지 따로 remoteVideoTrack을 모아둔 맵이라든지에 넣어줘야하지만,
+     * localVideoTrack은 내 영상 트랙을 여기서 만들고 초기화되면 그것을 타 peerConnection에 여러번 재활용하면됨.
      * */
     val localVideoTrack: VideoTrack by lazy {
         Log.e(tagName, "localVideoTrack 초기화 시작.")
         peerConnectionFactory.makeVideoTrack(
             source = videoSource,
+//            trackId = "Video_${MyApp.userInfo.user_email}_${UUID.randomUUID()}"
             trackId = "Video${UUID.randomUUID()}"
         ).run {
             Log.e(tagName, "localVideoTrack 초기화 완료. localVideoTrack: $this")
@@ -176,6 +181,7 @@ class WebRtcSessionManagerImpl(
         Log.e(tagName, "localVideoTrack 재생성 시작.")
         peerConnectionFactory.makeVideoTrack(
             source = videoSource,
+//            trackId = "Video_${MyApp.userInfo.user_email}_${UUID.randomUUID()}"
             trackId = "Video${UUID.randomUUID()}"
         ).run rn@ {
             Log.e(tagName, "localVideoTrack 재생성 완료. localVideoTrack: $this")
@@ -225,17 +231,11 @@ class WebRtcSessionManagerImpl(
 
 
 
+    private val peerConnections = mutableMapOf<String, StreamPeerConnection>()
 
 
-
-    /**
-     * onSessionScreenReady()실행시 초기화됨.
-     * 연결 객체를 by lazy 초기화로 생성함.
-     * peerConnectionFactory.makePeerConnection()를 이용해 객체 생성.
-     */
-    private val peerConnection: StreamPeerConnection by lazy {
-
-        peerConnectionFactory.makePeerConnection(
+    private fun createPeerConnection(peerId: String): StreamPeerConnection {
+        val newPeerConnection = peerConnectionFactory.makePeerConnection(
             coroutineScope = sessionManagerScope,
             configuration = peerConnectionFactory.rtcConfig,
             type = StreamPeerType.SUBSCRIBER,
@@ -245,9 +245,12 @@ class WebRtcSessionManagerImpl(
             // 에 내리면 ice 명령이 실행되고, answer시에도 마찬가지로 ice 명령이 보내진다.
             // 새로운 iceCandidate가 들어오면 그것을 받아서 시그널링 서버로 ICE 시그널을 보냄.
             onIceCandidateRequest = { iceCandidate, _ ->
+                //여기서 peerId는 peerconnection 객체를 생성할때 설정했던, 타겟(상대) peerId 이다.
+                // MyApp.userInfo.user_email 나의 peerId는 handelIce()시 상대쪽 peer에서 만들어둔 pc객체를 맵에서 찾기위한 용도.
                 signalingClient.sendCommand(
-                    SignalingCommand.ICE,
-                    "${iceCandidate.sdpMid}$ICE_SEPARATOR${iceCandidate.sdpMLineIndex}$ICE_SEPARATOR${iceCandidate.sdp}"
+                    SignalingCommand.ICE,  peerId,
+                    "${iceCandidate.sdpMid}$ICE_SEPARATOR${iceCandidate.sdpMLineIndex}$ICE_SEPARATOR${iceCandidate.sdp}",
+                    MyApp.userInfo.user_email
                 )
             },
             //PeerConnection.Observer.onTrack() 구현부에서 실행할 콜백임.
@@ -265,7 +268,20 @@ class WebRtcSessionManagerImpl(
                 }
             }
         )
+        peerConnections[peerId] = newPeerConnection
+        return newPeerConnection
     }
+
+
+    /**
+     * onSessionScreenReady()실행시 초기화됨.
+     * 연결 객체를 by lazy 초기화로 생성함.
+     * peerConnectionFactory.makePeerConnection()를 이용해 객체 생성.
+     */
+//    private val peerConnection: StreamPeerConnection by lazy {
+//        peerConnectionFactory.makePeerConnection(
+//        )
+//    }
 
 
 
@@ -277,18 +293,25 @@ class WebRtcSessionManagerImpl(
             //signalingClient내의 SignalingCommand 값에 따라,
             // 해당 시그널 상황에서 클라이언트가 해야할 작업들인 handle**() 메소드가 실행된다.
             //handleAnswer(), handleIce()내에서 peerConnection 객체를 사용함.
-            signalingClient.signalingCommandFlow.collect { commandToValue ->
+            signalingClient.signalingCommandFlow.collect { pair ->
                 //상태값의 키페어를 가져와 사용. second에는 보통 SPD 문자열이 담김.
-                when (commandToValue.first) {
-                    SignalingCommand.OFFER -> handleOffer(commandToValue.second)
-                    SignalingCommand.ANSWER -> handleAnswer(commandToValue.second)
-                    SignalingCommand.ICE -> handleIce(commandToValue.second)
+                when (pair.first) {
+                    //signalingCommandFlow의 state 값이 변할때마다 실행됨.
+                    // OFFER가 두개면 두번 실행됨. 예)peer B와 C가 이곳 A에게 OFFER주는 상황 등.
+                    // 이때, 이곳 A는 B와 C의 peerId를 확인하여 해당 아이디로 이미 생성된 peerConnection 객체가
+                    // 있는지 map에서 먼저 확인해야함.
+                    SignalingCommand.OFFER -> handleOffer(pair.second["peerId"].asString, pair.second["sdp"].asString)
+                    SignalingCommand.ANSWER -> handleAnswer(pair.second["peerId"].asString, pair.second["sdp"].asString)
+                    SignalingCommand.ICE -> handleIce(pair.second["peerIdOf"].asString, pair.second["sdp"].asString)
+                    SignalingCommand.CLOSE -> handleClose(pair.second["peerId"]?.asString?:"none")
                     else -> Unit
                 }
             }
+
+//            signalingClient.방접속시도시접속인원목록.collect { userIds ->
+//            }
         }
     }
-
 
 
 
@@ -299,27 +322,27 @@ class WebRtcSessionManagerImpl(
      * 처음은 VideoCallScreen() 컴포넌트 실행시(WebRTCSessionState.Ready상태)
      */
     override fun onSessionScreenReady() {
+
         setupAudio()
-        peerConnection.connection.restartIce()
-        peerConnection.connection.addTrack(localVideoTrack)
-        peerConnection.connection.addTrack(localAudioTrack)
+        // todo  각각의 피어에 대해 sendOffer를 호출해야함. 다만, 이미 연결되어있는 peerConnection의 경우 호출하면 안될듯.
+        //  거기에 대한 확인절차에 대한 코드가 있어야할 것 같다.
         sessionManagerScope.launch {
             Log.e(tagName, "onSessionScreenReady()실행. signalingClient.sessionStateFlow.value: ${signalingClient.sessionStateFlow.value}")
+
             // sending local video track to show local video from start
             //카메라와 연결되어 만들어진 비디오 트랙 객체를 상태값으로 할당.
-            _localVideoTrackFlow.emit(localVideoTrack)
+            //emit을 쓰는 이유는 일단 코루틴 스코프내에서의 실행인 점과, 로컬비디오트랙을 할당하면 로컬비디오트랙에 새로운 값으로 채워지는(변경)
+            //타이밍까지 코루틴을 잠시 멈춤. 즉, 로컬비디오트랙의 초기화 작업과 카메라로부터 시작되는 실행을 마칠때까지, 흐름제어를 해주는 역할임.
+            // 이것을 네트워크 통신에 비유하면, 각각의 http통신이 마치고 response가 올때까지 기다리는 것과 비슷함. await 해주는 역할.
 
-            // 그후 offer 메시지(여기서는 다른 peer로부터 받은 SDP 문자열)
-            // 유무에 따라 Offer or Answer 명령을 수행함.
-            // 타 peer로부터 받은 SDP 문자열이 있으면 자신은 Answer로써 SDP를 보냄.
-            if (offer != null) {
-                sendAnswer()
-
-            } else {
-                //offer 메시지가 없으면 처음으로 시그널링 서버에 Offer를 주는 것임.
-                //실행하면 SDP 문자열 생성과 함께 시그널링 서버로 Offer 명령을 보냄.
-                sendOffer()
+            // todo 현재 접속할 방의 정보(접속한 peer들의 id)를 받아와 반복문으로 각각의 peer에 OFFER 요청을 해야함.
+            signalingClient.방접속시도시접속인원목록.value.forEach { peerId ->
+                if(peerId.asString != MyApp.userInfo.user_email){ // 방접속원의 아이디가 본인이라면 오퍼안해야함.
+                    sendOffer(peerId.asString)
+                }
             }
+
+            _localVideoTrackFlow.emit(localVideoTrack)
         }
     }
 
@@ -380,7 +403,8 @@ class WebRtcSessionManagerImpl(
         Log.e(tagName, "Session disconnect() 7")
 
         //웹소켓 연결을 해제하기 전에 먼저 peer 연결부터 끊어야된다. 순서가 바뀌면 에러로 앱이 강종된다.
-        peerConnection.connection.dispose()
+        // 다자간에서는 연결을 끊은 대상 peer의 Id를 peerConnections 맵에서 찾아서 끊어야함.
+//        peerConnection.connection.dispose()
 //        peerConnectionFactory.factory.stopAecDump()
 
         // dispose signaling clients and socket.
@@ -411,39 +435,120 @@ class WebRtcSessionManagerImpl(
 
 
 
+
+    /**
+     * 어떤 피어의 연결이 종료 또는 끊키면 피어연결을 종료해줌.
+     */
+    private fun handleClose(peerId: String) {
+        if (peerConnections.containsKey(peerId)) {
+            Log.e(tagName, "handleClose() peerId 제거: $peerId")
+            peerConnections[peerId]!!.connection.dispose()
+            peerConnections.remove(peerId)
+        }
+    }
+
+
+
+
+    /**
+     * Offer 받았을때, 상대방 peerId를 이용하여 peerConnection 객체를 생성하고,
+     * 내 로컬 카메라를 이용한 영상 트랙을 그 peerConnection 객체에 addTrack해줌.
+     */
+    private suspend fun createPeer(peerId: String) {
+        Log.e(tagName, "createPeer() peerId로 peerConnection 생성: $peerId")
+        val newPeerConnection = createPeerConnection(peerId)
+        peerConnections[peerId] = newPeerConnection
+//        newPeerConnection.connection.restartIce()
+        //내 로컬 카메라를 이용해 가져온 영상트랙을 이 peerConnection 객체에 추가함.
+        // - 현재 연결된 상대 peer에게 내 영상을 전달해야하기 때문.
+        newPeerConnection.connection.addTrack(localVideoTrack)
+        newPeerConnection.connection.addTrack(localAudioTrack)
+
+    }
+
+    /**
+     * 해당 peer가 종료되거나 끊켰을때, 해당 피어의 peerConnection객체를 정상적으로 제거해줘야함.
+     */
+    private fun removePeer(peerId: String) {
+        peerConnections[peerId]?.connection?.dispose() //native webrtc ndk lib에서 c++객체에 할당된 메모리자원을 해제해줌.
+        peerConnections.remove(peerId)
+    }
+
     /**
      * onSessionScreenReady()안에서 사용
      * 처음으로 시그널링 서버로 Offer 명령을 보냄.
+     *
+     * Offer-Answer handshake 과정 순서: onSessionScreenReady() -> sendOffer() -> handleOffer()
+     * -> sendAnswer() -> handleAnswer()
      */
-    private suspend fun sendOffer() {
+    private suspend fun sendOffer(peerIdOfTarget: String) {
+        // todo  새로운 절차: 자신의 피어연결 객체를 만들고, 추가해놓음. 그리고, offer sdp를 만들어서 자신의 peerConnection
+        //  객체에 setLocalDescription 으로 등록하고, 서버로 그 sdp와 자신의 peerId를 담아 Offer명령을 보냄.
+        //  그렇다면, 어떤 peerId에 대해 요청해야하는가의 문제가 생김. 오퍼전 웹소켓으로 방접속시 방에 접속한 peer들의 Id를
+        //  가져와 그 peerId들에 전부 sendOffer하는게 맞을까? 그들 각각에 대해 sendOffer해주는게 맞는 것 같다.
+        //  sendOffer를 for문으로 반복해서 rooms안에 있는 peerId 전부에게 offer보내야함.
+        createPeer(peerIdOfTarget)
+        val peerConnection = peerConnections[peerIdOfTarget] ?: return
         //suspendCoroutine 의 Result<T>객체가 success인지 failure인지에 따라 그 결과값이 가지고 있는 T객체값을 반환함.
         //offer ==  SessionDescription == SDP 객체를 생성해서
         val offer = peerConnection.createOffer().getOrThrow()
-        // 자신의 정보에 해당하는 설명을 SDP객체에 덧붙이고,
+        //setLocalDescription를 완료할때까지 suspend나 await 등으로 기다리지말고 해야 안끊킨다는 얘기가 있어서 먼저 보내는걸로 수정해봄.
+//        signalingClient.sendCommand(SignalingCommand.OFFER, MyApp.userInfo.user_email, offer.description, peerIdOfTarget)
+        // 자신의 SDP를 생성하여 로컬 SDP로 등록 후
         val result = peerConnection.setLocalDescription(offer)
-        // Result 객체가 성공적으로 만들어지면, OFFER 명령을 시그널링서버로 전송.
+        // Result 객체가 성공적으로 만들어지면, 타겟피어로 OFFER명령을 시그널링서버를 통해 전송.
         result.onSuccess {
-            signalingClient.sendCommand(SignalingCommand.OFFER, offer.description)
+            // todo 여기서 sdp만 달랑 보내는게 아니라 자신의 peerId와 같이 보내야함.
+            Log.e(tagName, "sendOffer() 다음에게 OFFER보냄: $peerIdOfTarget")
+            signalingClient.sendCommand(SignalingCommand.OFFER, MyApp.userInfo.user_email, offer.description, peerIdOfTarget)
         }
 //        logger.d { "[SDP를 서버로 전송] sendOffer(): ${offer.stringify()}" }
     }
 
 
     /**
-     * onSessionScreenReady()안에서 사용.
-     * 다른 peer에 answer로써 보낼때 사용.
+     * init{} 안에서 사용. Answer를 보낼 peer가 실행할 메소드임.
+     * 서버로부터(타 peer) 받은 Offer정보를 원격 sdp로써 설정.
+     *
+     * 타 peer로부터 Offer를 받으면 그 정보(jsonObject로 받아야할듯)를 이용해 해당 peer에 대한 peerConnection
+     * 객체를 만들고, 그 객체에 원격 SDP를 설정함. 그리고, 그에 따라 나의 local SDP도 여기에 설정을 해줘야하니
+     * sendAnswer()에서 그 작업을 수행함.
      */
-    private suspend fun sendAnswer() {
-        //타 peer로부터온 offer 메시지를 원격sdp로써 설정하고,
-        //(여기서 offer 변수는 signaling command로 Offer를 받고, handleOffer를 통해 할당되었던 원격의 offer sdp 이다.
-        peerConnection.setRemoteDescription(SessionDescription(SessionDescription.Type.OFFER, offer))
+//    private fun handleOffer(sdp: String) {
+////        logger.d { "[$tagName] handleOffer() SDP 문자열: $sdp" }
+//        offer = sdp
+//    }
+    private suspend fun handleOffer(peerIdOfOffered: String, sdp: String) {
+        createPeer(peerIdOfOffered)
+        val peerConnection = peerConnections[peerIdOfOffered] ?: return
+//        val peerConnection = peerConnections[peerIdOfOffered]?: createPeerConnection(peerIdOfOffered)
+        //타 peer로부터온 offer 메시지를 원격sdp로써 설정,
+        peerConnection.setRemoteDescription(SessionDescription(SessionDescription.Type.OFFER, sdp))
+        sendAnswer(peerIdOfOffered)
+    }
+
+
+    /**
+     * onSessionScreenReady()안에서 사용.
+     * 다른 peer의 Offer에 대한 Answer로써 Local SDP를 보낼때 사용.
+     */
+    private suspend fun sendAnswer(peerIdOfOffered: String) {
+
+//        peerConnection.setRemoteDescription(SessionDescription(SessionDescription.Type.OFFER, offer))
+        val peerConnection = peerConnections[peerIdOfOffered] ?: return
+//        peerConnection.setRemoteDescription(SessionDescription(SessionDescription.Type.OFFER, sdp))
 
         //타 peer에 보내기 위한 answer로써의 sdp를 생성함.
         val answer = peerConnection.createAnswer().getOrThrow()
+        //setLocalDescription를 완료할때까지 suspend나 await 등으로 기다리지말고 해야 안끊킨다는 얘기가 있어서 먼저 보내는걸로 수정해봄.
+//        signalingClient.sendCommand(SignalingCommand.ANSWER, MyApp.userInfo.user_email, answer.description, peerIdOfOffered)
         //그리고, 생성된 나의 sdp를 로컬sdp로써 설정.
         val result = peerConnection.setLocalDescription(answer)
         result.onSuccess {
-            signalingClient.sendCommand(SignalingCommand.ANSWER, answer.description)
+            //나의 로컬 sdp를 내 peerId와 함께 offer준 peerId에게 응답해줘야함.
+            // 나는 이런 아이디이고, 오퍼한 아이디에게 나의 sdp를 전달하고 싶다는 메시지 보냄.
+            signalingClient.sendCommand(SignalingCommand.ANSWER, MyApp.userInfo.user_email, answer.description, peerIdOfOffered)
+            Log.e(tagName, "sendAnswer() 다음에게 ANSWER보냄: $peerIdOfOffered")
         }
 //        logger.d { "[SDP를 서버로 전송] sendAnswer(): ${answer.stringify()}" }
     }
@@ -451,25 +556,13 @@ class WebRtcSessionManagerImpl(
 
 
 
-
-
-
-
     /**
-     * init{} 안에서 사용
-     * 서버로부터(타 peer) 받은 Offer정보를 원격 sdp로써 설정.
-     */
-    private fun handleOffer(sdp: String) {
-//        logger.d { "[$tagName] handleOffer() SDP 문자열: $sdp" }
-        offer = sdp
-    }
-
-    /**
-     * init{} 안에서 사용
+     * init{} 안에서 사용. 처음 Offer한 peer가 받는(실행할) 메소드임.
      * 서버로부터(타 peer) 받은 Answer정보를 원격 sdp로써 설정.
      */
-    private suspend fun handleAnswer(sdp: String) {
+    private suspend fun handleAnswer(peerIdOfAnswered: String, sdp: String) {
 //        logger.d { "[$tagName] handleAnswer() SDP 문자열: $sdp" }
+        val peerConnection = peerConnections[peerIdOfAnswered]!! /*?: createPeerConnection(peerIdOfAnswered)*/
         peerConnection.setRemoteDescription(SessionDescription(SessionDescription.Type.ANSWER, sdp))
     }
 
@@ -477,9 +570,18 @@ class WebRtcSessionManagerImpl(
      * init{} 안에서 사용
      * peerConnection.addIceCandidate() 명령 실행.
      */
-    private suspend fun handleIce(iceMessage: String) {
+    private suspend fun handleIce(peerIdOf: String, iceMessage: String) {
+        // todo  offer peerId와 answer peerId 둘다 send OFFER시에 보내야 될려나? 아니면 그냥 각각의 파트때
+        //  각각의 peerId로 처리되게끔 놔둘까나? ICE메시지가 offer와 answer 될 양쪽의 peerId 모두에게 전달되어야할지 생각.
 //        logger.d { "[$tagName] handleIce() iceMessage 문자열: $iceMessage" }
         val iceArray = iceMessage.split(ICE_SEPARATOR)
+        // todo 여기 peerId는 상대 peer에서 peerConnection객체 생성시 ICE용으로 peerId를 제공했던 id인데,
+        //   그것이 그대로 ICE sendCommand()메소드에 전달되어 시그널링서버를 거쳐 그 id로 소켓을 찾고, 여기로 전달되어온다.
+        //  그런데, 정작 여기 peerConnection객체의 id는 IceCandidate를 보내온 peerId가 아닌 나의 peerId이기에
+        //  밑의 peerConnections Map에서 상대 peerId로 생성된 객체가 없어서 return 되고, addIceCandidate는 실행되지 않는다.
+        //  즉, 전달은 되고 있지만, add는 되지 않고있다. log에서도 addIceCandidate가 실행된 흔적이 없다!
+        //  Ice sendComand를 보내는 부분에 쓰기위해 자신의 peerId(MyApp.userInfo.user_email)도 같이 넣어 pc객체를 생성해야될듯.
+        val peerConnection = peerConnections[peerIdOf] ?: return
         peerConnection.addIceCandidate(
             IceCandidate(
                 iceArray[0],
@@ -566,7 +668,9 @@ class WebRtcSessionManagerImpl(
     }
 
 
-
+    /**
+     * WebRtc 기능 사용중 사용할 오디오 장치를 찾아서 설정함.
+     */
     private fun setupAudio() {
         logger.d { "[setupAudio] no args" }
         audioHandler.start()
@@ -576,8 +680,10 @@ class WebRtcSessionManagerImpl(
             val devices = audioManager?.availableCommunicationDevices ?: return
             val deviceType = AudioDeviceInfo.TYPE_BUILTIN_SPEAKER
 
+            //audioManager를 통해 찾은 사용 가능한 오디오장치들 중 SPEAKER 타입을 찾아서 반환해줌.
             val device = devices.firstOrNull { it.type == deviceType } ?: return
 
+            //그리고, 사용할 커뮤니케이션 장치로써 그 장치를 설정해줌.
             val isCommunicationDeviceSet = audioManager?.setCommunicationDevice(device)
             logger.d { "[setupAudio] isCommunicationDeviceSet: $isCommunicationDeviceSet" }
         }

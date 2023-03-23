@@ -18,6 +18,7 @@ package com.example.androidclient.rtc.ui.screens.video
 import android.util.Log
 
 import android.app.Activity
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.fillMaxSize
@@ -34,6 +35,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.onSizeChanged
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.IntSize
@@ -68,16 +70,18 @@ fun VideoCallScreen() {
 
     //LaunchedEffect()는 코루틴 스코프 중 하나인데, key1 값을 상태값으로 가지고 있으며,
     //여기 할당된 변수의 변화를 감지하고 스코프내 코드를 재실행한다.
-    LaunchedEffect(key1 = sessionState) {
+    LaunchedEffect(key1 = Unit/*sessionState*/) {
         //비디오 콜 스크린시 처음으로 peerConnection 변수가 초기화됨.
         sessionManager.onSessionScreenReady()
     }
 
     Box(
         modifier = Modifier.fillMaxSize()
+//            .background(color = Color.DarkGray)
     ) {
         var parentSize: IntSize by remember { mutableStateOf(IntSize(0, 0)) }
 
+        //원격에서 onAddTrack()등으로 onVideoTrack()이 실행되면 이변수가 emit되어, 이곳이 리컴포지션이 되야 정상임.
         val remoteVideoTrackState by sessionManager.remoteVideoTrackFlow.collectAsState(null)
         val remoteVideoTrack = remoteVideoTrackState
 
