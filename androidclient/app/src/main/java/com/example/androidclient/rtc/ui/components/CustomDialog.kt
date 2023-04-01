@@ -13,7 +13,6 @@ import com.google.gson.JsonObject
 
 @Composable
 fun CustomDialog(
-   
     onConfirmClick: (JsonObject) -> Unit,
     onDismissClick: () -> Unit,
 ) {
@@ -24,7 +23,7 @@ fun CustomDialog(
 //    var size: Int = 4
 //    var pwd: String = ""
     var title by remember { mutableStateOf("") }
-    var size by remember { mutableStateOf(4) }
+    var size by remember { mutableStateOf("4") }
     var pwd by remember { mutableStateOf("") }
 
     AlertDialog(
@@ -44,7 +43,7 @@ fun CustomDialog(
                     value = size.toString(), // 인원 수 설정 입력란의 상태 변수
                     onValueChange = { input ->
                         if (input.all { it.isDigit() }) {
-                            size = input.toInt()
+                            size = input
                         }
 //                                    size = it.toInt()
                     }, // 상태 변수 업데이트

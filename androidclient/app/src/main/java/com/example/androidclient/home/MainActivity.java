@@ -1,5 +1,6 @@
 package com.example.androidclient.home;
 
+import android.app.Activity;
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
@@ -12,6 +13,10 @@ import android.util.Log;
 import android.view.MenuItem;
 import android.view.View;
 
+import androidx.activity.result.ActivityResult;
+import androidx.activity.result.ActivityResultCallback;
+import androidx.activity.result.ActivityResultLauncher;
+import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
@@ -537,6 +542,33 @@ public class MainActivity extends AppCompatActivity {
         super.onActivityResult(requestCode, resultCode, data);
 
     }
+
+    //RTC screen sharing 전용 interface
+    public interface ResultMediaProjectionForRTCscreenSharing {
+        Intent intentDataCalled();
+    }
+
+    public ResultMediaProjectionForRTCscreenSharing forScreenSharing = null;
+
+    public ActivityResultLauncher<Intent> register =  this.registerForActivityResult(
+        new ActivityResultContracts.StartActivityForResult(), new ActivityResultCallback<ActivityResult>() {
+            @Override
+            public void onActivityResult(ActivityResult result) {
+                int resultCode = result.getResultCode();
+                Intent data = result.getData();
+                if(resultCode == Activity.RESULT_OK){
+                    forScreenSharing = new ResultMediaProjectionForRTCscreenSharing() {
+                        @Override
+                        public Intent intentDataCalled() {
+                            return data;
+                        }
+                    };
+                }
+            }
+        }
+    );
+
+
 
 }
 

@@ -63,20 +63,27 @@ class SignalingClient(val groupVm: GroupVm) {
     val currentScreen: StateFlow<RtcFm.ScreenState> = _currentScreen/*.asStateFlow()*/
 
     /**
+     * 현재 접속한 방에 대한 정보 - 방만들기 , 방접속시 업데이트됨
+     */
+    var _접속한방정보 = MutableStateFlow(JsonObject())
+
+    /**
      * RtcVm에서 관찰중임 -> CustomDialogAtRoomClick 다이얼로그에서 받아씀.
      */
-    var _방접속시도시접속인원목록 = MutableStateFlow(JsonArray())
-    val 방접속시도시접속인원목록: StateFlow<JsonArray> = _방접속시도시접속인원목록
+    var _방참가시접속인원목록 = MutableStateFlow(JsonArray())
+    val 방참가시접속인원목록: StateFlow<JsonArray> = _방참가시접속인원목록
+
+    var _전달받은명령상태값 = MutableStateFlow(JsonObject())
 
     /**
-     * 웹소켓으로부터 받은 방 목록을 업데이트하는 함수를 추가합니다.
+     * 방에 참가요청자 명단 - 방장용
      */
-    fun updateRoomList(newRoomList: JsonArray) {
-        _roomList.value = newRoomList
-    }
+    var _방장에게접속요청자목록 = MutableStateFlow(JsonArray())
+
+
 
     /**
-     *  현재 화면을 변경하는 함수를 추가합니다.
+     *  현재 화면을 변경하는 함수를 추가.
      */
     fun setCurrentScreen(screen: RtcFm.ScreenState) {
         _currentScreen.value = screen
@@ -181,37 +188,71 @@ class SignalingClient(val groupVm: GroupVm) {
                             signalingCommand.startsWith(SignalingCommand.ICE.toString(), true) ->
                                 handleSignalingCommand(SignalingCommand.ICE, jin)
 
+                            signalingCommand.startsWith(SignalingCommand.CLOSE.toString(), true) ->{
+                                Log.e(tagName, "onMessage() CLOSE(특정 peer 접속종료): $text")
+                                handleSignalingCommand(SignalingCommand.CLOSE, jin)
+                            }
+
                         }
                     }
-                    "방목록전달" -> {
+
+                    StandardCommand.방목록전달.name -> {
                         Log.e(tagName, "방목록전달 jin: $jin")
-                        val roomList = jin["roomList"].asJsonArray
-                        updateRoomList(roomList)
+                        signalingScope.launch {
+                            val roomList = jin["roomList"].asJsonArray
+    //                        updateRoomList(roomList)
+                            _roomList.emit(roomList)
+                        }
                     }
-                    "방만들기" -> {
+                    StandardCommand.방만들기.name -> {
                         //map을 tojson으로 변환한건데 이게 JsonObject로 변환된건지 잘모르겠네.
                         Log.e(tagName, "방만들기 jin: $jin")
-                        val roomList = jin["roomList"].asJsonArray
-                        Log.e(tagName, "방만들기 roomList: $roomList")
-                        updateRoomList(roomList)
-                        // todo 방만들기시에 방장이 방에 바로 접속할 수 있도록 하는 코드를 짜야함.
-                        // 서버로부터 방을 만든 아이디를 전달받아 비교하여, 방장본인이 만든 방이면 방장을 바로 비디오화면으로 전환함.
-                        if(jin["makerId"].asString == MyApp.userInfo.user_email){
-                            setCurrentScreen(RtcFm.ScreenState.VIDEO_CALL_SCREEN)
+
+                        signalingScope.launch {
+                            //서버로부터 받아온 방목록을 업데이트 해주고,
+                            val roomList = jin["roomList"].asJsonArray
+                            Log.e(tagName, "방만들기 roomList: $roomList")
+//                            updateRoomList(roomList)
+                            _roomList.emit(roomList)
+
+                            // todo 방만들기시에 방장이 방에 바로 접속할 수 있도록 하는 코드를 짜야함.
+                            // 서버로부터 방을 만든 아이디를 전달받아 비교하여, 방장본인이 만든 방이면 방장을 바로 비디오화면으로 전환함.
+                            if(jin["makerId"].asString == MyApp.userInfo.user_email){
+                                setCurrentScreen(RtcFm.ScreenState.VIDEO_CALL_SCREEN)
+                                _접속한방정보.emit(jin["roomInfo"].asJsonObject)
+                            }
                         }
                     }
-                    "방접속시도" -> {
-                        Log.e(tagName, "방접속시도 jin: $jin")
-                        val userIds = jin["userIds"].asJsonArray
-                        _방접속시도시접속인원목록.value = userIds
+                    StandardCommand.방접속요청.name -> {
+                        Log.e(tagName, "방접속요청 jin: $jin")
+//                        val roomId = jin["roomId"].asString
+//                        _전달받은명령상태값.value = jin
+                        signalingScope.launch {
+                            //roomId, groupId에 해당하는 방장에게 userId에 대한 수락요청을 보내야함.
+//                            _전달받은명령상태값.emit(jin)
+                            _방장에게접속요청자목록.emit(jin["requestL"].asJsonArray)
+                        }
                     }
-                    "방접속" -> {
+                    StandardCommand.방참가수락.name -> {
+                        Log.e(tagName, "방참가수락 jin: $jin")
+                        val usersInfo = jin["usersInfo"].asJsonArray
+                        signalingScope.launch {
+                            _방참가시접속인원목록.emit(usersInfo)
+
+                            //수락받으면 인원수 초과등 검사를 위해 다시 서버로 보내줌.
+                            sendCommand(StandardCommand.방접속, JsonObject().apply {
+                                addProperty("command", "방접속")
+                                addProperty("makerId", jin["makerId"].asString)
+                            })
+                        }
+                    }
+                    StandardCommand.방접속.name -> {
                         Log.e(tagName, "방접속 jin: $jin")
 //                        val userIds = jin["userIds"].asJsonArray
                         // 소켓으로부터 이 응답을 받으면, 이 클라이언트의 화면을 VIDEO_CALL_SCREEN 으로 전환.
-                        // 거기서 _방접속시도시접속인원목록.value 의 값을 이용해 원격 비디오 렌더링뷰를 셋팅해야함.
+                        // 거기서 _방참가시접속인원목록.value 의 값을 이용해 원격 비디오 렌더링뷰를 셋팅해야함.
+                        _접속한방정보.value = jin["roomInfo"].asJsonObject
                         setCurrentScreen(RtcFm.ScreenState.VIDEO_CALL_SCREEN)
-
                     }
                     "피어연결종료신호" -> {
                         // todo 현재 방에서 연결된 다른 peer가 연결을 종료하거나 끊켰을때, 웹소켓의 sessionClose()
@@ -221,9 +262,11 @@ class SignalingClient(val groupVm: GroupVm) {
 //                        val roomList = jin["roomList"].asJsonArray
 //                        updateRoomList(roomList)
                     }
-                    "방종료" -> {
+                    StandardCommand.방종료.name -> {
                         Log.e(tagName, "방종료 jin: $jin")
                         val roomId = jin["roomId"].asString
+                        //방장이 나가면 방종료하는 부분인데, 현재 방목록에서 방이 제거되긴 함.
+                        // 다만, 연결된 피어들은 그대로 통화를 진행중임. 이부분은 어떻게 할지 고민해봐야할듯. 그대로둘지 끊을지.
                         val verifiedArray = _roomList.value.run {
                             remove(find {
                                 it.asJsonObject["roomId"].asString == roomId
@@ -341,8 +384,12 @@ enum class SignalingCommand {
 }
 enum class StandardCommand {
     방만들기,
+    방접속요청,
+    방참가,
     방접속,
     방목록전달,
-    방접속시도,
-    접속해제
+    방종료,
+    접속해제,
+    방참가수락
+
 }

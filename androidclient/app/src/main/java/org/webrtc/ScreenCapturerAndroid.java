@@ -37,7 +37,7 @@ public class ScreenCapturerAndroid implements VideoCapturer, VideoSink {
   // DPI for VirtualDisplay, does not seem to matter for us.
   private static final int VIRTUAL_DISPLAY_DPI = 400;
 
-  private final Intent mediaProjectionPermissionResultData;
+  private Intent mediaProjectionPermissionResultData;
   private final MediaProjection.Callback mediaProjectionCallback;
 
   private int width;
@@ -62,6 +62,11 @@ public class ScreenCapturerAndroid implements VideoCapturer, VideoSink {
   public ScreenCapturerAndroid(Intent mediaProjectionPermissionResultData,
       MediaProjection.Callback mediaProjectionCallback) {
     this.mediaProjectionPermissionResultData = mediaProjectionPermissionResultData;
+    this.mediaProjectionCallback = mediaProjectionCallback;
+  }
+  public ScreenCapturerAndroid(@Nullable MediaProjection mediaProjection,
+      MediaProjection.Callback mediaProjectionCallback) {
+    this.mediaProjection = mediaProjection;
     this.mediaProjectionCallback = mediaProjectionCallback;
   }
 
@@ -93,8 +98,8 @@ public class ScreenCapturerAndroid implements VideoCapturer, VideoSink {
     }
     this.surfaceTextureHelper = surfaceTextureHelper;
 
-    mediaProjectionManager = (MediaProjectionManager) applicationContext.getSystemService(
-        Context.MEDIA_PROJECTION_SERVICE);
+//    mediaProjectionManager = (MediaProjectionManager) applicationContext.getSystemService(
+//        Context.MEDIA_PROJECTION_SERVICE);
   }
 
   @Override

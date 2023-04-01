@@ -8,8 +8,10 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.rotate
 import androidx.compose.ui.viewinterop.AndroidView
 import com.example.androidclient.rtc.webrtc.sessions.LocalWebRtcSessionManager
+import com.example.androidclient.rtc.webrtc.sessions.WebRtcSessionManagerImpl
 import org.webrtc.RendererCommon
 import org.webrtc.VideoTrack
 

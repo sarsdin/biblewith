@@ -142,6 +142,7 @@ public class PeerConnection {
       sender.dispose();
     }
 
+    // ndk lib에서 다시 로드해서 새 객체를 가져옴. 주로 새로운 영상트랙을 추가했을때, 갱신용도로 사용하는 듯.
     this.senders = this.nativeGetSenders();
     return Collections.unmodifiableList(this.senders);
   }
@@ -174,6 +175,20 @@ public class PeerConnection {
     return this.addTrack(track, Collections.emptyList());
   }
 
+  /**
+   * 미디어 스트림은 미디어스트림 트랙들을 그룹화 하여 관리하기 쉽게 하기 위한 추상화 객체이다.
+   * 미디어 스트림을 생성할때 고유의 아이디가 만들어지고 개별 리스트에 streamId를 저장하여 리스트를 이곳에
+   * 전달하면, 해당 미디어 스트림 아이디가 여기 전달받은 미디어 스트림 트랙을 가지고 있다고 알려주는 역할을 하게된다.
+   * 위에서와 같이 빈 리스트를 제공하면, 미디어스트림은 전달되지 않고, 그거 트랙만 전송하게 된다. 그리고, onTrack()
+   * 을 통해 원격피어는 그 트랙을 전달받게 된다. <p>
+   *
+   * 미디어스트림을 만들고 거기에 트랙을 추가 후, 그 아이디 리스트를
+   * 이곳으로 전달하면, 원격피어에서 onAddStream() 이벤트를 통해 미디어스트림을 전달받을 수 있다.
+   *
+   * @param track
+   * @param streamIds
+   * @return
+   */
   public RtpSender addTrack(MediaStreamTrack track, List<String> streamIds) {
     if (track != null && streamIds != null) {
       RtpSender newSender = this.nativeAddTrack(track.getNativeMediaStreamTrack(), streamIds);

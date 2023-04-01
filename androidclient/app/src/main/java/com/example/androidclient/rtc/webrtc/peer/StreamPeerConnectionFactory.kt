@@ -1,19 +1,3 @@
-/*
- * Copyright 2023 Stream.IO, Inc. All Rights Reserved.
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- * http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
-
 package com.example.androidclient.rtc.webrtc.peer
 import android.util.Log
 
@@ -24,7 +8,6 @@ import kotlinx.coroutines.CoroutineScope
 import org.webrtc.AudioSource
 import org.webrtc.AudioTrack
 import org.webrtc.DefaultVideoDecoderFactory
-import org.webrtc.DefaultVideoEncoderFactory
 import org.webrtc.EglBase
 import org.webrtc.HardwareVideoEncoderFactory
 import org.webrtc.IceCandidate
@@ -36,13 +19,12 @@ import org.webrtc.PeerConnectionFactory
 import org.webrtc.RtpTransceiver
 import org.webrtc.SimulcastVideoEncoderFactory
 import org.webrtc.SoftwareVideoEncoderFactory
-import org.webrtc.VideoCodecInfo
 import org.webrtc.VideoSource
 import org.webrtc.VideoTrack
 import org.webrtc.audio.JavaAudioDeviceModule
 
 class StreamPeerConnectionFactory constructor(
-    private val context: Context
+    val context: Context
 ) {
     private val webRtcLogger by taggedLogger("[StreamPeerConnectionFactory] Call:WebRTC")
     private val audioLogger by taggedLogger("[StreamPeerConnectionFactory] Call:AudioTrackCallback")
@@ -139,7 +121,7 @@ class StreamPeerConnectionFactory constructor(
      * the hood.
      * 중요한 것. peerConnection Factory 빌더를 이용해서 객체를 생성. 그 후 초기화됨.
      */
-    private val factory: PeerConnectionFactory by lazy {
+    val factory: PeerConnectionFactory by lazy {
         //'피어 연결 생성에 쓰이는 팩토리'에 연결시 일어나는 메시지 로깅을 등록을 위한 Option객체 생성하여 초기화 등록.
         PeerConnectionFactory.initialize(
             //PeerConnectionFactory내의 InitializationOptions 스태틱객체를 만들기위해 Builder객체를 이용해 변수들을 수집한 후
@@ -172,7 +154,6 @@ class StreamPeerConnectionFactory constructor(
 
         // PeerConnection 객체 생성시 활용할 비디오&오디오 인코더, 디코더를 등록
         PeerConnectionFactory.builder()
-//            .setVideoDecoderFactory(videoDecoderFactory)
             .setVideoDecoderFactory(videoDecoderFactory)
             .setVideoEncoderFactory(videoEncoderFactory)
             .setAudioDeviceModule(
@@ -266,6 +247,7 @@ class StreamPeerConnectionFactory constructor(
      * 피어커넥션보다는 팩토리가 먼저 만들어짐. impl에서의 순서가 그렇다. 나중에 피어커넥션만들때 이 메소드 실행함.
      */
     fun makePeerConnection(
+        peerId: String,
         coroutineScope: CoroutineScope,
         configuration: PeerConnection.RTCConfiguration,
         type: StreamPeerType,
@@ -273,18 +255,26 @@ class StreamPeerConnectionFactory constructor(
         onStreamAdded: ((MediaStream) -> Unit)? = null,
         onNegotiationNeeded: ((StreamPeerConnection, StreamPeerType) -> Unit)? = null,
         onIceCandidateRequest: ((IceCandidate, StreamPeerType) -> Unit)? = null,
-        onVideoTrack: ((RtpTransceiver?) -> Unit)? = null
+        onVideoTrack: ((RtpTransceiver?) -> Unit)? = null,
+        /**
+         * 1: 받은 문자열 메시지, 2: file을 받으면 ByteArray를 전달, 3: TEXT or FILE 받은 메시지의 종류.
+         */
+        onDataMessage: ((String?, ByteArray?, String) -> Unit)? = null
     ): StreamPeerConnection {
 
         //받아온 정보(변수 및 실행할 콜백구현부들)를 이용해서 StreamPeerConnection 객체를 만든다.
         val peerConnection = StreamPeerConnection(
+            peerId = peerId,
+            context = context,
+            streamFactory = this,
             coroutineScope = coroutineScope,
             type = type,
             mediaConstraints = mediaConstraints,
             onStreamAdded = onStreamAdded,
             onNegotiationNeeded = onNegotiationNeeded,
             onIceCandidate = onIceCandidateRequest,
-            onVideoTrack = onVideoTrack
+            onVideoTrack = onVideoTrack,
+            onDataMessage = onDataMessage
         )
 
         // PeerConnection.Observer의 구현부인 위에서 만든 StreamPeerConnection객체를 이용해서

@@ -85,7 +85,7 @@ open class VideoTextureViewRenderer @JvmOverloads constructor(
     private var frameRotation = 0
 
     init {
-        this.surfaceTexture?.setDefaultBufferSize(325, 490)
+//        this.surfaceTexture?.setDefaultBufferSize(325, 490)
         surfaceTextureListener = this
     }
 
@@ -161,7 +161,7 @@ open class VideoTextureViewRenderer @JvmOverloads constructor(
     override fun onSurfaceTextureAvailable(surfaceTexture: SurfaceTexture, width: Int, height: Int) {
         Log.w(tagName, "onSurfaceTextureAvailable() width: $width, height: $height")
 //        surfaceTexture.releaseTexImage()
-        surfaceTexture.setDefaultBufferSize(325, 490)
+//        surfaceTexture.setDefaultBufferSize(325, 490)
 //        surfaceTexture.updateTexImage()
         eglRenderer.createEglSurface(surfaceTexture)
     }

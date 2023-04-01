@@ -36,8 +36,9 @@ import androidx.compose.ui.unit.dp
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
+import androidx.lifecycle.viewmodel.compose.LocalViewModelStoreOwner
+import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.fragment.findNavController
-import com.example.androidclient.MyApp
 import com.example.androidclient.R
 import com.example.androidclient.databinding.RtcFmBinding
 import com.example.androidclient.group.GroupVm
@@ -45,7 +46,7 @@ import com.example.androidclient.rtc.ui.components.CustomDialog
 import com.example.androidclient.rtc.ui.components.CustomDialogAtRoomClick
 import com.example.androidclient.rtc.ui.screens.stage.StageScreen
 import com.example.androidclient.rtc.ui.screens.video.VideoCallScreen
-import com.example.androidclient.rtc.ui.theme.WebrtcSampleComposeTheme
+import com.example.androidclient.rtc.ui.theme.RtcComposeTheme
 import com.example.androidclient.rtc.webrtc.SignalingClient
 import com.example.androidclient.rtc.webrtc.StandardCommand
 import com.example.androidclient.rtc.webrtc.peer.StreamPeerConnectionFactory
@@ -59,7 +60,7 @@ import com.google.gson.JsonObject
  *  컴포즈내에서 어디서든 사용가능하게 전역변수로 네비게이션 메소드를 할당받는 변수선언.
  */
 val LocalUseNavigate: ProvidableCompositionLocal<(Int) -> Unit> = staticCompositionLocalOf { error("No UseNavigate") }
-val LocalViewModel: ProvidableCompositionLocal<ViewModel> = staticCompositionLocalOf { error("No ViewModel") }
+//val LocalViewModel: ProvidableCompositionLocal<ViewModel> = staticCompositionLocalOf { error("No ViewModel") }
 class RtcFm : Fragment() {
 
     val tagName = "[${this.javaClass.simpleName}]"
@@ -88,15 +89,15 @@ class RtcFm : Fragment() {
         //WebRtc를 제일 처음 시작하기 위해서는 웹소켓을 활용하여 시그널링 서버에 클라이언트(peer)를 등록(연결)하고
         //등록된 peer끼리 정보(SPD)를 주고 받을 수 있는 과정이 필요함.
         sessionManager = WebRtcSessionManagerImpl(
-//            context = requireActivity(),
-            context = MyApp.application,
+            context = requireActivity(),
+//            context = MyApp.application,
             signalingClient = SignalingClient(groupVm),
             peerConnectionFactory = StreamPeerConnectionFactory(requireActivity())
         )
 
         binding.composeView.setContent {
             //컴포즈 내에서 네비게이션을 사용하는 콜백함수 등록.
-            RtcTest(useNavigate = { dest -> findNavController().navigate(dest) } )
+            Rtc(useNavigate = { dest -> findNavController().navigate(dest) } )
         }
 
         return binding.root
@@ -106,35 +107,46 @@ class RtcFm : Fragment() {
         ROOM_LIST, STAGE_SCREEN, VIDEO_CALL_SCREEN, AT_ROOM_CLICKED, 방장접속
     }
     @Composable
-    fun RtcTest(useNavigate: (Int) -> Unit ){
-        WebrtcSampleComposeTheme {
+    fun Rtc(useNavigate: (Int) -> Unit){
 
+        RtcComposeTheme {
             //뷰구성시 로컬 프로바이더로써 웹세션 매니저를 등록함. 이것은 WebRtcSessionManagerImpl 클래스안에 존재하고,
             //광역객체로써 임포트만하면 current 변수로 어디서든 접근할 수 있음.
-            CompositionLocalProvider(LocalWebRtcSessionManager provides sessionManager,
+            CompositionLocalProvider(
                 //위에서 선언한 변수에 전달받은 콜백함수를 할당해서 컴포즈 전역에서 사용가능하도록 함.
                 LocalUseNavigate provides useNavigate,
-                LocalViewModel provides ViewModelProvider(requireActivity()).get(GroupVm::class.java)
+                LocalWebRtcSessionManager provides sessionManager,
+//                LocalViewModel provides groupVm
             ){
-                // A surface container using the 'background' color from the theme
+                //상위 컴포넌트에서 하위 컴포넌트에 사용될 여러 프로바이더를 설정해줌.
+                val navigate = LocalUseNavigate.current
+                val sessionManager = LocalWebRtcSessionManager.current
+//                val rtcVm = LocalViewModel.current as RtcVm
+                val rtcVm = viewModel<RtcVm>()
+                rtcVm.sessionManager = sessionManager as WebRtcSessionManagerImpl
+                rtcVm.groupVm = groupVm
+
+                Log.e(tagName, "뷰모델스토어오너: ${LocalViewModelStoreOwner.current.toString()}")
+
+
                 Surface(
                     modifier = Modifier.fillMaxSize(),
+                    // A surface container using the 'background' color from the theme
                     color = MaterialTheme.colors.background
 //                        color = Color.Transparent
 //                        color = Color.Blue
                 ){
-                    val navigate = LocalUseNavigate.current
 
 //                    val rtcVm: RtcVm = viewModel(viewModelStoreOwner = this)
 //                    val roomList by rtcVm.roomList.collectAsState() // ViewModel의 roomList 사용하기
 //                    val currentScreen by rtcVm.currentScreen.collectAsState() // ViewModel의 currentScreen 사용하기
 
                     // 방목록 담는 변수: 소켓으로부터 받아온 JsonArray()
-                    val roomList by sessionManager.signalingClient.roomList.collectAsState()
-                    val roomL = roomList
+                    val roomL by sessionManager.signalingClient.roomList.collectAsState()
+//                    val roomL = roomList
                     //현재 스크린의 위치를 담는 변수.
-                    val _currentScreen by  sessionManager.signalingClient.currentScreen.collectAsState()
-                    val currentScreen = _currentScreen
+                    val currentScreen by  sessionManager.signalingClient.currentScreen.collectAsState()
+//                    val currentScreen = _currentScreen
 //                    //새로 만든 화면 확장용 변수
 //                    var currentScreen by remember { mutableStateOf(ScreenState.ROOM_LIST) }
 //                    //웹소켓으로부터 받은 방목록 변수
@@ -201,7 +213,7 @@ class RtcFm : Fragment() {
                                             addProperty("groupId", groupVm.groupInfo["group_no"].asString)
                                         }
                                     )
-                                    // todo 방장 접속하게 하기 추가해야함.
+
 
                                 }
                             )
@@ -250,6 +262,7 @@ class RtcFm : Fragment() {
         onCreateRoom: (JsonObject) -> Unit
     ) {
 
+        //'방접속시도', '방만들기' 등 이변수의 값에 따라 해당하는 다이얼로그를 보여주는 용도
         val showDialog = remember { mutableStateOf("") }
 
         fun showRoomDialog(다이얼로그종류:String) {
@@ -289,11 +302,12 @@ class RtcFm : Fragment() {
                         text = "$index ${room["title"]}",
                         modifier = Modifier
                             .fillMaxWidth()
-                            .clickable { showRoomDialog("방접속시도")/*onRoomClick(room)*/ }
+                            //방목록을 클릭하면,
+                            .clickable { showRoomDialog("방접속시도") }
                             .padding(16.dp)
                     )
 
-                    // 방목록을 클릭하면 방접속시도에 관한 다이얼로그가 뜸.
+                    // 방접속시도에 관한 다이얼로그가 뜸.
                     if(showDialog.value == "방접속시도"){
                         CustomDialogAtRoomClick(
                             selectedRoom = room ,
@@ -304,8 +318,11 @@ class RtcFm : Fragment() {
                 }
             }
 
+
+            // 다이얼로그(방만들기용)
             if (showDialog.value == "방만들기") {
-                //상위 구현부에서 전달받은 콜백을
+                //상위 컴포넌트에서 전달받은 구현부 콜백을 그대로 다이얼로그 컴포넌트에 전달해줌.
+                // 전달할 콜백은 2가지.
                 CustomDialog( onCreateRoom, { hideRoomDialog() })
             }
 

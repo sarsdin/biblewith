@@ -45,7 +45,7 @@ private val LightColorPalette = lightColors(
 )
 
 @Composable
-fun WebrtcSampleComposeTheme(
+fun RtcComposeTheme(
     darkTheme: Boolean = isSystemInDarkTheme(),
     content: @Composable () -> Unit
 ) {

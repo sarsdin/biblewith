@@ -8,9 +8,7 @@ import android.hardware.camera2.CameraMetadata
 import android.media.AudioDeviceInfo
 import android.media.AudioManager
 import android.os.Build
-import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.ProvidableCompositionLocal
-import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.staticCompositionLocalOf
 import androidx.core.content.getSystemService
 import com.example.androidclient.MyApp
@@ -21,14 +19,12 @@ import com.example.androidclient.rtc.webrtc.audio.AudioSwitchHandler
 import com.example.androidclient.rtc.webrtc.peer.StreamPeerConnection
 import com.example.androidclient.rtc.webrtc.peer.StreamPeerConnectionFactory
 import com.example.androidclient.rtc.webrtc.peer.StreamPeerType
+import com.google.gson.JsonParser
 import io.getstream.log.taggedLogger
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
-import kotlinx.coroutines.flow.MutableSharedFlow
-import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.SharedFlow
-import kotlinx.coroutines.flow.asSharedFlow
+import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
 import org.webrtc.AudioTrack
 import org.webrtc.Camera2Capturer
@@ -58,7 +54,7 @@ val LocalWebRtcSessionManager: ProvidableCompositionLocal<WebRtcSessionManager> 
  * 필요한 생성자로 컨텍스트, 시그널링 클라이언트, peer connection Factory 등의 객체가 필요함.
  * */
 class WebRtcSessionManagerImpl(
-    private val context: Context,
+    protected val context: Context,
     override val signalingClient: SignalingClient,
     override val peerConnectionFactory: StreamPeerConnectionFactory
 ) : WebRtcSessionManager {
@@ -88,6 +84,8 @@ class WebRtcSessionManagerImpl(
     val _remoteVideoTracks = MutableSharedFlow<List<VideoTrack>>(replay = 1)
     override val remoteVideoTracks: SharedFlow<List<VideoTrack>> = _remoteVideoTracks.asSharedFlow()
 
+    //rtc 채팅목록
+    val _chatMessages = MutableStateFlow<List<ChatData>>(mutableListOf<ChatData>())
 
 
 
@@ -122,8 +120,11 @@ class WebRtcSessionManagerImpl(
                 cameraEnumerator.isFrontFacing(cameraName)
             }
             val supportedFormats = cameraEnumerator.getSupportedFormats(frontCamera) ?: emptyList()
+            Log.e(tagName, "supportedFormats: ${supportedFormats}")
             return supportedFormats.firstOrNull {
-                (it.width == 1280 || /*it.width == 1920 ||*/ it.width == 720 || it.width == 540 || it.width == 480 || it.width == 360)
+                (it.width ==  176 || it.width == 320 ||  it.width == 640 || it.width == 720 || it.width == 1280 || it.width == 352)
+//                (it.width == 1920 || it.width == 1280 ||  it.width == 720 || it.width == 540 || it.width == 480 || it.width == 360)
+//                (it.height == 1920 || it.height == 1280 ||  it.height == 720 || it.height == 540 || it.height == 480 || it.height == 360)
             } ?: error("There is no matched resolution!")
         }
 
@@ -145,8 +146,8 @@ class WebRtcSessionManagerImpl(
             //capturerObserver의 구현부는 VideoSource 클래스에 있음.
             //결국,videoCapturer의 초기화는 this객체인 VideoSource를 이용함.
             videoCapturer.initialize(surfaceTextureHelper, context, this.capturerObserver)
-//            videoCapturer.startCapture(resolution.width, resolution.height, 20)
-            videoCapturer.startCapture(325, 490, 10)
+            videoCapturer.startCapture(resolution.width, resolution.height, 10)
+//            videoCapturer.startCapture(320, 240, 15)
             Log.e(tagName, "makeVideoSource() 실행. videoSource 초기화 완료.")
         }
     }
@@ -226,14 +227,17 @@ class WebRtcSessionManagerImpl(
     private var offer: String? = null
 
 
-
-
-
+    /**
+     * 현재 Room에 연결된 peerConnection 객체들을 갖고있는 Map.
+     */
     private val peerConnections = mutableMapOf<String, StreamPeerConnection>()
-
+    fun getPeerConnections():  MutableMap<String, StreamPeerConnection> {
+        return peerConnections
+    }
 
     private fun createPeerConnection(peerId: String): StreamPeerConnection {
         val newPeerConnection = peerConnectionFactory.makePeerConnection(
+            peerId = peerId,
             coroutineScope = sessionManagerScope,
             configuration = peerConnectionFactory.rtcConfig,
             type = StreamPeerType.SUBSCRIBER,
@@ -260,17 +264,42 @@ class WebRtcSessionManagerImpl(
                 //원격 비디오 트랙을 저장하는 flow로 보냄.
                 if (track.kind() == MediaStreamTrack.VIDEO_TRACK_KIND) {
                     val videoTrack = track as VideoTrack
-                    videoTracksForRemove[peerId] = videoTrack //나중에 연결종료시 remove용도
+//                    videoTracksForRemove[peerId] = videoTrack //나중에 연결종료시 remove용도
                     sessionManagerScope.launch {
 //                        _remoteVideoTrackFlow.emit(videoTrack)
 //                        _remoteVideoTracks.value[peerId] = videoTrack
 //                        _remoteVideoTracks.value = _remoteVideoTracks.value + videoTrack
 
+                        // 원격에서 받아온 videoTrack에 현재 연결된 peerId를 할당해준다.
+                        videoTrack.peerInfo["peerId"] = peerId
+//                        videoTrack.peerInfo["peerId"] = peerId.substringBefore("@")
                         _remoteVideoTracks.emit(
-                            (_remoteVideoTracks.replayCache.firstOrNull()
-                                ?: emptyList<VideoTrack>() ) + videoTrack
+                        (_remoteVideoTracks.replayCache.firstOrNull()?: emptyList<VideoTrack>() )
+                            + videoTrack
                         )
                     }
+                }
+            },
+
+            //채팅 메시지가 도착했을때 처리.
+            onDataMessage = { message, file, type ->
+                if (type == "TEXT"){
+                    val chatJsonMessage = message?: return@makePeerConnection
+                    val chatJin = JsonParser.parseString(chatJsonMessage).asJsonObject
+                    sessionManagerScope.launch {
+                        _chatMessages.emit(
+                        (_chatMessages.replayCache.firstOrNull()?: emptyList<ChatData>())
+                            + ChatData(
+                                userId = chatJin["peerId"].asString,
+                                nick = chatJin["nick"].asString,
+                                message = chatJin["message"].asString,
+                                type = type
+                            )
+                        )
+                    }
+
+                } else {
+                    val chatMessage = message
                 }
             }
         )
@@ -279,7 +308,7 @@ class WebRtcSessionManagerImpl(
     }
 
     //임시객체 - 위에서 받은 비디오트랙을 나중에 제거하기 위해 맵으로 저장해둠.
-    val videoTracksForRemove = mutableMapOf<String, VideoTrack>()
+//    val videoTracksForRemove = mutableMapOf<String, VideoTrack>()
 
 
     /**
@@ -345,9 +374,11 @@ class WebRtcSessionManagerImpl(
             // 이것을 네트워크 통신에 비유하면, 각각의 http통신이 마치고 response가 올때까지 기다리는 것과 비슷함. await 해주는 역할.
 
             // todo 현재 접속할 방의 정보(접속한 peer들의 id)를 받아와 반복문으로 각각의 peer에 OFFER 요청을 해야함.
-            signalingClient.방접속시도시접속인원목록.value.forEach { peerId ->
-                if(peerId.asString != MyApp.userInfo.user_email){ // 방접속원의 아이디가 본인이라면 오퍼안해야함.
-                    sendOffer(peerId.asString)
+            //  주의: 최신 정보를 담고 있지는 않음. '참가' 버튼을 누르기까지 대기시간이 존재해서, 실제 방참가시 시간차가 있음.
+            signalingClient.방참가시접속인원목록.value.forEach { userInfo ->
+                val peerId = userInfo.asJsonObject["userId"].asString
+                if(peerId != MyApp.userInfo.user_email){ // 방접속원의 아이디가 본인이라면 오퍼안해야함.
+                    sendOffer(peerId)
                 }
             }
 
@@ -456,7 +487,20 @@ class WebRtcSessionManagerImpl(
     private fun handleClose(peerId: String) {
         if (peerConnections.containsKey(peerId)) {
             Log.e(tagName, "handleClose() peerId 제거: $peerId")
-            peerConnections[peerId]!!.connection.dispose()
+            // todo  화면에 관련된 videoFlow들도 리스트에서 제거해줘야함
+
+            sessionManagerScope.launch {
+                //현재 플로우에 있는 리스트를 가져옴.
+                val currentVideoTracks = _remoteVideoTracks.first()
+                // 조건에 맞지 않는 VideoTrack만 포함하는 새로운 리스트를 생성.
+                val updatedVideoTracks = currentVideoTracks.filter { videoTrack ->
+                    val currentPeerId = videoTrack.peerInfo["peerId"]
+                    currentPeerId != peerId
+                }
+                _remoteVideoTracks.emit(updatedVideoTracks)
+
+            }
+            peerConnections[peerId]!!.connection.dispose() //native webrtc ndk lib에서 c++객체에 할당된 메모리자원을 해제해줌.
             peerConnections.remove(peerId)
         }
     }
@@ -507,14 +551,14 @@ class WebRtcSessionManagerImpl(
         //offer ==  SessionDescription == SDP 객체를 생성해서
         val offer = peerConnection.createOffer().getOrThrow()
         //setLocalDescription를 완료할때까지 suspend나 await 등으로 기다리지말고 해야 안끊킨다는 얘기가 있어서 먼저 보내는걸로 수정해봄.
-//        signalingClient.sendCommand(SignalingCommand.OFFER, MyApp.userInfo.user_email, offer.description, peerIdOfTarget)
+        signalingClient.sendCommand(SignalingCommand.OFFER, MyApp.userInfo.user_email, offer.description, peerIdOfTarget)
         // 자신의 SDP를 생성하여 로컬 SDP로 등록 후
         val result = peerConnection.setLocalDescription(offer)
         // Result 객체가 성공적으로 만들어지면, 타겟피어로 OFFER명령을 시그널링서버를 통해 전송.
         result.onSuccess {
             // todo 여기서 sdp만 달랑 보내는게 아니라 자신의 peerId와 같이 보내야함.
             Log.e(tagName, "sendOffer() 다음에게 OFFER보냄: $peerIdOfTarget")
-            signalingClient.sendCommand(SignalingCommand.OFFER, MyApp.userInfo.user_email, offer.description, peerIdOfTarget)
+//            signalingClient.sendCommand(SignalingCommand.OFFER, MyApp.userInfo.user_email, offer.description, peerIdOfTarget)
         }
 //        logger.d { "[SDP를 서버로 전송] sendOffer(): ${offer.stringify()}" }
     }
@@ -555,13 +599,13 @@ class WebRtcSessionManagerImpl(
         //타 peer에 보내기 위한 answer로써의 sdp를 생성함.
         val answer = peerConnection.createAnswer().getOrThrow()
         //setLocalDescription를 완료할때까지 suspend나 await 등으로 기다리지말고 해야 안끊킨다는 얘기가 있어서 먼저 보내는걸로 수정해봄.
-//        signalingClient.sendCommand(SignalingCommand.ANSWER, MyApp.userInfo.user_email, answer.description, peerIdOfOffered)
+        signalingClient.sendCommand(SignalingCommand.ANSWER, MyApp.userInfo.user_email, answer.description, peerIdOfOffered)
         //그리고, 생성된 나의 sdp를 로컬sdp로써 설정.
         val result = peerConnection.setLocalDescription(answer)
         result.onSuccess {
             //나의 로컬 sdp를 내 peerId와 함께 offer준 peerId에게 응답해줘야함.
             // 나는 이런 아이디이고, 오퍼한 아이디에게 나의 sdp를 전달하고 싶다는 메시지 보냄.
-            signalingClient.sendCommand(SignalingCommand.ANSWER, MyApp.userInfo.user_email, answer.description, peerIdOfOffered)
+//            signalingClient.sendCommand(SignalingCommand.ANSWER, MyApp.userInfo.user_email, answer.description, peerIdOfOffered)
             Log.e(tagName, "sendAnswer() 다음에게 ANSWER보냄: $peerIdOfOffered")
         }
 //        logger.d { "[SDP를 서버로 전송] sendAnswer(): ${answer.stringify()}" }
@@ -628,7 +672,7 @@ class WebRtcSessionManagerImpl(
             val cameraLensFacing = characteristics.get(CameraCharacteristics.LENS_FACING)
 
             // 장치의 앞을 바라보는 카메라의 id인지 확인하고 맞으면 찾았다는 신호와 id를 변수에 저장.
-            if (cameraLensFacing == CameraMetadata.LENS_FACING_FRONT) {
+            if (cameraLensFacing == CameraMetadata.LENS_FACING_BACK) {
                 foundCamera = true
                 cameraId = id
             }
