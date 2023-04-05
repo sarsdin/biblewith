@@ -123,7 +123,7 @@ class StartFm : Fragment()/*, MainActivity.TestDeep */{
             //조건에 맞지 않으면 일반적인 앱의 흐름으로서 home_fm 화면으로 간다.
             } else {
                 Log.e(tagName, "home_fm으로 간다")
-                findNavController().navigate(R.id.action_startFm_to_home_fm)
+                findNavController().navigate(R.id.action_global_home_fm)
             }
 
         //LoginActivity 로 보내서 로그인 진행 처리

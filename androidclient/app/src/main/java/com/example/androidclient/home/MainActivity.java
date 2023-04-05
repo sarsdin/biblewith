@@ -1,15 +1,19 @@
 package com.example.androidclient.home;
 
+import android.annotation.SuppressLint;
 import android.app.Activity;
+import android.app.PictureInPictureParams;
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
 import android.content.ServiceConnection;
 import android.content.SharedPreferences;
 import android.net.Uri;
+import android.os.Build;
 import android.os.Bundle;
 import android.os.IBinder;
 import android.util.Log;
+import android.util.Rational;
 import android.view.MenuItem;
 import android.view.View;
 
@@ -33,11 +37,15 @@ import com.example.androidclient.R;
 import com.example.androidclient.bible.BibleVm;
 import com.example.androidclient.databinding.MainActivityBinding;
 import com.example.androidclient.login.LoginActivity;
+import com.example.androidclient.rtc.RtcFm;
+import com.example.androidclient.rtc.webrtc.sessions.WebRtcSessionManagerImpl;
 import com.google.android.material.navigation.NavigationBarView;
 import com.google.gson.Gson;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
+
+import java.util.Objects;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -89,8 +97,8 @@ public class MainActivity extends AppCompatActivity {
                 NavigationUI.onNavDestinationSelected(item, navController); //메뉴클릭시 백스택 시작이 destination start 지점부터 시작됨
                 // onNavDestinationSelected 부터 먼저 선언하고 시작해야 리스너가 작동함.. 위의 상황에서는 하이라이트 화면에서 홈이나
                 // 성경페이지로 갔다가 다시 더보기 메뉴클릭하면 하이라이트 화면(백스택)이 보여짐.
-                // 그러나 아래처럼 설정하면 더보기 화면이 나오게 됨. 더보기메뉴의 아디가 more_navigation인데 클릭시 조건에 맞으니깐 -- more_fm으로 상위메뉴 변경
-                // popBackStack 이 실행되고 어디까지 팝되냐면 more_fm(더보기메인화면)까지 화면(백스택)이 팝됨.
+                // 그러나 아래처럼 설정하면 더보기 화면이 나오게 됨. 더보기메뉴의 ID가 more_fm인데 클릭시 조건에 맞으니깐
+                // popBackStack 이 실행됨. 어디까지 팝되냐면 more_fm(더보기메인화면)까지 화면(백스택)이 팝됨.
                 // 이런 조건을 이용해서 각각의 최상위 메뉴로부터 멀티백스택을 가질지 말지 결정할 수 있음.
                 if(item.getItemId()  == R.id.more_fm){
 //                    navController.popBackStack(R.id.myHighLightFm, true);
@@ -112,7 +120,7 @@ public class MainActivity extends AppCompatActivity {
 ////                    navController.popBackStack(R.id.more_navigation, false);
 //                }
 
-                return false;
+                return true;
             }
         });
 
@@ -277,6 +285,7 @@ public class MainActivity extends AppCompatActivity {
 //            // 잠깐 작업관리자로 나갔다 들와도 Bundle이 계속해서 (코드가)재실행되기에 무한 초대가 뜨게 된다..주의!
 //            //startDestination이 home_fm 으로 지정된 경우는 이상하게 괜찮더라..
 //        }
+
 
         //서비스 시작 - BIND_AUTO_CREATE : 서비스가 켜저있으면 자동으로 바인딩하고, 없으면 만들어서 바인딩함
         Intent intent = new Intent(this, MyService.class);
@@ -518,7 +527,7 @@ public class MainActivity extends AppCompatActivity {
 //            return navController.navigateUp() || super.onSupportNavigateUp();
 //        } else{
 //        }
-            return NavigationUI.navigateUp(navController, appBarConfiguration) || super.onSupportNavigateUp();
+            return /*NavigationUI.navigateUp(navController, appBarConfiguration) ||*/ super.onSupportNavigateUp();
     }
 
     public void setNavigation(boolean navigationUpEnabled) {
@@ -533,6 +542,12 @@ public class MainActivity extends AppCompatActivity {
             }
 
         }
+    }
+
+    @Override
+    public void onBackPressed() {
+//        super.onBackPressed();
+        navController.navigateUp();
     }
 
     //일단 이 메소드를 오버라이딩해서 super로 인자들을 넘겨줘야 fragment에서도 startActivityForResult의
@@ -550,24 +565,106 @@ public class MainActivity extends AppCompatActivity {
 
     public ResultMediaProjectionForRTCscreenSharing forScreenSharing = null;
 
-    public ActivityResultLauncher<Intent> register =  this.registerForActivityResult(
-        new ActivityResultContracts.StartActivityForResult(), new ActivityResultCallback<ActivityResult>() {
-            @Override
-            public void onActivityResult(ActivityResult result) {
-                int resultCode = result.getResultCode();
-                Intent data = result.getData();
-                if(resultCode == Activity.RESULT_OK){
-                    forScreenSharing = new ResultMediaProjectionForRTCscreenSharing() {
-                        @Override
-                        public Intent intentDataCalled() {
-                            return data;
-                        }
-                    };
-                }
-            }
-        }
-    );
+    /**
+     * 타 FM이나 Activity에서 가져가 사용하기 위해 따로 public 변수로 할당.<p>
+     *     registerForActivityResult() 메서드를 실행하면 launcher를 리턴받고, 그것을 이용해
+     *     필요한 요청을 담은 Intent를 발송함. 그리고, 메서드에서 등록한 콜백(onActivityResult())을
+     *     이용해 결과를 얻음.
+     */
+//    public ActivityResultLauncher<Intent> register =  this.registerForActivityResult(
+//        new ActivityResultContracts.StartActivityForResult(), new ActivityResultCallback<ActivityResult>() {
+//            @Override
+//            public void onActivityResult(ActivityResult result) {
+//                int resultCode = result.getResultCode();
+//                Intent data = result.getData();
+//                if(resultCode == Activity.RESULT_OK){
+//                    //결과를 받으면, 결과 Data가 담긴 Intent를 interface 객체를 만들어 그 객체의 구현메서드의
+//                    // 반환값으로 할당해줌.
+//                    // onActivityResult -> forScreenSharing에 구현 객체 할당 -> 구현내용으로 return Intent data를 할당.
+//                    assert data != null;
+//                    Log.e(tagName, "onActivityResult() 콜백 호출됨. Intent data 리턴!?"+ data);
+//                    int id = Objects.requireNonNull(navController.getCurrentDestination()).getId();
+//
+//                    RtcFm rtcFm = (RtcFm) getSupportFragmentManager().getPrimaryNavigationFragment().getChildFragmentManager()
+////                            .findFragmentById(id);
+//                            .findFragmentById(R.id.rtcFm);
+//                    assert rtcFm != null;
+//                    ((WebRtcSessionManagerImpl) rtcFm.sessionManager).화면공유초기화(data);
+//
+////                    forScreenSharing = new ResultMediaProjectionForRTCscreenSharing() {
+////                        @Override
+////                        public Intent intentDataCalled() {
+////                            assert data != null;
+////                            Log.e(tagName, "intentDataCalled() 호출됨. Intent data 리턴!?"+ data.getData());
+////                            return data;
+////
+////                        }
+////                    };
+//                }
+//            }
+//        }
+//    );
 
+
+    /**
+     * Pip Mode 에서 화면을 볼 수 있도록 하는 객체.
+     */
+    PictureInPictureParams.Builder pipBuilder;
+    @Override
+    protected void onUserLeaveHint() {
+        Log.e(tagName, "onUserLeaveHint() pip mode실행 ");
+        super.onUserLeaveHint();
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O){
+            pipBuilder = new PictureInPictureParams.Builder();
+            //pip mode 일때의 화면 비율을 설정. 가로 세로 비율임.
+            pipBuilder.setAspectRatio(new Rational(400, 600));
+
+            // 안드로이드12 api 31 이상일때 pip mode size를 변경가능하게 함.
+            if (Build.VERSION.SDK_INT > Build.VERSION_CODES.R){
+                pipBuilder.setSeamlessResizeEnabled(true);
+            }
+            enterPictureInPictureMode(pipBuilder.build());
+        }
+    }
+
+
+    /**
+     * groupIn (모임)안에서의 바텀네비게이션을 컨트롤할 수 있는 리스너 객체.
+     * @return
+     */
+    public NavigationBarView.OnItemSelectedListener 모임네비게이션리스너 = 모임네비게이션리스너생성();
+    public NavigationBarView.OnItemSelectedListener 모임네비게이션리스너생성(){
+        return new NavigationBarView.OnItemSelectedListener() {
+            @SuppressLint("NonConstantResourceId")
+            @Override
+            public boolean onNavigationItemSelected(@NonNull MenuItem item) {
+
+                int currentItemDestinationId = Objects.requireNonNull(navController.getCurrentDestination()).getId();
+                if (item.getItemId() != currentItemDestinationId){
+                    switch(item.getItemId()){
+                        case  R.id.group_in_challenge_fm:
+                            navController.navigate(R.id.action_global_group_in_challenge_fm);
+                            break;
+                        case  R.id.groupInMemberFm:
+                            navController.navigate(R.id.action_global_groupInMemberFm);
+                            break;
+                        case  R.id.groupInChatFm:
+                            navController.navigate(R.id.action_global_groupInChatFm);
+                            break;
+                        case  R.id.rtc_fm:
+                            navController.navigate(R.id.action_global_rtcFm);
+                            break;
+                        case  R.id.groupInFm:
+                            navController.navigate(R.id.action_global_groupInFm);
+                            break;
+                        default:
+                            break;
+                    }
+                }
+                return false;
+            }
+        };
+    }
 
 
 }

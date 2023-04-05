@@ -43,7 +43,7 @@ class HomeFmImgRva(val bibleVm: BibleVm, val homeVm: HomeVm, val homeFm: HomeFm)
         init {
         }
 
-        @SuppressLint("ClickableViewAccessibility")
+//        @SuppressLint("ClickableViewAccessibility")
         fun bind(mItem: UnsplashPhoto) {
 //            this.mItem = mItem;
 
@@ -87,7 +87,7 @@ class HomeFmImgRva(val bibleVm: BibleVm, val homeVm: HomeVm, val homeFm: HomeFm)
 //                val mIntent  = Intent(getActivity().getApplicationContext(), WriteActivity:: class.java)
 //                /*homeFm.*/startActivityForResult(intent, 14)
 
-                homeFm.editImageActivityForResult.launch(intent) //이미지 에티터를 연다
+                homeFm.editImageActivityForResult.launch(intent) //이미지 에디터를 연다
 
             }
 

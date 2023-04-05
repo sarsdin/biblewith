@@ -3,6 +3,7 @@ import android.util.Log
 
 import android.content.Context
 import android.os.Build
+import com.example.androidclient.rtc.webrtc.sessions.ChatData
 import io.getstream.log.taggedLogger
 import kotlinx.coroutines.CoroutineScope
 import org.webrtc.AudioSource
@@ -259,6 +260,7 @@ class StreamPeerConnectionFactory constructor(
         /**
          * 1: 받은 문자열 메시지, 2: file을 받으면 ByteArray를 전달, 3: TEXT or FILE 받은 메시지의 종류.
          */
+//        onDataMessage: ((String?, ChatData?, String) -> Unit)? = null
         onDataMessage: ((String?, ByteArray?, String) -> Unit)? = null
     ): StreamPeerConnection {
 

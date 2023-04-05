@@ -1,17 +1,27 @@
 package com.example.androidclient.rtc.webrtc.sessions
+import android.app.Activity
 import android.util.Log
 
 import android.content.Context
+import android.content.Intent
 import android.hardware.camera2.CameraCharacteristics
 import android.hardware.camera2.CameraManager
 import android.hardware.camera2.CameraMetadata
 import android.media.AudioDeviceInfo
 import android.media.AudioManager
+import android.media.projection.MediaProjection
+import android.media.projection.MediaProjectionManager
 import android.os.Build
+import android.view.WindowManager
 import androidx.compose.runtime.ProvidableCompositionLocal
 import androidx.compose.runtime.staticCompositionLocalOf
+import androidx.core.content.ContextCompat
 import androidx.core.content.getSystemService
+import androidx.window.layout.WindowMetricsCalculator
 import com.example.androidclient.MyApp
+import com.example.androidclient.home.MainActivity
+import com.example.androidclient.rtc.MediaProjectionService
+import com.example.androidclient.rtc.RtcFm
 import com.example.androidclient.rtc.webrtc.SignalingClient
 import com.example.androidclient.rtc.webrtc.SignalingCommand
 import com.example.androidclient.rtc.webrtc.audio.AudioHandler
@@ -21,22 +31,9 @@ import com.example.androidclient.rtc.webrtc.peer.StreamPeerConnectionFactory
 import com.example.androidclient.rtc.webrtc.peer.StreamPeerType
 import com.google.gson.JsonParser
 import io.getstream.log.taggedLogger
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.SupervisorJob
+import kotlinx.coroutines.*
 import kotlinx.coroutines.flow.*
-import kotlinx.coroutines.launch
-import org.webrtc.AudioTrack
-import org.webrtc.Camera2Capturer
-import org.webrtc.Camera2Enumerator
-import org.webrtc.CameraEnumerationAndroid
-import org.webrtc.IceCandidate
-import org.webrtc.MediaConstraints
-import org.webrtc.MediaStreamTrack
-import org.webrtc.SessionDescription
-import org.webrtc.SurfaceTextureHelper
-import org.webrtc.VideoCapturer
-import org.webrtc.VideoTrack
+import org.webrtc.*
 import java.util.UUID
 
 private const val ICE_SEPARATOR = '$'
@@ -56,7 +53,8 @@ val LocalWebRtcSessionManager: ProvidableCompositionLocal<WebRtcSessionManager> 
 class WebRtcSessionManagerImpl(
     protected val context: Context,
     override val signalingClient: SignalingClient,
-    override val peerConnectionFactory: StreamPeerConnectionFactory
+    override val peerConnectionFactory: StreamPeerConnectionFactory,
+    val rtcFm: RtcFm
 ) : WebRtcSessionManager {
 
 
@@ -192,6 +190,8 @@ class WebRtcSessionManagerImpl(
     }
 
 
+    
+
 
 
     /** Audio properties */
@@ -299,7 +299,21 @@ class WebRtcSessionManagerImpl(
                     }
 
                 } else {
-                    val chatMessage = message
+                    val chatJsonMessage = message?: return@makePeerConnection
+                    Log.e(tagName, "chatJsonMessage: ${chatJsonMessage}")
+                    val chatJin = JsonParser.parseString(chatJsonMessage).asJsonObject
+                    sessionManagerScope.launch {
+                        _chatMessages.emit(
+                            (_chatMessages.replayCache.firstOrNull()?: emptyList<ChatData>())
+                                    + ChatData(
+                                userId = chatJin["peerId"].asString,
+                                nick = chatJin["nick"].asString,
+                                message = chatJin["message"].asString,
+                                type = type,
+                                file = file
+                            )
+                        )
+                    }
                 }
             }
         )
@@ -377,7 +391,7 @@ class WebRtcSessionManagerImpl(
             //  주의: 최신 정보를 담고 있지는 않음. '참가' 버튼을 누르기까지 대기시간이 존재해서, 실제 방참가시 시간차가 있음.
             signalingClient.방참가시접속인원목록.value.forEach { userInfo ->
                 val peerId = userInfo.asJsonObject["userId"].asString
-                if(peerId != MyApp.userInfo.user_email){ // 방접속원의 아이디가 본인이라면 오퍼안해야함.
+                if(peerId != MyApp.userInfo.user_email){ // 방접속원의 아이디가 본인이라면 오퍼 안해야함.
                     sendOffer(peerId)
                 }
             }
@@ -394,7 +408,7 @@ class WebRtcSessionManagerImpl(
     }
 
     /**
-     * 마이크 on/off
+     * 마이크 on/off - 오디오 트랙 자체를 제거하는건 아니고 안드로이드 기기의 마이크를 조절하는 것.
      * */
     override fun enableMicrophone(enabled: Boolean) {
         audioManager?.isMicrophoneMute = !enabled
@@ -746,4 +760,167 @@ class WebRtcSessionManagerImpl(
             logger.d { "[setupAudio] isCommunicationDeviceSet: $isCommunicationDeviceSet" }
         }
     }
+
+
+
+
+
+
+
+
+
+
+
+
+
+    /**
+     * 화면공유 관련 변수 및 콜백. mediaProjectionManager 객체를 시스템으로부터 받아온다.
+     */
+    val mediaProjectionManager = ContextCompat.getSystemService(context, MediaProjectionManager::class.java)
+    var mediaProjection : MediaProjection? =  null
+    //    val screenShareForResult = (context as MainActivity)
+//    var forScreenSharing: MainActivity.ResultMediaProjectionForRTCscreenSharing? = null
+    var screenShareCapturer : VideoCapturer? = null
+
+
+
+    fun 화면공유실행(){
+        //MainActivity에 등록된 콜백으로 인텐트를 발송하여 결과를 받은뒤,
+//        (context as MainActivity).register.launch(mediaProjectionManager!!.createScreenCaptureIntent())
+        rtcFm.register.launch(mediaProjectionManager!!.createScreenCaptureIntent())
+
+        //화면공유를 위해 포그라운드 서비스 실행 - 보안상 이유로 MediaProjection를 사용할려면 필요.
+        val intentForScreenShare = Intent(context, MediaProjectionService::class.java)
+        context.startForegroundService(intentForScreenShare)
+    }
+
+    fun 화면공유중지() {
+        val intentForScreenShare = Intent(context, MediaProjectionService::class.java)
+        screenShareCapturer?.stopCapture()
+        resetVideoTrack(null, true)
+        context.stopService(intentForScreenShare)
+    }
+
+    /**
+     * 사용안함. 바탕화면만 공유가능한 상태. 제대로 구현할려면, 웹소켓을 RTC_FM에 두지않고, 앱 or FM실행시 서비스에서
+     * 실행하도록 해야할듯. 그래야, RTC_FM을 나가서도 RTC가 작동하게 될듯.
+     */
+    fun 화면공유초기화(data: Intent){
+//        screenShareForResult.launch(mediaProjectionManager!!.createScreenCaptureIntent())
+        //MainActivity에 등록된 콜백으로 인텐트를 발송하여 결과를 받은뒤,
+//        (context as MainActivity).register.launch(mediaProjectionManager!!.createScreenCaptureIntent())
+        //결과를 반환하는 interface 객체를 생성하여 등록하고, 그것에 접근하여 null이아니면 그대로 실행하고,
+//        if((context as MainActivity).forScreenSharing != null){
+//            forScreenSharing = (context as MainActivity).forScreenSharing
+//        }else{
+//            // null이면 결과반환까지 딜레이를 약간 줘서 기다린 후, 다음 작업 진행.
+//        }
+        sessionManagerScope.launch {
+//                forScreenSharing = (context as MainActivity).forScreenSharing
+            Log.e(tagName, "화면공유초기화() ")
+//                val data = forScreenSharing!!.intentDataCalled()
+            assert (mediaProjectionManager != null)
+            mediaProjection = mediaProjectionManager?.getMediaProjection(Activity.RESULT_OK, data)
+            assert (mediaProjection != null)
+            createScreenSharingPeerConnection(mediaProjection!!)
+        }
+    }
+
+    /**
+     * 화면공유를 위해 비디오 트랙을 만들고, 그것을 peerConnetion 객체의 sender에 등록하거나, 새로운 view에서 사용하도록
+     * sessionManagerimple에서 목록화하기.
+     */
+    private fun createScreenSharingPeerConnection(mediaProjection: MediaProjection) {
+
+        screenShareCapturer = createScreenCapturer(mediaProjection)
+        val videoSource = peerConnectionFactory.factory.createVideoSource(screenShareCapturer!!.isScreencast).apply {
+            screenShareCapturer!!.initialize(
+                SurfaceTextureHelper.create(
+                    "ScreenShareSurfaceTextureHelperThread",
+                    peerConnectionFactory.eglBaseContext
+                ),
+                context,
+                capturerObserver
+            )
+
+            // api31이상일때는 jetpack 호환성없는 lib로, api30이하~14까지일때는 호환성 lib로 기기 화면의 크기를 받아와야함.
+            // 이때, 앱의 경계면을 받는게 아니라, 전체화면을 받아와야하기에 이런 메소드를 사용함.
+            if (Build.VERSION.SDK_INT > Build.VERSION_CODES.R) {
+                val windowContext = context.createWindowContext(
+                    context.display!!,
+                    WindowManager.LayoutParams.TYPE_APPLICATION, null)
+                val projectionMetrics = windowContext.getSystemService(WindowManager::class.java).maximumWindowMetrics
+                screenShareCapturer!!.startCapture(projectionMetrics.bounds.width(), projectionMetrics.bounds.height(), 15)
+            } else {
+                val projectionMetrics = WindowMetricsCalculator.getOrCreate().computeMaximumWindowMetrics(context as MainActivity)
+                screenShareCapturer!!.startCapture(projectionMetrics.bounds.width(), projectionMetrics.bounds.height(), 15)
+            }
+        }
+
+        val screenSharingVideoTrack = peerConnectionFactory.factory.createVideoTrack("lmsSV1", videoSource)
+        screenSharingVideoTrack.setEnabled(true)
+
+        // Add the screen sharing track to the local media stream
+        //그냥 현재 connection sender에 addTrack해주면안되나? 상관없을 것 같은데?
+//        val localMediaStream = factory.createLocalMediaStream("lms")
+//        localMediaStream.addTrack(screenSharingVideoTrack)
+        //별개의 역할인듯. 미디어스트림은 원격피어에게 이 트랙이 어떤 미디어스트림에 속해있는지 확인한후 그 미디어스트림
+        //을 사용할지 정할때 사용되는 역할.
+//        localMediaStream.id //미디어스트림의 고유id. 생성될때 만들어짐.
+
+
+        // Replace the local video track with the screen sharing track in the PeerConnection
+        // senders를 불러오면 ndk lib로부터 갱신된 새로운 senders 리스트를 가져옴.
+//        val sender = connection.senders.find { it.track()?.id() == "lmsSV1" }
+        // todo  각 peerConnection에 있는 sender의 video track을 찾아서 공유화면으로 교체해줌. 일단 테스트용.
+        resetVideoTrack(screenSharingVideoTrack)
+
+        // If you want to switch back to the camera video track, you can call
+        // 이후 만들어둔 localVideoTrack을 밑의 sender를 찾아서 넣어주거나, 그냥 view를 하나더 추가하는 방식으로 조정.
+        // sender.setTrack(cameraVideoTrack, true) later
+    }
+
+    /**
+     * VideoTrack을 재설정함. 각 peerConnection객체내 sender List에서 videoTrack을 찾아서 받아온 Track으로 교체.
+     */
+    fun resetVideoTrack(videoTrackToSet: VideoTrack? = null, isLocalVideoSet:Boolean = false) {
+        if (isLocalVideoSet) {
+            peerConnections.forEach {
+                it.value.setTrackToConnectionSender(localVideoTrack)
+            }
+
+        } else {
+            peerConnections.forEach {
+                it.value.setTrackToConnectionSender(videoTrackToSet)
+            }
+        }
+    }
+
+
+    /**
+     * 화면 공유에 필요한 MediaProjection 객체를 생성하고, 그 객체가 중단되었을때 동작할 콜백을 등록.
+     */
+    private fun createScreenCapturer(mediaProjection: MediaProjection): VideoCapturer {
+        // ScreenCapturerAndroid객체를 초기화 할려면 VideoSource객체가 필요함.
+        // 그것으로 ScreenCapturerAndroid.initialize()실행해야함.
+        val screenCapturerAndroid = ScreenCapturerAndroid(
+            context,
+            mediaProjection,
+            object: MediaProjection.Callback(){
+                override fun onStop() {
+                    super.onStop()
+                    Log.e(tagName, "MediaProjection.Callback() onStop(): 권한없음?")
+                }
+            }
+        )
+        return screenCapturerAndroid
+    }
+    
+    
+    
+    
+    
+    
+    
+    
 }

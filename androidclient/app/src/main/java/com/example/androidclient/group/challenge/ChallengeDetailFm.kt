@@ -2,6 +2,7 @@ package com.example.androidclient.group.challenge
 import android.util.Log
 
 import android.Manifest
+import android.annotation.SuppressLint
 import android.content.ContentValues
 import android.content.Context
 import android.content.pm.PackageManager
@@ -83,6 +84,7 @@ class ChallengeDetailFm : Fragment() {
         return binding.root
     }
 
+    @SuppressLint("RestrictedApi")
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         val navController = Navigation.findNavController(view)
@@ -175,6 +177,7 @@ class ChallengeDetailFm : Fragment() {
         }, ContextCompat.getMainExecutor(requireContext()))
     }
 
+    @SuppressLint("RestrictedApi")
     private fun startCameraX(cameraProvider: ProcessCameraProvider) {
         cameraProvider.unbindAll()
         //카메라 셀렉터 셋팅
@@ -205,6 +208,7 @@ class ChallengeDetailFm : Fragment() {
         )
     }
 
+    @SuppressLint("MissingPermission", "RestrictedApi")
     private fun recordVideo() {
         //보여줄 이름 정하기, 미디어 정보,타입설정
         val name = "challenge-" + SimpleDateFormat("yyyy-MM-dd-HH-mm-ss-SSS", Locale.KOREAN)

@@ -4,8 +4,10 @@ import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.androidclient.group.GroupVm
+import com.example.androidclient.home.MainActivity
 import com.example.androidclient.rtc.webrtc.sessions.ChatData
 import com.example.androidclient.rtc.webrtc.sessions.WebRtcSessionManagerImpl
+import com.example.androidclient.util.FileHelperV2
 import com.google.gson.JsonArray
 import com.google.gson.JsonObject
 import kotlinx.coroutines.flow.SharedFlow
@@ -16,7 +18,8 @@ class RtcVm : ViewModel() {
 
     lateinit var sessionManager: WebRtcSessionManagerImpl
     lateinit var groupVm: GroupVm
-
+    lateinit var rtcFm: RtcFm
+    val fileHelper = FileHelperV2()
 
 
     val 접속한방정보읽기: JsonObject
@@ -55,6 +58,11 @@ class RtcVm : ViewModel() {
 //            sessionManager._chatMessages.value = sessionManager._chatMessages.value + chatData
             Log.e("RtcVm", "ChatData: ${sessionManager._chatMessages.value.size}")
         }
+    }
+
+
+    fun 파일다운로드클릭(){
+
     }
 
 

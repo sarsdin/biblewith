@@ -3,13 +3,18 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/main_navi"
-    app:startDestination="@id/startFm">
+    app:startDestination="@id/home_fm">
+<!--    app:startDestination="@id/startFm">-->
 
     <fragment
         android:id="@+id/home_fm"
         android:name="com.example.androidclient.home.HomeFm"
         android:label=""
-        tools:layout="@layout/home_fm" />
+        tools:layout="@layout/home_fm">
+        <deepLink
+            android:id="@+id/deepLink2"
+            app:uri="biblewith.com/invite/{group_no}/c/{invite_code}" />
+    </fragment>
     <fragment
         android:id="@+id/bible_fm"
         android:name="com.example.androidclient.bible.BibleFm"
@@ -280,9 +285,6 @@
         <action
             android:id="@+id/action_startFm_to_home_fm"
             app:destination="@id/home_fm" />
-        <deepLink
-            android:id="@+id/deepLink"
-            app:uri="biblewith.com/invite/{group_no}/c/{invite_code}" />
     </fragment>
     <action android:id="@+id/action_global_group_fm"
         app:destination="@id/group_fm" />

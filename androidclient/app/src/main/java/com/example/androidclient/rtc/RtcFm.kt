@@ -1,40 +1,28 @@
 package com.example.androidclient.rtc
 
 import android.Manifest
+import android.app.Activity
+import android.content.Intent
 import android.os.Bundle
 import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.activity.result.ActivityResult
+import androidx.activity.result.ActivityResultCallback
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.itemsIndexed
-import androidx.compose.material.Icon
-import androidx.compose.material.IconButton
-import androidx.compose.material.MaterialTheme
-import androidx.compose.material.Surface
-import androidx.compose.material.Text
-import androidx.compose.material.TopAppBar
+import androidx.compose.material.*
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.ArrowBack
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.CompositionLocalProvider
-import androidx.compose.runtime.ProvidableCompositionLocal
-import androidx.compose.runtime.collectAsState
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.staticCompositionLocalOf
+import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.fragment.app.Fragment
-import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewmodel.compose.LocalViewModelStoreOwner
 import androidx.lifecycle.viewmodel.compose.viewModel
@@ -55,13 +43,17 @@ import com.example.androidclient.rtc.webrtc.sessions.WebRtcSessionManager
 import com.example.androidclient.rtc.webrtc.sessions.WebRtcSessionManagerImpl
 import com.google.gson.JsonArray
 import com.google.gson.JsonObject
+import com.hbisoft.hbrecorder.HBRecorder
+import com.hbisoft.hbrecorder.HBRecorderListener
+import es.dmoral.toasty.Toasty
 
 /**
  *  컴포즈내에서 어디서든 사용가능하게 전역변수로 네비게이션 메소드를 할당받는 변수선언.
  */
 val LocalUseNavigate: ProvidableCompositionLocal<(Int) -> Unit> = staticCompositionLocalOf { error("No UseNavigate") }
 //val LocalViewModel: ProvidableCompositionLocal<ViewModel> = staticCompositionLocalOf { error("No ViewModel") }
-class RtcFm : Fragment() {
+val LocalFm: ProvidableCompositionLocal<RtcFm> = staticCompositionLocalOf { error("No Fm") }
+class RtcFm : Fragment(), HBRecorderListener {
 
     val tagName = "[${this.javaClass.simpleName}]"
     lateinit var groupVm: GroupVm
@@ -70,12 +62,15 @@ class RtcFm : Fragment() {
     var mbinding: RtcFmBinding? = null
     val binding get() = mbinding!! //null체크를 매번 안하게끔 재 선언
 
+    //Init HBRecorder : 화면 녹화 객체 초기화
+    lateinit var hbRecorder :HBRecorder
 
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
         groupVm = ViewModelProvider(requireActivity()).get(GroupVm::class.java)
+        hbRecorder = HBRecorder(requireActivity(), this)
     }
 
     lateinit var sessionManager: WebRtcSessionManager
@@ -91,6 +86,7 @@ class RtcFm : Fragment() {
         sessionManager = WebRtcSessionManagerImpl(
             context = requireActivity(),
 //            context = MyApp.application,
+            rtcFm = this,
             signalingClient = SignalingClient(groupVm),
             peerConnectionFactory = StreamPeerConnectionFactory(requireActivity())
         )
@@ -103,9 +99,21 @@ class RtcFm : Fragment() {
         return binding.root
     }
 
+    override fun onPictureInPictureModeChanged(isInPictureInPictureMode: Boolean) {
+        super.onPictureInPictureModeChanged(isInPictureInPictureMode)
+        // todo  pip mode를 감별하는 state값을 하나 선언하고 여기서 그 값의 변화를 일으킨다.
+        //  그리고, 변경할 컴포넌트에서  state를 구독하는 변수를 선언하고 그에 따른 동작을 작성한다.
+    }
+
     enum class ScreenState {
         ROOM_LIST, STAGE_SCREEN, VIDEO_CALL_SCREEN, AT_ROOM_CLICKED, 방장접속
     }
+
+    /**
+     * RtcVm 객체를 Fm의 멤버변수로 등록해줌.
+     */
+    lateinit var rtcVm : RtcVm
+
     @Composable
     fun Rtc(useNavigate: (Int) -> Unit){
 
@@ -117,14 +125,16 @@ class RtcFm : Fragment() {
                 LocalUseNavigate provides useNavigate,
                 LocalWebRtcSessionManager provides sessionManager,
 //                LocalViewModel provides groupVm
+                LocalFm provides  this
             ){
                 //상위 컴포넌트에서 하위 컴포넌트에 사용될 여러 프로바이더를 설정해줌.
                 val navigate = LocalUseNavigate.current
                 val sessionManager = LocalWebRtcSessionManager.current
 //                val rtcVm = LocalViewModel.current as RtcVm
-                val rtcVm = viewModel<RtcVm>()
+                rtcVm = viewModel<RtcVm>()
                 rtcVm.sessionManager = sessionManager as WebRtcSessionManagerImpl
                 rtcVm.groupVm = groupVm
+                rtcVm.rtcFm = this
 
                 Log.e(tagName, "뷰모델스토어오너: ${LocalViewModelStoreOwner.current.toString()}")
 
@@ -333,6 +343,20 @@ class RtcFm : Fragment() {
     }
 
 
+    var register = this.registerForActivityResult<Intent, ActivityResult>(
+        ActivityResultContracts.StartActivityForResult(), object : ActivityResultCallback<ActivityResult> {
+
+            override fun onActivityResult(result: ActivityResult) {
+                val resultCode = result.resultCode
+                val data = result.data
+                if (resultCode == Activity.RESULT_OK) {
+                    assert(data != null)
+                    Log.e(tagName, "onActivityResult() 콜백 호출됨. Intent data 리턴!? $data")
+                    (sessionManager as WebRtcSessionManagerImpl).화면공유초기화(data!!)
+                }
+            }
+        }
+    )
 
 
 
@@ -367,17 +391,27 @@ class RtcFm : Fragment() {
         mbinding = null
     }
 
+    override fun HBRecorderOnStart() {
+        Log.w(tagName, "HBRecorderOnStart()")
+        Toasty.success(requireActivity(), "녹화 시작").show()
+    }
 
+    override fun HBRecorderOnComplete() {
+        Log.w(tagName, "HBRecorderOnComplete()")
+        Toasty.success(requireActivity(), "녹화 완료").show()
+    }
 
+    override fun HBRecorderOnError(errorCode: Int, reason: String?) {
+        Log.e(tagName, "HBRecorderOnError() errorCode: $errorCode, reason: $reason")
+    }
 
+    override fun HBRecorderOnPause() {
+        Log.w(tagName, "HBRecorderOnPause()")
+    }
 
-
-
-
-
-
-
-
+    override fun HBRecorderOnResume() {
+        Log.w(tagName, "HBRecorderOnResume()")
+    }
 
 
 }

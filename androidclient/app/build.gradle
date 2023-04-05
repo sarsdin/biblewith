@@ -83,11 +83,24 @@ android {
 }
 
 dependencies {
+    def appCompat = "1.6.1"
+    def fragmentKt = "1.6.0-alpha06"
+    def lifeCycle = "2.6.0-beta01"
+    def navigation = "2.6.0-alpha06"
 
-    implementation 'androidx.appcompat:appcompat:1.4.2'
-    implementation 'com.google.android.material:material:1.6.1'
-    implementation 'androidx.annotation:annotation:1.4.0'
-    implementation 'androidx.constraintlayout:constraintlayout:2.1.4'
+    implementation "androidx.appcompat:appcompat:${appCompat}"
+    implementation "com.google.android.material:material:1.8.0"
+    implementation "androidx.annotation:annotation:1.6.0"
+    implementation "androidx.constraintlayout:constraintlayout:2.1.4"
+
+    implementation "androidx.lifecycle:lifecycle-livedata-ktx:${lifeCycle}"
+    implementation "androidx.lifecycle:lifecycle-viewmodel-ktx:${lifeCycle}"
+    implementation "androidx.lifecycle:lifecycle-viewmodel-compose:${lifeCycle}"
+    implementation "androidx.navigation:navigation-fragment-ktx:${navigation}"
+    implementation "androidx.navigation:navigation-runtime-ktx:${navigation}"
+    implementation "androidx.navigation:navigation-ui-ktx:${navigation}"
+    implementation "androidx.navigation:navigation-compose:${navigation}"
+    implementation "androidx.fragment:fragment-ktx:${fragmentKt}"
 
     //테스트 조합 - 실험중
 //    implementation 'androidx.lifecycle:lifecycle-livedata-ktx:2.4.1'
@@ -116,14 +129,14 @@ dependencies {
 //    implementation 'androidx.fragment:fragment-ktx:1.5.0'  // << 1.5.0 부터는 menuApi 기본이 menuhost & menu provider로 바껴서 기존의 onCreateOptionMenu가 작동하지 않음.
 
     //초기버전 - 네비게이션 2.4.2 버전이 멀티 백스택을 자동으로 적용하여 바텀네비게이션의 탭 이동에서 문제가 생김. 정상이동이 안되는 증상.
-    implementation 'androidx.lifecycle:lifecycle-livedata-ktx:2.4.1'
-    implementation 'androidx.lifecycle:lifecycle-viewmodel-ktx:2.4.1'
-    implementation 'androidx.lifecycle:lifecycle-viewmodel-compose:2.4.1'
-    implementation 'androidx.navigation:navigation-fragment-ktx:2.4.2'
-    implementation 'androidx.navigation:navigation-runtime-ktx:2.4.2'
-    implementation 'androidx.navigation:navigation-ui-ktx:2.4.2'
-    implementation "androidx.navigation:navigation-compose:2.4.2"
-    implementation 'androidx.fragment:fragment-ktx:1.4.1'
+//    implementation 'androidx.lifecycle:lifecycle-livedata-ktx:2.4.1'
+//    implementation 'androidx.lifecycle:lifecycle-viewmodel-ktx:2.4.1'
+//    implementation 'androidx.lifecycle:lifecycle-viewmodel-compose:2.4.1'
+//    implementation 'androidx.navigation:navigation-fragment-ktx:2.4.2'
+//    implementation 'androidx.navigation:navigation-runtime-ktx:2.4.2'
+//    implementation 'androidx.navigation:navigation-ui-ktx:2.4.2'
+//    implementation "androidx.navigation:navigation-compose:2.4.2"
+//    implementation 'androidx.fragment:fragment-ktx:1.4.1'
 
 
     implementation files('libs\\additionnal.jar')
@@ -225,5 +238,7 @@ dependencies {
     implementation "androidx.compose.material3:material3:${androidxComposeMaterial3}"
 
 
+    //화면 녹화 라이브러리
+    implementation 'com.github.HBiSoft:HBRecorder:3.0.1'
 
 }

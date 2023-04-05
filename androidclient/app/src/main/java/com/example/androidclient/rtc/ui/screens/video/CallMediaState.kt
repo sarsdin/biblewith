@@ -19,5 +19,13 @@ package com.example.androidclient.rtc.ui.screens.video
 data class CallMediaState(
     val isRequestList: Boolean = false,
     val isMicrophoneEnabled: Boolean = true,
-    val isCameraEnabled: Boolean = true
+    val isCameraEnabled: Boolean = true,
+    val isRecordEnabled: Boolean = false
 )
+
+//data class CallSideMediaState(
+//    val isRequestList: Boolean = false,
+//    val isMicrophoneEnabled: Boolean = false,
+//    val isCameraEnabled: Boolean = false,
+//    val isRecordEnabled: Boolean = false
+//)

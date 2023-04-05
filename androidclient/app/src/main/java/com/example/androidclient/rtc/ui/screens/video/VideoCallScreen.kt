@@ -1,40 +1,57 @@
 package com.example.androidclient.rtc.ui.screens.video
-import android.os.Looper
-import android.util.Log
 
+import android.app.Activity
+import android.content.ContentResolver
+import android.content.ContentValues
+import android.content.Intent
+import android.media.projection.MediaProjectionManager
+import android.net.Uri
+import android.os.Build
+import android.os.Environment
+import android.os.Looper
+import android.provider.MediaStore
+import android.util.Log
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
+import androidx.annotation.RequiresApi
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.Text
-import androidx.compose.material.rememberDismissState
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.core.os.postDelayed
+import androidx.core.content.ContextCompat.getSystemService
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.androidclient.MyApp
 import com.example.androidclient.R
+import com.example.androidclient.rtc.LocalFm
 import com.example.androidclient.rtc.LocalUseNavigate
 import com.example.androidclient.rtc.RtcVm
 import com.example.androidclient.rtc.ui.components.JoinRequestDialog
 import com.example.androidclient.rtc.ui.components.VideoRenderer
 import com.example.androidclient.rtc.ui.screens.ChatPanel
+import com.example.androidclient.rtc.ui.screens.ExpandableFAB
 import com.example.androidclient.rtc.webrtc.StandardCommand
+import com.example.androidclient.rtc.webrtc.peer.StreamPeerConnection
 import com.example.androidclient.rtc.webrtc.sessions.ChatData
 import com.example.androidclient.rtc.webrtc.sessions.LocalWebRtcSessionManager
 import com.example.androidclient.rtc.webrtc.sessions.WebRtcSessionManagerImpl
+import com.example.androidclient.util.FileHelperV2
 import com.google.gson.JsonObject
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
-import java.util.logging.Handler
+import java.io.ByteArrayInputStream
+import java.io.File
+import java.text.SimpleDateFormat
+import java.util.*
 import kotlin.math.ceil
 import kotlin.math.sqrt
 
@@ -49,7 +66,42 @@ fun VideoCallScreen() {
     //MainActivity에서 등록한 CompositionLocalProvider(LocalWebRtcSessionManager provides sessionManager)의 값을 불러올 수 있음.
     val sessionManager = LocalWebRtcSessionManager.current
     val navigate = LocalUseNavigate.current
+    val rtcFm = LocalFm.current
 //    val sessionState = sessionManager.signalingClient.sessionStateFlow
+
+    @RequiresApi(api = Build.VERSION_CODES.LOLLIPOP)
+    fun setOutputPath() {
+        val filename = generateFileName()
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+            resolver = rtcFm.requireActivity().contentResolver
+            contentValues = ContentValues()
+            contentValues!!.put(MediaStore.Video.Media.RELATIVE_PATH, "Movies/" + "Record")
+            contentValues!!.put(MediaStore.Video.Media.TITLE, filename)
+            contentValues!!.put(MediaStore.MediaColumns.DISPLAY_NAME, filename)
+            contentValues!!.put(MediaStore.MediaColumns.MIME_TYPE, "video/mp4")
+            mUri = resolver!!.insert(MediaStore.Video.Media.EXTERNAL_CONTENT_URI, contentValues)
+            //FILE NAME SHOULD BE THE SAME
+            rtcFm.hbRecorder.setFileName(filename)
+            rtcFm.hbRecorder.setOutputUri(mUri)
+        } else {
+            createFolder()
+            rtcFm.hbRecorder.setOutputPath("${Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_MOVIES)}/Record")
+        }
+    }
+
+
+    //화면 녹화 전용 변수
+    val result = remember { mutableStateOf<Intent?>(null) }
+    val launcher = rememberLauncherForActivityResult(ActivityResultContracts.StartActivityForResult(),
+        onResult = {
+            if (it.resultCode == Activity.RESULT_OK){
+                result.value = it.data
+                setOutputPath()
+                rtcFm.hbRecorder.startScreenRecording(result.value, Activity.RESULT_OK)
+            }
+        }
+    )
+
 
     val rtcVm = viewModel<RtcVm>()
     rtcVm.sessionManager = sessionManager as WebRtcSessionManagerImpl
@@ -60,6 +112,9 @@ fun VideoCallScreen() {
         //비디오 콜 스크린시 처음으로 peerConnection 변수가 초기화됨.
         sessionManager.onSessionScreenReady()
     }
+
+    //VideoCallScreen 전용 코루틴
+    val rememberCoroutineScope = rememberCoroutineScope()
 
 
 
@@ -254,6 +309,21 @@ fun VideoCallScreen() {
                         callMediaState = callMediaState.copy(isCameraEnabled = enabled)
                         sessionManager.enableCamera(enabled)
                     }
+                    is CallAction.Record -> {
+                        val enabled = callMediaState.isRecordEnabled.not()
+                        callMediaState = callMediaState.copy(isRecordEnabled = enabled)
+                        // todo  Fm 객체를 참조해 Record 객체를 가져와서 recording start 한다.
+                        //   클릭상태가 true일때는 녹화시작, false 일때는 녹화 중지.
+                        if (enabled){
+                            val mediaProjectionManager = getSystemService(rtcFm.requireContext(), MediaProjectionManager::class.java)
+                            val permissionIntent = mediaProjectionManager?.createScreenCaptureIntent()
+                            launcher.launch(permissionIntent)
+
+                        } else {
+                            rtcFm.hbRecorder.stopScreenRecording()
+                        }
+                    }
+
                     CallAction.FlipCamera -> sessionManager.flipCamera()
                     CallAction.LeaveCall -> {
 
@@ -283,7 +353,6 @@ fun VideoCallScreen() {
 
 
         //방장일때 참가요청자가 있는지 확인해야함.
-//        if ((rtcVm.접속한방정보읽기["makerId"].asString == MyApp.userInfo.user_email) && callMediaState.isRequestList ){
         if ((rtcVm.접속한방정보읽기["makerId"].asString == MyApp.userInfo.user_email) && callMediaState.isRequestList
             && 다이얼로그보여주기.value == "요청자목록"
         ){
@@ -293,7 +362,9 @@ fun VideoCallScreen() {
 
 
 
-
+        /**
+         * 방의 다른 peer들에게 채팅 메시지를 보낼때 실행됨.
+         */
         fun onSendMessage(message: String) {
             val chatData = ChatData(
                 message = message,
@@ -315,15 +386,116 @@ fun VideoCallScreen() {
             rtcVm.addChatMessage(chatData)
         }
 
+        //채팅 패널 컴포넌트. 나의 채팅과 다른 피어들의 채팅 메시지를 보여주고, 채팅을 보낼 수 있다.
         //선언된 함수를 콜백으로 적을때는 람다 표현으로 작성해야함.
         ChatPanel(chatMessages, onSendMessage = { message -> onSendMessage(message) } )
+
+
+
+
+
+
+        fun onSendFile(fileName :String, file: ByteArray) {
+            val chatData = ChatData(
+                message = fileName,
+                type = "FILE",
+                userId = MyApp.userInfo.user_email, // peerId 설정.
+                nick = MyApp.userInfo.user_nick, // 닉네임 설정.
+            )
+
+            // 메시지를 채팅 목록에 추가.
+            rtcVm.addChatMessage(chatData)
+
+            var sentCountToPeer = 0
+            // 메시지를 전송하는 로직을 작성.
+            rtcVm.sessionManager.getPeerConnections().forEach { (peerId, peerConnection) ->
+                // 각 PeerConnection의 DataChannel을 통해 chatData를 전송.
+                if(peerId != MyApp.userInfo.user_email){
+                    Log.e("RTC채팅 File 전송", "peerId에게 전송 11: ${peerId}")
+                    rememberCoroutineScope.launch {
+
+                        if (peerConnection.sendFile(fileName, file)){
+                            // 진행률 업데이트
+                            sentCountToPeer++
+
+                            val progress = (sentCountToPeer.toFloat() / rtcVm.sessionManager.getPeerConnections().size.toFloat()) * 100
+                            chatData.progress.emit(progress)
+
+                            Log.e("RTC채팅 File 전송", "진행률 업데이트 - peerId에게 전송: ${peerId}, progress:$progress, sentCountToPeer:$sentCountToPeer")
+                        }
+                    }
+                    Log.e("RTC채팅 File 전송", "peerId에게 전송 22: ${peerId}")
+                }
+            }
+
+        }
+
+//        val context = LocalContext.current
+        val context = LocalFm.current.context
+//        var fileResultMap = remember { mutableMapOf<String,File>() }
+        val fileLauncher = rememberLauncherForActivityResult(ActivityResultContracts.GetContent()) { uri ->
+            uri?.let {
+//                val path = UtilsFile().getFullPathFromContentUri(context, uri)
+//                val file = File(path)
+//                fileResultMap[file.name] = file
+                val helper = FileHelperV2()
+                val name = helper.getFileNameFromUri(context!!, uri)
+                Log.e("VideoCallScreen", "fileLauncher name: ${name} , uri: $uri")
+                val byteArray = helper.readFileFromUri(context, uri)
+
+                onSendFile(name!!, byteArray!!)
+            }
+        }
+
+        ExpandableFAB(
+            onSendFile = {
+                //todo file 전송시 실행할 부분. 탐색기로 파일을 선택하고 그 파일객체를 보내는 로직을 짜야함.
+                //  파일객체를 청크단위로 쪼개고, 반복문으로 보내는 메서드(sendFile)를 실행해야함.
+                //  그리고, 반복문으로 보내는 와중에 파일객체를 쪼갠 리스트의 size를 전체로 잡고, 현재index / size *100
+                //  으로 % 를 구하고 그 Float을 ChatPanel 내부의 progressbar에 전달해서 업데이트되게 해야함.
+                //  그럴려면, chatMessages list에 추가될 chatData객체 내부의 progress 변수를 할당하고 그것을 이용해서
+                //  ChatItem 컴포넌트가 리컴포지션이 되게 해야함.
+                //   수정 - 파일객체를 쪼개는 것에서 보내기 완료된 peer의 수가 현재index를 대체함.
+                fileLauncher.launch("*/*")
+            },
+
+        )
 
 
     } //Box end
 }
 
+/**
+ * 녹화시 저장될 파일의 이름을 설정함.
+ * Generate a timestamp to be used as a file name
+ */
+fun generateFileName(): String? {
+    val formatter = SimpleDateFormat("yyyy-MM-dd-HH-mm-ss", Locale.getDefault())
+    val curDate = Date(System.currentTimeMillis())
+    return formatter.format(curDate).replace(" ", "")
+}
 
+/**
+ * 안드로이드 9(Api28) 이하의 버전일때 로컬저장소에 녹화 파일을 저장하기 위해 사용하는 메서드임.
+ * Only call this on Android 9 and lower (getExternalStoragePublicDirectory is deprecated)
+ * This can still be used on Android 10> but you will have to add android:requestLegacyExternalStorage="true" in your Manifest
+ */
+fun createFolder() {
+    val f1 = File(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_MOVIES), "HBRecorder");
+    if (!f1.exists()) {
+        if (f1.mkdirs()) {
+            Log.i("Folder ", "created");
+        }
+    }
+}
 
+//For Android 10> we will pass a Uri to HBRecorder
+//This is not necessary - You can still use getExternalStoragePublicDirectory
+//But then you will have to add android:requestLegacyExternalStorage="true" in your Manifest
+//IT IS IMPORTANT TO SET THE FILE NAME THE SAME AS THE NAME YOU USE FOR TITLE AND DISPLAY_NAME
+var resolver: ContentResolver? = null
+var contentValues: ContentValues? = null
+var mUri: Uri? = null
 
 
 @Composable
@@ -401,3 +573,39 @@ fun GridBox(
         }
     }
 }
+
+
+
+//suspend fun 파일분할전송(
+//    file: File,
+//    peerConnection: StreamPeerConnection
+//) {
+//    val chunkSize = 32784 //32k
+//    val chunks = mutableListOf<ByteArray>()
+//    val fileInputStream = FileInputStream(file)
+//    val buffer = ByteArray(chunkSize)
+//
+//    var bytesRead: Int
+//    while (fileInputStream.read(buffer).also { bytesRead = it } != -1) {
+//        chunks.add(buffer.copyOf(bytesRead))
+//    }
+//    fileInputStream.close()
+//
+//    //                        val totalChunks = chunks.size
+//    //                        var chunksSent = 0
+//
+//    for (chunk in chunks) {
+//        val header = "FILE:"
+//        val dataToSend = header.toByteArray() + chunk
+//        val bufferToSend = DataChannel.Buffer(ByteBuffer.wrap(dataToSend), false)
+//
+//        peerConnection.sendFile(bufferToSend)
+//        // 진행률 업데이트
+//        //                            chunksSent++
+//        //                            val progress = (chunksSent.toFloat() / totalChunks.toFloat()) * 100
+//        //                            chatData.progress = progress
+//
+//        //                            onProgressUpdate(progress.toInt())
+//        delay(10) // 전송 간 텀을 줘서 안정성 확보
+//    }
+//}

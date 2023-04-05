@@ -114,8 +114,10 @@ class FileSaveHelper(private val mContentResolver: ContentResolver) : LifecycleO
         //파일을 세이브 할때 MIME_TYPE 에 대한 경고가 뜨면서 제대로 저장되지 않는다. 이때는 정확하게
         //타입을 지정해준다.
         newImageDetails.put(MediaStore.Images.Media.MIME_TYPE, "image/jpeg")
+        // insert(first, second) 에서 first는 만들어질 Uri의 위치(다운로드, 이미지, 비디오 등의 폴더)를 가리키는 Uri임.
+        // second는 resolver에서 인식하고 사용할 수 있는 컨텐츠의 값들 모음임(파일의 이름, 타입, 작업상태 등).
         val editedImageUri = mContentResolver.insert(imageCollection, newImageDetails)
-        val outputStream = mContentResolver.openOutputStream(editedImageUri!!)
+        val outputStream = mContentResolver.openOutputStream(editedImageUri!!) // 이건 사용안함.
         outputStream!!.close()
         return editedImageUri
     }

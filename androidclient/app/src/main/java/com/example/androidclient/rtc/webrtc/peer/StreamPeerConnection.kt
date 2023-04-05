@@ -1,22 +1,14 @@
 package com.example.androidclient.rtc.webrtc.peer
 
-import android.app.Activity
 import android.content.Context
-import android.media.projection.MediaProjection
-import android.media.projection.MediaProjectionManager
-import android.os.Build
-import android.os.Environment
 import android.util.Log
-import android.view.WindowManager
-import androidx.core.content.ContextCompat.getSystemService
-import androidx.window.layout.WindowMetricsCalculator
 import com.example.androidclient.MyApp
-import com.example.androidclient.home.MainActivity
 import com.example.androidclient.rtc.webrtc.utils.addRtcIceCandidate
 import com.example.androidclient.rtc.webrtc.utils.createValue
 import com.example.androidclient.rtc.webrtc.utils.setValue
 import com.example.androidclient.rtc.webrtc.utils.stringify
 import com.google.gson.JsonObject
+import com.google.gson.JsonParser
 import io.getstream.log.taggedLogger
 import kotlinx.coroutines.*
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -24,9 +16,7 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
 import org.webrtc.*
-import java.io.File
-import java.io.FileInputStream
-import java.io.FileOutputStream
+import java.io.ByteArrayInputStream
 import java.nio.ByteBuffer
 import java.util.*
 
@@ -41,7 +31,7 @@ import java.util.*
  * @param onIceCandidate Handler whenever we receive [IceCandidate]s.
  */
 class StreamPeerConnection(
-    val peerId: String,
+    val peerId: String, //target의 peerId임(연결된 대상인 타peer)
     val context: Context,
     val streamFactory : StreamPeerConnectionFactory,
     private val coroutineScope: CoroutineScope,
@@ -51,6 +41,7 @@ class StreamPeerConnection(
     private val onNegotiationNeeded: ((StreamPeerConnection, StreamPeerType) -> Unit)?,
     private val onIceCandidate: ((IceCandidate, StreamPeerType) -> Unit)?,
     private val onVideoTrack: ((RtpTransceiver?) -> Unit)?,
+//    private val onDataMessage: ((String?, ChatData?,String) -> Unit)?,
     private val onDataMessage: ((String?, ByteArray?,String) -> Unit)?,
 ) : PeerConnection.Observer {
 
@@ -89,13 +80,13 @@ class StreamPeerConnection(
     private val statsFlow: MutableStateFlow<RTCStatsReport?> = MutableStateFlow(null)
 
 
-    /**
-     * 화면공유 관련 변수 및 콜백. mediaProjectionManager 객체를 시스템으로부터 받아온다.
-     */
-    val mediaProjectionManager = getSystemService(context, MediaProjectionManager::class.java)
-    var mediaProjection : MediaProjection? =  null
-//    val screenShareForResult = (context as MainActivity)
-    var forScreenSharing: MainActivity.ResultMediaProjectionForRTCscreenSharing? = null
+//    /**
+//     * 화면공유 관련 변수 및 콜백. mediaProjectionManager 객체를 시스템으로부터 받아온다.
+//     */
+//    val mediaProjectionManager = getSystemService(context, MediaProjectionManager::class.java)
+//    var mediaProjection : MediaProjection? =  null
+////    val screenShareForResult = (context as MainActivity)
+//    var forScreenSharing: MainActivity.ResultMediaProjectionForRTCscreenSharing? = null
 
 //        .registerForActivityResult(
 //        ActivityResultContracts.StartActivityForResult()){ result: ActivityResult ->
@@ -113,6 +104,9 @@ class StreamPeerConnection(
      */
     private lateinit var dataChannel: DataChannel
 //    private lateinit var dataChannelForScreenShare: DataChannel
+
+
+    private val receivedFileChunks = mutableMapOf<String, MutableList<ByteArray>>()
 
     init {
         logger.i { "<init> #$typeTag, mediaConstraints: $mediaConstraints" }
@@ -175,12 +169,12 @@ class StreamPeerConnection(
                         // 채팅 메시지 처리
                         onDataMessage?.invoke(message, null, "TEXT")
                     }
-                    header.startsWith("FILE:") -> {
-                        val fileName = header.substring(5)
-                        val fileData = receivedData.copyOfRange(headerEndIndex + 1, receivedData.size)
-                        saveFileToDownloads(fileName, fileData)
-                        onDataMessage?.invoke(fileName, fileData, "FILE")
-                    }
+//                    header.startsWith("FILE:") -> {
+//                        val fileName = header.substring(5)
+//                        val fileData = receivedData.copyOfRange(headerEndIndex + 1, receivedData.size)
+//                        saveFileToDownloads(fileName, fileData)
+//                        onDataMessage?.invoke(fileName, fileData, "FILE")
+//                    }
                     else -> {
                         Log.e(tagName, "DataChannel Invalid header: $header")
                     }
@@ -190,184 +184,107 @@ class StreamPeerConnection(
     }
 
 
-    /**
-     * 원격 피어에 데이터를 보냄. 문자열을 바이트배열로 변환후 DataChannel.Buffer 타입으로 변환해 전송함.
-     */
-    fun sendMessage(text: String) {
-        val header = "TEXT:"
-        val message = header + JsonObject().run {
-            addProperty("peerId", MyApp.userInfo.user_email)
-            addProperty("nick", MyApp.userInfo.user_nick)
-            addProperty("message", text)
-            toString()
-        }
-        Log.e(tagName, "sendMessage(): DataChannel text: $text")
-        if (dataChannel.state() == DataChannel.State.OPEN) {
-            val buffer = DataChannel.Buffer(ByteBuffer.wrap(message.toByteArray(Charsets.UTF_8)), false)
-            dataChannel.send(buffer)
-            Log.e(tagName, "sendMessage(): DataChannel text Send COMPLETE: $text")
-        } else {
-            Log.e(tagName, "DataChannel is not open.")
-        }
-    }
-
-
-    /**
-     * 파일을 보내는 메소드.
-     */
-    suspend fun sendFile(file: File) {
-        val header = "FILE:"
-        if (dataChannel.state() != DataChannel.State.OPEN) {
-            Log.e(tagName, "DataChannel is not open.")
-            return
-        }
-
-        //일단 보낼 파일을 파일인풋스트림으로 로드함.
-        val fileInputStream = FileInputStream(file)
-        //보낼 파일의 길이만큼의 크기를 가진 바이트배열을 만듦.
-        val byteArray = ByteArray(file.length().toInt())
-        //메모리상에 로드한 파일객체를 위에서 만든 새로운 바이트배열로 읽어 복사함.
-        fileInputStream.read(byteArray)
-        //스트림은 메모리 누수방지를 위해 꼭 닫아줘야함. 자동으로 안닫힘.
-        fileInputStream.close()
-
-        // 헤더스트링을 바이트배열로 변환하고 그것과 위에서 복사한 파일 바이트배열을 합침.
-        val dataToSend = header.toByteArray() + byteArray
-        //그리고, WebRtc의 DataChannel.Buffer타입으로 변환한 후 보냄.
-        val buffer = DataChannel.Buffer(ByteBuffer.wrap(dataToSend), false)
-        dataChannel.send(buffer)
-
-
-
-
-//        val chunkSize = 16384 // 각 청크의 크기 설정 (16KB)
-//        val fileInputStream = FileInputStream(file)
-//        val buffer = ByteArray(chunkSize)
-//        while (fileInputStream.read(buffer) > 0) {
-//            dataChannel.send(DataChannel.Buffer(ByteBuffer.wrap(buffer), false))
-//            delay(10) // 네트워크 혼잡을 피하기 위한 간단한 지연
-//        }
-//        fileInputStream.close()
-//        Log.d("DataChannel", "File has been sent completely.")
-
-
-    }
-
-
-    fun saveFileToDownloads(fileName: String,  fileData: ByteArray) {
-        if (Environment.getExternalStorageState() != Environment.MEDIA_MOUNTED) {
-            Log.e(tagName, "External storage is not available")
-            return
-        }
-
-        val downloadsDir = MyApp.application.getExternalFilesDir(Environment.DIRECTORY_DOWNLOADS)
-        val file = File(downloadsDir, fileName)
-
-        try {
-            //file << 만든 디렉토리로 데이터를 write할수 있는 outputstream을 만들고,
-            val outputStream = FileOutputStream(file)
-            //받아온 데이터를 그 경로에 씀.
-            outputStream.write(fileData)
-            outputStream.close()
-            Log.i(tagName, "File saved: ${file.absolutePath}")
-        } catch (e: Exception) {
-            Log.e(tagName, "Error saving file: ${e.message}")
-        }
-    }
 
 
     /**
      * 사용안함. 바탕화면만 공유가능한 상태. 제대로 구현할려면, 웹소켓을 RTC_FM에 두지않고, 앱 or FM실행시 서비스에서
      * 실행하도록 해야할듯. 그래야, RTC_FM을 나가서도 RTC가 작동하게 될듯.
      */
-    fun 화면공유초기화(){
-//        screenShareForResult.launch(mediaProjectionManager!!.createScreenCaptureIntent())
-        //MainActivity에 등록된 콜백으로 인텐트를 발송하여 결과를 받은뒤,
-        (context as MainActivity).register.launch(mediaProjectionManager!!.createScreenCaptureIntent())
-        //결과를 반환하는 interface 객체를 생성하여 등록하고, 그것에 접근하여 null이아니면 그대로 실행하고,
-        if((context as MainActivity).forScreenSharing != null){
-            forScreenSharing = (context as MainActivity).forScreenSharing
-
-        }else{
-            // null이면 결과반환까지 딜레이를 약간 줘서 기다린 후, 다음 작업 진행.
-            coroutineScope.launch {
-                delay(500)
-                forScreenSharing = (context as MainActivity).forScreenSharing
-                val data = forScreenSharing!!.intentDataCalled()
-                mediaProjection = mediaProjectionManager.getMediaProjection(Activity.RESULT_OK, data)
-                createScreenSharingPeerConnection(mediaProjection!!)
-            }
-        }
-    }
+//    fun 화면공유초기화(){
+////        screenShareForResult.launch(mediaProjectionManager!!.createScreenCaptureIntent())
+//        //MainActivity에 등록된 콜백으로 인텐트를 발송하여 결과를 받은뒤,
+//        (context as MainActivity).register.launch(mediaProjectionManager!!.createScreenCaptureIntent())
+//        //결과를 반환하는 interface 객체를 생성하여 등록하고, 그것에 접근하여 null이아니면 그대로 실행하고,
+//        if((context as MainActivity).forScreenSharing != null){
+//            forScreenSharing = (context as MainActivity).forScreenSharing
+//
+//        }else{
+//            // null이면 결과반환까지 딜레이를 약간 줘서 기다린 후, 다음 작업 진행.
+//            coroutineScope.launch {
+//                delay(1000)
+//                forScreenSharing = (context as MainActivity).forScreenSharing
+//                val data = forScreenSharing!!.intentDataCalled()
+//                mediaProjection = mediaProjectionManager.getMediaProjection(Activity.RESULT_OK, data)
+//                createScreenSharingPeerConnection(mediaProjection!!)
+//            }
+//        }
+//    }
 
     /**
      * 화면공유를 위해 비디오 트랙을 만들고, 그것을 peerConnetion 객체의 sender에 등록하거나, 새로운 view에서 사용하도록
      * sessionManagerimple에서 목록화하기.
      */
-    private fun createScreenSharingPeerConnection(mediaProjection: MediaProjection) {
+//    private fun createScreenSharingPeerConnection(mediaProjection: MediaProjection) {
+//
+//        val videoCapturer = createScreenCapturer(mediaProjection)
+//        val videoSource = streamFactory.factory.createVideoSource(videoCapturer!!.isScreencast).apply {
+//            videoCapturer.initialize(
+//                SurfaceTextureHelper.create(
+//                    "ScreenShareSurfaceTextureHelperThread",
+//                    streamFactory.eglBaseContext
+//                ),
+//                context,
+//                capturerObserver
+//            )
+//
+//            // api31이상일때는 jetpack 호환성없는 lib로, api30이하~14까지일때는 호환성 lib로 기기 화면의 크기를 받아와야함.
+//            // 이때, 앱의 경계면을 받는게 아니라, 전체화면을 받아와야하기에 이런 메소드를 사용함.
+//            if (Build.VERSION.SDK_INT > Build.VERSION_CODES.R) {
+//                val windowContext = context.createWindowContext(
+//                    context.display!!,
+//                    WindowManager.LayoutParams.TYPE_APPLICATION, null)
+//                val projectionMetrics = windowContext.getSystemService(WindowManager::class.java).maximumWindowMetrics
+//                videoCapturer.startCapture(projectionMetrics.bounds.width(), projectionMetrics.bounds.height(), 15)
+//            } else {
+//                val projectionMetrics = WindowMetricsCalculator.getOrCreate().computeMaximumWindowMetrics(context as MainActivity)
+//                videoCapturer.startCapture(projectionMetrics.bounds.width(), projectionMetrics.bounds.height(), 15)
+//            }
+//        }
+//
+//        val screenSharingVideoTrack = streamFactory.factory.createVideoTrack("lmsSV1", videoSource)
+//        screenSharingVideoTrack.setEnabled(true)
+//
+//        // Add the screen sharing track to the local media stream
+//        //그냥 현재 connection sender에 addTrack해주면안되나? 상관없을 것 같은데?
+////        val localMediaStream = factory.createLocalMediaStream("lms")
+////        localMediaStream.addTrack(screenSharingVideoTrack)
+//        //별개의 역할인듯. 미디어스트림은 원격피어에게 이 트랙이 어떤 미디어스트림에 속해있는지 확인한후 그 미디어스트림
+//        //을 사용할지 정할때 사용되는 역할.
+////        localMediaStream.id //미디어스트림의 고유id. 생성될때 만들어짐.
+//
+//
+//        // Replace the local video track with the screen sharing track in the PeerConnection
+//        // senders를 불러오면 ndk lib로부터 갱신된 새로운 senders 리스트를 가져옴.
+////        val sender = connection.senders.find { it.track()?.id() == "lmsSV1" }
+//        setTrackToConnectionSender(screenSharingVideoTrack)
+//
+//        // If you want to switch back to the camera video track, you can call
+//        // 이후 만들어둔 localVideoTrack을 밑의 sender를 찾아서 넣어주거나, 그냥 view를 하나더 추가하는 방식으로 조정.
+//        // sender.setTrack(cameraVideoTrack, true) later
+//    }
 
-        val videoCapturer = createScreenCapturer(mediaProjection)
-        val videoSource = streamFactory.factory.createVideoSource(videoCapturer!!.isScreencast).apply {
-            videoCapturer.initialize(
-                SurfaceTextureHelper.create(
-                    "ScreenShareSurfaceTextureHelperThread",
-                    streamFactory.eglBaseContext
-                ),
-                context,
-                capturerObserver
-            )
-
-            // api31이상일때는 jetpack 호환성없는 lib로, api30이하~14까지일때는 호환성 lib로 기기 화면의 크기를 받아와야함.
-            // 이때, 앱의 경계면을 받는게 아니라, 전체화면을 받아와야하기에 이런 메소드를 사용함.
-            if (Build.VERSION.SDK_INT > Build.VERSION_CODES.R) {
-                val windowContext = context.createWindowContext(
-                    context.display!!,
-                    WindowManager.LayoutParams.TYPE_APPLICATION, null)
-                val projectionMetrics = windowContext.getSystemService(WindowManager::class.java).maximumWindowMetrics
-                videoCapturer.startCapture(projectionMetrics.bounds.width(), projectionMetrics.bounds.height(), 15)
-            } else {
-                val projectionMetrics = WindowMetricsCalculator.getOrCreate().computeMaximumWindowMetrics(context as MainActivity)
-                videoCapturer.startCapture(projectionMetrics.bounds.width(), projectionMetrics.bounds.height(), 15)
-            }
-        }
-
-        val screenSharingVideoTrack = streamFactory.factory.createVideoTrack("lmsSV1", videoSource)
-        screenSharingVideoTrack.setEnabled(true)
-
-        // Add the screen sharing track to the local media stream
-        //그냥 현재 connection sender에 addTrack해주면안되나? 상관없을 것 같은데?
-//        val localMediaStream = factory.createLocalMediaStream("lms")
-//        localMediaStream.addTrack(screenSharingVideoTrack)
-        //별개의 역할인듯. 미디어스트림은 원격피어에게 이 트랙이 어떤 미디어스트림에 속해있는지 확인한후 그 미디어스트림
-        //을 사용할지 정할때 사용되는 역할.
-//        localMediaStream.id //미디어스트림의 고유id. 생성될때 만들어짐.
-
-
-        // Replace the local video track with the screen sharing track in the PeerConnection
-        // senders를 불러오면 ndk lib로부터 갱신된 새로운 senders 리스트를 가져옴.
-//        val sender = connection.senders.find { it.track()?.id() == "lmsSV1" }
+    fun setTrackToConnectionSender(videoTrackToSet: VideoTrack?) {
         val sender = connection.senders.find { it.track()?.kind() == "video" }
-        sender?.setTrack(screenSharingVideoTrack, true)
-
-        // If you want to switch back to the camera video track, you can call
-        // 이후 만들어둔 localVideoTrack을 밑의 sender를 찾아서 넣어주거나, 그냥 view를 하나더 추가하는 방식으로 조정.
-        // sender.setTrack(cameraVideoTrack, true) later
+        sender?.setTrack(videoTrackToSet, true)
     }
 
-    private fun createScreenCapturer(mediaProjection: MediaProjection): VideoCapturer? {
-        // ScreenCapturerAndroid객체를 초기화 할려면 VideoSource객체가 필요함.
-        // 그것으로 ScreenCapturerAndroid.initialize()실행해야함.
-        val screenCapturerAndroid = ScreenCapturerAndroid(
-            mediaProjection,
-            object: MediaProjection.Callback(){
-                override fun onStop() {
-                    super.onStop()
-                    Log.e(tagName, "MediaProjection.Callback() onStop(): 권한없음?")
-                }
-            }
-        )
-        return screenCapturerAndroid
-    }
+//    private fun createScreenCapturer(mediaProjection: MediaProjection): VideoCapturer? {
+//        // ScreenCapturerAndroid객체를 초기화 할려면 VideoSource객체가 필요함.
+//        // 그것으로 ScreenCapturerAndroid.initialize()실행해야함.
+//        val screenCapturerAndroid = ScreenCapturerAndroid(
+//            mediaProjection,
+//            object: MediaProjection.Callback(){
+//                override fun onStop() {
+//                    super.onStop()
+//                    Log.e(tagName, "MediaProjection.Callback() onStop(): 권한없음?")
+//                }
+//            }
+//        )
+//        return screenCapturerAndroid
+//    }
+
+
+
 
 
     // 수신된 파일 데이터 처리
@@ -694,8 +611,8 @@ class StreamPeerConnection(
                 byteBuffer.get(byteArray)
 //                val receivedData = buffer.data.array()
                 val receivedData = byteArray
-                val headerEndIndex = receivedData.lastIndexOf(58) // 찾는 문자 ':'의 ASCII 코드 값은 58
-                val header = String(receivedData.copyOfRange(0, headerEndIndex))
+                val headerEndIndex = receivedData.indexOf(58) // 찾는 문자 ':'의 ASCII 코드 값은 58, '|'는 124
+                val header = String(receivedData.copyOfRange(0, headerEndIndex + 1))
 
                 when {
                     header.startsWith("TEXT:", true) -> {
@@ -704,11 +621,95 @@ class StreamPeerConnection(
                         // 채팅 메시지 처리
                         onDataMessage?.invoke(message, null, "TEXT")
                     }
+
+//                    header.startsWith("FILE:") -> {
+//                        //접두어부터 header의 끝까지를 Json문자열로 받아 파싱함.
+//                        val msgEndIndex = receivedData.indexOf(124)
+//                        val jin = String(receivedData.copyOfRange(5, msgEndIndex))
+//                        val fileData = receivedData.copyOfRange(msgEndIndex + 1, receivedData.size)
+//                        onDataMessage?.invoke(jin, fileData, "FILE")
+//                    }
+
+
+
+                    // todo  여기서 onDataMessage?.invoke(fileName, combinedData, "FILE") 의 combinedData는 미리 ChatData객체로
+                    //   만들어서 보내줘야 함. 미리 receivedFileChunks 맵으로 파일을 조합하고 완료되면 보내주는 형식. 텍스트와는 다름.
+
+                    // todo  파일 전송 후 화면 켜고 끌때 영상이 멈추는 게 아니고 화면이 꺼져있다는 이미지를 보여주게 처리하기.
+                    //   화면 녹화시, 자신의 화면에만 녹화한다고 보여주는데, 다른 피어 화면에도 줌처럼 녹화한다고 보여주기.
+
+                    header.startsWith("FILE_START:") -> {
+//                        val jin = header.substring(11)
+//                        val jo = JsonParser.parseString(jin).asJsonObject
+//                        val fileName = jo["fileName"].asString
+
+                        val msgEndIndex = receivedData.indexOf(124)
+                        val fileName = String(receivedData.copyOfRange(11, msgEndIndex))
+                        val fileData = receivedData.copyOfRange(msgEndIndex + 1, receivedData.size)
+
+                        // 초기 파일 청크 목록을 준비합니다.
+                        // todo 참고: if문으로 확인하여 같은 fileName이 존재하고 이미 전송프로세스가 진행 중일때는,
+                        //   while문을 이용하여 fileName을 (1),(2),(3)...이런식으로 숫자를 덧붙여 변경하고 다시 반복확인하여
+                        //   없는 번호일 경우에 그 파일명으로 최종 확정하고 맵에 넣는 방식으로 프로세스를 시작해야함.
+                        receivedFileChunks[fileName] = mutableListOf()
+                        receivedFileChunks[fileName]?.add(fileData)
+                        Log.e(tagName, "파일 전송 - 첫 조각 받음(FILE_START).")
+                    }
                     header.startsWith("FILE:") -> {
-                        val fileName = header.substring(5)
-                        val fileData = receivedData.copyOfRange(headerEndIndex + 1, receivedData.size)
-                        saveFileToDownloads(fileName, fileData)
-                        onDataMessage?.invoke(fileName, fileData, "FILE")
+                        //접두어부터 header의 끝까지를 Json문자열로 받아 파싱함.
+//                        val jin = header.substring(5)
+//                        val jo = JsonParser.parseString(jin).asJsonObject
+//                        val fileName = jo["fileName"].asString
+//                        val fileData = receivedData.copyOfRange(headerEndIndex + 1, receivedData.size)
+
+                        val msgEndIndex = receivedData.indexOf(124)
+                        val fileName = String(receivedData.copyOfRange(5, msgEndIndex))
+                        val fileData = receivedData.copyOfRange(msgEndIndex + 1, receivedData.size)
+
+                        val combinedData = receivedFileChunks[fileName]?.add(fileData)
+                        // todo  add 하곤 끝인가?
+                        Log.e(tagName, "파일 전송 - 중간 조각 받는 중...(FILE).")
+                    }
+                    header.startsWith("FILE_END:") -> {
+//                        val jin = header.substring(9)
+
+                        val msgEndIndex = receivedData.indexOf(124)
+                        val message = String(receivedData.copyOfRange(9, msgEndIndex))
+                        val jo = JsonParser.parseString(message).asJsonObject
+                        val fileName = jo["message"].asString
+                        val fileData = receivedData.copyOfRange(msgEndIndex + 1, receivedData.size)
+
+                        //보내는 파일의 사이즈가 chunksize보다 작은경우 byteList의 크기는 1이고 인덱스는 0이다.
+                        // 보내는 when절이 인덱스를 보고 보내는 순서를 정하는데, 크기 1일때의 인덱스는 0일때의 when절만을
+                        // 수행하기 때문에, 0일때 byteList size의 크기에 따른 분기점을 둬야하고, 그 분기에 따라 이곳의
+                        // if문이 수행되어야함. FILE_START: 의 처리를 같이 해야하는 경우가 생김.
+                        if (receivedFileChunks.containsKey(fileName)) { receivedFileChunks[fileName]?.add(fileData) }
+                        else {
+                            Log.e(tagName, "파일 전송 - 마지막 조각 도착(FILE_END) - byteList size 1일때 실행.")
+                            receivedFileChunks[fileName] = mutableListOf()
+                            receivedFileChunks[fileName]?.add(fileData)
+                        }
+//                        receivedFileChunks[fileName]?.add(fileData)
+
+
+                        Log.e(tagName, "파일 전송 - 마지막 조각 도착(FILE_END) - receivedFileChunks[fileName].size: " +
+                                "${receivedFileChunks[fileName]?.size} , 0번인덱스의 사이즈: ${receivedFileChunks[fileName]?.get(0)?.size}" +
+                                ", 마지막인덱스의 사이즈: ${receivedFileChunks[fileName]?.get((receivedFileChunks[fileName]?.size)?.minus(
+                                    1
+                                ) ?: 0)?.size}")
+
+                        // 파일 청크를 결합하고 저장.
+                        val combinedData = receivedFileChunks[fileName]?.reduce { totalSum, bytes -> totalSum + bytes }
+                        Log.e(tagName, "파일 전송 - 마지막 조각 도착(FILE_END) -combinedData.size: ${combinedData?.size}")
+
+                        if (combinedData != null) {
+                            onDataMessage?.invoke(message, combinedData, "FILE")
+                        } else {
+                            Log.e(tagName, "Error: File chunks not found for $fileName")
+                        }
+
+                        // ByteArray 조합 완료하면, Map에서 청크 목록을 제거.
+                        receivedFileChunks.remove(fileName)
                     }
                     else -> {
                         Log.e(tagName, "DataChannel Invalid header: $header")
@@ -720,6 +721,143 @@ class StreamPeerConnection(
     }
 
 
+    /**
+     * 원격 피어에 데이터를 보냄. 문자열을 바이트배열로 변환후 DataChannel.Buffer 타입으로 변환해 전송함.
+     */
+    fun sendMessage(text: String) {
+        val header = "TEXT:"
+        val message = header + JsonObject().run {
+            addProperty("peerId", MyApp.userInfo.user_email)
+            addProperty("nick", MyApp.userInfo.user_nick)
+            addProperty("message", text)
+            toString()
+        }
+        Log.e(tagName, "sendMessage(): DataChannel text: $text")
+        if (dataChannel.state() == DataChannel.State.OPEN) {
+            val buffer = DataChannel.Buffer(ByteBuffer.wrap(message.toByteArray(Charsets.UTF_8)), false)
+            dataChannel.send(buffer)
+            Log.e(tagName, "sendMessage(): DataChannel text Send COMPLETE: $text")
+        } else {
+            Log.e(tagName, "DataChannel is not open.")
+        }
+    }
+
+
+    /**
+     * 파일을 보내는 메소드.
+     */
+    fun sendFile(buffer: DataChannel.Buffer) {
+        dataChannel.send(buffer)
+    }
+    suspend fun sendFile(fileName: String, file: ByteArray): Boolean {
+        var header = "FILE_START"
+        if (dataChannel.state() != DataChannel.State.OPEN) {
+            Log.e(tagName, "DataChannel is not open.")
+            return false
+        }
+        val message = JsonObject().run {
+            addProperty("peerId", MyApp.userInfo.user_email)
+            addProperty("nick", MyApp.userInfo.user_nick)
+            addProperty("message", fileName)
+            toString()
+        } + "|"
+
+        // 바이트스트림으로 연 파일(byteArray)을 내가 정한 청크 크기에 따라 ByteArray의 조각을 나누고,
+        val chunkSize = 32784 //32k
+        val chunks = mutableListOf<ByteArray>()
+        val byteArrayInputStream = ByteArrayInputStream(file)
+        val buffer = ByteArray(chunkSize)
+
+        // 나눈 조각을 복사해 전송을 위한 ByteArray List에 차곡차곡 쌓는다.
+        var bytesRead: Int
+        while (byteArrayInputStream.read(buffer).also { bytesRead = it } != -1) {
+            chunks.add(buffer.copyOf(bytesRead))
+        }
+        byteArrayInputStream.close()
+
+        // 그리고, 만들어진 전송용 ByteArray를 담은 List를 header와 조합하여 원격의 피어에게 보낸다.
+        chunks.forEachIndexed { i, chunk ->
+            Log.w("DataChannel", "sendFile chunks size: ${chunks.size} forEach i: $i ")
+            header = when(i){
+                0 -> {
+                    if(chunks.size != 1){
+                        "FILE_START:$fileName|"
+                    } else {
+                        // size가 1인경우에는 받는 쪽에서 End에 관한 메시지가 가지 않기 때문에,
+                        // 이렇게 예외로, 처음보낼때 완료메시지를 보내준다. 당연히 받는 쪽에는 그에 대한 예외 코드로
+                        // FILE_START: 시의 코드를 FILE_END: 시에서 분기점으로 처리해줘야함.
+                        "FILE_END:$message"
+                    }
+                }
+                chunks.size-1 -> { "FILE_END:$message" }
+                else -> { "FILE:$fileName|" }
+            }
+            val dataToSend = header.toByteArray(Charsets.UTF_8) + chunk
+            val bufferToSend = DataChannel.Buffer(ByteBuffer.wrap(dataToSend), false)
+
+            dataChannel.send(bufferToSend)
+
+            delay(10) // 전송 간 텀을 줘서 안정성 확보
+        }
+
+        Log.w("DataChannel", "${peerId}에게 파일 전송 완료.")
+        return true
+    }
+
+
+//    fun sendFile(fileName: String, file:ByteArray): Boolean {
+//        val header = "FILE:"
+//        if (dataChannel.state() != DataChannel.State.OPEN) {
+//            Log.e(tagName, "DataChannel is not open.")
+//            return false
+//        }
+//        val message = header + JsonObject().run {
+//            addProperty("peerId", MyApp.userInfo.user_email)
+//            addProperty("nick", MyApp.userInfo.user_nick)
+//            addProperty("message", fileName)
+//            toString()
+//        } + "|"
+//
+//        //일단 보낼 파일을 파일인풋스트림으로 로드함.
+////        val fileInputStream = FileInputStream(file)
+////        //보낼 파일의 길이만큼의 크기를 가진 바이트배열을 만듦.
+////        val byteArray = ByteArray(file.length().toInt())
+////        //메모리상에 로드한 파일객체를 위에서 만든 새로운 바이트배열로 읽어 복사함.
+////        fileInputStream.read(byteArray)
+////        //스트림은 메모리 누수방지를 위해 꼭 닫아줘야함. 자동으로 안닫힘.
+////        fileInputStream.close()
+//
+//        // 헤더스트링을 바이트배열로 변환하고 그것과 위에서 복사한 파일 바이트배열을 합침.
+//        val dataToSend = message.toByteArray(Charsets.UTF_8) + file
+//        //그리고, WebRtc의 DataChannel.Buffer타입으로 변환한 후 보냄.
+//        val buffer = DataChannel.Buffer(ByteBuffer.wrap(dataToSend), false)
+//        dataChannel.send(buffer)
+//
+//        Log.w("DataChannel", "${peerId}에게 파일 전송 완료.")
+//        return true
+//    }
+
+
+//    fun saveFileToDownloads(fileName: String,  fileData: ByteArray) {
+//        if (Environment.getExternalStorageState() != Environment.MEDIA_MOUNTED) {
+//            Log.e(tagName, "External storage is not available")
+//            return
+//        }
+//
+//        val downloadsDir = MyApp.application.getExternalFilesDir(Environment.DIRECTORY_DOWNLOADS)
+//        val file = File(downloadsDir, fileName)
+//
+//        try {
+//            //file << 만든 디렉토리로 데이터를 write할수 있는 outputstream을 만들고,
+//            val outputStream = FileOutputStream(file)
+//            //받아온 데이터를 그 경로에 씀.
+//            outputStream.write(fileData)
+//            outputStream.close()
+//            Log.i(tagName, "File saved: ${file.absolutePath}")
+//        } catch (e: Exception) {
+//            Log.e(tagName, "Error saving file: ${e.message}")
+//        }
+//    }
 
 
 

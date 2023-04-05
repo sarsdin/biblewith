@@ -20,6 +20,7 @@ import com.example.androidclient.R
 import com.example.androidclient.bible.BibleVm
 import com.example.androidclient.databinding.GroupInMemberFmBinding
 import com.example.androidclient.group.GroupVm
+import com.example.androidclient.home.MainActivity
 import com.example.androidclient.util.ImageHelper
 import com.google.gson.JsonObject
 import kotlinx.coroutines.CoroutineScope
@@ -66,17 +67,18 @@ class GroupInMemberFm : Fragment() {
         }
 
         //바텀네비 리스너 설정
-        binding.bottomNavi.setOnItemSelectedListener {
-//            onNavDestinationSelected(it, navController)  << navigate()와 충돌함.
-            if(it.itemId == R.id.groupInFm){
-                Navigation.findNavController(view).navigate(R.id.action_global_groupInFm)
-            } else if(it.itemId == R.id.group_in_challenge_fm){
-                Navigation.findNavController(view).navigate(R.id.action_global_group_in_challenge_fm)
-            } else if(it.itemId == R.id.groupInChatFm){
-                Navigation.findNavController(view).navigate(R.id.action_global_groupInChatFm)
-            }
-            return@setOnItemSelectedListener false
-        }
+        binding.bottomNavi.setOnItemSelectedListener((requireActivity() as MainActivity).모임네비게이션리스너)
+//        binding.bottomNavi.setOnItemSelectedListener {
+////            onNavDestinationSelected(it, navController)  << navigate()와 충돌함.
+//            if(it.itemId == R.id.groupInFm){
+//                Navigation.findNavController(view).navigate(R.id.action_global_groupInFm)
+//            } else if(it.itemId == R.id.group_in_challenge_fm){
+//                Navigation.findNavController(view).navigate(R.id.action_global_group_in_challenge_fm)
+//            } else if(it.itemId == R.id.groupInChatFm){
+//                Navigation.findNavController(view).navigate(R.id.action_global_groupInChatFm)
+//            }
+//            return@setOnItemSelectedListener false
+//        }
 
 
         //초대하기 버튼

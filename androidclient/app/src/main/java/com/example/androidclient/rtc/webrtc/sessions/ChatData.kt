@@ -1,5 +1,7 @@
 package com.example.androidclient.rtc.webrtc.sessions
 
+import kotlinx.coroutines.flow.MutableStateFlow
+
 data class ChatData(
     var message:String = "",
     var file:ByteArray? = null,
@@ -8,33 +10,12 @@ data class ChatData(
     var nick:String = "",
     var roomId:String = "",
     var etc:String = "",
+//    var progress:Float = 0f,
+    /**
+     *  ChatItem 컴포넌트에서 사용. 파일을 보낼때, 보낸 peer의 수에 따라 progress의 Float값이 변하고,
+     *  그에 따라 이 변수를 구독하는 쪽에서 상태값의 변화에 따른 동작을 수행할 수 있다.
+     */
+    var progress:MutableStateFlow<Float> = MutableStateFlow(0f)
 ) {
-    override fun equals(other: Any?): Boolean {
-        if (this === other) return true
-        if (javaClass != other?.javaClass) return false
-
-        other as ChatData
-
-        if (message != other.message) return false
-        if (file != null) {
-            if (other.file == null) return false
-            if (!file.contentEquals(other.file)) return false
-        } else if (other.file != null) return false
-        if (type != other.type) return false
-        if (userId != other.userId) return false
-        if (nick != other.nick) return false
-
-        return true
-    }
-
-    override fun hashCode(): Int {
-        var result = message.hashCode()
-        result = 31 * result + (file?.contentHashCode() ?: 0)
-        result = 31 * result + type.hashCode()
-        result = 31 * result + userId.hashCode()
-        result = 31 * result + nick.hashCode()
-        return result
-    }
-
 
 }

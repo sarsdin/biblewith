@@ -134,6 +134,7 @@ public class UtilsFile {
             // MediaProvider
             else if (isMediaDocument(uri)) {
                 final String docId = DocumentsContract.getDocumentId(uri);
+                Log.e("UtilsFile", "DocumentsContract.getDocumentId(uri): "+ docId);
                 final String[] split = docId.split(":");
                 final String type = split[0];
 
@@ -158,11 +159,14 @@ public class UtilsFile {
                 };
 
                 try {
-                    cursor = context.getContentResolver().query(uri, projection, selection, selectionArgs,
-                            null);
+                    cursor = context.getContentResolver().query(uri, projection, selection, selectionArgs,null);
                     if (cursor != null && cursor.moveToFirst()) {
+                        Log.e("UtilsFile", "cursor.moveToFirst: true");
                         final int column_index = cursor.getColumnIndexOrThrow(column);
-                        return cursor.getString(column_index);
+                        Log.e("UtilsFile", "cursor.column_index: "+ column_index);
+                        String res =  cursor.getString(column_index);
+                        Log.e("UtilsFile", "cursor.getString(column_index): "+ res);
+                        return res;
                     }
                 } finally {
                     if (cursor != null)

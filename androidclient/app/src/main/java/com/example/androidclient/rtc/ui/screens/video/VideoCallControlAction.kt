@@ -40,6 +40,10 @@ sealed class CallAction {
         val isEnabled: Boolean
     ) : CallAction()
 
+    data class Record(
+        val isEnabled: Boolean
+    ) : CallAction()
+
     object FlipCamera : CallAction()
 
     object LeaveCall : CallAction()
@@ -83,6 +87,7 @@ fun buildDefaultCallControlActions(
         }
     )
 
+
     val rtcVm = viewModel<RtcVm>()
 
     return if (rtcVm.접속한방정보읽기["makerId"].asString == MyApp.userInfo.user_email){
@@ -116,6 +121,16 @@ fun buildDefaultCallControlActions(
                 callAction = CallAction.FlipCamera
             ),
             VideoCallControlAction(
+                icon = painterResource(id = R.drawable.baseline_fiber_manual_record_24),
+                iconTint = if (callMediaState.isRecordEnabled){
+                    Color.Red
+                } else {
+                    Color.LightGray
+                },
+                background = Primary,
+                callAction = CallAction.Record(callMediaState.isRecordEnabled)
+            ),
+            VideoCallControlAction(
                 icon = painterResource(id = R.drawable.ic_call_end),
                 iconTint = Disabled,
                 background = Primary,
@@ -145,11 +160,21 @@ fun buildDefaultCallControlActions(
                 callAction = CallAction.FlipCamera
             ),
             VideoCallControlAction(
-                icon = painterResource(id = R.drawable.ic_call_end),
-                iconTint = Disabled,
+                icon = painterResource(id = R.drawable.baseline_fiber_manual_record_24),
+                iconTint = if (callMediaState.isRecordEnabled){
+                    Color.Red
+                } else {
+                    Color.LightGray
+                },
                 background = Primary,
-                callAction = CallAction.LeaveCall
-            )
+                callAction = CallAction.Record(callMediaState.isRecordEnabled)
+            ),
+            VideoCallControlAction(
+            icon = painterResource(id = R.drawable.ic_call_end),
+            iconTint = Disabled,
+            background = Primary,
+            callAction = CallAction.LeaveCall
+        )
         )
     }
 
