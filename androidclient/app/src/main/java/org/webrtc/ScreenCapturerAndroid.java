@@ -17,8 +17,11 @@ import android.hardware.display.DisplayManager;
 import android.hardware.display.VirtualDisplay;
 import android.media.projection.MediaProjection;
 import android.media.projection.MediaProjectionManager;
+import android.util.DisplayMetrics;
 import android.view.Surface;
 import androidx.annotation.Nullable;
+
+import com.example.androidclient.home.MainActivity;
 
 /**
  * An implementation of VideoCapturer to capture the screen content as a video stream.
@@ -37,7 +40,8 @@ public class ScreenCapturerAndroid implements VideoCapturer, VideoSink {
   // DPI for VirtualDisplay, does not seem to matter for us.
   private static final int VIRTUAL_DISPLAY_DPI = 400;
 
-  private final Intent mediaProjectionPermissionResultData;
+  private Context context;
+  private Intent mediaProjectionPermissionResultData;
   private final MediaProjection.Callback mediaProjectionCallback;
 
   private int width;
@@ -62,6 +66,13 @@ public class ScreenCapturerAndroid implements VideoCapturer, VideoSink {
   public ScreenCapturerAndroid(Intent mediaProjectionPermissionResultData,
       MediaProjection.Callback mediaProjectionCallback) {
     this.mediaProjectionPermissionResultData = mediaProjectionPermissionResultData;
+    this.mediaProjectionCallback = mediaProjectionCallback;
+  }
+  public ScreenCapturerAndroid(Context context,
+      @Nullable MediaProjection mediaProjection,
+      MediaProjection.Callback mediaProjectionCallback) {
+    this.context = context;
+    this.mediaProjection = mediaProjection;
     this.mediaProjectionCallback = mediaProjectionCallback;
   }
 
@@ -93,8 +104,8 @@ public class ScreenCapturerAndroid implements VideoCapturer, VideoSink {
     }
     this.surfaceTextureHelper = surfaceTextureHelper;
 
-    mediaProjectionManager = (MediaProjectionManager) applicationContext.getSystemService(
-        Context.MEDIA_PROJECTION_SERVICE);
+//    mediaProjectionManager = (MediaProjectionManager) applicationContext.getSystemService(
+//        Context.MEDIA_PROJECTION_SERVICE);
   }
 
   @Override
@@ -107,13 +118,14 @@ public class ScreenCapturerAndroid implements VideoCapturer, VideoSink {
     this.width = width;
     this.height = height;
 
-    mediaProjection = mediaProjectionManager.getMediaProjection(
-        Activity.RESULT_OK, mediaProjectionPermissionResultData);
+//    mediaProjection = mediaProjectionManager.getMediaProjection(
+//        Activity.RESULT_OK, mediaProjectionPermissionResultData);
 
     // Let MediaProjection callback use the SurfaceTextureHelper thread.
     mediaProjection.registerCallback(mediaProjectionCallback, surfaceTextureHelper.getHandler());
 
-    createVirtualDisplay();
+//    createVirtualDisplay();
+    createVirtualDisplay_test();
     capturerObserver.onCapturerStarted(true);
     surfaceTextureHelper.startListening(ScreenCapturerAndroid.this);
   }
@@ -193,6 +205,43 @@ public class ScreenCapturerAndroid implements VideoCapturer, VideoSink {
         VIRTUAL_DISPLAY_DPI, DISPLAY_FLAGS, new Surface(surfaceTextureHelper.getSurfaceTexture()),
         null /* callback */, null /* callback handler */);
   }
+
+  private void createVirtualDisplay_test() {
+//    int width = 1080;
+//    int height = 2160
+//    int width = 104;
+//    int height = 166;
+    int width = 144;
+    int height = 176;
+//    int width = 240;
+//    int height = 320;
+//    int width = 480;
+//    int height = 640;
+//    int baseWidth = 1080;
+//    float aspectRatio = getDeviceAspectRatio();
+//    int width = baseWidth;
+//    int height = Math.round(baseWidth / aspectRatio);
+
+    surfaceTextureHelper.setTextureSize(width, height);
+    virtualDisplay = mediaProjection.createVirtualDisplay("WebRTC_ScreenCapture", width, height,
+        VIRTUAL_DISPLAY_DPI,
+        DISPLAY_FLAGS,
+//        DisplayManager.VIRTUAL_DISPLAY_FLAG_AUTO_MIRROR,
+        new Surface(surfaceTextureHelper.getSurfaceTexture()),
+        null /* callback */, null /* callback handler */);
+  }
+
+  private int displayMetricsForDensity() {
+    DisplayMetrics metrics = new DisplayMetrics();
+    ((MainActivity) context).getWindowManager().getDefaultDisplay().getMetrics(metrics);
+    return metrics.densityDpi;
+  }
+  private float getDeviceAspectRatio() {
+    DisplayMetrics metrics = new DisplayMetrics();
+    ((MainActivity) context).getWindowManager().getDefaultDisplay().getMetrics(metrics);
+    return (float) metrics.widthPixels / (float) metrics.heightPixels;
+  }
+
 
   // This is called on the internal looper thread of {@Code SurfaceTextureHelper}.
   @Override

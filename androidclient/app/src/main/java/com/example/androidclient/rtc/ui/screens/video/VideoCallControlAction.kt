@@ -20,16 +20,27 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.painter.Painter
 import androidx.compose.ui.res.painterResource
+import androidx.lifecycle.viewmodel.compose.viewModel
+import com.example.androidclient.MyApp
 import com.example.androidclient.R
+import com.example.androidclient.rtc.RtcVm
 import com.example.androidclient.rtc.ui.theme.Disabled
 import com.example.androidclient.rtc.ui.theme.Primary
 
 sealed class CallAction {
+
+    data class RequestList(
+        val isRequest: Boolean
+    ) : CallAction()
     data class ToggleMicroPhone(
         val isEnabled: Boolean
     ) : CallAction()
 
     data class ToggleCamera(
+        val isEnabled: Boolean
+    ) : CallAction()
+
+    data class Record(
         val isEnabled: Boolean
     ) : CallAction()
 
@@ -49,6 +60,16 @@ data class VideoCallControlAction(
 fun buildDefaultCallControlActions(
     callMediaState: CallMediaState
 ): List<VideoCallControlAction> {
+
+    val requestListIcon =
+        painterResource(
+            id = if (callMediaState.isRequestList) {
+                R.drawable.ic_userplus
+            } else {
+                R.drawable.ic_baseline_person_24
+            }
+        )
+
     val microphoneIcon =
         painterResource(
             id = if (callMediaState.isMicrophoneEnabled) {
@@ -66,30 +87,96 @@ fun buildDefaultCallControlActions(
         }
     )
 
-    return listOf(
-        VideoCallControlAction(
-            icon = microphoneIcon,
-            iconTint = Color.White,
-            background = Primary,
-            callAction = CallAction.ToggleMicroPhone(callMediaState.isMicrophoneEnabled)
-        ),
-        VideoCallControlAction(
-            icon = cameraIcon,
-            iconTint = Color.White,
-            background = Primary,
-            callAction = CallAction.ToggleCamera(callMediaState.isCameraEnabled)
-        ),
-        VideoCallControlAction(
-            icon = painterResource(id = R.drawable.ic_camera_flip),
-            iconTint = Color.White,
-            background = Primary,
-            callAction = CallAction.FlipCamera
-        ),
-        VideoCallControlAction(
+
+    val rtcVm = viewModel<RtcVm>()
+
+    return if (rtcVm.접속한방정보읽기["makerId"].asString == MyApp.userInfo.user_email){
+        listOf(
+            VideoCallControlAction(
+                icon = requestListIcon,
+                iconTint = if (callMediaState.isRequestList){
+                    Color.Green
+                } else {
+                    Color.LightGray
+                },
+                background = Primary,
+                callAction = CallAction.RequestList(callMediaState.isRequestList)
+            ),
+            VideoCallControlAction(
+                icon = microphoneIcon,
+                iconTint = Color.White,
+                background = Primary,
+                callAction = CallAction.ToggleMicroPhone(callMediaState.isMicrophoneEnabled)
+            ),
+            VideoCallControlAction(
+                icon = cameraIcon,
+                iconTint = Color.White,
+                background = Primary,
+                callAction = CallAction.ToggleCamera(callMediaState.isCameraEnabled)
+            ),
+            VideoCallControlAction(
+                icon = painterResource(id = R.drawable.ic_camera_flip),
+                iconTint = Color.White,
+                background = Primary,
+                callAction = CallAction.FlipCamera
+            ),
+            VideoCallControlAction(
+                icon = painterResource(id = R.drawable.baseline_fiber_manual_record_24),
+                iconTint = if (callMediaState.isRecordEnabled){
+                    Color.Red
+                } else {
+                    Color.LightGray
+                },
+                background = Primary,
+                callAction = CallAction.Record(callMediaState.isRecordEnabled)
+            ),
+            VideoCallControlAction(
+                icon = painterResource(id = R.drawable.ic_call_end),
+                iconTint = Disabled,
+                background = Primary,
+                callAction = CallAction.LeaveCall
+            )
+        )
+
+
+    } else {
+        listOf(
+            VideoCallControlAction(
+                icon = microphoneIcon,
+                iconTint = Color.White,
+                background = Primary,
+                callAction = CallAction.ToggleMicroPhone(callMediaState.isMicrophoneEnabled)
+            ),
+            VideoCallControlAction(
+                icon = cameraIcon,
+                iconTint = Color.White,
+                background = Primary,
+                callAction = CallAction.ToggleCamera(callMediaState.isCameraEnabled)
+            ),
+            VideoCallControlAction(
+                icon = painterResource(id = R.drawable.ic_camera_flip),
+                iconTint = Color.White,
+                background = Primary,
+                callAction = CallAction.FlipCamera
+            ),
+            VideoCallControlAction(
+                icon = painterResource(id = R.drawable.baseline_fiber_manual_record_24),
+                iconTint = if (callMediaState.isRecordEnabled){
+                    Color.Red
+                } else {
+                    Color.LightGray
+                },
+                background = Primary,
+                callAction = CallAction.Record(callMediaState.isRecordEnabled)
+            ),
+            VideoCallControlAction(
             icon = painterResource(id = R.drawable.ic_call_end),
-            iconTint = Color.White,
-            background = Disabled,
+            iconTint = Disabled,
+            background = Primary,
             callAction = CallAction.LeaveCall
         )
-    )
+        )
+    }
+
+
 }

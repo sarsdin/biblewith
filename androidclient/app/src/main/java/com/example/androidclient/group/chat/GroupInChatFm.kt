@@ -127,17 +127,18 @@ class GroupInChatFm : Fragment() {
         myService!!.putHandler(handler) // 이 fm에 등록된 핸들러를 서비스에 보내줌
 
         //바텀네비 리스너 설정
-        binding.bottomNavi.setOnItemSelectedListener {
-//            onNavDestinationSelected(it, navController)  << navigate()와 충돌함.
-            if(it.itemId == R.id.groupInFm){
-                Navigation.findNavController(view).navigate(R.id.action_global_groupInFm)
-            } else if(it.itemId == R.id.groupInMemberFm){
-                Navigation.findNavController(view).navigate(R.id.action_global_groupInMemberFm)
-            } else if(it.itemId == R.id.group_in_challenge_fm){
-                Navigation.findNavController(view).navigate(R.id.action_global_group_in_challenge_fm)
-            }
-            return@setOnItemSelectedListener false
-        }
+        binding.bottomNavi.setOnItemSelectedListener((requireActivity() as MainActivity).모임네비게이션리스너)
+//        binding.bottomNavi.setOnItemSelectedListener {
+////            onNavDestinationSelected(it, navController)  << navigate()와 충돌함.
+//            if(it.itemId == R.id.groupInFm){
+//                Navigation.findNavController(view).navigate(R.id.action_global_groupInFm)
+//            } else if(it.itemId == R.id.groupInMemberFm){
+//                Navigation.findNavController(view).navigate(R.id.action_global_groupInMemberFm)
+//            } else if(it.itemId == R.id.group_in_challenge_fm){
+//                Navigation.findNavController(view).navigate(R.id.action_global_group_in_challenge_fm)
+//            }
+//            return@setOnItemSelectedListener false
+//        }
 
         //채팅방 만들기 버튼 클릭시
         binding.toolbarAddBt.setOnClickListener {

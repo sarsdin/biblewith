@@ -20,6 +20,7 @@ import android.hardware.camera2.CameraMetadata;
 import android.hardware.camera2.CaptureFailure;
 import android.hardware.camera2.CaptureRequest;
 import android.os.Handler;
+import android.util.Log;
 import android.util.Range;
 import android.view.Surface;
 import androidx.annotation.Nullable;
@@ -399,6 +400,7 @@ class Camera2Session implements CameraSession {
   private void reportError(String error) {
     checkIsOnCameraThread();
     Logging.e(TAG, "Error: " + error);
+    Log.e(TAG, "Error 카메라2: "+ error);
 
     final boolean startFailure = (captureSession == null) && (state != SessionState.STOPPED);
     state = SessionState.STOPPED;

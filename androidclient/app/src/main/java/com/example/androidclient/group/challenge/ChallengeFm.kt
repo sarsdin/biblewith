@@ -18,6 +18,7 @@ import com.example.androidclient.R
 import com.example.androidclient.bible.BibleVm
 import com.example.androidclient.databinding.ChallengeFmBinding
 import com.example.androidclient.group.GroupVm
+import com.example.androidclient.home.MainActivity
 import com.example.androidclient.util.ImageHelper
 import com.google.gson.JsonArray
 import kotlinx.coroutines.CoroutineScope
@@ -62,17 +63,18 @@ class ChallengeFm : Fragment() {
 //        setupWithNavController(binding.chalBottomNavi, navController)
 
         //바텀네비 리스너 설정
-        binding.chalBottomNavi.setOnItemSelectedListener {
-//            onNavDestinationSelected(it, navController)  << navigate()와 충돌함.
-            if(it.itemId == R.id.groupInFm){
-                Navigation.findNavController(view).navigate(R.id.action_global_groupInFm)
-            } else if (it.itemId == R.id.groupInMemberFm){
-                Navigation.findNavController(view).navigate(R.id.action_global_groupInMemberFm)
-            } else if(it.itemId == R.id.groupInChatFm){
-                Navigation.findNavController(view).navigate(R.id.action_global_groupInChatFm)
-            }
-            return@setOnItemSelectedListener false
-        }
+        binding.chalBottomNavi.setOnItemSelectedListener((requireActivity() as MainActivity).모임네비게이션리스너)
+//        binding.chalBottomNavi.setOnItemSelectedListener {
+////            onNavDestinationSelected(it, navController)  << navigate()와 충돌함.
+//            if(it.itemId == R.id.groupInFm){
+//                Navigation.findNavController(view).navigate(R.id.action_global_groupInFm)
+//            } else if (it.itemId == R.id.groupInMemberFm){
+//                Navigation.findNavController(view).navigate(R.id.action_global_groupInMemberFm)
+//            } else if(it.itemId == R.id.groupInChatFm){
+//                Navigation.findNavController(view).navigate(R.id.action_global_groupInChatFm)
+//            }
+//            return@setOnItemSelectedListener false
+//        }
 
 
         //챌린지 만들기 선택상황 초기화 - 생명주기로 인해 fm이 재활성된다면 is_selected 의 값이 그대로 적용되므로 초기화해야함

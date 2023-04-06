@@ -3,13 +3,18 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/main_navi"
-    app:startDestination="@id/startFm">
+    app:startDestination="@id/home_fm">
+<!--    app:startDestination="@id/startFm">-->
 
     <fragment
         android:id="@+id/home_fm"
         android:name="com.example.androidclient.home.HomeFm"
         android:label=""
-        tools:layout="@layout/home_fm" />
+        tools:layout="@layout/home_fm">
+        <deepLink
+            android:id="@+id/deepLink2"
+            app:uri="biblewith.com/invite/{group_no}/c/{invite_code}" />
+    </fragment>
     <fragment
         android:id="@+id/bible_fm"
         android:name="com.example.androidclient.bible.BibleFm"
@@ -280,9 +285,6 @@
         <action
             android:id="@+id/action_startFm_to_home_fm"
             app:destination="@id/home_fm" />
-        <deepLink
-            android:id="@+id/deepLink"
-            app:uri="biblewith.com/invite/{group_no}/c/{invite_code}" />
     </fragment>
     <action android:id="@+id/action_global_group_fm"
         app:destination="@id/group_fm" />
@@ -344,6 +346,13 @@
         android:name="com.example.androidclient.rtc.RtcFm"
         android:label="rtc_fm"
         tools:layout="@layout/rtc_fm" />
+    <action
+        android:id="@+id/action_global_rtcFm"
+        app:destination="@id/rtcFm"
+        app:enterAnim="@anim/nav_default_enter_anim"
+        app:exitAnim="@anim/nav_default_exit_anim"
+        app:popEnterAnim="@anim/nav_default_pop_enter_anim"
+        app:popExitAnim="@anim/nav_default_pop_exit_anim" />
 
 
 </navigation>

@@ -17,10 +17,7 @@
 package com.example.androidclient.rtc.ui.screens.stage
 
 import androidx.compose.foundation.background
-import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.*
 import androidx.compose.material3.Button
 import androidx.compose.material3.Card
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -34,6 +31,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.tooling.preview.Devices
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -44,6 +42,9 @@ fun StageScreen(
     state: WebRTCSessionState,
     onJoinCall: () -> Unit
 ) {
+
+
+
     Box(modifier = Modifier.fillMaxSize()) {
         //현재 상태가 상대방과 화상통화가 가능한지에 대한 여부를 기억.
         var enabledCall by remember { mutableStateOf(false) }
@@ -106,21 +107,30 @@ fun StageScreen(
 
 
 @OptIn(ExperimentalMaterial3Api::class)
-@Preview
+@Preview(
+    name = "seols_test",
+    showSystemUi = true,
+    showBackground = true,
+    device = Devices.NEXUS_5X
+)
 @Composable
 fun PreviewStatgeScreen(){
-//    StageScreen(WebRTCSessionState.Active) {
-//    }
-    Box(modifier = Modifier.fillMaxSize().background(color = Color.White),
-        contentAlignment = Alignment.TopCenter
+    Box(modifier = Modifier.background(color = Color.White),
+        contentAlignment = Alignment.TopCenter,
+
     ){
         Card(
             onClick = { /* Do something */ },
-            modifier = Modifier.size(width = 180.dp, height = 100.dp)
+            modifier = Modifier.size(width = 220.dp, height = 100.dp),
+
         ) {
-            Box(modifier = Modifier.fillMaxSize()
+            Box(modifier = Modifier
+                .fillMaxSize(1f)
+                .padding(top = 10.dp)
                 .background(color = Color.Green)) {
-                Text("Clickable", Modifier.align(Alignment.Center))
+                Text("Clickable", Modifier.align(Alignment.Center)
+
+                )
 
             }
         }

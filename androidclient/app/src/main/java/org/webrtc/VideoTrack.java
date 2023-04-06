@@ -10,11 +10,14 @@
 
 package org.webrtc;
 
+import java.util.HashMap;
 import java.util.IdentityHashMap;
 
 /** Java version of VideoTrackInterface. */
 public class VideoTrack extends MediaStreamTrack {
   private final IdentityHashMap<VideoSink, Long> sinks = new IdentityHashMap<VideoSink, Long>();
+
+  public HashMap<String, String> peerInfo = new HashMap<String, String>();
 
   public VideoTrack(long nativeTrack) {
     super(nativeTrack);

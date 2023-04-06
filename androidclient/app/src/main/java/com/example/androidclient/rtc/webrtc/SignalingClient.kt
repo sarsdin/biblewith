@@ -1,6 +1,10 @@
 package com.example.androidclient.rtc.webrtc
 import android.util.Log
 import com.example.androidclient.BuildConfig
+import com.example.androidclient.MyApp
+import com.example.androidclient.group.GroupVm
+import com.example.androidclient.rtc.RtcFm
+import com.google.gson.JsonArray
 import com.google.gson.JsonObject
 import com.google.gson.JsonParser
 
@@ -14,12 +18,9 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharedFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
-import okhttp3.OkHttpClient
-import okhttp3.Request
-import okhttp3.WebSocket
-import okhttp3.WebSocketListener
+import okhttp3.*
 
-class SignalingClient {
+class SignalingClient(val groupVm: GroupVm) {
 
     val tagName = "[${this.javaClass.simpleName}]"
     private val logger by taggedLogger("Call:SignalingClient")
@@ -47,16 +48,97 @@ class SignalingClient {
     // 시그널링 서버로부터 온 message text에 따른 SignalingCommand의 값을 변화시켜(flow발생)
     // 이 Flow를 collect(구독)하고 있는 구독자가 collect를 실행하게함.
     // 웹소켓의 리스너의 onMessage에 따라 해당하는 상태메시지의 handleSignalingCommand()가 실행되고 이 값이 변경됨.
-    private val _signalingCommandFlow = MutableSharedFlow<Pair<SignalingCommand, String>>()
-    val signalingCommandFlow: SharedFlow<Pair<SignalingCommand, String>> = _signalingCommandFlow
+    private val _signalingCommandFlow = MutableSharedFlow<Pair<SignalingCommand, JsonObject>>()
+    val signalingCommandFlow: SharedFlow<Pair<SignalingCommand, JsonObject>> = _signalingCommandFlow
+
+
+
+    /**
+     * 방목록 관련 상태 변수들.
+     */
+    private val _roomList = MutableStateFlow(JsonArray())
+    val roomList: StateFlow<JsonArray> = _roomList
+
+    private val _currentScreen = MutableStateFlow(RtcFm.ScreenState.ROOM_LIST)
+    val currentScreen: StateFlow<RtcFm.ScreenState> = _currentScreen/*.asStateFlow()*/
+
+    /**
+     * 현재 접속한 방에 대한 정보 - 방만들기 , 방접속시 업데이트됨
+     */
+    var _접속한방정보 = MutableStateFlow(JsonObject())
+
+    /**
+     * RtcVm에서 관찰중임 -> CustomDialogAtRoomClick 다이얼로그에서 받아씀.
+     */
+    var _방참가시접속인원목록 = MutableStateFlow(JsonArray())
+    val 방참가시접속인원목록: StateFlow<JsonArray> = _방참가시접속인원목록
+
+    var _전달받은명령상태값 = MutableStateFlow(JsonObject())
+
+    /**
+     * 방에 참가요청자 명단 - 방장용
+     */
+    var _방장에게접속요청자목록 = MutableStateFlow(JsonArray())
+
+
+
+    /**
+     *  현재 화면을 변경하는 함수를 추가.
+     */
+    fun setCurrentScreen(screen: RtcFm.ScreenState) {
+        _currentScreen.value = screen
+    }
+
+
+
+
+
+    init {
+        //이 객체가 처음 생성될때(앱이 페이지들올때)마다 실행하여 시그널링 서버에 클라이언트 정보 중복확인하고 등록해야함.
+        // (clients map에 등록)
+        val jOut = JsonObject()
+        jOut.addProperty("command", "ws_init")
+        jOut.addProperty("id", MyApp.userInfo.user_email)
+        jOut.addProperty("nick", MyApp.userInfo.user_nick)
+        jOut.addProperty("groupId", groupVm.groupInfo.get("group_no").asInt)
+        logger.w { "[sendCommand Init] $jOut" }
+        ws.send("$jOut")
+
+        //TODO 이후에 할일: 방먼저 만들고 만든 방들을 초기에 RTCFM PAGE로 접속시 리사이클러뷰로 로드해올수 있도록 목록을 소켓으로부터 받아야함.
+
+    }
+
 
 
     /**
      * 시그널링 서버로 명령어와 그에 필요한 정보를 문자열로 보냄.
      */
-    fun sendCommand(signalingCommand: SignalingCommand, message: String) {
-        logger.d { "[sendCommand] $signalingCommand" }
-        ws.send("$signalingCommand $message")
+    fun sendCommand(standardCommand: StandardCommand, jOut: JsonObject) {
+        logger.w { "sendCommand() jOut: $standardCommand, $jOut" }
+//        val jOut = JsonObject()
+//        jOut.addProperty("command", "signalingCommand")
+//        jOut.addProperty("signalingCommand", "$standardCommand")
+
+        ws.send(jOut.toString())
+    }
+
+
+    /**
+     * 시그널링 서버로 명령어와 그에 필요한 정보를 문자열로 보냄.
+     */
+    fun sendCommand(signalingCommand: SignalingCommand, peerId:String, message: String, peerIdOf:String = "") {
+        if(signalingCommand != SignalingCommand.ICE){
+            logger.d { "sendCommand() SignalingCommand: $signalingCommand" }
+        }
+        val jOut = JsonObject()
+        jOut.addProperty("command", "signalingCommand")
+        jOut.addProperty("signalingCommand", "$signalingCommand")
+        //OFFER, ANSWER의 경우 SDP. ICE의 경우 iceCandidate.sdpMid, sdpMLineIndex, sdp 3가지 정보.
+        jOut.addProperty("peerId", peerId)
+        jOut.addProperty("peerIdOf", peerIdOf) // sendAnswer()에서 사용됨. 다른데서는 사용x
+        jOut.addProperty("sdp", message)
+        ws.send(jOut.toString())
+//        ws.send("$signalingCommand $message")
     }
 
 
@@ -67,33 +149,165 @@ class SignalingClient {
      */
     private inner class SignalingWebSocketListener : WebSocketListener() {
         override fun onMessage(webSocket: WebSocket, text: String) {
-            JsonObject()
-            val jin = JsonParser.parseString(text).asJsonObject
-            val signalingCommand = jin["SignalingCommand"].asString
+//            Log.e(tagName, "onMessage(): $text")
 
-            // 각 응답의 내용에 따른 메소드를 호출함.
-            when {
-                //text의 앞글자가 STATE 일때 실행.
-                //서버로부터 'STATE Impossible' << 서버 접속 peer가 2명 미만인 상태.
-                //'STATE Ready' << 서버 접속 peer가 2명이상일시 웹소켓을 통해 전달되어옴.
-                //'STATE Creating'  << 서버에서 OFFER 명령을 받으면
-                //'STATE Active'  << 서버에서 ANSWER 명령을 받으면
-                //'STATE ICE'  << 서버에서 ICE 명령을 받으면
-                text.startsWith(SignalingCommand.STATE.toString(), true) ->
-                    handleStateMessage(text)
+            try {
+                //websocket으로 들어오는 메시지를 json object로 해석.
+                val jin = JsonParser.parseString(text).asJsonObject
+                val command = jin["command"].asString
+
+                when(command){
+                    "signalingCommand" -> {
+                        val signalingCommand: String = jin.get("signalingCommand").asString
+                        // 각 응답의 내용에 따른 메소드를 호출함.
+                        when {
+                            //text의 앞글자가 STATE 일때 실행.
+                            //서버로부터 'STATE Impossible' << 서버 접속 peer가 2명 미만인 상태.
+                            //'STATE Ready' << 서버 접속 peer가 2명이상일시 웹소켓을 통해 전달되어옴.
+                            //'STATE Creating'  << 서버에서 OFFER 명령을 받으면
+                            //'STATE Active'  << 서버에서 ANSWER 명령을 받으면
+                            //'STATE ICE'  << 서버에서 ICE 명령을 받으면
+                            signalingCommand.startsWith(SignalingCommand.STATE.toString(), true) ->
+                                handleStateMessage(jin)
 
 
-                //text의 앞글자가 OFFER, ANSWER, ICE 일때 실행.
-                //WebRtcSessionManagerImpl의 init{} 에서 SignalingCommand의 값을 collect하는 코루틴이 존재.
-                //거기서 handleOffer handleAnswer handleIce 등의 명령을 실행함.
-                text.startsWith(SignalingCommand.OFFER.toString(), true) ->
-                    handleSignalingCommand(SignalingCommand.OFFER, text)
-                text.startsWith(SignalingCommand.ANSWER.toString(), true) ->
-                    handleSignalingCommand(SignalingCommand.ANSWER, text)
-                text.startsWith(SignalingCommand.ICE.toString(), true) ->
-                    handleSignalingCommand(SignalingCommand.ICE, text)
+                            //text의 앞글자가 OFFER, ANSWER, ICE 일때 실행.
+                            //WebRtcSessionManagerImpl의 init{} 에서 SignalingCommand의 값을 collect하는 코루틴이 존재.
+                            //거기서 handleOffer handleAnswer handleIce 등의 명령을 실행함.
+                            signalingCommand.startsWith(SignalingCommand.OFFER.toString(), true) ->{
+                                Log.e(tagName, "onMessage() OFFER: $text")
+                                handleSignalingCommand(SignalingCommand.OFFER, jin)
+                            }
+                            signalingCommand.startsWith(SignalingCommand.ANSWER.toString(), true) ->{
+                                Log.e(tagName, "onMessage() ANSWER: $text")
+                                handleSignalingCommand(SignalingCommand.ANSWER, jin)
+                            }
+
+                            // Observer.onIceCandidate()시 콜백을 실행하는데, 그 콜백에서 소켓으로 ice관련 명령을 보냄.
+                            // onIceCandidateRequest <<< 이것임.
+                            signalingCommand.startsWith(SignalingCommand.ICE.toString(), true) ->
+                                handleSignalingCommand(SignalingCommand.ICE, jin)
+
+                            signalingCommand.startsWith(SignalingCommand.CLOSE.toString(), true) ->{
+                                Log.e(tagName, "onMessage() CLOSE(특정 peer 접속종료): $text")
+                                handleSignalingCommand(SignalingCommand.CLOSE, jin)
+                            }
+
+                        }
+                    }
+
+                    StandardCommand.방목록전달.name -> {
+                        Log.e(tagName, "방목록전달 jin: $jin")
+                        signalingScope.launch {
+                            val roomList = jin["roomList"].asJsonArray
+    //                        updateRoomList(roomList)
+                            _roomList.emit(roomList)
+                        }
+                    }
+                    StandardCommand.방만들기.name -> {
+                        //map을 tojson으로 변환한건데 이게 JsonObject로 변환된건지 잘모르겠네.
+                        Log.e(tagName, "방만들기 jin: $jin")
+
+                        signalingScope.launch {
+                            //서버로부터 받아온 방목록을 업데이트 해주고,
+                            val roomList = jin["roomList"].asJsonArray
+                            Log.e(tagName, "방만들기 roomList: $roomList")
+//                            updateRoomList(roomList)
+                            _roomList.emit(roomList)
+
+                            // todo 방만들기시에 방장이 방에 바로 접속할 수 있도록 하는 코드를 짜야함.
+                            // 서버로부터 방을 만든 아이디를 전달받아 비교하여, 방장본인이 만든 방이면 방장을 바로 비디오화면으로 전환함.
+                            if(jin["makerId"].asString == MyApp.userInfo.user_email){
+                                setCurrentScreen(RtcFm.ScreenState.VIDEO_CALL_SCREEN)
+                                _접속한방정보.emit(jin["roomInfo"].asJsonObject)
+                            }
+                        }
+                    }
+                    StandardCommand.방접속요청.name -> {
+                        Log.e(tagName, "방접속요청 jin: $jin")
+//                        val roomId = jin["roomId"].asString
+//                        _전달받은명령상태값.value = jin
+                        signalingScope.launch {
+                            //roomId, groupId에 해당하는 방장에게 userId에 대한 수락요청을 보내야함.
+//                            _전달받은명령상태값.emit(jin)
+                            _방장에게접속요청자목록.emit(jin["requestL"].asJsonArray)
+                        }
+                    }
+                    StandardCommand.방참가수락.name -> {
+                        Log.e(tagName, "방참가수락 jin: $jin")
+                        val usersInfo = jin["usersInfo"].asJsonArray
+                        signalingScope.launch {
+                            _방참가시접속인원목록.emit(usersInfo)
+
+                            //수락받으면 인원수 초과등 검사를 위해 다시 서버로 보내줌.
+                            sendCommand(StandardCommand.방접속, JsonObject().apply {
+                                addProperty("command", "방접속")
+                                addProperty("makerId", jin["makerId"].asString)
+                            })
+                        }
+                    }
+                    StandardCommand.방접속.name -> {
+                        Log.e(tagName, "방접속 jin: $jin")
+//                        val userIds = jin["userIds"].asJsonArray
+                        // 소켓으로부터 이 응답을 받으면, 이 클라이언트의 화면을 VIDEO_CALL_SCREEN 으로 전환.
+                        // 거기서 _방참가시접속인원목록.value 의 값을 이용해 원격 비디오 렌더링뷰를 셋팅해야함.
+                        _접속한방정보.value = jin["roomInfo"].asJsonObject
+                        setCurrentScreen(RtcFm.ScreenState.VIDEO_CALL_SCREEN)
+                    }
+                    "피어연결종료신호" -> {
+                        // todo 현재 방에서 연결된 다른 peer가 연결을 종료하거나 끊켰을때, 웹소켓의 sessionClose()
+                        //  함수를 통하여 어떤 명령을 받으면, 이곳의 WebRtcSessionManagerImpl에서 관리되고 있는
+                        //  peerConnections Map에서 (종료된 peerId를 전달받아) peerConnection객체를 제거해줘야함.
+                        Log.e(tagName, "피어연결종료신호 jin: $jin")
+//                        val roomList = jin["roomList"].asJsonArray
+//                        updateRoomList(roomList)
+                    }
+                    StandardCommand.방종료.name -> {
+                        Log.e(tagName, "방종료 jin: $jin")
+                        val roomId = jin["roomId"].asString
+                        //방장이 나가면 방종료하는 부분인데, 현재 방목록에서 방이 제거되긴 함.
+                        // 다만, 연결된 피어들은 그대로 통화를 진행중임. 이부분은 어떻게 할지 고민해봐야할듯. 그대로둘지 끊을지.
+                        val verifiedArray = _roomList.value.run {
+                            remove(find {
+                                it.asJsonObject["roomId"].asString == roomId
+                            })
+                        }
+                        // todo  emit 안하고도 상태값의 변화가 감지될려나? 방이 리스트에서 제대로 종료안되면 확인해봐야함.
+//                        _roomList.emit(verifiedArray)
+                    }
+
+                }
+
+            } catch(e: Exception){
+                Log.e(tagName, "onMessage() Exception: $e")
             }
+
         }
+
+
+        override fun onOpen(webSocket: WebSocket, response: Response) {
+            super.onOpen(webSocket, response)
+            Log.e(tagName, "onOpen() response handshake: ${response.handshake?.javaClass?.simpleName}")
+            Log.e(tagName, "onOpen() response headers: ${response.headers}")
+        }
+        override fun onClosed(webSocket: WebSocket, code: Int, reason: String) {
+            super.onClosed(webSocket, code, reason)
+            Log.e(tagName, "onClosed() reason: $code $reason")
+            // todo 서버로의 웹소켓이 이 RTC_FM 안에 있는 동안에는 끊키면 안된다.
+            //  혹시, 끊킬때 여기서 웹소켓 객체를 재생성하여, ws객체에 재할당해주는 코드를 작성해보자.
+
+        }
+
+        override fun onClosing(webSocket: WebSocket, code: Int, reason: String) {
+            super.onClosing(webSocket, code, reason)
+            Log.e(tagName, "onClosing() reason: $code $reason")
+        }
+
+        override fun onFailure(webSocket: WebSocket, t: Throwable, response: Response?) {
+            super.onFailure(webSocket, t, response)
+            Log.e(tagName, "onFailure() reason: $t, response: $response")
+        }
+
     }
 
     /**
@@ -102,9 +316,11 @@ class SignalingClient {
      * 서버로부터 'STATE Ready' 값을 받으면 _sessionStateFlow의 상태값을 업데이트하고
      * 그 변화를 감지한 Ui 컴포지션은 조건에 따라 다음 작업을 진행한다.
      */
-    private fun handleStateMessage(message: String) {
-        Log.w(tagName, "handleStateMessage: $message")
-        val state = getSeparatedMessage(message) //message에 공백이 포함되어 있을 수 있기 때문에 텍스트 전처리함.
+    private fun handleStateMessage(message: JsonObject) {
+        val mType =  message["signalingCommand"].asString
+        val state = message["sessionState"].asString
+        Log.w(tagName, "handleStateMessage: $mType, $state")
+//        val state = getSeparatedMessage(message) //message에 공백이 포함되어 있을 수 있기 때문에 텍스트 전처리함.
         _sessionStateFlow.value = WebRTCSessionState.valueOf(state)
     }
 
@@ -112,14 +328,16 @@ class SignalingClient {
      * 서버로부터 받은 명령타입의 상태값이 'STATE'이외(OFFER ANSWER ICE) 값이라면 실행하는 메소드.
      * 세션 상태 Flow 값을 업데이트함.
      */
-    private fun handleSignalingCommand(command: SignalingCommand, text: String) {
-        val value = getSeparatedMessage(text)
-        logger.w { "[emit!] received SignalingCommand: $command, 값(value): $value" }
+    private fun handleSignalingCommand(command: SignalingCommand, message: JsonObject) {
+//        val mType =  message["signalingCommand"].asString
+//        val value = getSeparatedMessage(text)
+//        val sdp = message["sdp"].asString
+//        logger.w { "handleSignalingCommand() SignalingCommand 받음: $command"/*, 값(value): $sdp"*/ }
         signalingScope.launch {
             //시그널링 서버로부터 받은 값에 따라 현재 WebRtc 단계의 상태값을 업데이트함.
             //emit 함으로써 _signalingCommandFlow를 구독하고 있는 모든 곳에 flow를 일으켜 collect실행하게 함.
             //WebRtcSessionManagerImpl의 init에서 하나의 코루틴내에서 구독중임.
-            _signalingCommandFlow.emit(command to value)
+            _signalingCommandFlow.emit(command to message)
         }
     }
 
@@ -134,9 +352,13 @@ class SignalingClient {
 
     //웹소켓 연결을 끊어야 할때 사용. 세션 플로우 상태의 값을 Offline이라고 변경하고
     fun dispose() {
+        Log.e(tagName, "Session disconnect() 9")
         _sessionStateFlow.value = WebRTCSessionState.Offline
+        Log.e(tagName, "Session disconnect() 10")
         signalingScope.cancel()
+        Log.e(tagName, "Session disconnect() 11")
         ws.cancel()
+        Log.e(tagName, "Session disconnect() 12")
     }
 }
 
@@ -157,5 +379,17 @@ enum class SignalingCommand {
     STATE, // Command for WebRTCSessionState
     OFFER, // to send or receive offer
     ANSWER, // to send or receive answer
-    ICE // to send and receive ice candidates
+    ICE, // to send and receive ice candidates
+    CLOSE // peer가 종료되거나 연결 끊킴.
+}
+enum class StandardCommand {
+    방만들기,
+    방접속요청,
+    방참가,
+    방접속,
+    방목록전달,
+    방종료,
+    접속해제,
+    방참가수락
+
 }

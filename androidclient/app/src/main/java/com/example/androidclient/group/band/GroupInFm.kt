@@ -22,6 +22,7 @@ import com.example.androidclient.MyApp
 import com.example.androidclient.R
 import com.example.androidclient.databinding.GroupInFmBinding
 import com.example.androidclient.group.GroupVm
+import com.example.androidclient.home.MainActivity
 import com.example.androidclient.util.FileHelper
 import com.example.androidclient.util.Http
 import com.example.androidclient.util.ImageHelper
@@ -92,17 +93,20 @@ class GroupInFm : Fragment() {
 //        setupWithNavController(binding.groupInBottomNavi, navController)
 
         //바텀네비 리스너 설정
-        binding.groupInBottomNavi.setOnItemSelectedListener {
+        binding.groupInBottomNavi.setOnItemSelectedListener((requireActivity() as MainActivity).모임네비게이션리스너)
+//        binding.groupInBottomNavi.setOnItemSelectedListener {
 //            onNavDestinationSelected(it, navController)  << navigate()와 충돌함.
-            if(it.getItemId() == R.id.group_in_challenge_fm){
-                Navigation.findNavController(view).navigate(R.id.action_groupInFm_to_group_in_challenge_fm)
-            } else if (it.itemId == R.id.groupInMemberFm){
-                Navigation.findNavController(view).navigate(R.id.action_global_groupInMemberFm)
-            } else if(it.itemId == R.id.groupInChatFm){
-                Navigation.findNavController(view).navigate(R.id.action_global_groupInChatFm)
-            }
-            return@setOnItemSelectedListener false
-        }
+//            if(it.getItemId() == R.id.group_in_challenge_fm){
+//                Navigation.findNavController(view).navigate(R.id.action_groupInFm_to_group_in_challenge_fm)
+//            } else if (it.itemId == R.id.groupInMemberFm){
+//                Navigation.findNavController(view).navigate(R.id.action_global_groupInMemberFm)
+//            } else if(it.itemId == R.id.groupInChatFm){
+//                Navigation.findNavController(view).navigate(R.id.action_global_groupInChatFm)
+//            } else if(it.itemId == R.id.rtc_fm){
+//                Navigation.findNavController(view).navigate(R.id.action_global_rtcFm)
+//            }
+//            return@setOnItemSelectedListener false
+//        }
 
 
 
@@ -131,7 +135,7 @@ class GroupInFm : Fragment() {
         })
         groupVm.liveGboardL.observe(viewLifecycleOwner, Observer {
             //게시물 갱신
-            Log.e(tagName, "게시물 갱신: ${groupVm.gson.toJson(it)}")
+//            Log.e(tagName, "게시물 갱신: ${groupVm.gson.toJson(it)}")
             rva.notifyDataSetChanged()
         })
 
@@ -161,7 +165,7 @@ class GroupInFm : Fragment() {
             //모임 이미지 바꾸기 - 모임장일 때만 클릭 가능하게 설정
             // - GroupListRva에서 모임뷰홀더를 클릭하여 들어올때의 서버통신이 코루틴이 아니라 groupInfo npe 위험때문에 핸들러를 이용해 지연을 살짝줌..
             //그리고 네트워크응답이 안올경우에 대비해 !isJsonNull 로 null 이 아닐때만 실행하도록함
-            if(!groupVm.groupInfo.isJsonNull && groupVm.groupInfo.get("user_no").asInt == MyApp.userInfo.user_no){
+            if(!(groupVm.groupInfo.isJsonNull) && groupVm.groupInfo.get("user_no").asInt == MyApp.userInfo.user_no){
                 binding.groupInCollapsingToolbarIv.setOnClickListener {
                     //이미지 선택기 실행
                     ImagePicker.with(this)
@@ -174,7 +178,7 @@ class GroupInFm : Fragment() {
                         }
                 }
             }
-        }, 200)
+        }, 500)
 
 
         //상단바 프로필 이미지 클릭시

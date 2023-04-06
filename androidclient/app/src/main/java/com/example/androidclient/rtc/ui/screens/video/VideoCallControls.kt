@@ -1,40 +1,31 @@
-/*
- * Copyright 2023 Stream.IO, Inc. All Rights Reserved.
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- * http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
-
 package com.example.androidclient.rtc.ui.screens.video
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.Icon
+import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.draw.clipToBounds
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.text.TextStyle
+import androidx.compose.ui.text.font.Font
+import androidx.compose.ui.text.font.FontFamily
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
-import com.example.androidclient.rtc.ui.screens.video.CallAction
-import com.example.androidclient.rtc.ui.screens.video.CallMediaState
-import com.example.androidclient.rtc.ui.screens.video.VideoCallControlAction
-import com.example.androidclient.rtc.ui.screens.video.buildDefaultCallControlActions
+import androidx.compose.ui.unit.sp
+import androidx.compose.ui.zIndex
+import androidx.lifecycle.viewmodel.compose.viewModel
+import com.example.androidclient.R
+import com.example.androidclient.rtc.RtcVm
+import com.example.androidclient.rtc.ui.theme.반투명검정
+import com.example.androidclient.rtc.ui.theme.진초록
 
 @Composable
 fun VideoCallControls(
@@ -43,28 +34,77 @@ fun VideoCallControls(
     actions: List<VideoCallControlAction> = buildDefaultCallControlActions(callMediaState = callMediaState),
     onCallAction: (CallAction) -> Unit
 ) {
+
+    val rtcVm = viewModel<RtcVm>()
+
     LazyRow(
-        modifier = modifier.padding(bottom = 12.dp),
+        modifier = modifier.padding(top = 7.dp),
         verticalAlignment = Alignment.CenterVertically,
         horizontalArrangement = Arrangement.SpaceEvenly
     ) {
         items(actions) { action ->
-            Box(
-                modifier = Modifier
-                    .size(56.dp)
-                    .clip(CircleShape)
-                    .background(action.background)
-            ) {
-                Icon(
+
+            // 요청자 아이콘의 경우, 요청이 있을때
+            if ((action.callAction is CallAction.RequestList) && action.callAction.isRequest ){
+                Box(
                     modifier = Modifier
-                        .padding(10.dp)
-                        .align(Alignment.Center)
-                        .clickable { onCallAction(action.callAction) },
-                    tint = action.iconTint,
-                    painter = action.icon,
-                    contentDescription = null
-                )
+                        .size(36.dp)
+//                        .clip(CircleShape).clipToBounds()
+                        .background(반투명검정, CircleShape) //action.background
+                ) {
+                    Icon(
+                        modifier = Modifier
+                            .padding(10.dp)
+                            .align(Alignment.Center)
+                            //actions에서 받아온 VideoCallControlAction List의 현재 인덱스에 맞는 요소 안에서 CallAction 객체를 구현부에 전달해줌.
+                            .clickable { onCallAction(action.callAction) },
+                        tint = action.iconTint,
+                        painter = action.icon,
+                        contentDescription = null
+                    )
+
+                    // 요청자 숫자를 겹쳐진 아이콘으로 표시
+                    Box(
+                        modifier = Modifier
+//                            .align(Alignment.BottomEnd)
+                            .offset(x = 17.dp, y = 20.dp)
+                            .size(18.dp)
+                            .background(진초록, CircleShape).zIndex(1f)
+                    ) {
+                        Text(
+                            modifier = Modifier.align(Alignment.Center),
+                            text = rtcVm.방장에게접속요청자목록size.toString(),
+                            style = TextStyle(
+                                fontFamily = FontFamily(Font(R.font.binggraetaombold, FontWeight.Bold)),
+                                fontSize = 9.sp,
+                                color = Color.White
+                            ),
+                        )
+                    }
+                }
+
+
+
+            } else {
+                Box(
+                    modifier = Modifier
+                        .size(36.dp)
+                        .clip(CircleShape)
+                        .background(반투명검정) //action.background
+                ) {
+                    Icon(
+                        modifier = Modifier
+                            .padding(10.dp)
+                            .align(Alignment.Center)
+                            //actions에서 받아온 VideoCallControlAction List의 현재 인덱스에 맞는 요소 안에서 CallAction 객체를 구현부에 전달해줌.
+                            .clickable { onCallAction(action.callAction) },
+                        tint = action.iconTint,
+                        painter = action.icon,
+                        contentDescription = null
+                    )
+                }
             }
+
         }
     }
 }

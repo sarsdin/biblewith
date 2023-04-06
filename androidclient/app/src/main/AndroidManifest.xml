@@ -5,12 +5,14 @@
 
     <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
-    <uses-permission android:name="android.permission.ACCESS_CELLULAR_NETWORK" />
+<!--    <uses-permission android:name="android.permission.ACCESS_CELLULAR_NETWORK" />-->
     <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
     <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" /> <!-- READ권한 포함일걸? -->
+    <uses-permission android:name="android.permission.WRITE_INTERNAL_STORAGE" />
     <uses-permission android:name="android.permission.CAMERA" />
     <uses-permission android:name="android.permission.RECORD_AUDIO" />
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
     <uses-permission android:name="android.permission.SCHEDULE_EXACT_ALARM" /> <!-- 알람매니저를 사용할려면 권한등록해야함 -->
     <uses-permission android:name="android.permission.USE_FULL_SCREEN_INTENT" /> <!-- 알람매니저를 사용할려면 권한등록해야함 -->
 
@@ -35,6 +37,7 @@
         <activity
             android:name=".home.MainActivity"
             android:exported="true"
+            android:supportsPictureInPicture="true"
             android:configChanges="keyboard|keyboardHidden|orientation|screenSize|screenLayout|smallestScreenSize|uiMode"
             android:launchMode="singleTask"
             android:label="">
@@ -91,8 +94,11 @@
             >
     <!--        android:enabled="true"-->
     <!--        android:exported="true"-->
-
         </service>
+
+        <service
+            android:name="com.example.androidclient.rtc.MediaProjectionService"
+            android:foregroundServiceType="mediaProjection" />
 
     </application>
 

@@ -50,8 +50,14 @@ public class RtpSender {
     if (!nativeSetTrack(this.nativeRtpSender, track == null ? 0L : track.getNativeMediaStreamTrack())) {
       return false;
     } else {
-      if (this.cachedTrack != null && this.ownsTrack) {
-        this.cachedTrack.dispose();
+
+      try {
+        if (this.cachedTrack != null && this.ownsTrack) {
+          this.cachedTrack.dispose();
+        }
+
+      } catch (IllegalStateException e){
+        e.printStackTrace();
       }
 
       this.cachedTrack = track;

@@ -132,6 +132,7 @@ class EditImageActivity : BaseActivity(), OnPhotoEditorListener, View.OnClickLis
             return;
         }
 
+        // 여기서 HomeFmImgRva으로부터온 intent.data에 포함된 uri 의 이미지를 글라이드로 받아옴.
         when (intent.action) {
             Intent.ACTION_EDIT, ACTION_NEXTGEN_EDIT -> {
                 try {
@@ -152,6 +153,10 @@ class EditImageActivity : BaseActivity(), OnPhotoEditorListener, View.OnClickLis
                                         Log.e(tagName, "onResourceReady: ${resource}")
                                         bitmap = resource //받아와서 전달부터 해주고
 //                                        Log.e(tagName, "intent.data uri: ${uri}")
+
+                                        // setImageBitmap()메서드 안에 setImageDrawable()메서드를 실행하는 코드가 또 있음.
+                                        // 즉, FilterImageView 클래스에 등록된 mOnImageChangedListener 객체가 onBitmapLoaded()메서드를
+                                        // 두번 실행시킴. 의도된 건지는 모르겠지만, 어쨌든 두번 실행됨. 차후 수정.
                                         source?.setImageBitmap(bitmap)
                                         cont.resumeWith(Result.success(Unit))  //중지된 루틴을 재개해주고 밑에서 bitmap 을 호출한 함수쪽으로 리턴해줌
                                     }
@@ -540,17 +545,19 @@ class EditImageActivity : BaseActivity(), OnPhotoEditorListener, View.OnClickLis
             override fun onDone(inputText: String?, colorCode: Int) {
                 val styleBuilder = TextStyleBuilder()  //밑에 유틸메소드 사용을 위해서 포토에디터에 전달될 유틸객체 만들어줌
                 styleBuilder.withTextColor(colorCode)  //완료된 글자색 받음 - 기본 화이트
-                mPhotoEditor?.addText(inputText, styleBuilder) //텍스트 다이얼로그 프래그먼트에서 완료된 텍스트와 글자색을 가져와서 포토에디터에 추가함
+                //텍스트 다이얼로그 프래그먼트에서 완료된 텍스트와 글자색을 가져와서 포토에디터에 추가함. Textview처럼 보임. 드래그로 이동가능한 개체.
+                mPhotoEditor?.addText(inputText, styleBuilder)
                 mTxtCurrentTool?.setText(R.string.label_text)   //완료 눌렀을때 현재 메뉴창이 어딘지 표시
             }
         })
         if (textEditorDialogFragment.isResumed) {
-
+            // show()로 edit가능하게 창이 열린상황일때 필요한 로직을 추가하는 부분. 현재 안씀.
         }
         val handler = Handler(Looper.getMainLooper())
          handler.post {
 //             Toast.makeText(requireActivity(),"filepath: $localFile",Toast.LENGTH_SHORT).show()
-            textEditorDialogFragment.완료실행()
+             //show()된 상태에서 완료버튼(textView를 clickable하게 만듦)을 실행하여 edit상태를 닫음.
+             textEditorDialogFragment.완료실행()
          }
     }
 
