@@ -781,7 +781,7 @@ class WebRtcSessionManagerImpl(
     //    val screenShareForResult = (context as MainActivity)
 //    var forScreenSharing: MainActivity.ResultMediaProjectionForRTCscreenSharing? = null
     var screenShareCapturer : VideoCapturer? = null
-
+    var intentForPermission: Intent? = null
 
 
     fun 화면공유실행(){
@@ -815,6 +815,11 @@ class WebRtcSessionManagerImpl(
 //        }else{
 //            // null이면 결과반환까지 딜레이를 약간 줘서 기다린 후, 다음 작업 진행.
 //        }
+        //받아온 mediaProjection의 permission관련 intent를 재사용하기 위해 할당해줌.
+        // todo 이게 문제가 아니라 녹화를 껏을때 mediaProjection을 종료하게 하는 것이 문제임. 이것때문에 화면 공유 중지를 누르면 에러뜸.
+        intentForPermission = data
+
+
         sessionManagerScope.launch {
 //                forScreenSharing = (context as MainActivity).forScreenSharing
             Log.e(tagName, "화면공유초기화() ")
@@ -907,6 +912,7 @@ class WebRtcSessionManagerImpl(
             context,
             mediaProjection,
             object: MediaProjection.Callback(){
+
                 override fun onStop() {
                     super.onStop()
                     Log.e(tagName, "MediaProjection.Callback() onStop(): 권한없음?")

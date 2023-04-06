@@ -315,11 +315,28 @@ fun VideoCallScreen() {
                         // todo  Fm 객체를 참조해 Record 객체를 가져와서 recording start 한다.
                         //   클릭상태가 true일때는 녹화시작, false 일때는 녹화 중지.
                         if (enabled){
-                            val mediaProjectionManager = getSystemService(rtcFm.requireContext(), MediaProjectionManager::class.java)
-                            val permissionIntent = mediaProjectionManager?.createScreenCaptureIntent()
-                            launcher.launch(permissionIntent)
+
+                            // todo 녹화를 껏을때 mediaProjection을 종료하게 하는 것이 문제임.
+                            //  이것때문에 화면 공유 중지를 누르면 에러뜸.
+                            //화면 공유등에서 이미 재사용할 intent를 받아와 할당해있다면 재사용하고,
+                            if(rtcVm.sessionManager.intentForPermission != null){
+                                result.value = rtcVm.sessionManager.intentForPermission
+                                setOutputPath()
+                                rtcFm.hbRecorder.startScreenRecording(result.value, Activity.RESULT_OK)
+
+                            } else {
+                                //아니면 할당받아 사용함.
+                                val mediaProjectionManager = getSystemService(rtcFm.requireContext(), MediaProjectionManager::class.java)
+                                val permissionIntent = mediaProjectionManager?.createScreenCaptureIntent()
+                                launcher.launch(permissionIntent)
+                            }
 
                         } else {
+                            // todo 녹화를 껏을때 mediaProjection을 종료하게 하는 것이 문제임. hbRecord에는
+                            //   mediaProjection을 stop()
+                            //  이것때문에 화면 공유 중지를 누르면 에러뜸. 객체안에 resetAll()이라는 것이 있는데,
+                            //   서비스와 mediaProjection를 중지시킴. 이렇게 했을때, 화면공유는 mediaProjection객체를
+                            //   못찾아 중지되는 듯한데, 그래서 해당 videoTrack을 못찾아 에러뜸.
                             rtcFm.hbRecorder.stopScreenRecording()
                         }
                     }
