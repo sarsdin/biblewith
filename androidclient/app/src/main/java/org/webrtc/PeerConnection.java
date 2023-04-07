@@ -10,6 +10,8 @@
 
 package org.webrtc;
 
+import android.util.Log;
+
 import androidx.annotation.Nullable;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -140,6 +142,7 @@ public class PeerConnection {
     while(var1.hasNext()) {
       RtpSender sender = (RtpSender)var1.next();
       sender.dispose();
+      Log.w("PeerConnection", "getSenders() ");
     }
 
     // ndk lib에서 다시 로드해서 새 객체를 가져옴. 주로 새로운 영상트랙을 추가했을때, 갱신용도로 사용하는 듯.

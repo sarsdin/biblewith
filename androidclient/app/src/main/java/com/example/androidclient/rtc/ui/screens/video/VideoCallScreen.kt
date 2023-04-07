@@ -14,6 +14,7 @@ import android.util.Log
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.annotation.RequiresApi
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.*
@@ -23,6 +24,7 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -223,6 +225,37 @@ fun VideoCallScreen() {
                                 shape = RoundedCornerShape(5.dp)
                             )
                     ) {
+//                        if ( !callMediaState.isCameraEnabled && index == 0){
+//                            Text(
+//                                text = "카메라가 없어요..",
+//                                modifier = Modifier
+//                                    .align(Alignment.TopCenter)
+//                                    .padding(4.dp),
+//                                color = Color.White,
+//                                fontSize = 18.sp,
+//                                fontWeight = FontWeight.Bold
+//                            )
+//
+//                            Image(
+//                                painter = painterResource(id = R.drawable.ddam),
+//                                contentDescription = "이미지 없음",
+//                                modifier = Modifier.fillMaxSize().align(Alignment.Center)
+//                            )
+//
+//                            Text(
+//                                text = peerId.substringBefore("@"),
+//                                modifier = Modifier
+//                                    .align(Alignment.BottomStart)
+//                                    .padding(4.dp),
+//                                color = Color.White,
+//                                fontSize = 18.sp,
+//                                fontWeight = FontWeight.Bold
+//                            )
+//
+//
+//                        } else {
+//                        }
+
                         VideoRenderer(
                             videoTrack = videoTrack,
                             modifier = Modifier.fillMaxSize()
@@ -237,6 +270,8 @@ fun VideoCallScreen() {
                             fontSize = 18.sp,
                             fontWeight = FontWeight.Bold
                         )
+
+
                     }
 
                 }

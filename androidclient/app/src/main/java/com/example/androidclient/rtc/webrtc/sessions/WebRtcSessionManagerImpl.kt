@@ -32,7 +32,6 @@ import com.example.androidclient.rtc.webrtc.peer.StreamPeerType
 import com.google.gson.JsonParser
 import io.getstream.log.taggedLogger
 import kotlinx.coroutines.*
-import kotlinx.coroutines.channels.BufferOverflow
 import kotlinx.coroutines.flow.*
 import org.webrtc.*
 import java.util.UUID
@@ -161,36 +160,43 @@ class WebRtcSessionManagerImpl(
      * 각 peerConnection 객체든지 따로 remoteVideoTrack을 모아둔 맵이라든지에 넣어줘야하지만,
      * localVideoTrack은 내 영상 트랙을 여기서 만들고 초기화되면 그것을 타 peerConnection에 여러번 재활용하면됨.
      * */
-    val localVideoTrack: VideoTrack by lazy {
+//    val localVideoTrack: VideoTrack by lazy {
+//        Log.e(tagName, "localVideoTrack 초기화 시작.")
+//        peerConnectionFactory.makeVideoTrack(
+//            source = videoSource,
+////            trackId = "Video_${MyApp.userInfo.user_email}_${UUID.randomUUID()}"
+//            trackId = "Video${UUID.randomUUID()}"
+//        ).run rn@ {
+//            Log.e(tagName, "localVideoTrack 초기화 완료. localVideoTrack: $this")
+//            sessionManagerScope.launch {
+//                //미리 SharedFlow에 snapshot을 저장하기 위해 emit함. 이후 localVideoTrack이 수집될때 사용됨.
+//                _localVideoTrackFlow.emit(this@rn)
+//            }
+//            this
+//        }
+//    }
+
+    private val localVideoTrack : MutableStateFlow<VideoTrack> by lazy {
         Log.e(tagName, "localVideoTrack 초기화 시작.")
-        peerConnectionFactory.makeVideoTrack(
-            source = videoSource,
-//            trackId = "Video_${MyApp.userInfo.user_email}_${UUID.randomUUID()}"
-            trackId = "Video${UUID.randomUUID()}"
-        ).run rn@ {
-            Log.e(tagName, "localVideoTrack 초기화 완료. localVideoTrack: $this")
-            sessionManagerScope.launch {
-                _localVideoTrackFlow.emit(this@rn)
-            }
-            this
-        }
+        MutableStateFlow<VideoTrack>(reCreateLocalVideoTrack())
     }
 
     /**
      * localVideoTrack가 초기화가 이상하게 잘 안되는 경우 재생성해서 플로우에 넣어줌.
      */
-    public fun reCreateLocalVideoTrack(){
+    public fun reCreateLocalVideoTrack(): VideoTrack {
         Log.e(tagName, "localVideoTrack 재생성 시작.")
-        peerConnectionFactory.makeVideoTrack(
+        return peerConnectionFactory.makeVideoTrack(
             source = videoSource,
 //            trackId = "Video_${MyApp.userInfo.user_email}_${UUID.randomUUID()}"
             trackId = "Video${UUID.randomUUID()}"
         ).run rn@ {
             Log.e(tagName, "localVideoTrack 재생성 완료. localVideoTrack: $this")
 //            this
-            sessionManagerScope.launch {
-                _localVideoTrackFlow.emit(this@rn)
-            }
+//            sessionManagerScope.launch {
+//                _localVideoTrackFlow.emit(this@rn)
+//            }
+            this@rn
         }
     }
 
@@ -401,7 +407,7 @@ class WebRtcSessionManagerImpl(
                 }
             }
 
-            _localVideoTrackFlow.emit(localVideoTrack)
+            _localVideoTrackFlow.emit(localVideoTrack.value)
         }
     }
 
@@ -450,12 +456,22 @@ class WebRtcSessionManagerImpl(
         }
         Log.e(tagName, "Session disconnect() 1")
         localVideoTrackFlow.replayCache.forEach { videoTrack ->
-            videoTrack.dispose()
+            videoTrack.runCatching {
+                dispose()
+            }.onFailure { e ->
+                Log.e(tagName, "already localVideoTrack disposed")
+                e.printStackTrace()
+            }
         }
         Log.e(tagName, "Session disconnect() 2")
         localAudioTrack.dispose()
         Log.e(tagName, "Session disconnect() 3")
-        localVideoTrack.dispose()
+        localVideoTrack.runCatching {
+            value.dispose()
+        }.onFailure { e ->
+            Log.e(tagName, "already localVideoTrack disposed")
+            e.printStackTrace()
+        }
         Log.e(tagName, "Session disconnect() 4")
 
         // dispose audio handler and video capturer.
@@ -538,7 +554,8 @@ class WebRtcSessionManagerImpl(
 //        newPeerConnection.connection.restartIce()
         //내 로컬 카메라를 이용해 가져온 영상트랙을 이 peerConnection 객체에 추가함.
         // - 현재 연결된 상대 peer에게 내 영상을 전달해야하기 때문.
-        newPeerConnection.connection.addTrack(localVideoTrack)
+//        newPeerConnection.connection.addTrack(localVideoTrack)
+        newPeerConnection.connection.addTrack(localVideoTrack.value)
         newPeerConnection.connection.addTrack(localAudioTrack)
 
     }
@@ -781,29 +798,56 @@ class WebRtcSessionManagerImpl(
     /**
      * 화면공유 관련 변수 및 콜백. mediaProjectionManager 객체를 시스템으로부터 받아온다.
      */
-    val mediaProjectionManager = ContextCompat.getSystemService(context, MediaProjectionManager::class.java)
+    var mediaProjectionManager: MediaProjectionManager? = null
     var mediaProjection : MediaProjection? =  null
     //    val screenShareForResult = (context as MainActivity)
 //    var forScreenSharing: MainActivity.ResultMediaProjectionForRTCscreenSharing? = null
     var screenShareCapturer : VideoCapturer? = null
+    var screenSharingVideoTrack : VideoTrack? = null
     var intentForPermission: Intent? = null
 
 
+    /**
+     * 화면공유초기화()를 실행하여 초기화 되었는지, 아닌지에 따라 mediaProjection부터 생성할지 말지 결정.
+     */
     fun 화면공유실행(){
-        //MainActivity에 등록된 콜백으로 인텐트를 발송하여 결과를 받은뒤,
-//        (context as MainActivity).register.launch(mediaProjectionManager!!.createScreenCaptureIntent())
-        rtcFm.register.launch(mediaProjectionManager!!.createScreenCaptureIntent())
-
-        //화면공유를 위해 포그라운드 서비스 실행 - 보안상 이유로 MediaProjection를 사용할려면 필요.
-        val intentForScreenShare = Intent(context, MediaProjectionService::class.java)
-        context.startForegroundService(intentForScreenShare)
+            //RtcFm에 등록된 콜백으로 인텐트를 발송하여 결과를 받은뒤,
+            mediaProjectionManager = ContextCompat.getSystemService(context, MediaProjectionManager::class.java)
+            rtcFm.register.launch(mediaProjectionManager!!.createScreenCaptureIntent())
+            화면공유서비스온오프(true)
+//        if (screenSharingVideoTrack == null){
+//
+//        } else {
+//            assert (mediaProjection != null)
+//            화면공유서비스온오프(true)
+////            screenSharingVideoTrack?.setEnabled(true)
+//            //공유할 화면의 앱 경계면을 가져와 설정.
+////            screenShareCapturerBoundSetting() //stopCapture()를 안했으면 실행할 필요도없음.
+//
+//            //mediaProjection으로부터 받아와 만든 공유 VideoTrack으로 재설정.
+//            resetVideoTrack(screenSharingVideoTrack)
+//        }
     }
 
-    fun 화면공유중지() {
+    /**
+     *  화면공유를 위해 포그라운드 서비스 실행 --> 보안상 이유로 MediaProjection를 사용할려면 필요.
+     *  on == true , off == false
+     */
+    private fun 화면공유서비스온오프(onoff: Boolean) {
         val intentForScreenShare = Intent(context, MediaProjectionService::class.java)
-        screenShareCapturer?.stopCapture()
+        if (onoff) context.startForegroundService(intentForScreenShare)
+        else context.stopService(intentForScreenShare)
+    }
+
+    /**
+     * 현재 완전 정지는 아니고 일시정지.
+     */
+    fun 화면공유중지() {
+        // todo stopCapture()를 rtcFm이 종료될때 해줘야할듯. 그전까지는 일시중지로 사용하는게 좋은듯하다.
+        screenShareCapturer?.stopCapture() // virtualDisplay, mediaProjection, surfaceTextureHelper, capturerObserver 모두 종료.
+//        screenSharingVideoTrack?.setEnabled(false)
         resetVideoTrack(null, true)
-        context.stopService(intentForScreenShare)
+        화면공유서비스온오프(false)
     }
 
     /**
@@ -829,6 +873,7 @@ class WebRtcSessionManagerImpl(
 //                forScreenSharing = (context as MainActivity).forScreenSharing
             Log.e(tagName, "화면공유초기화() ")
 //                val data = forScreenSharing!!.intentDataCalled()
+
             assert (mediaProjectionManager != null)
             mediaProjection = mediaProjectionManager?.getMediaProjection(Activity.RESULT_OK, data)
             assert (mediaProjection != null)
@@ -852,23 +897,13 @@ class WebRtcSessionManagerImpl(
                 context,
                 capturerObserver
             )
-
-            // api31이상일때는 jetpack 호환성없는 lib로, api30이하~14까지일때는 호환성 lib로 기기 화면의 크기를 받아와야함.
-            // 이때, 앱의 경계면을 받는게 아니라, 전체화면을 받아와야하기에 이런 메소드를 사용함.
-            if (Build.VERSION.SDK_INT > Build.VERSION_CODES.R) {
-                val windowContext = context.createWindowContext(
-                    context.display!!,
-                    WindowManager.LayoutParams.TYPE_APPLICATION, null)
-                val projectionMetrics = windowContext.getSystemService(WindowManager::class.java).maximumWindowMetrics
-                screenShareCapturer!!.startCapture(projectionMetrics.bounds.width(), projectionMetrics.bounds.height(), 15)
-            } else {
-                val projectionMetrics = WindowMetricsCalculator.getOrCreate().computeMaximumWindowMetrics(context as MainActivity)
-                screenShareCapturer!!.startCapture(projectionMetrics.bounds.width(), projectionMetrics.bounds.height(), 15)
-            }
+            //공유할 화면의 앱 경계면을 가져와 설정.
+            screenShareCapturerBoundSetting()
         }
 
-        val screenSharingVideoTrack = peerConnectionFactory.factory.createVideoTrack("lmsSV1", videoSource)
-        screenSharingVideoTrack.setEnabled(true)
+        screenSharingVideoTrack = peerConnectionFactory.factory.createVideoTrack("lmsSV1", videoSource).apply {
+            setEnabled(true)
+        }
 
         // Add the screen sharing track to the local media stream
         //그냥 현재 connection sender에 addTrack해주면안되나? 상관없을 것 같은데?
@@ -884,29 +919,55 @@ class WebRtcSessionManagerImpl(
 //        val sender = connection.senders.find { it.track()?.id() == "lmsSV1" }
         // todo  각 peerConnection에 있는 sender의 video track을 찾아서 공유화면으로 교체해줌. 일단 테스트용.
         resetVideoTrack(screenSharingVideoTrack)
-
+//        resetVideoTrack(null, true)
         // If you want to switch back to the camera video track, you can call
         // 이후 만들어둔 localVideoTrack을 밑의 sender를 찾아서 넣어주거나, 그냥 view를 하나더 추가하는 방식으로 조정.
         // sender.setTrack(cameraVideoTrack, true) later
     }
 
+
     /**
-     * VideoTrack을 재설정함. 각 peerConnection객체내 sender List에서 videoTrack을 찾아서 받아온 Track으로 교체.
+     *  api31이상일때는 jetpack 호환성없는 lib로, api30이하~14까지일때는 호환성 lib로 기기 화면의 크기를 받아와야함.
+     * 이때, 앱의 경계면을 받는게 아니라, 전체화면을 받아와야하기에 이런 메소드를 사용함.
      */
-    fun resetVideoTrack(videoTrackToSet: VideoTrack? = null, isLocalVideoSet:Boolean = false) {
-        if (isLocalVideoSet) {
-            peerConnections.forEach {
-                it.value.setTrackToConnectionSender(localVideoTrack)
-            }
-            //로컬 비디오트랙을 렌더러뷰에 다시 넣어줌.
-            sessionManagerScope.launch {
-                _localVideoTrackFlow.emit(localVideoTrack)
-            }
-//            reCreateLocalVideoTrack()
+    private fun screenShareCapturerBoundSetting() {
+        if (Build.VERSION.SDK_INT > Build.VERSION_CODES.R) {
+            val windowContext = context.createWindowContext(
+                context.display!!,
+                WindowManager.LayoutParams.TYPE_APPLICATION, null
+            )
+            val projectionMetrics = windowContext.getSystemService(WindowManager::class.java).maximumWindowMetrics
+            screenShareCapturer!!.startCapture(projectionMetrics.bounds.width(),projectionMetrics.bounds.height(),15)
 
         } else {
-            peerConnections.forEach {
-                it.value.setTrackToConnectionSender(videoTrackToSet)
+            val projectionMetrics = WindowMetricsCalculator.getOrCreate().computeMaximumWindowMetrics(context as MainActivity)
+            screenShareCapturer!!.startCapture(projectionMetrics.bounds.width(),projectionMetrics.bounds.height(),15)
+        }
+    }
+
+    /**
+     * 화면 공유 온오프 시 사용.
+     * VideoTrack을 재설정함. 각 peerConnection객체내 sender List에서 videoTrack을 찾아서 받아온 Track으로 교체.
+     * isLocalVideoSet이 true로 설정될 경우 현재 Local VideoTrack 객체를 재생성하여 track을 설정함.
+     */
+    fun resetVideoTrack(videoTrackToSet: VideoTrack? = null, isLocalVideoSet:Boolean = false) {
+        sessionManagerScope.launch {
+            if (isLocalVideoSet) {
+                //로컬에 사용할 VideoTrack 재생성
+                reCreateLocalVideoTrack().also {
+                    localVideoTrack.value = it
+                }
+                //각 피어연결객체에 새로운 비디오 객체를 전달 설정.
+                peerConnections.forEach {
+                    it.value.setTrackToConnectionSender(localVideoTrack.value)
+                }
+                //로컬 비디오트랙을 비디오뷰에 다시 넣어줌.
+                _localVideoTrackFlow.emit(localVideoTrack.value)
+
+            } else {
+                peerConnections.forEach {
+                    it.value.setTrackToConnectionSender(videoTrackToSet)
+                }
             }
         }
     }

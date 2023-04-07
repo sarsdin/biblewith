@@ -10,6 +10,8 @@
 
 package org.webrtc;
 
+import android.util.Log;
+
 import java.util.HashMap;
 import java.util.IdentityHashMap;
 
@@ -63,6 +65,7 @@ public class VideoTrack extends MediaStreamTrack {
       nativeRemoveSink(getNativeMediaStreamTrack(), nativeSink);
       nativeFreeSink(nativeSink);
     }
+    Log.w("VideoTrack", "dispose() ");
     sinks.clear();
     super.dispose();
   }
