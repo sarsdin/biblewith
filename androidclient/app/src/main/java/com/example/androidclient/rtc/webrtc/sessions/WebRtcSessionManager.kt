@@ -20,6 +20,7 @@ import com.example.androidclient.rtc.webrtc.SignalingClient
 import com.example.androidclient.rtc.webrtc.peer.StreamPeerConnectionFactory
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharedFlow
+import kotlinx.coroutines.flow.StateFlow
 import org.webrtc.VideoTrack
 
 interface WebRtcSessionManager {
@@ -30,10 +31,9 @@ interface WebRtcSessionManager {
 
     val localVideoTrackFlow: SharedFlow<VideoTrack>
 
-//    val remoteVideoTrackFlow: SharedFlow<VideoTrack>
 //    val remoteVideoTracks: MutableStateFlow<MutableMap<String, VideoTrack>>
-//    val remoteVideoTracks: MutableStateFlow<List<VideoTrack>>
-    val remoteVideoTracks: SharedFlow<List<VideoTrack>>
+    val remoteVideoTracks: StateFlow<List<VideoTrack>>
+//    val remoteVideoTracks: SharedFlow<List<VideoTrack>>
 
     /**
      * WebRtcSessionManagerImpl 클래스안에 구현되어 있음.

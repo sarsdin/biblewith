@@ -130,8 +130,8 @@ fun VideoCallScreen() {
 //        val remoteVideoTrack = remoteVideoTrackState
         val remoteVideoTracks by sessionManager.remoteVideoTracks.collectAsState(emptyList())
 
-        val localVideoTrackState by sessionManager.localVideoTrackFlow.collectAsState(null)
-        val localVideoTrack = localVideoTrackState
+        val localVideoTrack by sessionManager.localVideoTrackFlow.collectAsState(null)
+//        val localVideoTrack = localVideoTrackState
 
         val chatMessages by rtcVm.chatMessages.collectAsState(emptyList())
 
@@ -143,9 +143,10 @@ fun VideoCallScreen() {
         var callMediaState by remember { mutableStateOf(CallMediaState()) }
 //        val si =  (sessionManager as WebRtcSessionManagerImpl)
 
-        if(localVideoTrack == null){
-            (sessionManager as WebRtcSessionManagerImpl).reCreateLocalVideoTrack()
-        }
+        // 로컬 비디오 트랙이 null 이면 재생성함.
+//        if(localVideoTrack == null){
+//            (sessionManager as WebRtcSessionManagerImpl).reCreateLocalVideoTrack()
+//        }
 
         val 다이얼로그보여주기 = remember{ mutableStateOf("") }
         fun 다이얼로그닫기(){
@@ -344,20 +345,22 @@ fun VideoCallScreen() {
                     CallAction.FlipCamera -> sessionManager.flipCamera()
                     CallAction.LeaveCall -> {
 
-                        CoroutineScope(Dispatchers.Default).launch {
-                            sessionManager.signalingClient.sendCommand(
-                                StandardCommand.접속해제,
-                                JsonObject().apply {
-                                    addProperty("command", StandardCommand.접속해제.name)
-                                }
-                            )
+                        sessionManager.signalingClient.sendCommand(
+                            StandardCommand.접속해제,
+                            JsonObject().apply {
+                                addProperty("command", StandardCommand.접속해제.name)
+                            }
+                        )
 
-                            sessionManager.disconnect()
-    //                        sessionManager.isDisconnected(true)
-                            android.os.Handler(Looper.getMainLooper()).postDelayed(Runnable {
-                                navigate(R.id.action_global_groupInFm)
-                            }, 500)
-                        }
+                        sessionManager.disconnect()
+//                        sessionManager.isDisconnected(true)
+                        android.os.Handler(Looper.getMainLooper()).postDelayed(Runnable {
+                            navigate(R.id.action_global_groupInFm)
+                        }, 500)
+
+//                        rememberCoroutineScope.launch {  } //이건 주의할 부분이 컴포넌트의 생명주기에 따른다는 부분.
+//                        CoroutineScope(Dispatchers.Default).launch {
+//                        }
 
 
 

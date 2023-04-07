@@ -47,6 +47,7 @@ public class RtpSender {
    */
   public boolean setTrack(@Nullable MediaStreamTrack track, boolean takeOwnership) {
     this.checkRtpSenderExists();
+    // 기존의 로컬 트랙을 재사용해서 이곳으로 track을 보내는 경우 null이 아니기때문에 nativeTrack를 가졌는지 체크 들어감.
     if (!nativeSetTrack(this.nativeRtpSender, track == null ? 0L : track.getNativeMediaStreamTrack())) {
       return false;
     } else {
@@ -112,8 +113,12 @@ public class RtpSender {
       this.dtmfSender.dispose();
     }
 
-    if (this.cachedTrack != null && this.ownsTrack) {
-      this.cachedTrack.dispose();
+    try {
+      if (this.cachedTrack != null && this.ownsTrack) {
+        this.cachedTrack.dispose();
+      }
+    } catch (IllegalStateException e){
+      e.printStackTrace();
     }
 
     JniCommon.nativeReleaseRef(this.nativeRtpSender);

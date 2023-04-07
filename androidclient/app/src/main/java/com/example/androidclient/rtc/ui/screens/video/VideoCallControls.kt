@@ -9,6 +9,8 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.Icon
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -36,6 +38,8 @@ fun VideoCallControls(
 ) {
 
     val rtcVm = viewModel<RtcVm>()
+
+    val 요청자수 by rtcVm.방장에게접속요청자목록.collectAsState()
 
     LazyRow(
         modifier = modifier.padding(top = 7.dp),
@@ -69,11 +73,13 @@ fun VideoCallControls(
 //                            .align(Alignment.BottomEnd)
                             .offset(x = 17.dp, y = 20.dp)
                             .size(18.dp)
-                            .background(진초록, CircleShape).zIndex(1f)
+                            .background(진초록, CircleShape)
+                            .zIndex(1f)
                     ) {
                         Text(
                             modifier = Modifier.align(Alignment.Center),
-                            text = rtcVm.방장에게접속요청자목록size.toString(),
+//                            text = rtcVm.방장에게접속요청자목록size.toString(),
+                            text = 요청자수.size().toString(),
                             style = TextStyle(
                                 fontFamily = FontFamily(Font(R.font.binggraetaombold, FontWeight.Bold)),
                                 fontSize = 9.sp,

@@ -264,6 +264,7 @@ class StreamPeerConnection(
 //    }
 
     fun setTrackToConnectionSender(videoTrackToSet: VideoTrack?) {
+        // getSender() 에는 video, audio 등의 MediaStreamTrack객체를 보유하는 RtpSender의 List가 반환됨.
         val sender = connection.senders.find { it.track()?.kind() == "video" }
         sender?.setTrack(videoTrackToSet, true)
     }

@@ -252,7 +252,7 @@ class EditImageActivity : BaseActivity(), OnPhotoEditorListener, View.OnClickLis
         Log.d(TAG, "onTouchView() called with: event = [$event]")
     }
 
-//    @SuppressLint("NonConstantResourceId", "MissingPermission")
+    @SuppressLint("NonConstantResourceId", "MissingPermission")
     override fun onClick(view: View) {
 
         when (view.id) {

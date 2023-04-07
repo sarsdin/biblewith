@@ -32,6 +32,7 @@ import com.example.androidclient.rtc.webrtc.peer.StreamPeerType
 import com.google.gson.JsonParser
 import io.getstream.log.taggedLogger
 import kotlinx.coroutines.*
+import kotlinx.coroutines.channels.BufferOverflow
 import kotlinx.coroutines.flow.*
 import org.webrtc.*
 import java.util.UUID
@@ -67,7 +68,7 @@ class WebRtcSessionManagerImpl(
 
     // used to send local video track to the fragment(ui를 말하는 듯)
     //WebRtcSessionManager의 멤버변수를 오버라이드함.
-    private val _localVideoTrackFlow = MutableSharedFlow<VideoTrack>()
+    private val _localVideoTrackFlow = MutableSharedFlow<VideoTrack>(replay = 1, extraBufferCapacity = 2)
     override val localVideoTrackFlow: SharedFlow<VideoTrack> = _localVideoTrackFlow
 
     // used to send remote video track to the sender
@@ -76,11 +77,12 @@ class WebRtcSessionManagerImpl(
 //    override val remoteVideoTrackFlow: SharedFlow<VideoTrack> = _remoteVideoTrackFlow
 //    val _remoteVideoTracks = MutableStateFlow(mutableMapOf<String, VideoTrack>())
 //    override val remoteVideoTracks: MutableStateFlow<MutableMap<String, VideoTrack>> = _remoteVideoTracks
-//    val _remoteVideoTracks = MutableStateFlow(emptyList<VideoTrack>())
-//    override val remoteVideoTracks: MutableStateFlow<List<VideoTrack>> = _remoteVideoTracks
 
-    val _remoteVideoTracks = MutableSharedFlow<List<VideoTrack>>(replay = 1)
-    override val remoteVideoTracks: SharedFlow<List<VideoTrack>> = _remoteVideoTracks.asSharedFlow()
+    val _remoteVideoTracks = MutableStateFlow(emptyList<VideoTrack>())
+    override val remoteVideoTracks: StateFlow<List<VideoTrack>> = _remoteVideoTracks.asStateFlow()
+
+//    val _remoteVideoTracks = MutableSharedFlow<List<VideoTrack>>(replay = 1, extraBufferCapacity = 2)
+//    override val remoteVideoTracks: SharedFlow<List<VideoTrack>> = _remoteVideoTracks.asSharedFlow()
 
     //rtc 채팅목록
     val _chatMessages = MutableStateFlow<List<ChatData>>(mutableListOf<ChatData>())
@@ -165,8 +167,11 @@ class WebRtcSessionManagerImpl(
             source = videoSource,
 //            trackId = "Video_${MyApp.userInfo.user_email}_${UUID.randomUUID()}"
             trackId = "Video${UUID.randomUUID()}"
-        ).run {
+        ).run rn@ {
             Log.e(tagName, "localVideoTrack 초기화 완료. localVideoTrack: $this")
+            sessionManagerScope.launch {
+                _localVideoTrackFlow.emit(this@rn)
+            }
             this
         }
     }
@@ -270,13 +275,13 @@ class WebRtcSessionManagerImpl(
 //                        _remoteVideoTracks.value[peerId] = videoTrack
 //                        _remoteVideoTracks.value = _remoteVideoTracks.value + videoTrack
 
-                        // 원격에서 받아온 videoTrack에 현재 연결된 peerId를 할당해준다.
+                        // 원격에서 받아온 videoTrack에 현재 연결된 peerId를 할당해준다. 차후에 원격지에서 localtrack만들때 직접 값을 넣어주는 것도 고려.
                         videoTrack.peerInfo["peerId"] = peerId
-//                        videoTrack.peerInfo["peerId"] = peerId.substringBefore("@")
-                        _remoteVideoTracks.emit(
-                        (_remoteVideoTracks.replayCache.firstOrNull()?: emptyList<VideoTrack>() )
-                            + videoTrack
-                        )
+//                        _remoteVideoTracks.emit(
+//                            ((_remoteVideoTracks.replayCache.firstOrNull()?: emptyList<VideoTrack>() )
+//                                    + videoTrack)
+//                        )
+                        _remoteVideoTracks.value = _remoteVideoTracks.value .plus(videoTrack)
                     }
                 }
             },
@@ -893,6 +898,11 @@ class WebRtcSessionManagerImpl(
             peerConnections.forEach {
                 it.value.setTrackToConnectionSender(localVideoTrack)
             }
+            //로컬 비디오트랙을 렌더러뷰에 다시 넣어줌.
+            sessionManagerScope.launch {
+                _localVideoTrackFlow.emit(localVideoTrack)
+            }
+//            reCreateLocalVideoTrack()
 
         } else {
             peerConnections.forEach {
