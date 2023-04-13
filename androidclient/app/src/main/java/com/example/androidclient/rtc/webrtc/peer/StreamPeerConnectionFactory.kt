@@ -3,6 +3,7 @@ import android.util.Log
 
 import android.content.Context
 import android.os.Build
+import com.example.androidclient.MyApp
 import com.example.androidclient.rtc.webrtc.sessions.ChatData
 import io.getstream.log.taggedLogger
 import kotlinx.coroutines.CoroutineScope
@@ -337,7 +338,10 @@ class StreamPeerConnectionFactory constructor(
         trackId: String
     ): VideoTrack {
         Log.e(tagName, "makeVideoTrack()실행: source: $source, trackId: $trackId")
-        return factory.createVideoTrack(trackId, source)
+        return factory.createVideoTrack(trackId, source).apply {
+            peerInfo["userId"] = MyApp.userInfo.user_email
+            peerInfo["nick"] = MyApp.userInfo.user_nick
+        }
     }
 
     /**

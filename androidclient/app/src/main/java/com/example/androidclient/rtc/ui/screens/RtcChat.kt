@@ -121,7 +121,7 @@ fun ChatItem(
     //todo  chatData객체를 remember로 state값으로 만들고, 그것의 변화(file progress)를 감지하여 리컴포지션이 일어나게 해야함.
     //   FILE일때만 state를 적용하게 실험해보기.
 //    var chatDataFile by remember { mutableStateOf(0f) }
-    val chatDataFile = chatData.progress.collectAsState()
+    val chatDataFile by chatData.progress.collectAsState()
 //    var chatDataFile = 0f
 //    LaunchedEffect(key1 = chatData.progress){
 //        launch {
@@ -158,7 +158,7 @@ fun ChatItem(
 
                 //todo 여기 progressbar작성
 
-                if (chatDataFile.value/*.value.progress*/ >= 1f || chatData.userId != MyApp.userInfo.user_email){
+                if (chatDataFile/*.value.progress*/ >= 1f || chatData.userId != MyApp.userInfo.user_email){
                     //todo 다운로드 버튼 나오게 하여, 클릭시 다운로드 처리가 진행되게 함.
                     Log.e("RtcChat", "(if) 다운로드 받기 버튼 활성화됨: ${chatDataFile/*.value.progress*/}")
 //                    rtcVm
@@ -174,12 +174,12 @@ fun ChatItem(
                     Log.e("RtcChat", "(else) chatDataFile.value.progress: ${chatDataFile/*.value.progress*/}")
                     CircularProgressIndicator(
                         modifier = Modifier.size(15.dp),
-                        progress = chatDataFile.value/*.value.progress*/,
+                        progress = chatDataFile/*.value.progress*/,
                         backgroundColor = Color.Green
                     )
                     Spacer(modifier = Modifier.size(10.dp))
                     Text(
-                        text = "${chatDataFile.value}%",
+                        text = "${chatDataFile}%",
                         color = Color.Green)
 
                 }

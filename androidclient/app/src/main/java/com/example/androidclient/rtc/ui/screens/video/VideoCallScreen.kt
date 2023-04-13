@@ -473,8 +473,9 @@ fun VideoCallScreen() {
                             // 진행률 업데이트
                             sentCountToPeer++
 
-                            val progress = (sentCountToPeer.toFloat() / rtcVm.sessionManager.getPeerConnections().size.toFloat()) * 100
-                            chatData.progress.emit(progress)
+                            val progress = (sentCountToPeer.toFloat() / rtcVm.sessionManager.getPeerConnections().size.toFloat()) //* 100f
+//                            chatData.progress.emit(progress)
+                            chatData.progress.value = progress
 
                             Log.e("RTC채팅 File 전송", "진행률 업데이트 - peerId에게 전송: ${peerId}, progress:$progress, sentCountToPeer:$sentCountToPeer")
                         }
