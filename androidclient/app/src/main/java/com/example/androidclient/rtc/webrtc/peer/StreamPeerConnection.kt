@@ -266,6 +266,11 @@ class StreamPeerConnection(
     fun setTrackToConnectionSender(videoTrackToSet: VideoTrack?) {
         // getSender() 에는 video, audio 등의 MediaStreamTrack객체를 보유하는 RtpSender의 List가 반환됨.
         val sender = connection.senders.find { it.track()?.kind() == "video" }
+        // takeOwnership 옵션이 true일때는 호출되는 videoTrack의 소유권을 sender가 가져감. webRtc에서 가져간다는 말.
+        // 그래서, set된 Track이 textureView등에서 removeSink등으로 인해 사용되지 않는 상황이 되면 자동으로 Track의
+        // nativeTrack 등의 webRtc 자원은 release됨. 그래서, 그 이후에 트랙을 재사용할때 Track내의 nativeTrack이
+        // 0이 되어, MediaStreamTrack has been disposed. 라는 에러가 발생하게됨. 그렇다고, 예외처리부분을 없애버리면
+        // ndk 차원에서 critical error가 뜸. c++ 구현부에 맵핑되어 있던 Track point가 사라져서 그런것.
         sender?.setTrack(videoTrackToSet, false)
     }
 
@@ -747,9 +752,6 @@ class StreamPeerConnection(
     /**
      * 파일을 보내는 메소드.
      */
-    fun sendFile(buffer: DataChannel.Buffer) {
-        dataChannel.send(buffer)
-    }
     suspend fun sendFile(fileName: String, file: ByteArray): Boolean {
         var header = "FILE_START"
         if (dataChannel.state() != DataChannel.State.OPEN) {
