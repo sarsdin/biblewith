@@ -1,11 +1,9 @@
 package com.example.androidclient.bible;
-import static com.example.androidclient.MyApp.userInfo;
 
 import android.util.Log;
 
 import android.os.Bundle;
 import android.view.LayoutInflater;
-import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 
@@ -15,12 +13,9 @@ import androidx.fragment.app.Fragment;
 import androidx.lifecycle.Observer;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.navigation.Navigation;
-import androidx.navigation.ui.NavigationUI;
 
 import com.example.androidclient.MyApp;
-import com.example.androidclient.R;
 import com.example.androidclient.databinding.BibleFmBinding;
-import com.example.androidclient.home.MainActivity;
 import com.example.androidclient.util.ImageHelper;
 import com.google.android.material.tabs.TabLayout;
 import com.google.android.material.tabs.TabLayoutMediator;
