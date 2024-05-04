@@ -95,6 +95,9 @@ fun ChatList(
             .heightIn(0.dp, 350.dp),
         userScrollEnabled = true
     ) {
+        // todo items 전체의 리컴포지션방지를 위해 key를 지정해주는 것이 좋다.
+        //  key가 없으면 items안의 item이 하나만 변경되어도 전체 리컴포지션이 되어버려 성능낭비를 초래한다.
+        //  indexing이 안되어있어서 어떤 부분(item)이 변경되는지 알지 못하기 때문.
         items(chatMessages) { chatData ->
             ChatItem(chatData)
         }
@@ -166,7 +169,7 @@ fun ChatItem(
                         modifier = Modifier.clickable {
                             //todo 로컬에 다운받기 메서드 실행. rtcVm에 다운받기 메서드 넣거나 여기 메서드 포함하기.
                             rtcVm.fileHelper.saveFileToDownloads(rtcVm.rtcFm.requireContext(), chatData.message, chatData.file!!)
-                            Toasty.success(rtcVm.rtcFm.requireContext(), "파일 다운로드 완료").show()
+                            Toasty.success(rtcVm.rtcFm.requireContext(), "파일 다운로드 시작").show()
                         },
                         text = "받기",
                         color = Color.Green)
@@ -179,7 +182,7 @@ fun ChatItem(
                     )
                     Spacer(modifier = Modifier.size(10.dp))
                     Text(
-                        text = "${chatDataFile}%",
+                        text = "${chatDataFile * 100}%",
                         color = Color.Green)
 
                 }

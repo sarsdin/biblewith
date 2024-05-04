@@ -5,7 +5,6 @@ import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import androidx.appcompat.app.AppCompatActivity
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
@@ -20,7 +19,6 @@ import com.example.androidclient.R
 import com.example.androidclient.bible.BibleDto
 import com.example.androidclient.bible.BibleVm
 import com.example.androidclient.databinding.MyHighLightFmListBinding
-import com.example.androidclient.home.MainActivity
 import com.example.androidclient.util.Http
 import com.example.androidclient.util.Http.HttpBible
 import com.example.androidclient.util.ImageHelper

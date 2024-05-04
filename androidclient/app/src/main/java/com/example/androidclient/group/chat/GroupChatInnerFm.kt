@@ -1,5 +1,6 @@
 package com.example.androidclient.group.chat
 
+import android.annotation.SuppressLint
 import android.content.ServiceConnection
 import android.os.*
 import android.util.Log
@@ -21,7 +22,7 @@ import com.example.androidclient.MyApp
 import com.example.androidclient.MyService
 import com.example.androidclient.databinding.GroupChatInnerFmBinding
 import com.example.androidclient.group.GroupVm
-import com.example.androidclient.home.MainActivity
+import com.example.androidclient.MainActivity
 import com.example.androidclient.util.FileHelper
 import com.example.androidclient.util.Http
 import com.example.androidclient.util.ImageHelper
@@ -60,6 +61,7 @@ class GroupChatInnerFm : Fragment() {
     //이유는 데이터를 갱신하는 옵저버가 onViewCreated 에 있기 때문이다.
     //정확히는 옵저버 선언 이후에 핸들러를 서비스에 붙이거나 onResume에서 처리해야함
     var handler : Handler? = Handler(Looper.getMainLooper(), object : Handler.Callback {
+        @SuppressLint("SuspiciousIndentation")
         override fun handleMessage(msg: Message): Boolean {
             if(msg.what == 1){
                 val getJin = msg.data.getString("jin") //서비스에서 들어온 채팅 json 문자열 - 이걸 파싱해야함 여기서
@@ -264,14 +266,26 @@ class GroupChatInnerFm : Fragment() {
         joinerRva = joinerRv.adapter as GroupChatInnerJoinerRva
 
 
-        //채팅방 안에 있는지 확인여부 - GroupChatinnerfm 안에 있으면 true 그외는 false 처리해야함 - 변경: 방번호로 비교해서 그 방외에만 알림
+        //채팅방 안에 있는지 확인여부(ChatClient.kt 에서 메시지 알림처리에 사용됨.)
+        // GroupChatInnerFm 안에 있으면 true 그외는 false 처리해야함 -> 변경: 방번호로 비교해서 그 방외에만 알림
         MyApp.inChatRoom = groupVm.chatRoomInfo.get("chat_room_no").asInt
         채팅방접속() //채팅서버와 연결하여 지금 들어가는 방있는지 확인하고
 
         //채팅 보내기 버튼
-        binding.sendIbt.setOnClickListener {
-            채팅보내기이벤트()
-        }
+//        binding.sendIbt.setOnClickListener {
+//            채팅보내기이벤트()
+//        }
+        binding.sendIbt.setOnClickListener( View.OnClickListener() {
+            fun onClick(v: View?) {
+                TODO("Not yet implemented")
+            }
+        })
+        binding.sendIbt.setOnClickListener(object: View.OnClickListener {
+            override fun onClick(v: View?) {
+                TODO("Not yet implemented")
+            }
+        })
+
         binding.inputEt.setOnKeyListener(object : View.OnKeyListener {
             override fun onKey(v: View?, keyCode: Int, event: KeyEvent?): Boolean {
                 if ( (event!!.action == KeyEvent.ACTION_DOWN) && (keyCode == KeyEvent.KEYCODE_ENTER)) {

@@ -30,8 +30,9 @@ public class Http {
 
     //retrofit2 클래스 설정
     private static final String BASE_URL = "http://";
-    public static final String UPLOADS_URL = "http://15.165.174.226/uploads/";                             //검색어
-    public static final String HOST_IP = "15.165.174.226";                             //서버 ip
+    public static final String UPLOADS_URL = "http://129.154.212.0:8085/uploads/";                             //검색어
+//    public static final String HOST_IP = "15.165.174.226";                             //서버 ip
+    public static final String HOST_IP = "129.154.212.0:8085";                           //AWS -> 오라클서버로 변경 후 ip
     public static final String UNSPLASH_API_URL = "https://api.unsplash.com";
 
 

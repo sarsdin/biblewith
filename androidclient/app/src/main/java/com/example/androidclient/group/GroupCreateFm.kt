@@ -2,10 +2,8 @@ package com.example.androidclient.group
 
 import android.Manifest
 import android.app.Activity
-import android.content.ContentResolver
 import android.content.Intent
 import android.content.pm.PackageManager
-import android.content.res.Resources
 import android.graphics.Bitmap
 import android.graphics.drawable.Drawable
 import android.net.Uri
@@ -40,7 +38,7 @@ import com.bumptech.glide.request.transition.Transition
 import com.example.androidclient.MyApp
 import com.example.androidclient.R
 import com.example.androidclient.databinding.GroupCreateFmBinding
-import com.example.androidclient.home.MainActivity
+import com.example.androidclient.MainActivity
 import com.example.androidclient.util.FileHelper
 import com.github.dhaval2404.imagepicker.ImagePicker
 import com.google.android.material.imageview.ShapeableImageView
@@ -53,7 +51,6 @@ import retrofit2.Call
 import retrofit2.Callback
 import retrofit2.Response
 import java.io.*
-import java.util.*
 import java.util.concurrent.ExecutionException
 
 

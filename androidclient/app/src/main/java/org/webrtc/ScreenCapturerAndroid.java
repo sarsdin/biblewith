@@ -10,7 +10,6 @@
 
 package org.webrtc;
 
-import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.hardware.display.DisplayManager;
@@ -22,7 +21,7 @@ import android.util.Log;
 import android.view.Surface;
 import androidx.annotation.Nullable;
 
-import com.example.androidclient.home.MainActivity;
+import com.example.androidclient.MainActivity;
 
 /**
  * An implementation of VideoCapturer to capture the screen content as a video stream.

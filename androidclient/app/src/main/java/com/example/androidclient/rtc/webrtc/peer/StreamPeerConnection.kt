@@ -772,9 +772,9 @@ class StreamPeerConnection(
         val buffer = ByteArray(chunkSize)
 
         // 나눈 조각을 복사해 전송을 위한 ByteArray List에 차곡차곡 쌓는다.
-        var bytesRead: Int
+        var bytesRead: Int //read로 읽은 buffer의 바이트수(사이즈). 위에서 32k로 지정했으니 32k일것이다.
         while (byteArrayInputStream.read(buffer).also { bytesRead = it } != -1) {
-            chunks.add(buffer.copyOf(bytesRead))
+            chunks.add(buffer.copyOf(bytesRead)) //읽은 사이즈만큼의 buffer를 복사하여 리스트에 추가.
         }
         byteArrayInputStream.close()
 

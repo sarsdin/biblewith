@@ -22,7 +22,7 @@ import com.example.androidclient.MyApp
 import com.example.androidclient.R
 import com.example.androidclient.databinding.GroupInFmBinding
 import com.example.androidclient.group.GroupVm
-import com.example.androidclient.home.MainActivity
+import com.example.androidclient.MainActivity
 import com.example.androidclient.util.FileHelper
 import com.example.androidclient.util.Http
 import com.example.androidclient.util.ImageHelper
@@ -163,7 +163,8 @@ class GroupInFm : Fragment() {
         val handler = Handler(Looper.getMainLooper())
         handler.postDelayed( Runnable {
             //모임 이미지 바꾸기 - 모임장일 때만 클릭 가능하게 설정
-            // - GroupListRva에서 모임뷰홀더를 클릭하여 들어올때의 서버통신이 코루틴이 아니라 groupInfo npe 위험때문에 핸들러를 이용해 지연을 살짝줌..
+            // - GroupListRva에서 모임뷰홀더를 클릭하여 들어올때의 서버통신이 순서제어가 된
+            // 코루틴이 아니라 groupInfo npe 위험때문에 핸들러를 이용해 지연을 살짝줌..
             //그리고 네트워크응답이 안올경우에 대비해 !isJsonNull 로 null 이 아닐때만 실행하도록함
             if(!(groupVm.groupInfo.isJsonNull) && groupVm.groupInfo.get("user_no").asInt == MyApp.userInfo.user_no){
                 binding.groupInCollapsingToolbarIv.setOnClickListener {

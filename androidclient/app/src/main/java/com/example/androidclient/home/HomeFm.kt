@@ -30,9 +30,9 @@ import androidx.viewpager2.widget.CompositePageTransformer
 import androidx.viewpager2.widget.MarginPageTransformer
 import androidx.viewpager2.widget.ViewPager2
 import com.example.androidclient.BuildConfig
+import com.example.androidclient.MainActivity
 import com.example.androidclient.bible.BibleVm
 import com.example.androidclient.databinding.HomeFmBinding
-import com.example.androidclient.databinding.MyProfileFmBinding
 import com.example.androidclient.group.GroupVm
 import com.example.androidclient.login.LoginActivity
 import com.example.androidclient.util.GridSpacingItemDecoration

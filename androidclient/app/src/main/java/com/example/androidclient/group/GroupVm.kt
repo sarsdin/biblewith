@@ -24,7 +24,7 @@ import kotlin.coroutines.suspendCoroutine
 
 class GroupVm : ViewModel() {
 
-    val host = "15.165.174.226"
+    val host = Http.HOST_IP
     val gson = GsonBuilder().setPrettyPrinting().create()
 
     var groupL = JsonArray() //모임 목록 - 모임목록가져오기()

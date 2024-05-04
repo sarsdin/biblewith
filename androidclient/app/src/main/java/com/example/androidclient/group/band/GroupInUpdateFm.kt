@@ -40,7 +40,7 @@ import com.example.androidclient.MyApp
 import com.example.androidclient.R
 import com.example.androidclient.databinding.GroupInUpdateFmBinding
 import com.example.androidclient.group.GroupVm
-import com.example.androidclient.home.MainActivity
+import com.example.androidclient.MainActivity
 import com.example.androidclient.util.FileHelper
 import com.example.androidclient.util.Http.UPLOADS_URL
 import com.github.dhaval2404.imagepicker.ImagePicker

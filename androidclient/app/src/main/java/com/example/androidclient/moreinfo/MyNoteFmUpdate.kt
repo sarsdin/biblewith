@@ -17,10 +17,8 @@ import com.example.androidclient.MyApp
 import com.example.androidclient.R
 import com.example.androidclient.bible.BibleVm
 import com.example.androidclient.databinding.MyNoteFmUpdateBinding
-import com.example.androidclient.home.MainActivity
 import com.google.gson.Gson
 import com.google.gson.JsonObject
-import com.google.gson.JsonParser
 import retrofit2.Call
 import retrofit2.Callback
 import retrofit2.Response

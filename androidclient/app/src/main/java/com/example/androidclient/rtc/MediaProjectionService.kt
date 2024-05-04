@@ -2,13 +2,12 @@ package com.example.androidclient.rtc
 
 import android.app.*
 import android.app.PendingIntent.FLAG_IMMUTABLE
-import android.app.PendingIntent.FLAG_MUTABLE
 import android.content.Intent
 import android.content.pm.ServiceInfo
 import android.os.Build
 import android.os.IBinder
 import com.example.androidclient.R
-import com.example.androidclient.home.MainActivity
+import com.example.androidclient.MainActivity
 
 
 class MediaProjectionService: Service() {

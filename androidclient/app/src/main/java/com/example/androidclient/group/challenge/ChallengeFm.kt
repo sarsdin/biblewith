@@ -18,7 +18,7 @@ import com.example.androidclient.R
 import com.example.androidclient.bible.BibleVm
 import com.example.androidclient.databinding.ChallengeFmBinding
 import com.example.androidclient.group.GroupVm
-import com.example.androidclient.home.MainActivity
+import com.example.androidclient.MainActivity
 import com.example.androidclient.util.ImageHelper
 import com.google.gson.JsonArray
 import kotlinx.coroutines.CoroutineScope

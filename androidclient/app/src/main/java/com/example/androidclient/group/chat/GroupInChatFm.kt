@@ -14,14 +14,13 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
-import androidx.navigation.Navigation
 import androidx.navigation.fragment.findNavController
 import com.example.androidclient.MyApp
 import com.example.androidclient.MyService
 import com.example.androidclient.R
 import com.example.androidclient.databinding.GroupInChatFmBinding
 import com.example.androidclient.group.GroupVm
-import com.example.androidclient.home.MainActivity
+import com.example.androidclient.MainActivity
 import com.example.androidclient.util.ImageHelper
 import com.google.gson.JsonObject
 import com.google.gson.JsonParser

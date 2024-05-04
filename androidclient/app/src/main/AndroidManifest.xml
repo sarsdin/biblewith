@@ -30,12 +30,12 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.seols"
         android:usesCleartextTraffic="true"
-        android:enableOnBackInvokedCallback="true"
+        android:enableOnBackInvokedCallback="false"
         android:requestLegacyExternalStorage="true"
         tools:targetApi="31"
         tools:replace="android:fullBackupContent,android:name,android:theme">
         <activity
-            android:name=".home.MainActivity"
+            android:name=".MainActivity"
             android:exported="true"
             android:supportsPictureInPicture="true"
             android:configChanges="keyboard|keyboardHidden|orientation|screenSize|screenLayout|smallestScreenSize|uiMode"

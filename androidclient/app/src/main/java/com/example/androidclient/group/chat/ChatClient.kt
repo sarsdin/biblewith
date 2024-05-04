@@ -12,15 +12,13 @@ import android.net.Uri
 import android.os.*
 import android.util.Log
 import androidx.core.app.NotificationCompat
-import androidx.core.app.NotificationManagerCompat
 import com.example.androidclient.MyApp
 import com.example.androidclient.MyService
 import com.example.androidclient.R
-import com.example.androidclient.home.MainActivity
+import com.example.androidclient.MainActivity
 import com.google.gson.GsonBuilder
 import com.google.gson.JsonObject
 import com.google.gson.JsonParser
-import com.google.gson.stream.JsonReader
 import java.io.BufferedReader
 import java.io.IOException
 import java.io.InputStreamReader
@@ -28,7 +26,10 @@ import java.io.PrintWriter
 import java.net.Socket
 import java.net.SocketTimeoutException
 
-
+/**
+ *  생성순서
+ *  MainActivity -> MyService -> ChatClient
+ * */
 class ChatClient(private val ip: String, val myService: MyService /*, val groupVm: GroupVm*/) : /*Runnable*/ Thread() {
 
     val tagName = "[ChatClient]"

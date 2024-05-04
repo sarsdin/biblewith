@@ -17,6 +17,7 @@ import androidx.fragment.app.Fragment;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.navigation.fragment.NavHostFragment;
 
+import com.example.androidclient.BuildConfig;
 import com.example.androidclient.MyApp;
 import com.example.androidclient.R;
 import com.example.androidclient.databinding.LoginJoinFmBinding;
@@ -61,7 +62,7 @@ public class JoinFm extends Fragment {
         //회원가입 시 형식 유효성 검사를 위한 텍스트 와쳐 생성 및 실행
         validationCheck();
 
-        //인증번호 발송 버튼 클릭시 회원가입 이메일 검증 메일(번호)보내기
+        //인증번호 발송 버튼 클릭시 회원가입시 사용할 이메일 중복 검사 후 인증메일(검증번호)보내기
         binding.joinEmailSendBt.bringToFront();
         binding.joinEmailSendBt.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -73,7 +74,7 @@ public class JoinFm extends Fragment {
                             JsonObject res = response.body();
                             Log.e("[JoinFm]", "이메일중복검사통신 onResponse: 통신성공, 결과는: "+ res.toString() );
 
-                            //검증한 이메일이 존재하지않으면 인증메일을 바로보내고, 존재하면 toast 로 '사용중' 이라고 띄운다.
+                            //검사한 이메일이 존재하지않으면 인증메일을 바로보내고, 존재하면 toast 로 '사용중' 이라고 띄운다.
                             if (res.get("result").getAsBoolean()){
                                 Toast.makeText(getActivity(), "인증 메일을 보냈습니다.", Toast.LENGTH_SHORT).show();
                                 // todo: 인증메일 보내기 smtp
@@ -165,19 +166,20 @@ public class JoinFm extends Fragment {
 
     }
 
-    //joinEmailSendBt 인증번호 발송 버튼 클릭시 실행됨.
+    /**
+     * joinEmailSendBt 인증번호 발송 버튼 클릭시 실행됨.
+     * @param recipient 메일주소
+     */
     private void 인증메일보내기(String recipient) {
         String subject = "성경with 회원가입 인증번호입니다.";
         String emailbody = "인증번호: ";
-
-        String spEmailCodeNum = sp.getString("emailcode", ""); // 인증번호 쉐어드에 저장
 
         new Thread(){
             @Override
             public void run() {
                 super.run();
 
-                GmailSender gMailSender = new GmailSender("sjeys14@gmail.com", "tjhuubvtoqmnthsd");
+                GmailSender gMailSender = new GmailSender("sjeys14@gmail.com", BuildConfig.GMAIL_PW);
                 //GMailSender.sendMail(제목, 본문내용, 받는사람);
                 try {
                     gMailSender.sendMail(subject, emailbody + gMailSender.getEmailCode(), recipient );

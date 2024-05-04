@@ -346,7 +346,7 @@ public class BibleVerseFm extends Fragment {
 
 
     void 절목록가져오기(){
-        Retrofit retrofit = Http.getRetrofitInstance("15.165.174.226");
+        Retrofit retrofit = Http.getRetrofitInstance(Http.HOST_IP);
         Http.HttpBible httpBible = retrofit.create(Http.HttpBible.class); // 통신 구현체 생성(미리 보낼 쿼리스트링 설정해두는거)
         Call<List<BibleDto>> call = httpBible.getVerseList( bibleVm.책장번호[0], bibleVm.책장번호[1] );
         call.enqueue(new Callback<List<BibleDto>>() {

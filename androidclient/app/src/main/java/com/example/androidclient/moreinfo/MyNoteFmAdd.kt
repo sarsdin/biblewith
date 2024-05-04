@@ -6,7 +6,6 @@ import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import androidx.annotation.NonNull
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.Navigation
@@ -16,10 +15,8 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.example.androidclient.MyApp
 import com.example.androidclient.R
-import com.example.androidclient.bible.BibleDto
 import com.example.androidclient.bible.BibleVm
 import com.example.androidclient.databinding.MyNoteFmAddBinding
-import com.example.androidclient.home.MainActivity
 import com.google.gson.Gson
 import com.google.gson.JsonObject
 import com.google.gson.JsonParser

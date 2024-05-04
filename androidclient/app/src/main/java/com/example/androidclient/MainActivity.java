@@ -1,4 +1,4 @@
-package com.example.androidclient.home;
+package com.example.androidclient;
 
 import android.annotation.SuppressLint;
 import android.app.Activity;
@@ -81,7 +81,7 @@ public class MainActivity extends AppCompatActivity {
         navController = Navigation.findNavController(this, R.id.nav_host_fragment_main_activity);
         //appBarConfiguration 은 탑레벨 destinations 를 지정하기위한 appbar의 옵션구성임. 바텀네비게이션은 이미 각 메뉴탭이 최상위레벨로 지정되어 만들어져있는 느낌임.
         //그래서 이옵션을 지정하지 않아도 각 탭이 최상위레벨 destination 으로 작동하는데, 만약 toolBar & navigationDrawerview 를 구성할려면 이 옵션을 이용해 최상위 destination
-        //을 설정할 수 있을 것임. 위에서처럼 개별 topLevelDestinationIds를 지정할 수 도있고 해당 view가 속한 navController의 NavGraph를 이용해 전체 네비게이션 그래프를 전달하여
+        //을 설정할 수 있을 것임. 위에서처럼 개별 topLevelDestinationIds를 지정할 수도있고 해당 view가 속한 navController의 NavGraph를 이용해 전체 네비게이션 그래프를 전달하여
         //설정할 수도 있음. 탑레벨 destination을 지정하면 up버튼 ui를 최상위 destination을 기준으로 표시되게 할 수 있음!
         // activity에서 네비게이션을 만들든 fragment에서 만들든 new AppBarConfiguration 은 onCreate 또는 onViewCreate에서 반드시 선언되어야 up버튼등이 최상위메뉴 기준으로 설정가능.
 

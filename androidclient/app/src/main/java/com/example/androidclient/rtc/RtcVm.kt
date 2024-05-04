@@ -4,13 +4,11 @@ import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.androidclient.group.GroupVm
-import com.example.androidclient.home.MainActivity
 import com.example.androidclient.rtc.webrtc.sessions.ChatData
 import com.example.androidclient.rtc.webrtc.sessions.WebRtcSessionManagerImpl
 import com.example.androidclient.util.FileHelperV2
 import com.google.gson.JsonArray
 import com.google.gson.JsonObject
-import kotlinx.coroutines.flow.SharedFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
 

@@ -59,7 +59,9 @@ androidclient/build
 androidclient/captures
 androidclient/.externalNativeBuild
 androidclient/.cxx
+androidclient/*.puml
 local.properties
+
 
 #-------------------------
 # Environment Files

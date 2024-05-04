@@ -18,7 +18,7 @@ import com.example.androidclient.MyApp
 import com.example.androidclient.R
 import com.example.androidclient.databinding.GroupFmBinding
 import com.example.androidclient.group.chat.GroupChatFm
-import com.example.androidclient.home.MainActivity
+import com.example.androidclient.MainActivity
 import com.example.androidclient.util.Http
 import com.example.androidclient.util.ImageHelper
 import com.google.android.material.tabs.TabLayout

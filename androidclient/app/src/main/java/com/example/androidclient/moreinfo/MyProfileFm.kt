@@ -1,25 +1,15 @@
 package com.example.androidclient.moreinfo
 
-import android.app.Activity
 import android.content.Context
 import android.content.Context.MODE_PRIVATE
 import android.content.Intent
-import android.content.SharedPreferences
-import android.media.MediaScannerConnection
 import android.net.Uri
 import android.os.Bundle
 import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.Toast
-import androidx.activity.OnBackPressedCallback
-import androidx.activity.OnBackPressedDispatcher
-import androidx.activity.result.ActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
-import androidx.appcompat.content.res.AppCompatResources
-import androidx.camera.core.impl.utils.ContextUtil.getApplicationContext
-import androidx.core.content.ContentProviderCompat.requireContext
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
@@ -34,13 +24,12 @@ import com.example.androidclient.R
 import com.example.androidclient.bible.BibleVm
 import com.example.androidclient.databinding.MyProfileFmBinding
 import com.example.androidclient.group.GroupVm
-import com.example.androidclient.home.MainActivity
+import com.example.androidclient.MainActivity
 import com.example.androidclient.login.LoginActivity
 import com.example.androidclient.util.FileHelper
 import com.example.androidclient.util.Http
 import com.example.androidclient.util.ImageHelper
 import com.github.dhaval2404.imagepicker.ImagePicker
-import com.google.android.material.imageview.ShapeableImageView
 import com.google.gson.JsonObject
 import es.dmoral.toasty.Toasty
 import okhttp3.MediaType.Companion.toMediaTypeOrNull
@@ -50,8 +39,6 @@ import okhttp3.RequestBody.Companion.toRequestBody
 import retrofit2.Call
 import retrofit2.Callback
 import retrofit2.Response
-import kotlin.coroutines.Continuation
-import kotlin.coroutines.suspendCoroutine
 
 class MyProfileFm : Fragment() {
 

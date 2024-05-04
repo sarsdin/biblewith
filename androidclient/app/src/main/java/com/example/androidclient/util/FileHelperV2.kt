@@ -10,7 +10,6 @@ import android.os.Environment
 import android.provider.MediaStore
 import android.provider.OpenableColumns
 import android.webkit.MimeTypeMap
-import androidx.annotation.RequiresApi
 import java.io.FileNotFoundException
 import java.io.IOException
 import java.io.InputStream
@@ -46,10 +45,10 @@ class FileHelperV2 {
 
         }
 
-        val uriToFolder = buildUriCollection(contentValues)
+        val uriOfFolder = buildUriCollection(contentValues)
 
         val resolver = context.contentResolver
-        val uri = resolver.insert(uriToFolder, contentValues)
+        val uri = resolver.insert(uriOfFolder, contentValues) //콘텐츠리졸버에 위에서 생성한 저장할 폴더Uri와 콘텐츠값을 전달하여 최종Uri를 생성.
 
         if (uri != null) {
             try {
@@ -63,7 +62,7 @@ class FileHelperV2 {
             } finally {
                 contentValues.clear()
                 if (isSdkHigherThan28()) {
-                    contentValues.put(MediaStore.Downloads.IS_PENDING, 0)
+                    contentValues.put(MediaStore.Downloads.IS_PENDING, 0) //현재 리졸버의 콘텐츠값을 pending false로 바꿔서 작업흐름정리함.
                 }
                 resolver.update(uri, contentValues, null, null)
             }

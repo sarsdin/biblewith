@@ -19,7 +19,7 @@ import androidx.core.content.ContextCompat
 import androidx.core.content.getSystemService
 import androidx.window.layout.WindowMetricsCalculator
 import com.example.androidclient.MyApp
-import com.example.androidclient.home.MainActivity
+import com.example.androidclient.MainActivity
 import com.example.androidclient.rtc.MediaProjectionService
 import com.example.androidclient.rtc.RtcFm
 import com.example.androidclient.rtc.webrtc.SignalingClient
@@ -449,6 +449,8 @@ class WebRtcSessionManagerImpl(
 //        remoteVideoTrackFlow.replayCache.forEach { videoTrack ->
 //            videoTrack.dispose()
 //        }
+        //remote dispose는 IllegalStateException이 뜰 가능성이 있다. 이미 peerConnection 객체가 fm으로부터 꺼진경우.
+        // 그래서 사실 명시적으로 dispose를 해주는 것이 오히려 안좋은 것일 수 있음. 아니면 local에서 처럼 try catch를 해주면됨.
         remoteVideoTracks.replayCache.forEach { map ->
             map.forEach {
                 it.dispose()

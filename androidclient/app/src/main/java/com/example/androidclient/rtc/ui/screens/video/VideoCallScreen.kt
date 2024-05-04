@@ -140,7 +140,7 @@ fun VideoCallScreen() {
 
 
         /**
-         * 카메라와 마이크 on/off 현황을 저장하는 객체의 상태를 저장.
+         * 통화 참가요청유무, 녹화 /카메라 /마이크의 on/off 현황을 저장하는 객체의 상태를 저장.
          */
         var callMediaState by remember { mutableStateOf(CallMediaState()) }
 //        val si =  (sessionManager as WebRtcSessionManagerImpl)
@@ -311,6 +311,9 @@ fun VideoCallScreen() {
 //        val activity = (LocalContext.current as? Activity)
 
 
+        /**
+         * 화면상의 각 아이콘에 대한 상호작용을 담당하는 컴포넌트.
+         */
         VideoCallControls(
             modifier = Modifier
                 .fillMaxWidth()
@@ -319,11 +322,12 @@ fun VideoCallScreen() {
             onCallAction = {
 
                 //CallAction이 sealed class 가 아니라면, CallAction 클래스에서 자식 클래스가 무엇이 있는지 알지 못해
-                // when 절에서 else{} 문을 추가하라는 컴파일 에러가 뜸. 자식클래스가 하나 더 추가되면, 그에 대한 처리를
+                // when 절에서 else{} 문을 추가하라는 컴파일 에러가 뜸. 예를들어, 자식클래스가 하나 더 추가되면, 그에 대한 처리를
                 // 해줘야 하기에 컴파일 에러가 뜨는게 개발자 입장에선 당연히 편하다. 일종의 오류 감지를 위한 장치.
+                // 즉, when절의 조건에 들어가는 클래스가 만약 5종류라면, 5종류의 모든 경우에 대한 처리를 해야 컴파일 에러가 안뜬다는 것.
                 when (it) {
                     is CallAction.RequestList -> {
-                        // todo rtvVm.RequestList 목록(방장에게접속요청자목록)의 size를 보고 0이면 false, 1이상이면 true로 되어 아이콘이 달라지게끔.
+                        // todo rtvVm.RequestList 목록(방장에게접속요청자목록)의 size를 보고 0이면 false, 1이상이면 true로 되어 아이콘이 달라지게끔함.
                         //  클릭시 진행사항 작성. 이벤트시에만 상태값을 변경하는 코딩방식을 따라야함.
                         다이얼로그보여주기.value = "요청자목록"
                         if (rtcVm.방장에게접속요청자목록.value.size() > 0){
@@ -377,16 +381,15 @@ fun VideoCallScreen() {
                         }
                     }
 
-                    CallAction.FlipCamera -> sessionManager.flipCamera()
-                    CallAction.LeaveCall -> {
+                    is CallAction.FlipCamera -> sessionManager.flipCamera()
 
+                    is CallAction.LeaveCall -> {
                         sessionManager.signalingClient.sendCommand(
                             StandardCommand.접속해제,
                             JsonObject().apply {
                                 addProperty("command", StandardCommand.접속해제.name)
                             }
                         )
-
                         sessionManager.disconnect()
 //                        sessionManager.isDisconnected(true)
                         android.os.Handler(Looper.getMainLooper()).postDelayed(Runnable {
@@ -396,9 +399,6 @@ fun VideoCallScreen() {
 //                        rememberCoroutineScope.launch {  } //이건 주의할 부분이 컴포넌트의 생명주기에 따른다는 부분.
 //                        CoroutineScope(Dispatchers.Default).launch {
 //                        }
-
-
-
                     }
 
                 }

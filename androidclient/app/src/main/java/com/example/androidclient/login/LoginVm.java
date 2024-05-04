@@ -13,7 +13,8 @@ import retrofit2.Retrofit;
 
 public class LoginVm extends ViewModel {
     private LoginRepository loginRepository; //뷰모델팩토리에서 만들때 레포지토리 객체를 이미 만들어서 넣어서 옴.
-    private String host = "15.165.174.226";
+//    private String host = "15.165.174.226";
+    private String host = Http.HOST_IP;
 
 //    private MutableLiveData<LoginFormState> loginFormState = new MutableLiveData<>();//로그인 상태를 저장하는 Livedata(옵저버가 사용하는 단한개의 key만있는자료구조?orMap 이라고 보면 될듯)
 //    private MutableLiveData<LoginResult> loginResult = new MutableLiveData<>();      //로그인 결과를 저장하는 Livedata

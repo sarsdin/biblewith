@@ -30,7 +30,7 @@ import retrofit2.Retrofit;
 
 public class BibleVm extends ViewModel {
 
-    public String host = "15.165.174.226";
+    public String host = Http.HOST_IP;
 
     public MutableLiveData<List<BibleDto>> liveBookL = new MutableLiveData<>(); //책이름 검색에서 쓰임
     public MutableLiveData<List<BibleDto>> liveVerseL = new MutableLiveData<>();

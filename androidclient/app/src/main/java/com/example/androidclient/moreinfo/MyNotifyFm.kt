@@ -10,14 +10,12 @@ import androidx.navigation.Navigation
 import androidx.navigation.fragment.findNavController
 import androidx.navigation.ui.AppBarConfiguration
 import androidx.navigation.ui.NavigationUI
-import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.example.androidclient.MyApp
 import com.example.androidclient.R
 import com.example.androidclient.bible.BibleVm
 import com.example.androidclient.databinding.MyProfileFmBinding
 import com.example.androidclient.group.GroupVm
-import com.example.androidclient.home.MainActivity
 import com.example.androidclient.util.ImageHelper
 
 class MyNotifyFm : Fragment() {

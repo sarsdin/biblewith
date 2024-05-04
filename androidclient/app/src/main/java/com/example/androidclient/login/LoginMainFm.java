@@ -1,11 +1,8 @@
 package com.example.androidclient.login;
 
-import android.app.PendingIntent;
-import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
-import android.net.Uri;
 import android.os.Bundle;
 import android.text.Editable;
 import android.text.TextWatcher;
@@ -22,15 +19,12 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.fragment.app.Fragment;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.navigation.NavController;
-import androidx.navigation.NavDeepLinkBuilder;
-import androidx.navigation.NavDeepLinkRequest;
-import androidx.navigation.Navigation;
 import androidx.navigation.fragment.NavHostFragment;
 
 import com.example.androidclient.MyApp;
 import com.example.androidclient.R;
+import com.example.androidclient.MainActivity;
 import com.example.androidclient.databinding.LoginMainFmBinding;
-import com.example.androidclient.home.MainActivity;
 
 import retrofit2.Call;
 import retrofit2.Callback;
@@ -156,7 +150,7 @@ public class LoginMainFm extends Fragment {
                 @Override
                 public void onResponse(Call<LoginDto> call, Response<LoginDto> response) {
 //                    Toast.makeText((LoginActivity)context, "자동 로그인하였습니다.", Toast.LENGTH_SHORT).show();
-                    Toast.makeText((LoginActivity)activity, "자동 로그인하였습니다.", Toast.LENGTH_SHORT).show();
+                    Toast.makeText((LoginActivity)activity, "로그인하였습니다.", Toast.LENGTH_SHORT).show();
                     if (response.isSuccessful()) {
                         LoginDto res = response.body();
                         MyApp.setUserInfo(res); //사용자 정보 MyApp 클래스에 저장

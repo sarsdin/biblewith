@@ -1,8 +1,6 @@
 package com.example.androidclient.bible;
 
 import android.annotation.SuppressLint;
-import android.content.Intent;
-import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -11,7 +9,6 @@ import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -24,11 +21,8 @@ import androidx.lifecycle.ViewModelProvider;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
-import com.example.androidclient.MyApp;
 import com.example.androidclient.R;
 import com.example.androidclient.databinding.BibleBookFmListBinding;
-import com.example.androidclient.home.MainActivity;
-import com.example.androidclient.login.LoginActivity;
 
 import java.util.ArrayList;
 import java.util.List;

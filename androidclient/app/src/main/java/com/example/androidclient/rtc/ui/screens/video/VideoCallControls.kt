@@ -29,6 +29,9 @@ import com.example.androidclient.rtc.RtcVm
 import com.example.androidclient.rtc.ui.theme.반투명검정
 import com.example.androidclient.rtc.ui.theme.진초록
 
+/**
+ *  비디오 스크린의 컨트롤 패널을 다루는 컴포넌트.
+ */
 @Composable
 fun VideoCallControls(
     modifier: Modifier,
@@ -48,7 +51,7 @@ fun VideoCallControls(
     ) {
         items(actions) { action ->
 
-            // 요청자 아이콘의 경우, 요청이 있을때
+            // 요청자 아이콘의 처리. 요청이 있을때
             if ((action.callAction is CallAction.RequestList) && action.callAction.isRequest ){
                 Box(
                     modifier = Modifier
@@ -90,7 +93,7 @@ fun VideoCallControls(
                 }
 
 
-
+            //그외 나머지 (일반적)상황일때
             } else {
                 Box(
                     modifier = Modifier

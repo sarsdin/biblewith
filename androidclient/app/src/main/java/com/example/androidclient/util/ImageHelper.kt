@@ -12,7 +12,8 @@ class ImageHelper {
 
     companion object {
         @JvmField   //java 의 스태틱처럼 사용가능 field는 필드, static은 메소드에 사용
-        val UPLOADS_URL = "http://15.165.174.226/uploads/"
+//        val UPLOADS_URL = "http://15.165.174.226/uploads/"
+        val UPLOADS_URL = "http://129.154.212.0:8085/uploads/"
 
         /**
          * 문자열주소를 이용해서 이미지를 불러옴. 
