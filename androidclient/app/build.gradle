@@ -8,11 +8,11 @@ Properties properties = new Properties()
 properties.load(project.rootProject.file('local.properties').newDataInputStream())
 
 android {
-    namespace 'com.example.androidclient'
+    namespace 'jm.preversion.biblewith'
     compileSdk 33
 
     defaultConfig {
-        applicationId "com.example.androidclient"
+        applicationId "jm.preversion.biblewith"
         minSdk 28
         targetSdk 33
         versionCode 1
@@ -23,6 +23,7 @@ android {
         //local.properties 에 등록한 api key를 사용하기 위해 가져오기
         buildConfigField "String", "API_KEY", properties["api.key"]
         buildConfigField "String", "API_SKEY", properties["api.skey"]
+        buildConfigField "String", "GMAIL_PW", properties["gmail.pw"]
 
         buildConfigField "String", "SIGNALING_SERVER_IP_ADDRESS",
                 properties["SIGNALING_SERVER_IP_ADDRESS"]

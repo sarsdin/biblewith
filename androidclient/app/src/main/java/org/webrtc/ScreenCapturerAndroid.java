@@ -10,7 +10,6 @@
 
 package org.webrtc;
 
-import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.hardware.display.DisplayManager;
@@ -18,10 +17,11 @@ import android.hardware.display.VirtualDisplay;
 import android.media.projection.MediaProjection;
 import android.media.projection.MediaProjectionManager;
 import android.util.DisplayMetrics;
+import android.util.Log;
 import android.view.Surface;
 import androidx.annotation.Nullable;
 
-import com.example.androidclient.home.MainActivity;
+import jm.preversion.biblewith.MainActivity;
 
 /**
  * An implementation of VideoCapturer to capture the screen content as a video stream.
@@ -122,12 +122,16 @@ public class ScreenCapturerAndroid implements VideoCapturer, VideoSink {
 //        Activity.RESULT_OK, mediaProjectionPermissionResultData);
 
     // Let MediaProjection callback use the SurfaceTextureHelper thread.
+    assert mediaProjection != null;
+    assert mediaProjectionCallback != null;
+    assert surfaceTextureHelper != null;
     mediaProjection.registerCallback(mediaProjectionCallback, surfaceTextureHelper.getHandler());
 
 //    createVirtualDisplay();
     createVirtualDisplay_test();
     capturerObserver.onCapturerStarted(true);
     surfaceTextureHelper.startListening(ScreenCapturerAndroid.this);
+    Log.w("ScreenCapturerAndroid", "startCapture() ");
   }
 
   @Override
@@ -143,6 +147,7 @@ public class ScreenCapturerAndroid implements VideoCapturer, VideoSink {
 
         if (virtualDisplay != null) {
           virtualDisplay.release();
+          Log.w("ScreenCapturerAndroid", "stopCapture() virtualDisplay.release()");
           virtualDisplay = null;
         }
 
@@ -152,7 +157,9 @@ public class ScreenCapturerAndroid implements VideoCapturer, VideoSink {
           mediaProjection.unregisterCallback(mediaProjectionCallback);
           mediaProjection.stop();
           mediaProjection = null;
+          Log.w("ScreenCapturerAndroid", "stopCapture() mediaProjection.stop()");
         }
+        Log.w("ScreenCapturerAndroid", "stopCapture()");
       }
     });
   }
@@ -211,10 +218,10 @@ public class ScreenCapturerAndroid implements VideoCapturer, VideoSink {
 //    int height = 2160
 //    int width = 104;
 //    int height = 166;
-    int width = 144;
-    int height = 176;
-//    int width = 240;
-//    int height = 320;
+//    int width = 144;
+//    int height = 176;
+    int width = 240;
+    int height = 320;
 //    int width = 480;
 //    int height = 640;
 //    int baseWidth = 1080;

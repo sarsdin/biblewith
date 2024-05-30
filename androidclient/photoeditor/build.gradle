@@ -5,7 +5,7 @@ android {
     compileSdkVersion 33
     defaultConfig {
 //        applicationId "com.burhanrashid52.photoediting" // library module의 경우 부모 모듈(주어플리케이션)의 id 명이 들어가야함
-//        applicationId "com.example.androidclient"
+//        applicationId "jm.preversion.biblewith"
         minSdkVersion 28
         targetSdkVersion 33
         multiDexEnabled = true

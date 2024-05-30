@@ -6,10 +6,10 @@
     <data>
         <variable
             name="dto"
-            type="com.example.androidclient.bible.BibleDto" />
+            type="jm.preversion.biblewith.bible.BibleDto" />
         <variable
             name="vm"
-            type="com.example.androidclient.bible.BibleVm" />
+            type="jm.preversion.biblewith.bible.BibleVm" />
     </data>
 
 <LinearLayout

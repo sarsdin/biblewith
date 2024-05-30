@@ -7,7 +7,7 @@
 
     <fragment
         android:id="@+id/loginMainFm"
-        android:name="com.example.androidclient.login.LoginMainFm"
+        android:name="jm.preversion.biblewith.login.LoginMainFm"
         android:label="login_main_fm"
         tools:layout="@layout/login_main_fm">
         <action
@@ -21,12 +21,12 @@
     </fragment>
     <fragment
         android:id="@+id/joinFm"
-        android:name="com.example.androidclient.login.JoinFm"
+        android:name="jm.preversion.biblewith.login.JoinFm"
         android:label=""
         tools:layout="@layout/login_join_fm" />
     <fragment
         android:id="@+id/findPwFm"
-        android:name="com.example.androidclient.login.FindPwFm"
+        android:name="jm.preversion.biblewith.login.FindPwFm"
         android:label=""
         tools:layout="@layout/login_find_pw_fm" />
     <action

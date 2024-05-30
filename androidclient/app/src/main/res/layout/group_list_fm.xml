@@ -34,7 +34,7 @@
 
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/group_list"
-        android:name="com.example.androidclient.group.GroupListFm"
+        android:name="jm.preversion.biblewith.group.GroupListFm"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginHorizontal="10dp"

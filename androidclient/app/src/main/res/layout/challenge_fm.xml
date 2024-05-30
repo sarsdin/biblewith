@@ -175,7 +175,7 @@
                 android:layout_marginTop="5dp"
                 android:paddingBottom="350dp"
                 app:layoutManager="LinearLayoutManager" />
-            <!--            android:name="com.example.androidclient.group.band.GroupInFm"-->
+            <!--            android:name="jm.preversion.biblewith.group.band.GroupInFm"-->
             <!--            tools:listitem="@layout/chal_fm_vh"-->
 
         </LinearLayout>

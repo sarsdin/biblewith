@@ -8,7 +8,7 @@
 
     <fragment
         android:id="@+id/home_fm"
-        android:name="com.example.androidclient.home.HomeFm"
+        android:name="jm.preversion.biblewith.home.HomeFm"
         android:label=""
         tools:layout="@layout/home_fm">
         <deepLink
@@ -17,12 +17,12 @@
     </fragment>
     <fragment
         android:id="@+id/bible_fm"
-        android:name="com.example.androidclient.bible.BibleFm"
+        android:name="jm.preversion.biblewith.bible.BibleFm"
         android:label=""
         tools:layout="@layout/bible_fm" />
     <fragment
         android:id="@+id/group_fm"
-        android:name="com.example.androidclient.group.GroupFm"
+        android:name="jm.preversion.biblewith.group.GroupFm"
         android:label=""
         tools:layout="@layout/group_fm">
         <action
@@ -40,14 +40,14 @@
     </fragment>
     <fragment
         android:id="@+id/bibleVerseFm"
-        android:name="com.example.androidclient.bible.BibleVerseFm"
+        android:name="jm.preversion.biblewith.bible.BibleVerseFm"
         android:label=""
         tools:layout="@layout/bible_verse_fm_list"/>
     <action android:id="@+id/action_global_bibleVerseFm"
         app:destination="@id/bibleVerseFm"/>
     <fragment
         android:id="@+id/myNoteFmAdd"
-        android:name="com.example.androidclient.moreinfo.MyNoteFmAdd"
+        android:name="jm.preversion.biblewith.moreinfo.MyNoteFmAdd"
         android:label="노트 추가"
         tools:layout="@layout/my_note_fm_add" />
     <action
@@ -59,7 +59,7 @@
         app:popExitAnim="@anim/nav_default_pop_exit_anim" />
     <fragment
         android:id="@+id/myNoteFmUpdate"
-        android:name="com.example.androidclient.moreinfo.MyNoteFmUpdate"
+        android:name="jm.preversion.biblewith.moreinfo.MyNoteFmUpdate"
         android:label="노트 수정"
         tools:layout="@layout/my_note_fm_update"/>
     <action
@@ -81,7 +81,7 @@
 
     <fragment
         android:id="@+id/more_fm"
-        android:name="com.example.androidclient.moreinfo.MoreFm"
+        android:name="jm.preversion.biblewith.moreinfo.MoreFm"
         android:label="더보기"
         tools:layout="@layout/more_fm">
         <action
@@ -107,37 +107,37 @@
 <!--            app:restoreState="true"-->
     <fragment
         android:id="@+id/myHighLightFm"
-        android:name="com.example.androidclient.moreinfo.MyHighLightFm"
+        android:name="jm.preversion.biblewith.moreinfo.MyHighLightFm"
         android:label="하이라이트"
         tools:layout="@layout/my_high_light_fm_list" />
     <fragment
         android:id="@+id/myNoteFm"
-        android:name="com.example.androidclient.moreinfo.MyNoteFm"
+        android:name="jm.preversion.biblewith.moreinfo.MyNoteFm"
         android:label="나의 노트"
         tools:layout="@layout/my_note_fm_list" />
     <fragment
         android:id="@+id/groupCreateFm"
-        android:name="com.example.androidclient.group.GroupCreateFm"
+        android:name="jm.preversion.biblewith.group.GroupCreateFm"
         android:label="모임 만들기"
         tools:layout="@layout/group_create_fm" />
     <fragment
         android:id="@+id/groupListFm"
-        android:name="com.example.androidclient.group.GroupListFm"
+        android:name="jm.preversion.biblewith.group.GroupListFm"
         android:label=""
         tools:layout="@layout/group_list_fm" />
     <fragment
         android:id="@+id/groupChatFm"
-        android:name="com.example.androidclient.group.chat.GroupChatFm"
+        android:name="jm.preversion.biblewith.group.chat.GroupChatFm"
         android:label=""
         tools:layout="@layout/group_chat_fm" />
     <fragment
         android:id="@+id/groupNotifyFm"
-        android:name="com.example.androidclient.group.GroupNotifyFm"
+        android:name="jm.preversion.biblewith.group.GroupNotifyFm"
         android:label=""
         tools:layout="@layout/group_notify_fm" />
     <fragment
         android:id="@+id/groupInFm"
-        android:name="com.example.androidclient.group.band.GroupInFm"
+        android:name="jm.preversion.biblewith.group.band.GroupInFm"
         android:label=""
         tools:layout="@layout/group_in_fm">
         <action
@@ -162,12 +162,12 @@
     </fragment>
     <fragment
         android:id="@+id/groupInWriteFm"
-        android:name="com.example.androidclient.group.band.GroupInWriteFm"
+        android:name="jm.preversion.biblewith.group.band.GroupInWriteFm"
         android:label="글쓰기"
         tools:layout="@layout/group_in_write_fm"/>
     <fragment
         android:id="@+id/groupInUpdateFm"
-        android:name="com.example.androidclient.group.band.GroupInUpdateFm"
+        android:name="jm.preversion.biblewith.group.band.GroupInUpdateFm"
         android:label="글수정하기"
         tools:layout="@layout/group_in_update_fm" >
         <action
@@ -178,7 +178,7 @@
     </fragment>
     <fragment
         android:id="@+id/groupBoardDetail"
-        android:name="com.example.androidclient.group.band.GroupBoardDetail"
+        android:name="jm.preversion.biblewith.group.band.GroupBoardDetail"
         android:label=""
         tools:layout="@layout/group_board_detail" >
         <action
@@ -187,7 +187,7 @@
     </fragment>
     <fragment
         android:id="@+id/group_in_challenge_fm"
-        android:name="com.example.androidclient.group.challenge.ChallengeFm"
+        android:name="jm.preversion.biblewith.group.challenge.ChallengeFm"
         android:label=""
         tools:layout="@layout/challenge_fm" >
         <action
@@ -199,7 +199,7 @@
     </fragment>
     <fragment
         android:id="@+id/challengeCreateFm"
-        android:name="com.example.androidclient.group.challenge.ChallengeCreateFm"
+        android:name="jm.preversion.biblewith.group.challenge.ChallengeCreateFm"
         android:label=""
         tools:layout="@layout/challenge_create_fm"
         >
@@ -209,7 +209,7 @@
     </fragment>
     <fragment
         android:id="@+id/challengeCreateNextFm"
-        android:name="com.example.androidclient.group.challenge.ChallengeCreateNextFm"
+        android:name="jm.preversion.biblewith.group.challenge.ChallengeCreateNextFm"
         android:label=""
         tools:layout="@layout/challenge_create_next_fm" >
         <action
@@ -220,12 +220,12 @@
     </fragment>
     <fragment
         android:id="@+id/challengeDetailFm"
-        android:name="com.example.androidclient.group.challenge.ChallengeDetailFm"
+        android:name="jm.preversion.biblewith.group.challenge.ChallengeDetailFm"
         android:label=""
         tools:layout="@layout/challenge_detail_fm"/>
     <fragment
         android:id="@+id/challengeDetailListFm"
-        android:name="com.example.androidclient.group.challenge.ChallengeDetailListFm"
+        android:name="jm.preversion.biblewith.group.challenge.ChallengeDetailListFm"
         android:label=""
         tools:layout="@layout/challenge_detail_list_fm" >
         <action
@@ -242,12 +242,12 @@
         app:popUpTo="@id/groupInFm" />
     <fragment
         android:id="@+id/challengeDetailAfterFm"
-        android:name="com.example.androidclient.group.challenge.ChallengeDetailAfterFm"
+        android:name="jm.preversion.biblewith.group.challenge.ChallengeDetailAfterFm"
         android:label=""
         tools:layout="@layout/challenge_detail_after_fm"/>
     <fragment
         android:id="@+id/groupInMemberFm"
-        android:name="com.example.androidclient.group.member.GroupInMemberFm"
+        android:name="jm.preversion.biblewith.group.member.GroupInMemberFm"
         android:label=""
         tools:layout="@layout/group_in_member_fm">
     </fragment>
@@ -255,7 +255,7 @@
         app:destination="@id/groupInMemberFm" />
     <fragment
         android:id="@+id/myProfileFm"
-        android:name="com.example.androidclient.moreinfo.MyProfileFm"
+        android:name="jm.preversion.biblewith.moreinfo.MyProfileFm"
         android:label="내정보"
         tools:layout="@layout/my_profile_fm" >
         <action
@@ -265,12 +265,12 @@
     <action android:id="@+id/action_global_groupChatFm" app:destination="@id/groupChatFm" />
     <fragment
         android:id="@+id/groupInInviteFm"
-        android:name="com.example.androidclient.group.member.GroupInInviteFm"
+        android:name="jm.preversion.biblewith.group.member.GroupInInviteFm"
         android:label=""
         tools:layout="@layout/group_in_invite_fm" />
     <fragment
         android:id="@+id/groupInviteVerifyFm"
-        android:name="com.example.androidclient.group.member.GroupInviteVerifyFm"
+        android:name="jm.preversion.biblewith.group.member.GroupInviteVerifyFm"
         android:label=""
         tools:layout="@layout/group_invite_verify_fm" />
     <action
@@ -280,7 +280,7 @@
         app:exitAnim="@anim/nav_default_exit_anim" />
     <fragment
         android:id="@+id/startFm"
-        android:name="com.example.androidclient.home.StartFm"
+        android:name="jm.preversion.biblewith.home.StartFm"
         android:label="StartFm">
         <action
             android:id="@+id/action_startFm_to_home_fm"
@@ -290,7 +290,7 @@
         app:destination="@id/group_fm" />
     <dialog
         android:id="@+id/nickModifyDialogFm"
-        android:name="com.example.androidclient.moreinfo.NickModifyDialogFm"
+        android:name="jm.preversion.biblewith.moreinfo.NickModifyDialogFm"
         android:label="NickModifyDialogFm" />
     <action
         android:id="@+id/action_global_nickModifyDialogFm"
@@ -301,12 +301,12 @@
         app:popExitAnim="@anim/nav_default_pop_exit_anim" />
     <dialog
         android:id="@+id/groupInChatCreateDialogFm"
-        android:name="com.example.androidclient.group.chat.GroupInChatCreateDialogFm"
+        android:name="jm.preversion.biblewith.group.chat.GroupInChatCreateDialogFm"
         android:label="GroupInChatCreateDialogFm"
         tools:layout="@layout/group_in_chat_create_dialog_fm"/>
     <fragment
         android:id="@+id/groupInChatFm"
-        android:name="com.example.androidclient.group.chat.GroupInChatFm"
+        android:name="jm.preversion.biblewith.group.chat.GroupInChatFm"
         android:label="group_in_chat_fm"
         tools:layout="@layout/group_in_chat_fm" >
         <action
@@ -324,7 +324,7 @@
         app:destination="@id/group_in_challenge_fm"/>
     <fragment
         android:id="@+id/groupChatInnerFm"
-        android:name="com.example.androidclient.group.chat.GroupChatInnerFm"
+        android:name="jm.preversion.biblewith.group.chat.GroupChatInnerFm"
         android:label="GroupChatInnerFm"
         tools:layout="@layout/group_chat_inner_fm"/>
     <action
@@ -343,7 +343,7 @@
         app:popExitAnim="@anim/nav_default_pop_exit_anim" />
     <fragment
         android:id="@+id/rtcFm"
-        android:name="com.example.androidclient.rtc.RtcFm"
+        android:name="jm.preversion.biblewith.rtc.RtcFm"
         android:label="rtc_fm"
         tools:layout="@layout/rtc_fm" />
     <action
