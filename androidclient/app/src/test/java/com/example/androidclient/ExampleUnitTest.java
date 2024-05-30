@@ -1,4 +1,4 @@
-package com.example.androidclient;
+package jm.preversion.biblewith;
 
 import org.junit.Test;
 

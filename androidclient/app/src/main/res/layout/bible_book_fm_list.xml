@@ -11,7 +11,7 @@
 
 <androidx.recyclerview.widget.RecyclerView
     android:id="@+id/bible_book_fm_list"
-    android:name="com.example.androidclient.bible.BibleBookFm"
+    android:name="jm.preversion.biblewith.bible.BibleBookFm"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:layout_marginLeft="16dp"

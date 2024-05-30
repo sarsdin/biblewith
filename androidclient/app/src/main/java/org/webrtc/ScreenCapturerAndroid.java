@@ -21,7 +21,7 @@ import android.util.Log;
 import android.view.Surface;
 import androidx.annotation.Nullable;
 
-import com.example.androidclient.MainActivity;
+import jm.preversion.biblewith.MainActivity;
 
 /**
  * An implementation of VideoCapturer to capture the screen content as a video stream.

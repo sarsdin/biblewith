@@ -30,7 +30,7 @@
     <data>
         <variable
             name="dto"
-            type="com.example.androidclient.bible.BibleBtsDto" />
+            type="jm.preversion.biblewith.bible.BibleBtsDto" />
 
     </data>
 

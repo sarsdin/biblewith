@@ -102,7 +102,7 @@
 
         <androidx.recyclerview.widget.RecyclerView
             android:id="@+id/group_in_update_image_list"
-            android:name="com.example.androidclient.group.GroupInWriteFm"
+            android:name="jm.preversion.biblewith.group.GroupInWriteFm"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_margin="5dp"

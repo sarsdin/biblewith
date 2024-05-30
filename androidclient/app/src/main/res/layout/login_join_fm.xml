@@ -253,7 +253,7 @@
         android:orientation="vertical"
         app:layout_constraintGuide_end="40dp" />
 
-    <com.example.androidclient.util.TimerView
+    <jm.preversion.biblewith.util.TimerView
         android:id="@+id/join_email_verify_number_tv"
         android:layout_width="72dp"
         android:layout_height="53dp"
