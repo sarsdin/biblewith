@@ -1,7 +1,4 @@
-package jm.preversion.biblewith.bible
-
-import android.graphics.Color
-import com.google.gson.annotations.SerializedName
+package jm.preversion.biblewith.bible.dto
 
 data class BibleDto (var bible_no:Int, var book_category: String, /*@SerializedName("book_no")*/ var book: Int, /*@SerializedName("book_no")은 json으로 넘어오는 정보에 book_no라는 속성을 book에 맵핑하겠다는 뜻*/
                      var book_name:String, var chapter: Int, var verse: Int, var content: String,
@@ -16,7 +13,7 @@ data class BibleDto (var bible_no:Int, var book_category: String, /*@SerializedN
 
 
     //깊은복사위한 2차생성자
-    constructor( se: BibleDto  ) : this(bible_no = se.bible_no,
+    constructor( se: BibleDto) : this(bible_no = se.bible_no,
         book_category = se.book_category?:"",  //?:""   값으로 null 이 들어오면 디폴트로 "" 넣음
         book = se.book,
         book_name = se.book_name?:"",

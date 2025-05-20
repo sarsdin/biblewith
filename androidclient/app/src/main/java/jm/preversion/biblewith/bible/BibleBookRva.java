@@ -13,6 +13,7 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import jm.preversion.biblewith.MyApp;
 import jm.preversion.biblewith.R;
+import jm.preversion.biblewith.bible.dto.BibleDto;
 import jm.preversion.biblewith.databinding.BibleBookFmBookVhBinding;
 import jm.preversion.biblewith.databinding.BibleFmBinding;
 

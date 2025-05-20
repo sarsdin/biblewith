@@ -30,7 +30,7 @@
     <data>
         <variable
             name="dto"
-            type="jm.preversion.biblewith.bible.BibleBtsDto" />
+            type="jm.preversion.biblewith.bible.dto.BibleBtsDto" />
 
     </data>
 

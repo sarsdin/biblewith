@@ -79,18 +79,23 @@ class HomeFm : Fragment() {
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
         mbinding = HomeFmBinding.inflate(inflater, container, false)
 
+        더보기리사이클러뷰초기화()
+
+        return binding.root
+    }
+
+    private fun 더보기리사이클러뷰초기화() {
         rv = binding.imgRv
         rv.setHasFixedSize(true)
         rv.itemAnimator = null
-        rv.layoutManager = StaggeredGridLayoutManager(2, StaggeredGridLayoutManager.VERTICAL).apply {
-            gapStrategy = StaggeredGridLayoutManager.GAP_HANDLING_MOVE_ITEMS_BETWEEN_SPANS
-//            gapStrategy = StaggeredGridLayoutManager.GAP_HANDLING_NONE
-        }
+        rv.layoutManager =
+            StaggeredGridLayoutManager(2, StaggeredGridLayoutManager.VERTICAL).apply {
+                gapStrategy = StaggeredGridLayoutManager.GAP_HANDLING_MOVE_ITEMS_BETWEEN_SPANS
+    //            gapStrategy = StaggeredGridLayoutManager.GAP_HANDLING_NONE
+            }
         rv.addItemDecoration(GridSpacingItemDecoration(2, 20, true))
         rv.adapter = HomeFmImgRva(bibleVm, homeVm, this)
         rva = rv.adapter as HomeFmImgRva
-
-        return binding.root
     }
 
     //editImageActivity 를 열었던 결과를 콜백받음.
@@ -131,29 +136,13 @@ class HomeFm : Fragment() {
     @SuppressLint("NotifyDataSetChanged")
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        handleOnBackPressed() //뒤로가기 종료 구현부
+//        handleOnBackPressed() //뒤로가기 종료 구현부
         appBarConfiguration = AppBarConfiguration.Builder(R.id.home_fm).build()
         navController = findNavController(view)
         setupWithNavController(binding.homeToolbar, navController!!, appBarConfiguration!!)
 
         //뷰페이저 셋팅
-        binding.imgVp.adapter = HomeFmImgVpa(homeVm, this)
-        imgVpa = binding.imgVp.adapter as HomeFmImgVpa
-        binding.imgVp.clipToPadding = false
-        binding.imgVp.clipChildren = false
-        binding.imgVp.offscreenPageLimit = 3
-        binding.imgVp.getChildAt(0).overScrollMode = RecyclerView.OVER_SCROLL_NEVER
-
-        val compositePageTransformer = CompositePageTransformer()
-        compositePageTransformer.addTransformer(MarginPageTransformer(40))
-        compositePageTransformer.addTransformer(object : ViewPager2.PageTransformer {
-            override fun transformPage(page: View, position: Float) {
-                var r = 1 - abs(position)
-                page.scaleY = 0.85f + r * 0.15f
-            }
-        })
-        binding.imgVp.setPageTransformer(compositePageTransformer)
-
+        settingImgVp()
 
 
         //더보기 버튼 클릭시
@@ -192,6 +181,25 @@ class HomeFm : Fragment() {
 
     }
 
+    private fun settingImgVp() {
+        binding.imgVp.adapter = HomeFmImgVpa(homeVm, this)
+        imgVpa = binding.imgVp.adapter as HomeFmImgVpa
+        binding.imgVp.clipToPadding = false
+        binding.imgVp.clipChildren = false
+        binding.imgVp.offscreenPageLimit = 3
+        binding.imgVp.getChildAt(0).overScrollMode = RecyclerView.OVER_SCROLL_NEVER
+
+        val compositePageTransformer = CompositePageTransformer()
+        compositePageTransformer.addTransformer(MarginPageTransformer(40))
+        compositePageTransformer.addTransformer(object : ViewPager2.PageTransformer {
+            override fun transformPage(page: View, position: Float) {
+                var r = 1 - abs(position)
+                page.scaleY = 0.85f + r * 0.15f
+            }
+        })
+        binding.imgVp.setPageTransformer(compositePageTransformer)
+    }
+
     override fun onResume() {
         super.onResume()
         //        MainActivity mainA = (MainActivity)requireActivity();
@@ -227,18 +235,21 @@ class HomeFm : Fragment() {
         mbinding = null
     }
 
-    private fun handleOnBackPressed() { //뒤로가기 종료 구현부
+/*    private fun handleOnBackPressed() { //뒤로가기 종료 구현부
+        Log.e(tagName, "뒤로가기 디버깅용")
         requireActivity().onBackPressedDispatcher.addCallback(
             viewLifecycleOwner,
             object : OnBackPressedCallback(true) {
                 override fun handleOnBackPressed() { //백버튼을 조각에서 조종하기 위한 메소드.
-//                        Toast.makeText(requireActivity(),"test1111",Toast.LENGTH_SHORT).show();
-//                            requireActivity().finish(); //AlertDialog 창으로 종료할지 물어야함
-                    if (parentFragmentManager.backStackEntryCount == 0) {
+                    val navcon = NavHostFragment.findNavController(this@HomeFm)
+                    Toast.makeText(requireActivity(),"뒤로 버튼 클릭1.",Toast.LENGTH_SHORT).show()
+                    Log.e(tagName, "뒤로가기 클릭1")
+                    if (navcon.currentDestination?.id == R.id.home_fm) {
 //                        if(getParentFragmentManager().getBackStackEntryAt(0).getId() == R.id.startFm){
                         뒤로가기종료() //두번 클릭시 종료처리
                     } else {
-                        val navcon = NavHostFragment.findNavController(this@HomeFm)
+                        Toast.makeText(requireActivity(),"뒤로 버튼 클릭3.",Toast.LENGTH_SHORT).show()
+                        Log.e(tagName, "뒤로가기 클릭3")
                         navcon.navigateUp() //뒤로가기(백스택에서 뒤로가기?)
                     }
                 }
@@ -246,6 +257,8 @@ class HomeFm : Fragment() {
     }
 
     private fun 뒤로가기종료() {
+        Log.e(tagName, "뒤로가기 클릭2")
+        Toast.makeText(requireActivity(),"뒤로 버튼 클릭2.",Toast.LENGTH_SHORT).show()
         if (System.currentTimeMillis() > backKeyPressedTime + 2000) {
             backKeyPressedTime = System.currentTimeMillis()
             Toast.makeText(requireActivity(),"뒤로 버튼을 한번 더 누르면 종료됩니다.",Toast.LENGTH_SHORT).show()
@@ -255,7 +268,7 @@ class HomeFm : Fragment() {
             requireActivity().finish()
             //            super.onBackPressed();
         }
-    }
+    }*/
 
 
     fun 초대링크처리(intent: Intent? ){

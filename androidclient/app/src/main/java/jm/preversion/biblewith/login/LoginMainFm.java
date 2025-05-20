@@ -20,6 +20,9 @@ import androidx.fragment.app.Fragment;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.navigation.NavController;
 import androidx.navigation.fragment.NavHostFragment;
+import androidx.navigation.ui.NavigationUI;
+
+import java.util.Objects;
 
 import jm.preversion.biblewith.MyApp;
 import jm.preversion.biblewith.R;
@@ -35,7 +38,8 @@ public class LoginMainFm extends Fragment {
     private LoginMainFmBinding binding;
     private LoginVm loginVm;
     private long backKeyPressedTime=0;
-    public LoginActivity activity;
+//    public LoginActivity activity;
+    public MainActivity activity;
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
@@ -74,8 +78,8 @@ public class LoginMainFm extends Fragment {
 //            infoMap.put("user_pwd", binding.loginMainPwdInput.getText().toString());
 //            infoMap.put("user_autologin", String.valueOf(binding.loginAutologinCkbox.isChecked()));
             LoginDto loginDto = new LoginDto(
-                    binding.loginMainEmailInput.getText().toString(),
-                    binding.loginMainPwdInput.getText().toString(),
+                    Objects.requireNonNull(binding.loginMainEmailInput.getText()).toString(),
+                    Objects.requireNonNull(binding.loginMainPwdInput.getText()).toString(),
                     binding.loginAutologinCkbox.isChecked());
 
             loginVm.로그인클릭(loginDto).enqueue(new Callback<LoginDto>() {
@@ -83,7 +87,7 @@ public class LoginMainFm extends Fragment {
                 public void onResponse(Call<LoginDto> call, Response<LoginDto> response) {
                     if (response.isSuccessful()) {
                         LoginDto res = response.body();
-                        if(res.getUser_email() != null || !res.getUser_email().equals("")){
+                        if(res.getUser_email() != null || !res.getUser_email().isEmpty()){
                             MyApp.setUserInfo(res); //사용자 정보 MyApp 클래스에 저장
                             Log.e("[LoginMainFm]", "로그인클릭 onResponse: "+ MyApp.getUserInfo() );
 
@@ -98,9 +102,13 @@ public class LoginMainFm extends Fragment {
                                 Log.e("[LoginMainFm]", "로그인클릭 자동로그인 쉐어드 유저이메일: "+ sp.getString("user_email", "") );
                             }
                             Toast.makeText(getActivity(), "로그인하였습니다.", Toast.LENGTH_SHORT).show();
-                            Intent toMain = new Intent(MyApp.getApplication(), MainActivity.class);
-                            startActivity(toMain);
-                            requireActivity().finish();
+//                            Intent toMain = new Intent(MyApp.getApplication(), MainActivity.class);
+//                            startActivity(toMain);
+//                            requireActivity().finish();
+
+                            //서비스를 통해 채팅서버에 접속하여, 유저번호에 해당하는 스레드가 있는지 확인하고 있으면 재활용(재연결), 없으면 만드는 메소드
+                            activity.클라이언트스레드등록확인();
+                            NavHostFragment.findNavController(LoginMainFm.this).navigate(R.id.action_global_home_fm);
 
                         } else {
                             Toast.makeText(getActivity(), "로그인에 실패하였습니다. 아이디/비밀번호를 다시 확인해주세요.", Toast.LENGTH_SHORT).show();
@@ -119,7 +127,7 @@ public class LoginMainFm extends Fragment {
     }
 
 //    public void 자동로그인및초대링크처리(View view , LoginActivity activity){
-    public void 자동로그인및초대링크처리(Context context){
+    public void 자동로그인및초대링크처리(){
 //        Intent intent = requireActivity().getIntent();
 //        String action = intent.getAction();
 //        Uri data = intent.getData();
@@ -141,16 +149,15 @@ public class LoginMainFm extends Fragment {
         SharedPreferences.Editor spEditor = sp.edit();
         String userEmail = sp.getString("user_email", ""  );
 
-//        this.activity = activity;
-        this.activity = (LoginActivity) context;
-        if (!userEmail.equals("")) {
+
+        if (!userEmail.isEmpty()) {
             Log.e("LoginMainFm", "userEmail: "+ userEmail );
             loginVm = new ViewModelProvider(requireActivity()).get(LoginVm.class);
             loginVm.유저정보가져오기(userEmail).enqueue(new Callback<LoginDto>() {
                 @Override
                 public void onResponse(Call<LoginDto> call, Response<LoginDto> response) {
 //                    Toast.makeText((LoginActivity)context, "자동 로그인하였습니다.", Toast.LENGTH_SHORT).show();
-                    Toast.makeText((LoginActivity)activity, "로그인하였습니다.", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(activity, "로그인하였습니다.", Toast.LENGTH_SHORT).show();
                     if (response.isSuccessful()) {
                         LoginDto res = response.body();
                         MyApp.setUserInfo(res); //사용자 정보 MyApp 클래스에 저장
@@ -170,10 +177,8 @@ public class LoginMainFm extends Fragment {
 //
 //                            //딥링크타고 들어온게 아니면 그냥 정상적으로 일반로직 진행
 //                        } else {
-                            Intent toMain = new Intent(MyApp.getApplication(), MainActivity.class);
-                            startActivity(toMain);
+                        NavHostFragment.findNavController(LoginMainFm.this).navigate(R.id.action_global_home_fm);
 //                        }
-                        requireActivity().finish();
                     }
                 }
                 @Override
@@ -191,7 +196,9 @@ public class LoginMainFm extends Fragment {
     @Override
     public void onAttach(@NonNull Context context) {
         super.onAttach(context);
-        자동로그인및초대링크처리(context);
+//        this.activity = (LoginActivity) context;
+        this.activity = (MainActivity) context;
+        자동로그인및초대링크처리();
 //        자동로그인및초대링크처리(view, (LoginActivity) requireActivity());
 
     }
@@ -199,7 +206,8 @@ public class LoginMainFm extends Fragment {
     @Override
     public void onStart() {
         super.onStart();
-        ((AppCompatActivity)requireActivity()).getSupportActionBar().hide(); //액션바 없애기
+        //액션바 없애기 -> 24/06/16 수정:LoginActivity에서 MainActivity로 LoginMainFm 옮김. MainActivity에는 appBar layout이 없어서 구절 삭제.
+//        ((AppCompatActivity)requireActivity()).getSupportActionBar().hide();
     }
 
     @Override

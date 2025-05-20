@@ -13,6 +13,7 @@ import androidx.fragment.app.Fragment;
 import androidx.lifecycle.Observer;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.navigation.Navigation;
+import androidx.recyclerview.widget.RecyclerView;
 
 import jm.preversion.biblewith.MyApp;
 import jm.preversion.biblewith.databinding.BibleFmBinding;
@@ -52,7 +53,7 @@ public class BibleFm extends Fragment  { //implements BibleBookRav.뷰페이저�
         bibleVpa = new BibleVpa(pageFmList, getChildFragmentManager(), getLifecycle() );
         binding.bibleTabLayoutViewpager.setOffscreenPageLimit(3); //페이지양쪽 프래그먼트보관수
         binding.bibleTabLayoutViewpager.setAdapter(bibleVpa);
-//        freeBoardFmSubVpAdapter.setStateRestorationPolicy(RecyclerView.Adapter.StateRestorationPolicy.PREVENT);
+//        bibleVpa.setStateRestorationPolicy(RecyclerView.Adapter.StateRestorationPolicy.PREVENT);
 
         TabLayoutMediator tym = new TabLayoutMediator(binding.bibleTabLayout, binding.bibleTabLayoutViewpager,
             new TabLayoutMediator.TabConfigurationStrategy() {

@@ -5,15 +5,11 @@ import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.LayoutInflater;
-import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.databinding.DataBindingUtil;
-import androidx.databinding.ViewDataBinding;
 import androidx.fragment.app.Fragment;
 import androidx.lifecycle.Observer;
 import androidx.lifecycle.ViewModelProvider;
@@ -24,14 +20,13 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import jm.preversion.biblewith.MyApp;
 import jm.preversion.biblewith.R;
-import jm.preversion.biblewith.databinding.BibleVerseBtsListBinding;
+import jm.preversion.biblewith.bible.dto.BibleDto;
 import jm.preversion.biblewith.databinding.BibleVerseFmListBinding;
 import jm.preversion.biblewith.util.Http;
 import com.google.android.material.bottomsheet.BottomSheetBehavior;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 
-import java.util.ArrayList;
 import java.util.List;
 
 import retrofit2.Call;
