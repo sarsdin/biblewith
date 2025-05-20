@@ -441,7 +441,7 @@ public class JoinFm extends Fragment {
     public void onStart() {
         super.onStart();
         // appbar 보여주기 - navigationUP 버튼 보여주기위함
-        ((AppCompatActivity)requireActivity()).getSupportActionBar().show();
+//        ((AppCompatActivity)requireActivity()).getSupportActionBar().show();
     }
 
     @Override

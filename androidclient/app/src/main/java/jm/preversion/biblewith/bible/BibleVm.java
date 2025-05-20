@@ -10,14 +10,14 @@ import androidx.lifecycle.MutableLiveData;
 import androidx.lifecycle.ViewModel;
 
 import jm.preversion.biblewith.MyApp;
+import jm.preversion.biblewith.bible.dto.BibleBtsDto;
+import jm.preversion.biblewith.bible.dto.BibleDto;
 import jm.preversion.biblewith.util.Http;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
-
-import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;
 import java.util.Arrays;

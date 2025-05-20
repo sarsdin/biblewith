@@ -12,13 +12,6 @@ public class BibleVpa extends FragmentStateAdapter {
 
     public List<Fragment> pageFmList;
 
-//    public BibleVpa(@NonNull FragmentActivity fragmentActivity) {
-//        super(fragmentActivity);
-//    }
-//
-//    public BibleVpa(@NonNull Fragment fragment) {
-//        super(fragment);
-//    }
 
     public BibleVpa(List<Fragment> pageFmList, @NonNull FragmentManager fragmentManager, @NonNull Lifecycle lifecycle) { //childFragmentManager
         super(fragmentManager, lifecycle);

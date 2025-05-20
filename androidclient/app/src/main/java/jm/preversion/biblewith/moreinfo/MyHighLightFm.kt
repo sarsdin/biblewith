@@ -16,7 +16,7 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import jm.preversion.biblewith.MyApp
 import jm.preversion.biblewith.R
-import jm.preversion.biblewith.bible.BibleDto
+import jm.preversion.biblewith.bible.dto.BibleDto
 import jm.preversion.biblewith.bible.BibleVm
 import jm.preversion.biblewith.databinding.MyHighLightFmListBinding
 import jm.preversion.biblewith.util.Http

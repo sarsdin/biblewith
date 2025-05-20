@@ -13,6 +13,7 @@ import androidx.lifecycle.ViewModelProvider;
 import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import jm.preversion.biblewith.bible.dto.BibleDto;
 import jm.preversion.biblewith.databinding.BibleChapterFmListBinding;
 
 import java.util.List;

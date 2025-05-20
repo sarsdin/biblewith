@@ -1,13 +1,11 @@
 package jm.preversion.biblewith.moreinfo;
-import android.util.Log
 
 import android.view.LayoutInflater
 import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
-import jm.preversion.biblewith.bible.BibleDto
+import jm.preversion.biblewith.bible.dto.BibleDto
 import jm.preversion.biblewith.bible.BibleVm;
 import jm.preversion.biblewith.databinding.MyNoteFmAddVhBinding
-import jm.preversion.biblewith.databinding.MyNoteFmVhBinding;
 
 class MyNoteFmAddRva(val bibleVm: BibleVm, val myNoteFmAdd: MyNoteFmAdd) : RecyclerView.Adapter<MyNoteFmAddRva.MyNoteFmAddVh>() {
     lateinit var newL : List<BibleDto>

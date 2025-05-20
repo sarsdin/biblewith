@@ -1,6 +1,5 @@
 package jm.preversion.biblewith.bible;
 
-import android.graphics.Color;
 import android.graphics.Paint;
 import android.text.Html;
 import android.view.LayoutInflater;
@@ -9,15 +8,12 @@ import android.view.ViewGroup;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
-import androidx.navigation.Navigation;
 import androidx.recyclerview.widget.RecyclerView;
 
-import jm.preversion.biblewith.R;
+import jm.preversion.biblewith.bible.dto.BibleDto;
 import jm.preversion.biblewith.databinding.BibleVerseFmVhBinding;
 import com.google.android.material.bottomsheet.BottomSheetBehavior;
 
-import java.util.Collections;
-import java.util.Comparator;
 import java.util.List;
 
 public class BibleVerseRva extends RecyclerView.Adapter<BibleVerseRva.BibleVerseVh> {

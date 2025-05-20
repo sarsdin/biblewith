@@ -39,43 +39,50 @@
             android:exported="true"
             android:supportsPictureInPicture="true"
             android:configChanges="keyboard|keyboardHidden|orientation|screenSize|screenLayout|smallestScreenSize|uiMode"
-            android:launchMode="singleTask"
-            android:label="">
+            android:launchMode="singleInstance"
+            android:label="@string/app_name">
+<!--            android:launchMode="singleTask"-->
             <!--            android:configChanges : 화면회전시 관련된 옵션들 -->
             <intent-filter>
                 <action android:name="android.intent.action.SEND" />
                 <data android:mimeType="text/plain" />
             </intent-filter>
+
             <intent-filter>
                 <action android:name="android.intent.action.VIEW" />
-
                 <category android:name="android.intent.category.DEFAULT" />
                 <category android:name="android.intent.category.BROWSABLE" />
-
                 <data
                     android:scheme="http"
                     android:host="biblewith.com"
                     android:pathPrefix="/invite" />
             </intent-filter>
 
-            <nav-graph android:value="@navigation/main_navi" />
-        </activity>
-        <activity
-            android:name=".login.LoginActivity"
-            android:exported="true"
-            android:label="@string/app_name"
-            android:launchMode="singleTask"
-            android:windowSoftInputMode="adjustUnspecified">
-            <!--     android:launchMode="singleInstance" : 하나의 인스턴스만 존재함. 액티비티가 존재시 재활용함       -->
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
-
-                <category android:name="android.intent.category.DEFAULT" />
-                <category android:name="android.intent.category.BROWSABLE" />
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
-            <nav-graph android:value="@navigation/login_navi" />
+
+
+            <nav-graph android:value="@navigation/main_navi" />
         </activity>
+
+<!--        <activity-->
+<!--            android:name=".login.LoginActivity"-->
+<!--            android:exported="true"-->
+<!--            android:label="@string/app_name"-->
+<!--            android:launchMode="singleTask"-->
+<!--            android:windowSoftInputMode="adjustUnspecified">-->
+<!--            &lt;!&ndash;     android:launchMode="singleInstance" : 하나의 인스턴스만 존재함. 액티비티가 존재시 재활용함       &ndash;&gt;-->
+<!--            <intent-filter>-->
+<!--                <action android:name="android.intent.action.MAIN" />-->
+
+<!--                <category android:name="android.intent.category.DEFAULT" />-->
+<!--                <category android:name="android.intent.category.BROWSABLE" />-->
+<!--                <category android:name="android.intent.category.LAUNCHER" />-->
+<!--            </intent-filter>-->
+<!--            <nav-graph android:value="@navigation/login_navi" />-->
+<!--        </activity>-->
 
         <!-- FileProvider used to share media with other apps -->
         <provider

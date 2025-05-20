@@ -3,7 +3,7 @@ package jm.preversion.biblewith.moreinfo
 import android.view.LayoutInflater
 import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
-import jm.preversion.biblewith.bible.BibleDto
+import jm.preversion.biblewith.bible.dto.BibleDto
 import jm.preversion.biblewith.bible.BibleVm
 import jm.preversion.biblewith.databinding.MyNoteFmUpdateVhBinding
 import com.google.gson.Gson
