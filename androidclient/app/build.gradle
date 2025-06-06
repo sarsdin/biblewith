@@ -140,9 +140,9 @@ dependencies {
 //    implementation 'androidx.fragment:fragment-ktx:1.4.1'
 
 
-    implementation files('libs\\additionnal.jar')
-    implementation files('libs\\mail.jar')
-    implementation files('libs\\activation.jar')
+    implementation files('libs/additionnal.jar')
+    implementation files('libs/mail.jar')
+    implementation files('libs/activation.jar')
 //    implementation files('libs\\autobanh.jar')
     implementation project(path: ':photoeditor')
 //    implementation project(':webrtc')
@@ -241,5 +241,11 @@ dependencies {
 
     //화면 녹화 라이브러리
     implementation 'com.github.HBiSoft:HBRecorder:3.0.1'
+
+    //Room 라이브러리
+    def room_version = "2.7.1" // 최신 버전 확인
+    implementation("androidx.room:room-runtime:$room_version")
+    implementation("androidx.room:room-ktx:$room_version") // Kotlin 확장 함수 (선택 사항)
+
 
 }
