@@ -45,7 +45,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlin.math.abs
 
-class HomeFm : Fragment() {
+class HomeFm : Fragment() { //왜 커밋이 없어?
     val tagName = "[HomeFm]"
     lateinit var homeVm: HomeVm
     lateinit var groupVm: GroupVm
