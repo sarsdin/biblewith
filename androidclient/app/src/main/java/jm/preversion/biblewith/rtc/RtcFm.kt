@@ -211,7 +211,8 @@ class RtcFm : Fragment(), HBRecorderListener {
                                     // 뒤로 가기 기능을 처리하는 로직을 여기에 추가.
                                     navigate(R.id.action_global_groupInFm)
                                 },
-                                onCreateRoom = { jo ->
+                               onCreateRoom = { jo ->
+                                    // 방 만들기 기능을 처리하는 로직을 여기에 추가.
                                     sessionManager.signalingClient.sendCommand(
                                         StandardCommand.방만들기,
                                         RtcCommandDto(

@@ -149,8 +149,8 @@ class SignalingClient(val groupVm: GroupVm) {
             command = "signalingCommand",
             signalingCommand = signalingCommand.name,
             peerId = peerId,
-            peerIdOf = peerIdOf,
-            sdp = message
+            peerIdOf = peerIdOf, // sendAnswer()에서 사용됨. 다른데서는 사용x
+            sdp = message //OFFER, ANSWER의 경우 SDP. ICE의 경우 iceCandidate.sdpMid, sdpMLineIndex, sdp 3가지 정보.
         )
         ws.send(gson.toJson(jOut))
 //        ws.send("$signalingCommand $message")
@@ -168,6 +168,7 @@ class SignalingClient(val groupVm: GroupVm) {
 
             try {
                 // websocket 메시지를 DTO 로 변환
+                //websocket으로 들어오는 메시지를 json object로 해석.
                 val jin = gson.fromJson(text, RtcCommandDto::class.java)
                 val command = jin.command
 
@@ -215,17 +216,23 @@ class SignalingClient(val groupVm: GroupVm) {
                         Log.e(tagName, "방목록전달 jin: $jin")
                         signalingScope.launch {
                             val roomList = jin.roomList ?: emptyList()
+//                        updateRoomList(roomList)
                             _roomList.emit(roomList)
                         }
                     }
                     StandardCommand.방만들기.name -> {
                         Log.e(tagName, "방만들기 jin: $jin")
+                        //map을 tojson으로 변환한건데 이게 JsonObject로 변환된건지 잘모르겠네.
 
                         signalingScope.launch {
+                            //서버로부터 받아온 방목록을 업데이트 해주고,
                             val roomList = jin.roomList ?: emptyList()
                             Log.e(tagName, "방만들기 roomList: $roomList")
+//                            updateRoomList(roomList)
                             _roomList.emit(roomList)
 
+                            // todo 방만들기시에 방장이 방에 바로 접속할 수 있도록 하는 코드를 짜야함.
+                            // 서버로부터 방을 만든 아이디를 전달받아 비교하여, 방장본인이 만든 방이면 방장을 바로 비디오화면으로 전환함.
                             if (jin.makerId == MyApp.userInfo.user_email) {
                                 setCurrentScreen(RtcFm.ScreenState.VIDEO_CALL_SCREEN)
                                 jin.roomInfo?.let { _접속한방정보.emit(it) }
@@ -234,13 +241,18 @@ class SignalingClient(val groupVm: GroupVm) {
                     }
                     StandardCommand.방접속요청.name -> {
                         Log.e(tagName, "방접속요청 jin: $jin")
+//                        val roomId = jin["roomId"].asString
+//                        _전달받은명령상태값.value = jin
                         signalingScope.launch {
+                            //roomId, groupId에 해당하는 방장에게 userId에 대한 수락요청을 보내야함.
+//                            _전달받은명령상태값.emit(jin)
                             _방장에게접속요청자목록.emit(jin.requestL ?: emptyList())
                         }
                     }
                     StandardCommand.방참가수락.name -> {
                         Log.e(tagName, "방참가수락 jin: $jin")
                         val usersInfo = jin.usersInfo ?: emptyList()
+//                        val usersInfo = jin["usersInfo"].asJsonArray
                         signalingScope.launch {
                             _방참가시접속인원목록.emit(usersInfo)
 
@@ -256,6 +268,9 @@ class SignalingClient(val groupVm: GroupVm) {
                     }
                     StandardCommand.방접속.name -> {
                         Log.e(tagName, "방접속 jin: $jin")
+//                        val userIds = jin["userIds"].asJsonArray
+                        // 소켓으로부터 이 응답을 받으면, 이 클라이언트의 화면을 VIDEO_CALL_SCREEN 으로 전환.
+                        // 거기서 _방참가시접속인원목록.value 의 값을 이용해 원격 비디오 렌더링뷰를 셋팅해야함.
                         _접속한방정보.value = jin.roomInfo
                         setCurrentScreen(RtcFm.ScreenState.VIDEO_CALL_SCREEN)
                     }
@@ -269,8 +284,13 @@ class SignalingClient(val groupVm: GroupVm) {
                     }
                     StandardCommand.방종료.name -> {
                         Log.e(tagName, "방종료 jin: $jin")
+//                        val roomId = jin["roomId"].asString
+                        //방장이 나가면 방종료하는 부분인데, 현재 방목록에서 방이 제거되긴 함.
+                        // 다만, 연결된 피어들은 그대로 통화를 진행중임. 이부분은 어떻게 할지 고민해봐야할듯. 그대로둘지 끊을지.
                         val roomId = jin.roomId
                         val verifiedArray = _roomList.value.filterNot { it.roomId == roomId }
+                        // todo  emit 안하고도 상태값의 변화가 감지될려나? 방이 리스트에서 제대로 종료안되면 확인해봐야함.
+//                        _roomList.emit(verifiedArray)
                         _roomList.value = verifiedArray
                     }
 
@@ -318,6 +338,7 @@ class SignalingClient(val groupVm: GroupVm) {
         val mType =  message.signalingCommand
         val state = message.sessionState
         Log.w(tagName, "handleStateMessage: $mType, $state")
+//        val state = getSeparatedMessage(message) //message에 공백이 포함되어 있을 수 있기 때문에 텍스트 전처리함.
         state?.let {
             _sessionStateFlow.value = WebRTCSessionState.valueOf(it)
         }
