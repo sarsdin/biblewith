@@ -4,7 +4,7 @@ import androidx.lifecycle.MutableLiveData;
 import androidx.lifecycle.ViewModel;
 
 import jm.preversion.biblewith.util.Http;
-import com.google.gson.JsonObject;
+import jm.preversion.biblewith.login.dto.LoginResponseDto;
 
 import java.util.HashMap;
 
@@ -46,17 +46,17 @@ public class LoginVm extends ViewModel {
 
 
 
-    public Call<JsonObject> 이메일중복검사통신(String email) {
+    public Call<LoginResponseDto> 이메일중복검사통신(String email) {
         Retrofit retrofit = Http.getRetrofitInstance(host);
         Http.HttpLogin httpLogin = retrofit.create(Http.HttpLogin.class); //로그인을 위한 통신 구현체 생성(미리 보낼 쿼리스트링 설정해두는거)
-        Call<JsonObject> call = httpLogin.isEmailRedundant(email);        //call로 비동기 통신 가능하다.
+        Call<LoginResponseDto> call = httpLogin.isEmailRedundant(email);        //call로 비동기 통신 가능하다.
         return call;
     }
 
-    public Call<JsonObject> 회원가입(HashMap<String, String> info) {
+    public Call<LoginResponseDto> 회원가입(HashMap<String, String> info) {
         Retrofit retrofit = Http.getRetrofitInstance(host);
         Http.HttpLogin httpLogin = retrofit.create(Http.HttpLogin.class); //로그인을 위한 통신 구현체 생성(미리 보낼 쿼리스트링 설정해두는거)
-        Call<JsonObject> call = httpLogin.joinComplete(
+        Call<LoginResponseDto> call = httpLogin.joinComplete(
                 info.get("user_email"),
                 info.get("user_pwd"),
                 info.get("user_pwdc"),
@@ -66,20 +66,20 @@ public class LoginVm extends ViewModel {
         return call;
     }
 
-    public Call<JsonObject> 비번찾기인증번호발송클릭(HashMap<String, String> info) {
+    public Call<LoginResponseDto> 비번찾기인증번호발송클릭(HashMap<String, String> info) {
         Retrofit retrofit = Http.getRetrofitInstance(host);
         Http.HttpLogin httpLogin = retrofit.create(Http.HttpLogin.class); //로그인을 위한 통신 구현체 생성(미리 보낼 쿼리스트링 설정해두는거)
-        Call<JsonObject> call = httpLogin.findpwMailSend(
+        Call<LoginResponseDto> call = httpLogin.findpwMailSend(
                 info.get("user_name"),
                 info.get("user_email")
         );
         return call;
     }
 
-    public Call<JsonObject> 인증번호확인클릭(HashMap<String, String> info) {
+    public Call<LoginResponseDto> 인증번호확인클릭(HashMap<String, String> info) {
         Retrofit retrofit = Http.getRetrofitInstance(host);
         Http.HttpLogin httpLogin = retrofit.create(Http.HttpLogin.class); //로그인을 위한 통신 구현체 생성(미리 보낼 쿼리스트링 설정해두는거)
-        Call<JsonObject> call = httpLogin.findpwMailVnumConfirm(
+        Call<LoginResponseDto> call = httpLogin.findpwMailVnumConfirm(
                 info.get("findpw_number"),
                 info.get("name"),
                 info.get("email")
@@ -88,10 +88,10 @@ public class LoginVm extends ViewModel {
     }
 
 
-    public Call<JsonObject> 새비밀번호변경완료클릭(HashMap<String, String> info) {
+    public Call<LoginResponseDto> 새비밀번호변경완료클릭(HashMap<String, String> info) {
         Retrofit retrofit = Http.getRetrofitInstance(host);
         Http.HttpLogin httpLogin = retrofit.create(Http.HttpLogin.class); //로그인을 위한 통신 구현체 생성(미리 보낼 쿼리스트링 설정해두는거)
-        Call<JsonObject> call = httpLogin.findpwNewPw(
+        Call<LoginResponseDto> call = httpLogin.findpwNewPw(
                 info.get("user_email"),
                 info.get("user_pwd")
         );

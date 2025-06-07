@@ -19,7 +19,7 @@ import androidx.navigation.fragment.NavHostFragment;
 
 import jm.preversion.biblewith.R;
 import jm.preversion.biblewith.databinding.LoginFindPwFmBinding;
-import com.google.gson.JsonObject;
+import jm.preversion.biblewith.login.dto.LoginResponseDto;
 
 import java.util.HashMap;
 
@@ -63,15 +63,15 @@ public class FindPwFm extends Fragment {
             infoMap.put("user_email", binding.findpwEmailInput.getText().toString());
             infoMap.put("user_name",binding.findpwNameInput.getText().toString());
 
-            loginVm.비번찾기인증번호발송클릭(infoMap).enqueue(new Callback<JsonObject>() {
+            loginVm.비번찾기인증번호발송클릭(infoMap).enqueue(new Callback<LoginResponseDto>() {
                 @Override
-                public void onResponse(Call<JsonObject> call, Response<JsonObject> response) {
+                public void onResponse(Call<LoginResponseDto> call, Response<LoginResponseDto> response) {
                     if (response.isSuccessful()) {
-                        JsonObject res = response.body();
+                        LoginResponseDto res = response.body();
                         Log.e("[findpwFm]", "비번찾기인증번호발송클릭 onResponse: 통신성공, 결과는: "+ res.toString() );
 
                         //입력한 이름과 이메일이 존재하지않으면 toast 로 '존재하지 않는 회원입니다' 이라고 띄운다.
-                        if (res.get("result").getAsBoolean()){
+                        if (res.isResult()){
                             Toast.makeText(getActivity(), "인증 메일을 보냈습니다.", Toast.LENGTH_SHORT).show();
                             // todo: 인증메일 보내기 smtp - 서버에서 메일 보내기
                             binding.findpwEmailVerifyGroup1.setVisibility(View.VISIBLE); //그리고 인증번호 입력 그룹 보여줌.
@@ -84,13 +84,13 @@ public class FindPwFm extends Fragment {
 
 
                         } else {
-                            Toast.makeText(getActivity(), res.get("msg").getAsString(), Toast.LENGTH_SHORT).show();
+                            Toast.makeText(getActivity(), res.getMsg(), Toast.LENGTH_SHORT).show();
                         }
 
                     }
                 }
                 @Override
-                public void onFailure(Call<JsonObject> call, Throwable t) {
+                public void onFailure(Call<LoginResponseDto> call, Throwable t) {
                     Log.e("[findpwFm]", "비번찾기인증번호발송클릭 onFailure: "+ t.getMessage() );
                 }
             });
@@ -103,15 +103,15 @@ public class FindPwFm extends Fragment {
             infoMap.put("name",binding.findpwNameInput.getText().toString());
             infoMap.put("email", binding.findpwEmailInput.getText().toString());
 
-            loginVm.인증번호확인클릭(infoMap).enqueue(new Callback<JsonObject>() {
+            loginVm.인증번호확인클릭(infoMap).enqueue(new Callback<LoginResponseDto>() {
                 @Override
-                public void onResponse(Call<JsonObject> call, Response<JsonObject> response) {
+                public void onResponse(Call<LoginResponseDto> call, Response<LoginResponseDto> response) {
                     if (response.isSuccessful()) {
-                        JsonObject res = response.body();
+                        LoginResponseDto res = response.body();
                         Log.e("[findpwFm]", "인증번호확인클릭 onResponse: 통신성공, 결과는: "+ res.toString() );
 
-                        if (res.get("result").getAsBoolean()){
-                            Toast.makeText(getActivity(), res.get("msg").getAsString(), Toast.LENGTH_SHORT).show();
+                        if (res.isResult()){
+                            Toast.makeText(getActivity(), res.getMsg(), Toast.LENGTH_SHORT).show();
                             binding.findpwNameEmailInputGroup3.setVisibility(View.GONE); //이메일, 이름 입력 그룹 해제
                             binding.findpwEmailVerifyGroup1.setVisibility(View.GONE);   //인증번호 입력 그룹 해제
                             binding.findpwNewpwGroup2.setVisibility(View.VISIBLE);      //새 비밀번호 입력 그룹 활성
@@ -119,13 +119,13 @@ public class FindPwFm extends Fragment {
                             binding.findpwTv.setText("새 비밀번호 설정");
 
                         } else {
-                            Toast.makeText(getActivity(), res.get("msg").getAsString(), Toast.LENGTH_SHORT).show();
+                            Toast.makeText(getActivity(), res.getMsg(), Toast.LENGTH_SHORT).show();
                         }
                     }
                 }
 
                 @Override
-                public void onFailure(Call<JsonObject> call, Throwable t) {
+                public void onFailure(Call<LoginResponseDto> call, Throwable t) {
                     Log.e("[findpwFm]", "인증번호확인클릭 onFailure: "+ t.getMessage() );
                 }
             });
@@ -140,25 +140,25 @@ public class FindPwFm extends Fragment {
             info.put("user_pwd", binding.findpwPwInput.getText().toString());
             info.put("user_email", binding.findpwEmailInput.getText().toString());
 
-            loginVm.새비밀번호변경완료클릭(info).enqueue(new Callback<JsonObject>() {
+            loginVm.새비밀번호변경완료클릭(info).enqueue(new Callback<LoginResponseDto>() {
                 @Override
-                public void onResponse(Call<JsonObject> call, Response<JsonObject> response) {
+                public void onResponse(Call<LoginResponseDto> call, Response<LoginResponseDto> response) {
                     if (response.isSuccessful()) {
-                        JsonObject res = response.body();
+                        LoginResponseDto res = response.body();
                         Log.e("[findpwFm]", "새비밀번호변경완료클릭 onResponse: 통신성공, 결과는: "+ res.toString() );
 
-                        if (res.get("result").getAsBoolean()){
-                            Toast.makeText(getActivity(), res.get("msg").getAsString(), Toast.LENGTH_SHORT).show();
+                        if (res.isResult()){
+                            Toast.makeText(getActivity(), res.getMsg(), Toast.LENGTH_SHORT).show();
                             NavHostFragment.findNavController(FindPwFm.this).navigate(R.id.action_global_loginMainFm);
 
                         } else {
-                            Toast.makeText(getActivity(), res.get("msg").getAsString(), Toast.LENGTH_SHORT).show();
+                            Toast.makeText(getActivity(), res.getMsg(), Toast.LENGTH_SHORT).show();
                         }
                     }
                 }
 
                 @Override
-                public void onFailure(Call<JsonObject> call, Throwable t) {
+                public void onFailure(Call<LoginResponseDto> call, Throwable t) {
                     Log.e("[findpwFm]", "새비밀번호변경완료클릭 onFailure: "+ t.getMessage() );
                 }
             });
