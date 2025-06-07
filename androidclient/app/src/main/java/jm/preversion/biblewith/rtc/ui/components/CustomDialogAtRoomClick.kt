@@ -14,12 +14,12 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import jm.preversion.biblewith.rtc.RtcVm
 import jm.preversion.biblewith.rtc.webrtc.StandardCommand
 import jm.preversion.biblewith.rtc.webrtc.sessions.LocalWebRtcSessionManager
-import com.google.gson.JsonObject
+import jm.preversion.biblewith.rtc.RtcRoomDto
 
 @Composable
 fun CustomDialogAtRoomClick(
-    selectedRoom: JsonObject,
-    onConfirmClick: (JsonObject) -> Unit,
+    selectedRoom: RtcRoomDto,
+    onConfirmClick: (RtcRoomDto) -> Unit,
     onDismissClick: () -> Unit,
 ) {
 //    val groupVm = LocalViewModel.current as GroupVm //모임 아이디를 서버통신에 전달하기 위한 용도.
@@ -62,7 +62,7 @@ fun CustomDialogAtRoomClick(
 
     AlertDialog(
         onDismissRequest = { onDismissClick() },
-        title = { Text(text = "참가할 방: ${selectedRoom["title"].asString}") },
+        title = { Text(text = "참가할 방: ${selectedRoom.title}") },
         text = {
             //보냄인경우 LaunchedEffect에서 관찰하고있는 'rtcVm.방접속시도시접속인원목록'의 상태값에 따라 추후 '완료'로 바뀜.
             when(state) {
@@ -86,7 +86,7 @@ fun CustomDialogAtRoomClick(
                     Column {
                         //                buildAnnotatedString {  }
                         Text(
-                            text = "방인원수: ${selectedRoom["usersCount"]} / $size",
+                            text = "방인원수: ${selectedRoom.usersCount} / $size",
                             modifier = Modifier.fillMaxWidth()
                         )
                         Text(
@@ -100,7 +100,7 @@ fun CustomDialogAtRoomClick(
                     Column {
                         //                buildAnnotatedString {  }
                         Text(
-                            text = "방인원수: ${selectedRoom["usersCount"]} / $size",
+                            text = "방인원수: ${selectedRoom.usersCount} / $size",
                             modifier = Modifier.fillMaxWidth()
                         )
                         Text(
@@ -141,10 +141,13 @@ fun CustomDialogAtRoomClick(
                         //  방장이 위에서 만들었던 뷰에서 확인하고 수락후, 다시 서버로 '수락함'이라는 메소드를 받으면 그 수락된 id에 해당하는
                         //  user에게 현재'방접속시도'에 해당하는 로직으로 여기 신호가 와서 '완료'로 바뀌게끔 해줘야함.
 
-                        sessionManager.signalingClient.sendCommand(StandardCommand.방접속요청, JsonObject().apply {
-                            addProperty("command", StandardCommand.방접속요청.name)
-                            addProperty("roomId", selectedRoom["roomId"].asString)
-                        })
+                        sessionManager.signalingClient.sendCommand(
+                            StandardCommand.방접속요청,
+                            RtcCommandDto(
+                                command = StandardCommand.방접속요청.name,
+                                roomId = selectedRoom.roomId
+                            )
+                        )
 
 
 

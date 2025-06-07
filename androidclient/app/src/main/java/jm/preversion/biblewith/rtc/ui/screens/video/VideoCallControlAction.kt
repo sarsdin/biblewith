@@ -75,7 +75,7 @@ fun buildDefaultCallControlActions(
 
     val actions = mutableListOf<VideoCallControlAction>().apply {
         // 방장유무 조건에 따라 달라지는 요소 추가
-        if (rtcVm.접속한방정보읽기["makerId"].asString == MyApp.userInfo.user_email) {
+        if (rtcVm.접속한방정보읽기?.makerId == MyApp.userInfo.user_email) {
             add(VideoCallControlAction(
                 icon = requestListIcon,
                 iconTint = if (callMediaState.isRequestList) Color.Green else Color.LightGray,

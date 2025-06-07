@@ -41,8 +41,7 @@ import jm.preversion.biblewith.rtc.webrtc.peer.StreamPeerConnectionFactory
 import jm.preversion.biblewith.rtc.webrtc.sessions.LocalWebRtcSessionManager
 import jm.preversion.biblewith.rtc.webrtc.sessions.WebRtcSessionManager
 import jm.preversion.biblewith.rtc.webrtc.sessions.WebRtcSessionManagerImpl
-import com.google.gson.JsonArray
-import com.google.gson.JsonObject
+import jm.preversion.biblewith.rtc.RtcRoomDto
 import com.hbisoft.hbrecorder.HBRecorder
 import com.hbisoft.hbrecorder.HBRecorderListener
 import es.dmoral.toasty.Toasty
@@ -212,19 +211,18 @@ class RtcFm : Fragment(), HBRecorderListener {
                                     // 뒤로 가기 기능을 처리하는 로직을 여기에 추가.
                                     navigate(R.id.action_global_groupInFm)
                                 },
-                                onCreateRoom = { jo ->
+                               onCreateRoom = { jo ->
                                     // 방 만들기 기능을 처리하는 로직을 여기에 추가.
-                                    sessionManager.signalingClient.sendCommand(StandardCommand.방만들기,
-                                        JsonObject().apply {
-                                            addProperty("command", "방만들기")
-                                            addProperty("title", jo["title"].asString)
-                                            addProperty("size", jo["size"].asString)
-                                            addProperty("pwd", jo["pwd"].asString)
-                                            addProperty("groupId", groupVm.groupInfo["group_no"].asString)
-                                        }
+                                    sessionManager.signalingClient.sendCommand(
+                                        StandardCommand.방만들기,
+                                        RtcCommandDto(
+                                            command = "방만들기",
+                                            title = jo.title,
+                                            size = jo.size?.toString(),
+                                            pwd = jo.pwd,
+                                            groupId = groupVm.groupInfo["group_no"].asString.toInt()
+                                        )
                                     )
-
-
                                 }
                             )
                         }
@@ -266,10 +264,10 @@ class RtcFm : Fragment(), HBRecorderListener {
      */
     @Composable
     fun RoomList(
-        rooms: JsonArray/*List<String>*/,
-        onRoomEntrance: (JsonObject) -> Unit,
+        rooms: List<RtcRoomDto>,
+        onRoomEntrance: (RtcRoomDto) -> Unit,
         onBackPressed: () -> Unit,
-        onCreateRoom: (JsonObject) -> Unit
+        onCreateRoom: (RtcRoomDto) -> Unit
     ) {
 
         //'방접속시도', '방만들기' 등 이변수의 값에 따라 해당하는 다이얼로그를 보여주는 용도
@@ -284,9 +282,7 @@ class RtcFm : Fragment(), HBRecorderListener {
         }
 
         //rooms자체는 signalingClient의 리스너에서 JsonObject()로써 온전히 받기때문에 그 객체안의 속성이 있는지 확인해야함.
-        Log.e(tagName, "rooms: $rooms")
-        val roomL = rooms.map{ it.asJsonObject }
-        Log.e(tagName, "roomL: $roomL")
+        val roomL = rooms
 
         Column {
             TopAppBar(
@@ -309,7 +305,7 @@ class RtcFm : Fragment(), HBRecorderListener {
             LazyColumn {
                 itemsIndexed(roomL) { index, room ->
                     Text(
-                        text = "$index ${room["title"]}",
+                        text = "$index ${room.title}",
                         modifier = Modifier
                             .fillMaxWidth()
                             //방목록을 클릭하면,
@@ -320,7 +316,7 @@ class RtcFm : Fragment(), HBRecorderListener {
                     // 방접속시도에 관한 다이얼로그가 뜸.
                     if(showDialog.value == "방접속시도"){
                         CustomDialogAtRoomClick(
-                            selectedRoom = room ,
+                            selectedRoom = room,
                             onConfirmClick = onRoomEntrance,
                             onDismissClick = { hideRoomDialog() }
                         )

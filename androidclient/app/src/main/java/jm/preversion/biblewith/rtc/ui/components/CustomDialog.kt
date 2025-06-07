@@ -9,11 +9,11 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.input.ImeAction
 import jm.preversion.biblewith.rtc.RtcFm
-import com.google.gson.JsonObject
+import jm.preversion.biblewith.rtc.RtcRoomDto
 
 @Composable
 fun CustomDialog(
-    onConfirmClick: (JsonObject) -> Unit,
+    onConfirmClick: (RtcRoomDto) -> Unit,
     onDismissClick: () -> Unit,
 ) {
 //    var title = title
@@ -65,12 +65,11 @@ fun CustomDialog(
             TextButton(
                 onClick = {
                     onConfirmClick(
-                        //상위 전달 인자로 json object를 전달함.
-                        JsonObject().apply { 
-                            addProperty("title", title)
-                            addProperty("size", size)
-                            addProperty("pwd", pwd)
-                        }
+                        RtcRoomDto(
+                            title = title,
+                            size = size.toIntOrNull(),
+                            pwd = pwd
+                        )
                     )
                     onDismissClick()
                 }
