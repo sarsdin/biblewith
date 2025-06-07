@@ -22,7 +22,6 @@ import jm.preversion.biblewith.R
 import jm.preversion.biblewith.bible.BibleVm
 import jm.preversion.biblewith.databinding.MyNoteFmListBinding
 import jm.preversion.biblewith.util.ImageHelper
-import com.google.gson.JsonArray
 import retrofit2.Call
 import retrofit2.Callback
 import retrofit2.Response

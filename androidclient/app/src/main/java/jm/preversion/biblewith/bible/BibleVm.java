@@ -12,10 +12,11 @@ import androidx.lifecycle.ViewModel;
 import jm.preversion.biblewith.MyApp;
 import jm.preversion.biblewith.bible.dto.BibleBtsDto;
 import jm.preversion.biblewith.bible.dto.BibleDto;
+import jm.preversion.biblewith.bible.dto.NoteDto;
+import jm.preversion.biblewith.bible.dto.ResultDto;
 import jm.preversion.biblewith.util.Http;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
-import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 
@@ -35,20 +36,20 @@ public class BibleVm extends ViewModel {
     public MutableLiveData<List<BibleDto>> liveBookL = new MutableLiveData<>(); //책이름 검색에서 쓰임
     public MutableLiveData<List<BibleDto>> liveVerseL = new MutableLiveData<>();
     public MutableLiveData<List<BibleDto>> liveHighL = new MutableLiveData<>();
-    public MutableLiveData<JsonArray> liveNoteL = new MutableLiveData<>();
+    public MutableLiveData<List<NoteDto>> liveNoteL = new MutableLiveData<>();
     public MutableLiveData<int[]> live책장번호 = new MutableLiveData<>();
     public List<BibleDto> bookL = new ArrayList<BibleDto>(); //책이름목록
     public List<BibleDto> bookLForSearch = new ArrayList<BibleDto>(); //책이름목록 - 툴바 검색용: 변화없이 고정값을 가져야함
     public List<BibleDto> chapterL = new ArrayList<BibleDto>(); //장목록
     public List<BibleDto> verseL = new ArrayList<BibleDto>(); //절목록
     public List<BibleDto> highL = new ArrayList<BibleDto>(); //유저 하이라이트 목록
-    public JsonArray noteL = new JsonArray(); //유저 노트 목록 - 노트목록가져오기()에서 가져옴
+    public List<NoteDto> noteL = new ArrayList<>(); //유저 노트 목록 - 노트목록가져오기()에서 가져옴
     public List<BibleBtsDto> colorL = new ArrayList<BibleBtsDto>(); //BtsR의 하이라이트 색깔 목록
 
 
     public int[] 책장번호 = new int[]{1, 1, 1}; //todo 추후 유저테이블에 3개의 컬럼 추가후 이 데이터(마지막봤던)를 서버로 insert해줌
     public boolean onceExecuted = false; //한번실행 후 스크롤 처리 x - BibleVerseFm
-    public JsonObject noteUpdateO = new JsonObject(); //노트 수정용 - 구조내용: note table + note_verseL:Array(noteverse & bible_korHRV)
+    public NoteDto noteUpdateO = null; //노트 수정용 - 구조내용: note table + note_verseL:Array(noteverse & bible_korHRV)
     public JsonObject tempObj = new JsonObject(); //임시데이터 - 자유롭게 사용가능 - 임시라 1회용 명령에만 쓰임 반드시 작업을 한번에 깔끔히 마무리해야함! - 툴바책검색(bookSearchText)
 
     {
@@ -333,22 +334,22 @@ public class BibleVm extends ViewModel {
         return call;
     }
 
-    public Call<JsonArray> 노트목록가져오기(Boolean isExeInVm) {
+    public Call<List<NoteDto>> 노트목록가져오기(Boolean isExeInVm) {
         Retrofit retrofit = Http.getRetrofitInstance(host);
         Http.HttpBible httpBible = retrofit.create(Http.HttpBible.class); // 통신 구현체 생성(미리 보낼 쿼리스트링 설정해두는거)
-        Call<JsonArray> call = httpBible.getNoteList(MyApp.userInfo.getUser_no());
+        Call<List<NoteDto>> call = httpBible.getNoteList(MyApp.userInfo.getUser_no());
         if(isExeInVm) { //true를 받으면 여기서(vm) 실행하고 결과완료된 call을 리턴. false면 완료안된 call을 리턴해서 호출한 fragment or rva에서 비동기 로직 진행.
-            call.enqueue(new Callback<JsonArray>() {
+            call.enqueue(new Callback<List<NoteDto>>() {
                 @Override
-                public void onResponse(@NonNull Call<JsonArray> call, @NonNull Response<JsonArray> response) {
+                public void onResponse(@NonNull Call<List<NoteDto>> call, @NonNull Response<List<NoteDto>> response) {
                     if (response.isSuccessful()) {
-                        JsonArray res = response.body();
+                        List<NoteDto> res = response.body();
                         noteL = res;
                         liveNoteL.setValue(noteL);
                     }
                 }
                 @Override
-                public void onFailure(Call<JsonArray> call, Throwable t) {
+                public void onFailure(Call<List<NoteDto>> call, Throwable t) {
                     Log.e("[BibleVm]", "노트목록가져오기 onFailure: "+ t.getMessage() );
 
                 }
@@ -357,22 +358,22 @@ public class BibleVm extends ViewModel {
         return call;
     }
 
-    public Call<JsonObject> 노트추가(JsonObject noteinfo, Boolean isExeInVm) {
+    public Call<ResultDto> 노트추가(JsonObject noteinfo, Boolean isExeInVm) {
         Retrofit retrofit = Http.getRetrofitInstance(host);
         Http.HttpBible httpBible = retrofit.create(Http.HttpBible.class); // 통신 구현체 생성(미리 보낼 쿼리스트링 설정해두는거)
-        Call<JsonObject> call = httpBible.getNoteAdd(noteinfo);
+        Call<ResultDto> call = httpBible.getNoteAdd(noteinfo);
         if(isExeInVm){ //true를 받으면 여기서(vm) 실행하고 결과완료된 call을 리턴. false면 완료안된 call을 리턴해서 호출한 fragment or rva에서 비동기 로직 진행.
-            call.enqueue(new Callback<JsonObject>() {
+            call.enqueue(new Callback<ResultDto>() {
                 @Override
-                public void onResponse(@NonNull Call<JsonObject> call, @NonNull Response<JsonObject> response) {
+                public void onResponse(@NonNull Call<ResultDto> call, @NonNull Response<ResultDto> response) {
                     if (response.isSuccessful()) {
-                        JsonObject res = response.body();
-    //                    highL = res;
-    //                    liveHighL.setValue(highL);
+                        ResultDto res = response.body();
+                        //                    highL = res;
+                        //                    liveHighL.setValue(highL);
                     }
                 }
                 @Override
-                public void onFailure(Call<JsonObject> call, Throwable t) {
+                public void onFailure(Call<ResultDto> call, Throwable t) {
                     Log.e("[BibleVm]", "노트추가 onFailure: "+ t.getMessage() );
 
                 }
@@ -381,22 +382,22 @@ public class BibleVm extends ViewModel {
         return call;
     }
 
-    public Call<JsonObject> 노트수정(JsonObject noteinfo, Boolean isExeInVm) {
+    public Call<ResultDto> 노트수정(JsonObject noteinfo, Boolean isExeInVm) {
         Retrofit retrofit = Http.getRetrofitInstance(host);
         Http.HttpBible httpBible = retrofit.create(Http.HttpBible.class); // 통신 구현체 생성(미리 보낼 쿼리스트링 설정해두는거)
-        Call<JsonObject> call = httpBible.getNoteUpdate(noteinfo);
+        Call<ResultDto> call = httpBible.getNoteUpdate(noteinfo);
         if(isExeInVm){ //true를 받으면 여기서(vm) 실행하고 결과완료된 call을 리턴. false면 완료안된 call을 리턴해서 호출한 fragment or rva에서 비동기 로직 진행.
-            call.enqueue(new Callback<JsonObject>() {
+            call.enqueue(new Callback<ResultDto>() {
                 @Override
-                public void onResponse(@NonNull Call<JsonObject> call, @NonNull Response<JsonObject> response) {
+                public void onResponse(@NonNull Call<ResultDto> call, @NonNull Response<ResultDto> response) {
                     if (response.isSuccessful()) {
-                        JsonObject res = response.body();
+                        ResultDto res = response.body();
                         //                    highL = res;
                         //                    liveHighL.setValue(highL);
                     }
                 }
                 @Override
-                public void onFailure(Call<JsonObject> call, Throwable t) {
+                public void onFailure(Call<ResultDto> call, Throwable t) {
                     Log.e("[BibleVm]", "노트수정 onFailure: "+ t.getMessage() );
 
                 }
@@ -405,20 +406,20 @@ public class BibleVm extends ViewModel {
         return call;
     }
 
-    public Call<JsonObject> 노트삭제(int note_no, Boolean isExeInVm) {
+    public Call<ResultDto> 노트삭제(int note_no, Boolean isExeInVm) {
         Retrofit retrofit = Http.getRetrofitInstance(host);
         Http.HttpBible httpBible = retrofit.create(Http.HttpBible.class); // 통신 구현체 생성(미리 보낼 쿼리스트링 설정해두는거)
-        Call<JsonObject> call = httpBible.deleteNote(note_no);
+        Call<ResultDto> call = httpBible.deleteNote(note_no);
         if(isExeInVm){ //true를 받으면 여기서(vm) 실행하고 결과완료된 call을 리턴. false면 완료안된 call을 리턴해서 호출한 fragment or rva에서 비동기 로직 진행.
-            call.enqueue(new Callback<JsonObject>() {
+            call.enqueue(new Callback<ResultDto>() {
                 @Override
-                public void onResponse(@NonNull Call<JsonObject> call, @NonNull Response<JsonObject> response) {
+                public void onResponse(@NonNull Call<ResultDto> call, @NonNull Response<ResultDto> response) {
                     if (response.isSuccessful()) {
-                        JsonObject res = response.body();
+                        ResultDto res = response.body();
                     }
                 }
                 @Override
-                public void onFailure(Call<JsonObject> call, Throwable t) {
+                public void onFailure(Call<ResultDto> call, Throwable t) {
                     Log.e("[BibleVm]", "노트삭제 onFailure: "+ t.getMessage() );
 
                 }

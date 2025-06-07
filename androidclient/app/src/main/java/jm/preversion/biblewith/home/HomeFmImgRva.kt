@@ -78,9 +78,9 @@ class HomeFmImgRva(val bibleVm: BibleVm, val homeVm: HomeVm, val homeFm: HomeFm)
                 intent.action = Intent.ACTION_EDIT
 //                intent.data = Uri.parse(mItem.get("urls").asJsonObject.get("regular").asString)
                 intent.data =  Uri.parse(mItem.urls.regular)
-                intent.putExtra("content", homeVm.todayVerse.asJsonObject.get("content").asString)
-                val send_st = "${homeVm.todayVerse.asJsonObject.get("book_name").asString} " +
-                        "${homeVm.todayVerse.asJsonObject.get("chapter").asString}:${homeVm.todayVerse.asJsonObject.get("verse").asString}"
+                intent.putExtra("content", homeVm.todayVerse?.result?.content)
+                val send_st = "${homeVm.todayVerse?.result?.book_name} " +
+                        "${homeVm.todayVerse?.result?.chapter}:${homeVm.todayVerse?.result?.verse}"
                 intent.putExtra("book", send_st)
 //                    Uri.parse(mItem.get("urls").asJsonObject.get("small").asString)
 

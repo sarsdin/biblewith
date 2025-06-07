@@ -158,16 +158,16 @@ class HomeFm : Fragment() { //왜 커밋이 없어?
 
         //성경 일독 갱신
         homeVm.liveTodayVerse.observe(viewLifecycleOwner, Observer {
-            if (it.get("bible_no") != null) {
-                binding.verseTv.text = "${it.get("content").asString}"
-                binding.bookTv.text = "${it.get("book_name").asString} ${it.get("chapter").asString}:${it.get("verse").asString}"
+            if (it != null) {
+                binding.verseTv.text = it.result.content
+                binding.bookTv.text = "${it.result.book_name} ${it.result.chapter}:${it.result.verse}"
 //                binding.profileIv //이미지 바꿔주기
             }
         })
 
         //홈 이미지 Unsplash Api 랜덤 이미지 로드
         homeVm.liveUnsplashRandomL.observe(viewLifecycleOwner, Observer {
-            val profileSt = homeVm.unsplashRandomL.get(9).asJsonObject.get("urls").asJsonObject.get("regular").asString
+            val profileSt = homeVm.unsplashRandomL[9].urls.regular
             Log.e(tagName, "profileSt: $profileSt")
 
             ImageHelper.getImageUsingGlideForURI(requireActivity(), Uri.parse(profileSt), binding.profileIv)

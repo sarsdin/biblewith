@@ -1,6 +1,10 @@
 package jm.preversion.biblewith.util;
 
 import jm.preversion.biblewith.bible.dto.BibleDto;
+import jm.preversion.biblewith.bible.dto.NoteDto;
+import jm.preversion.biblewith.bible.dto.ResultDto;
+import jm.preversion.biblewith.bible.dto.HomeVerseDto;
+import jm.preversion.biblewith.bible.dto.RandomImageDto;
 import jm.preversion.biblewith.login.LoginDto;
 import jm.preversion.biblewith.login.LoginResponseDto;
 import com.google.gson.Gson;
@@ -128,7 +132,7 @@ public class Http {
 
         //성경일독
         @GET("bible/getTodayLang")
-        Call<JsonObject> 성경일독();
+        Call<HomeVerseDto> 성경일독();
 
         //Unsplash Api 랜덤 이미지 10장
         @Headers({
@@ -136,7 +140,7 @@ public class Http {
             "content-type: application/json"
         })
         @GET("/photos/random")
-        Call<JsonArray> 랜덤이미지(@Query("query") String query, @Query("count") int count);
+        Call<List<RandomImageDto>> 랜덤이미지(@Query("query") String query, @Query("count") int count);
     }
 
 
@@ -179,23 +183,23 @@ public class Http {
         //유저 노트 목록 가져오기
 //        @Headers("content-type: application/json")
         @GET("bible/getNoteList")
-        Call<JsonArray> getNoteList(@Query("user_no") int user_no);
+        Call<List<NoteDto>> getNoteList(@Query("user_no") int user_no);
 
         //유저 노트 추가
         @Headers("content-type: application/json")
         @POST("bible/getNoteAdd")
-        Call<JsonObject> getNoteAdd(@Body JsonObject noteinfo);
+        Call<ResultDto> getNoteAdd(@Body JsonObject noteinfo);
 
         //유저 노트 수정
         @Headers("content-type: application/json")
         @POST("bible/getNoteUpdate")
-        Call<JsonObject> getNoteUpdate(@Body JsonObject noteinfo);
+        Call<ResultDto> getNoteUpdate(@Body JsonObject noteinfo);
 
 
         //유저 노트 삭제
         @Headers("content-type: application/json")
         @POST("bible/deleteNote")
-        Call<JsonObject> deleteNote(@Query("note_no") int note_no);
+        Call<ResultDto> deleteNote(@Query("note_no") int note_no);
     }
 
 
