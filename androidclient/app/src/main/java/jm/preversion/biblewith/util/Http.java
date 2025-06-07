@@ -2,6 +2,7 @@ package jm.preversion.biblewith.util;
 
 import jm.preversion.biblewith.bible.dto.BibleDto;
 import jm.preversion.biblewith.login.LoginDto;
+import jm.preversion.biblewith.login.LoginResponseDto;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.JsonArray;
@@ -117,7 +118,7 @@ public class Http {
                                      @Part/*("group_main_image")*/ MultipartBody.Part userImage);
 
         @POST("home/nickModify")
-        Call<JsonObject> 유저닉네임수정( @Query("user_no") int user_no,
+        Call<LoginResponseDto> 유저닉네임수정( @Query("user_no") int user_no,
                                   @Query("user_nick") String user_nick
         );
     }
