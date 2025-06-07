@@ -22,7 +22,7 @@ import jm.preversion.biblewith.group.GroupVm
 import jm.preversion.biblewith.util.FileHelper
 import jm.preversion.biblewith.util.Http
 import jm.preversion.biblewith.util.ImageHelper
-import com.google.gson.JsonObject
+import jm.preversion.biblewith.login.LoginResponseDto
 import es.dmoral.toasty.Toasty
 import okhttp3.MediaType.Companion.toMediaTypeOrNull
 import okhttp3.MultipartBody
@@ -73,31 +73,28 @@ class NickModifyDialogFm : DialogFragment() {
 
             val retrofit = Http.getRetrofitInstance(Http.HOST_IP)
             val http = retrofit.create(Http.HttpLogin::class.java) // 통신 구현체 생성(미리 보낼 쿼리스트링 설정해두는거)
+
             val call = http.유저닉네임수정(MyApp.userInfo.user_no, binding.content.text.toString())
-            call.enqueue(object : Callback<JsonObject?> {
-                override fun onResponse(call: Call<JsonObject?>, response: Response<JsonObject?>) {
+            call.enqueue(object : Callback<LoginResponseDto?> {
+                override fun onResponse(call: Call<LoginResponseDto?>, response: Response<LoginResponseDto?>) {
                     if (response.isSuccessful) {
-                        val res = response.body()!!
-                        val result = res.get("result").asString
-                        if(result != ""){
-                            //db에 이미지 업데이트 후 갱신된 정보를 다시 받아서 유저정보 갱신 후, 프로필 이미지 적용한다.
-                            MyApp.userInfo.user_nick = result
-                            moreVm.userNick = result
+                        val res = response.body()
+                        if(res?.msg == "ok" && !res.result.isNullOrEmpty()){
+                            MyApp.userInfo.user_nick = res.result
+                            moreVm.userNick = res.result
                             moreVm.liveUserNick.value = moreVm.userNick
-                            Log.e(tagName, "유저닉네임수정 성공: $result")
-//                                Toast.makeText(requireActivity(),"프로필이미지가 적용되었습니다.",Toast.LENGTH_SHORT).show()
-                            Toasty.success(requireActivity(), "유저닉네임 변경되었습니다"
+                            Log.e(tagName, "유저닉네임수정 성공: ${res.result}")
+                            Toasty.success(requireActivity(), "유저닉네임 변경되었습니다",
 //                                AppCompatResources.getDrawable(requireActivity(), R.drawable.ic_baseline_done_24)
                             ).show()
                             dismiss()
                         }
                     }
                 }
-                override fun onFailure(call: Call<JsonObject?>, t: Throwable) {
+                override fun onFailure(call: Call<LoginResponseDto?>, t: Throwable) {
                     Log.e(tagName, "유저닉네임수정 onFailure: " + t.message)
                 }
             })
-
     }
 
     override fun onCreateDialog(savedInstanceState: Bundle?): Dialog {

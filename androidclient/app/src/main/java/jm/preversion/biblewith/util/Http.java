@@ -2,6 +2,7 @@ package jm.preversion.biblewith.util;
 
 import jm.preversion.biblewith.bible.dto.BibleDto;
 import jm.preversion.biblewith.login.LoginDto;
+import jm.preversion.biblewith.login.LoginResponseDto;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.JsonArray;
