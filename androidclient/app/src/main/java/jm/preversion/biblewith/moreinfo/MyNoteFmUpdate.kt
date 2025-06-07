@@ -65,17 +65,17 @@ class MyNoteFmUpdate : Fragment() {
             val gson = Gson()
             var sendJsonO = JsonObject()
             sendJsonO.addProperty("user_no", MyApp.userInfo.user_no)
-            sendJsonO.addProperty("note_no", bibleVm.noteUpdateO.get("note_no").asInt )
+            sendJsonO.addProperty("note_no", bibleVm.noteUpdateO.note_no )
             sendJsonO.addProperty("note_content", binding.myNoteContentInput.text.toString())
 //            sendJsonO.add("note_verseL", JsonParser.parseString(gson.toJson(rva.newL)).asJsonArray)
             //추가 비동기 실행
-            bibleVm.노트수정(sendJsonO, false).enqueue(object : Callback<JsonObject> {
-                override fun onResponse(call: Call<JsonObject>, response: Response<JsonObject>) {
+            bibleVm.노트수정(sendJsonO, false).enqueue(object : Callback<ResultDto> {
+                override fun onResponse(call: Call<ResultDto>, response: Response<ResultDto>) {
                     if (response.isSuccessful ){
-                        var res : JsonObject? = response.body()
+                        var res : ResultDto? = response.body()
                         Log.e("[MyNoteFmUpdate]", "노트수정 onResponse: $res")
                         //서버로부터 받은 추가된 절이 1개 이상이면 정상추가로 판단하고 이전 페이지로 돌아감.
-                        if(res!!.get("result").asBoolean ){
+                        if(res!!.result ){
                             Toast.makeText(activity,"노트를 수정하였습니다.", Toast.LENGTH_SHORT).show()
                             Navigation.findNavController(view).navigateUp()
                         } else {
@@ -83,7 +83,7 @@ class MyNoteFmUpdate : Fragment() {
                         }
                     }
                 }
-                override fun onFailure(call: Call<JsonObject>, t: Throwable) {
+                override fun onFailure(call: Call<ResultDto>, t: Throwable) {
                     Log.e("[MyNoteFmUpdate]", "노트수정 onFailure: ${t.message}")
                 }
             })
@@ -98,9 +98,9 @@ class MyNoteFmUpdate : Fragment() {
         super.onResume()
         //현재 노트에 추가할 선택된 절이 속한 책,장 정보를 표시
 //        binding.myNoteFmUpdateWhereTv.text = bibleVm.bookL[bibleVm.책장번호[0] - 1].book_name + " " + bibleVm.chapterL[bibleVm.책장번호[1] - 1].chapter + "장"
-        binding.myNoteFmUpdateWhereTv.text = "${bibleVm.bookL[(bibleVm.noteUpdateO.get("note_verseL").asJsonArray.get(0).asJsonObject.get("book").asInt) - 1].book_name} ${bibleVm.noteUpdateO.get("note_verseL").asJsonArray.get(0).asJsonObject.get("chapter").asString}장"
-        binding.myNoteFmUpdateDateTv.text = getTime("ui", bibleVm.noteUpdateO.get("note_date").asString)
-        binding.myNoteContentInput.setText(bibleVm.noteUpdateO.get("note_content").asString)
+        binding.myNoteFmUpdateWhereTv.text = "${bibleVm.bookL[bibleVm.noteUpdateO.note_verseL[0].book - 1].book_name} ${bibleVm.noteUpdateO.note_verseL[0].chapter}장"
+        binding.myNoteFmUpdateDateTv.text = getTime("ui", bibleVm.noteUpdateO.note_date)
+        binding.myNoteContentInput.setText(bibleVm.noteUpdateO.note_content)
     }
 
     override fun onDestroyView() {

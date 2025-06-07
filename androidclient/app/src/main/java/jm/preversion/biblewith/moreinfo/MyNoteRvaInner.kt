@@ -6,12 +6,10 @@ import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
 import jm.preversion.biblewith.bible.BibleVm
 import jm.preversion.biblewith.databinding.MyNoteFmVhInVhBinding
-import com.google.gson.JsonArray
-import com.google.gson.JsonElement
-import com.google.gson.JsonObject
+import jm.preversion.biblewith.bible.dto.NoteVerseDto
 
 class MyNoteRvaInner(
-    val bibleVm: BibleVm, val myNoteFm: MyNoteFm, val myNoteFmVh: MyNoteRva.MyNoteFmVh, val note_verseL: JsonArray
+    val bibleVm: BibleVm, val myNoteFm: MyNoteFm, val myNoteFmVh: MyNoteRva.MyNoteFmVh, val note_verseL: List<NoteVerseDto>
 ) : RecyclerView.Adapter<MyNoteRvaInner.MyNoteFmVhInVh>() {
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): MyNoteFmVhInVh {
@@ -19,11 +17,11 @@ class MyNoteRvaInner(
     }
 
     override fun onBindViewHolder(holder: MyNoteFmVhInVh, position: Int) {
-        holder.bind(note_verseL[position] as JsonObject)
+        holder.bind(note_verseL[position])
     }
 
     override fun getItemCount(): Int {
-        return note_verseL.size()
+        return note_verseL.size
     }
 
 
@@ -33,12 +31,12 @@ class MyNoteRvaInner(
         init {
         }
 
-        fun bind(mItem: JsonObject) {
+        fun bind(mItem: NoteVerseDto) {
 //            Log.e("오류태그", "$mItem")
 //            this.mItem = mItem;
 //            binding.dto = mItem
-            binding.myNoteFmVhInVhWhereTv.text = "${bibleVm.bookL[(mItem.get("book").asInt) - 1].book_name} ${mItem.get("chapter").asString}장 ${mItem.get("verse").asString}절"
-            binding.myNoteFmVhInVhVerseTv.text = mItem.get("content").asString
+            binding.myNoteFmVhInVhWhereTv.text = "${bibleVm.bookL[mItem.book - 1].book_name} ${mItem.chapter}장 ${mItem.verse}절"
+            binding.myNoteFmVhInVhVerseTv.text = mItem.content
 
         }
 

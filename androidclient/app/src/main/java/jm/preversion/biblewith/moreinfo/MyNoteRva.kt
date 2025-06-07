@@ -13,8 +13,8 @@ import jm.preversion.biblewith.MyApp
 import jm.preversion.biblewith.R
 import jm.preversion.biblewith.bible.BibleVm
 import jm.preversion.biblewith.databinding.MyNoteFmVhBinding
-import com.google.gson.JsonArray
-import com.google.gson.JsonObject
+import jm.preversion.biblewith.bible.dto.NoteDto
+import jm.preversion.biblewith.bible.dto.NoteVerseDto
 import retrofit2.Call
 import retrofit2.Callback
 import retrofit2.Response
@@ -29,11 +29,11 @@ class MyNoteRva(val bibleVm: BibleVm, val myNoteFm: MyNoteFm) : RecyclerView.Ada
     }
 
     override fun onBindViewHolder(holder: MyNoteFmVh, position: Int) {
-        holder.bind(bibleVm.noteL[position] as JsonObject)
+        holder.bind(bibleVm.noteL[position])
     }
 
     override fun getItemCount(): Int {
-        return bibleVm.noteL.size()
+        return bibleVm.noteL.size
     }
 
 
@@ -49,16 +49,16 @@ class MyNoteRva(val bibleVm: BibleVm, val myNoteFm: MyNoteFm) : RecyclerView.Ada
         }
 
         //mItem -- 노트목록가져오기() :getNoteList 메소드로부터
-        fun bind(mItem: JsonObject) {
+        fun bind(mItem: NoteDto) {
 //            this.mItem = mItem;
-            binding.myNoteFmVhWhereTv.text = "${bibleVm.bookL[(mItem.get("note_verseL").asJsonArray.get(0).asJsonObject.get("book").asInt) - 1].book_name} ${mItem.get("note_verseL").asJsonArray.get(0).asJsonObject.get("chapter").asString}장"
-            binding.myNoteFmVhDateTv.text = MyApp.getTime("ui", mItem.get("note_date").asString)
-            binding.myNoteFmVhContentTv.text = mItem.get("note_content").asString
+            binding.myNoteFmVhWhereTv.text = "${bibleVm.bookL[mItem.getNote_verseL().get(0).getBook() - 1].book_name} ${mItem.getNote_verseL().get(0).getChapter()}장"
+            binding.myNoteFmVhDateTv.text = MyApp.getTime("ui", mItem.getNote_date())
+            binding.myNoteFmVhContentTv.text = mItem.getNote_content()
 
 //            Log.e("오류태그outter", "$mItem")
             rv = binding.myNoteFmVhVerseList
             rv!!.layoutManager = LinearLayoutManager(binding.root.context)
-            binding.myNoteFmVhVerseList.adapter = MyNoteRvaInner(bibleVm, myNoteFm, this, mItem.get("note_verseL").asJsonArray)
+            binding.myNoteFmVhVerseList.adapter = MyNoteRvaInner(bibleVm, myNoteFm, this, mItem.getNote_verseL())
             rva = rv?.adapter as MyNoteRvaInner
 //            binding.dto = mItem
 
@@ -85,14 +85,14 @@ class MyNoteRva(val bibleVm: BibleVm, val myNoteFm: MyNoteFm) : RecyclerView.Ada
                             alertdialog.setPositiveButton("확인") { dialog, which ->
                                 // Toast toast = Toast.makeText(getActivity(), "확인 버튼 눌림", Toast.LENGTH_SHORT ).show;
                                 //비동기 정보 가져옴
-                                bibleVm.노트삭제(mItem.get("note_no").asInt, false).enqueue(object : Callback<JsonObject?> {
-                                    override fun onResponse(call: Call<JsonObject?>, response: Response<JsonObject?>) {
+                                bibleVm.노트삭제(mItem.getNote_no(), false).enqueue(object : Callback<ResultDto?> {
+                                    override fun onResponse(call: Call<ResultDto?>, response: Response<ResultDto?>) {
                                         if (response.isSuccessful) {
                                             val res = response.body()
-                                            if(res!!.get("result").asBoolean){
+                                            if(res!!.result){
                                                 Toast.makeText(myNoteFm.context, "노트를 삭제하였습니다",Toast.LENGTH_SHORT).show()
-                                                bibleVm.노트목록가져오기(false).enqueue(object : Callback<JsonArray?> {
-                                                    override fun onResponse(call: Call<JsonArray?>, response: Response<JsonArray?>) {
+                                                bibleVm.노트목록가져오기(false).enqueue(object : Callback<List<NoteDto>?> {
+                                                    override fun onResponse(call: Call<List<NoteDto>?>, response: Response<List<NoteDto>?>) {
                                                         if (response.isSuccessful) {
                                                             val res = response.body()
                                                             Log.e("[MyNoteFm]", "노트목록가져오기 onResponse: $res")
@@ -101,14 +101,14 @@ class MyNoteRva(val bibleVm: BibleVm, val myNoteFm: MyNoteFm) : RecyclerView.Ada
                                                             notifyDataSetChanged()
                                                         }
                                                     }
-                                                    override fun onFailure(call: Call<JsonArray?>, t: Throwable) {
+                                                    override fun onFailure(call: Call<List<NoteDto>?>, t: Throwable) {
                                                         Log.e("[MyNoteFm]", "노트목록가져오기 onFailure: " + t.message)
                                                     }
                                                 })
                                             }
                                         }
                                     }
-                                    override fun onFailure(call: Call<JsonObject?>, t: Throwable) {
+                                    override fun onFailure(call: Call<ResultDto?>, t: Throwable) {
                                         Log.e("[BibleVm]", "노트삭제 onFailure: " + t.message)
                                     }
                                 })

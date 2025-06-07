@@ -6,8 +6,7 @@ import androidx.recyclerview.widget.RecyclerView
 import jm.preversion.biblewith.bible.dto.BibleDto
 import jm.preversion.biblewith.bible.BibleVm
 import jm.preversion.biblewith.databinding.MyNoteFmUpdateVhBinding
-import com.google.gson.Gson
-import com.google.gson.reflect.TypeToken
+import jm.preversion.biblewith.bible.dto.NoteVerseDto
 
 class MyNoteFmUpdateRva(val bibleVm: BibleVm, val myNoteFmUpdate: MyNoteFmUpdate) : RecyclerView.Adapter<MyNoteFmUpdateRva.MyNoteFmUpdateVh>() {
     lateinit var newL : List<BibleDto>
@@ -22,9 +21,24 @@ class MyNoteFmUpdateRva(val bibleVm: BibleVm, val myNoteFmUpdate: MyNoteFmUpdate
 
     override fun getItemCount(): Int {
 //        newL = bibleVm.verseL.filter{ it.highlight_selected }
-        var gson = Gson()
-        var verseL = bibleVm.noteUpdateO.get("note_verseL").asJsonArray
-        var nL :List<BibleDto> = gson.fromJson<List<BibleDto>>(verseL, object : TypeToken<ArrayList<BibleDto?>?>() {}.type)
+        var verseL = bibleVm.noteUpdateO.getNote_verseL()
+        var nL :List<BibleDto> = verseL.map {
+            BibleDto(
+                it.bible_no ?: 0,
+                "",
+                it.book,
+                bibleVm.bookL[it.book - 1].book_name,
+                it.chapter,
+                it.verse,
+                it.content,
+                0,
+                "",
+                0,
+                0,
+                false,
+                false
+            )
+        }
         newL = nL
 //        newL = bibleVm.verseL.filter{ it.highlight_selected }
         return newL.size
