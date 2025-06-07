@@ -12,7 +12,7 @@ import jm.preversion.biblewith.databinding.GroupListFmVhBinding
 import jm.preversion.biblewith.moreinfo.MyNoteRvaInner
 import jm.preversion.biblewith.util.Http.UPLOADS_URL
 import jm.preversion.biblewith.util.ImageHelper
-import com.google.gson.JsonObject
+import jm.preversion.biblewith.group.dto.GroupInfoDto
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -24,11 +24,11 @@ class GroupListRva(val groupVm: GroupVm, val groupListFm: GroupListFm) : Recycle
     }
 
     override fun onBindViewHolder(holder: GroupListRva.GroupListFmVh, position: Int) {
-        holder.bind(groupVm.groupL[position] as JsonObject)
+        holder.bind(groupVm.groupL[position])
     }
 
     override fun getItemCount(): Int {
-        return groupVm.groupL.size()
+        return groupVm.groupL.size
     }
 
 
@@ -41,15 +41,15 @@ class GroupListRva(val groupVm: GroupVm, val groupListFm: GroupListFm) : Recycle
         }
 
         //mItem -- 모임목록가져오기()
-        fun bind(mItem: JsonObject) {
+        fun bind(mItem: GroupInfoDto) {
 //            this.mItem = mItem;
 //            binding.groupIvInCardview.setImageURI(Uri.parse(UPLOADS_URL + mItem.get("group_main_image").asString))
-            ImageHelper.getImageUsingGlide(groupListFm.requireContext(), mItem.get("group_main_image").asString, binding.groupIvInCardview)
-            binding.myNoteFmVhContentTv.text = mItem.get("group_name").asString
+            ImageHelper.getImageUsingGlide(groupListFm.requireContext(), mItem.groupMainImage, binding.groupIvInCardview)
+            binding.myNoteFmVhContentTv.text = mItem.groupName
 
             //홀더 클릭시 해당하는 모임 상세 페이지로 이동
             binding.root.setOnClickListener(View.OnClickListener {
-                groupVm.currentGroupIn = mItem.get("group_no").asInt
+                groupVm.currentGroupIn = mItem.groupNo
 //                CoroutineScope(Dispatchers.Main).launch {
 //                    //모임상세불러오기() - groupInfo 가 챌린지목록가져오기()안에서 참조되기 때문에 모임상세불러오기()의 안전(임시)?한 로딩을 위해 약간의 지연을 둠
 //                    //원래는 모임상세불러오기() 자체가 코루틴등으로 안전한 비동기 로직이 수행되어야함..

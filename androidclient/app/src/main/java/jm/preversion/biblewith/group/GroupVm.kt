@@ -12,6 +12,13 @@ import jm.preversion.biblewith.util.Http
 import com.google.gson.GsonBuilder
 import com.google.gson.JsonArray
 import com.google.gson.JsonObject
+import jm.preversion.biblewith.group.dto.GroupListResponse
+import jm.preversion.biblewith.group.dto.GroupInfoDto
+import jm.preversion.biblewith.group.dto.GboardDto
+import jm.preversion.biblewith.group.dto.GboardReplyDto
+import jm.preversion.biblewith.group.dto.GroupMemberDto
+import jm.preversion.biblewith.group.dto.GroupDetailResponse
+import jm.preversion.biblewith.group.dto.GboardDetailResponse
 import okhttp3.MultipartBody
 import okhttp3.RequestBody
 import retrofit2.Call
@@ -27,19 +34,19 @@ class GroupVm : ViewModel() {
     val host = Http.HOST_IP
     val gson = GsonBuilder().setPrettyPrinting().create()
 
-    var groupL = JsonArray() //모임 목록 - 모임목록가져오기()
-    var liveGroupL = MutableLiveData<JsonArray>()
-    var gboardL = JsonArray() //모임 상세페이지 게시물 목록 - 모임상세불러오기()
-    var liveGboardL = MutableLiveData<JsonArray>()
-    var memberL = JsonArray() //모임 상세페이지 멤버 목록 - 모임상세불러오기(), 모임멤버목록로드(), 모임멤버추방,탈퇴,검색()
-    var liveMemberL = MutableLiveData<JsonArray>()
-    var groupInfo = JsonObject() //모임 상세페이지 모임요약 정보 - 모임상세불러오기()에서 불러옴
-    var liveGroupInfo = MutableLiveData<JsonObject>()
+    var groupL: List<GroupInfoDto> = emptyList() //모임 목록 - 모임목록가져오기()
+    var liveGroupL = MutableLiveData<List<GroupInfoDto>>()
+    var gboardL: List<GboardDto> = emptyList() //모임 상세페이지 게시물 목록 - 모임상세불러오기()
+    var liveGboardL = MutableLiveData<List<GboardDto>>()
+    var memberL: List<GroupMemberDto> = emptyList() //모임 상세페이지 멤버 목록
+    var liveMemberL = MutableLiveData<List<GroupMemberDto>>()
+    var groupInfo: GroupInfoDto? = null //모임 상세페이지 모임요약 정보
+    var liveGroupInfo = MutableLiveData<GroupInfoDto>()
 
-    var gboardInfo = JsonObject() //모임 게시물 디테일 정보 - 모임글상세가져오기() - 내용(글,좋아요수,히트수,) + 이미지목록 + 댓글 목록
-    var liveGboardInfo = MutableLiveData<JsonObject>()
-    var gboardReplyL = JsonArray() //모임 게시물 디테일 댓글 정보 - 모임글상세가져오기()
-    var liveGboardReplyL = MutableLiveData<JsonArray>()
+    var gboardInfo: GboardDto? = null //모임 게시물 디테일 정보
+    var liveGboardInfo = MutableLiveData<GboardDto>()
+    var gboardReplyL: List<GboardReplyDto> = emptyList() //모임 게시물 디테일 댓글 정보
+    var liveGboardReplyL = MutableLiveData<List<GboardReplyDto>>()
 
 
     var sortState = "name"  //모임목록페이지 정렬 초기값 모임이름순
@@ -136,21 +143,20 @@ class GroupVm : ViewModel() {
     }
 
 
-    fun 모임목록가져오기(user_no :Int ,  isExeInVm: Boolean): Call<JsonObject>? {
+    fun 모임목록가져오기(user_no :Int ,  isExeInVm: Boolean): Call<GroupListResponse>? {
         val retrofit = Http.getRetrofitInstance(host)
         val httpGroup = retrofit.create(Http.HttpGroup::class.java) // 통신 구현체 생성(미리 보낼 쿼리스트링 설정해두는거)
         val call = httpGroup.getGroupL(user_no, sortState)
         if (isExeInVm) { //true를 받으면 여기서(vm) 실행하고 결과완료된 call을 리턴. false면 완료안된 call을 리턴해서 호출한 fragment or rva에서 비동기 로직 진행.
-            call.enqueue(object : Callback<JsonObject?> {
-                override fun onResponse(call: Call<JsonObject?>, response: Response<JsonObject?>) {
+            call.enqueue(object : Callback<GroupListResponse> {
+                override fun onResponse(call: Call<GroupListResponse>, response: Response<GroupListResponse>) {
                     if (response.isSuccessful) {
                         val res = response.body()!!
-//                        Log.e("[GroupVm]", "모임목록가져오기 onResponse: $res")
-                        groupL = res.get("result").asJsonArray
+                        groupL = res.result
                         liveGroupL.value = groupL
                     }
                 }
-                override fun onFailure(call: Call<JsonObject?>, t: Throwable) {
+                override fun onFailure(call: Call<GroupListResponse>, t: Throwable) {
                     Log.e("[GroupVm]", "모임목록가져오기 onFailure: " + t.message)
                 }
             })
@@ -159,52 +165,50 @@ class GroupVm : ViewModel() {
     }
 
     // 모임상세 목록을 가져옴 - 게시물리스트, 멤버리스트, 모임정보 ...
-    fun 모임상세불러오기(isExeInVm: Boolean): Call<JsonObject>? {
+    fun 모임상세불러오기(isExeInVm: Boolean): Call<GroupDetailResponse>? {
         val retrofit = Http.getRetrofitInstance(host)
         val httpGroup = retrofit.create(Http.HttpGroup::class.java) // 통신 구현체 생성(미리 보낼 쿼리스트링 설정해두는거)
         val call = httpGroup.getGroupIn(currentGroupIn, sortStateGroupIn, MyApp.userInfo.user_no)
         if (isExeInVm) { //true를 받으면 여기서(vm) 실행하고 결과완료된 call을 리턴. false면 완료안된 call을 리턴해서 호출한 fragment or rva에서 비동기 로직 진행.
-            call.enqueue(object : Callback<JsonObject?> {
-                override fun onResponse(call: Call<JsonObject?>, response: Response<JsonObject?>) {
+            call.enqueue(object : Callback<GroupDetailResponse> {
+                override fun onResponse(call: Call<GroupDetailResponse>, response: Response<GroupDetailResponse>) {
                     if (response.isSuccessful) {
                         val res = response.body()!!
-//                        Log.e("[GroupVm]", "모임상세불러오기 onResponse: ${gson.toJson(res)}")
-                        gboardL = res.get("result").asJsonObject.get("gboardL").asJsonArray
+                        gboardL = res.result.gboardL
                         liveGboardL.value = gboardL
-                        memberL = res.get("result").asJsonObject.get("memberL").asJsonArray
+                        memberL = res.result.memberL
                         liveMemberL.value = memberL
-                        groupInfo = res.get("result").asJsonObject.get("0").asJsonObject
+                        groupInfo = res.result.groupInfo
                         liveGroupInfo.value = groupInfo
                     }
                 }
-                override fun onFailure(call: Call<JsonObject?>, t: Throwable) {
+                override fun onFailure(call: Call<GroupDetailResponse>, t: Throwable) {
                     Log.e("[GroupVm]", "모임상세불러오기 onFailure: " + t.message)
                 }
             })
         }
         return call
     }
-    suspend fun 모임상세불러오기2(isExeInVm: Boolean): Call<JsonObject>? {
+    suspend fun 모임상세불러오기2(isExeInVm: Boolean): Call<GroupDetailResponse>? {
         val retrofit = Http.getRetrofitInstance(host)
         val httpGroup = retrofit.create(Http.HttpGroup::class.java) // 통신 구현체 생성(미리 보낼 쿼리스트링 설정해두는거)
         val call = httpGroup.getGroupIn(currentGroupIn, sortStateGroupIn, MyApp.userInfo.user_no)
         if (isExeInVm) { //true를 받으면 여기서(vm) 실행하고 결과완료된 call을 리턴. false면 완료안된 call을 리턴해서 호출한 fragment or rva에서 비동기 로직 진행.
             val resp = suspendCoroutine { cont: Continuation<Unit> ->
-                call.enqueue(object : Callback<JsonObject?> {
-                    override fun onResponse(call: Call<JsonObject?>, response: Response<JsonObject?>) {
+                call.enqueue(object : Callback<GroupDetailResponse> {
+                    override fun onResponse(call: Call<GroupDetailResponse>, response: Response<GroupDetailResponse>) {
                         if (response.isSuccessful) {
                             val res = response.body()!!
-    //                        Log.e("[GroupVm]", "모임상세불러오기 onResponse: ${gson.toJson(res)}")
-                            gboardL = res.get("result").asJsonObject.get("gboardL").asJsonArray
+                            gboardL = res.result.gboardL
                             liveGboardL.value = gboardL
-                            memberL = res.get("result").asJsonObject.get("memberL").asJsonArray
+                            memberL = res.result.memberL
                             liveMemberL.value = memberL
-                            groupInfo = res.get("result").asJsonObject.get("0").asJsonObject
+                            groupInfo = res.result.groupInfo
                             liveGroupInfo.value = groupInfo
                             cont.resumeWith(Result.success(Unit))
                         }
                     }
-                    override fun onFailure(call: Call<JsonObject?>, t: Throwable) {
+                    override fun onFailure(call: Call<GroupDetailResponse>, t: Throwable) {
                         Log.e("[GroupVm]", "모임상세불러오기 onFailure: " + t.message)
                     }
                 })
@@ -272,25 +276,25 @@ class GroupVm : ViewModel() {
         return call
     }
 
-     suspend fun 모임글상세가져오기(gboard_no: Int, whereIs : String, isExeInVm: Boolean): Call<JsonObject>? {
+     suspend fun 모임글상세가져오기(gboard_no: Int, whereIs : String, isExeInVm: Boolean): Call<GboardDetailResponse>? {
         val retrofit = Http.getRetrofitInstance(host)
         val httpGroup = retrofit.create(Http.HttpGroup::class.java) // 통신 구현체 생성(미리 보낼 쿼리스트링 설정해두는거)
         val call = httpGroup.getGboardDetail(gboard_no, whereIs, MyApp.userInfo.user_no)
         if (isExeInVm) { //true를 받으면 여기서(vm) 실행하고 결과완료된 call을 리턴. false면 완료안된 call을 리턴해서 호출한 fragment or rva에서 비동기 로직 진행.
             val resp = suspendCoroutine { cont: Continuation<Unit> ->
-                call.enqueue(object : Callback<JsonObject?> {
-                    override fun onResponse(call: Call<JsonObject?>, response: Response<JsonObject?>) {
+                call.enqueue(object : Callback<GboardDetailResponse> {
+                    override fun onResponse(call: Call<GboardDetailResponse>, response: Response<GboardDetailResponse>) {
                         if (response.isSuccessful) {
                             val res = response.body()!!
-                            gboardInfo = res.get("result").asJsonObject.get("gboardInfo").asJsonObject
+                            gboardInfo = res.result.gboardInfo
                             liveGboardInfo.value = gboardInfo
-                            gboardReplyL = res.get("result").asJsonObject.get("gboardReplyL").asJsonArray
+                            gboardReplyL = res.result.gboardReplyL
                             liveGboardReplyL.value = gboardReplyL
 //                            Log.e("[GroupVm]", "모임글상세가져오기 완료: $res")
                             cont.resumeWith(Result.success(Unit))
                         }
                     }
-                    override fun onFailure(call: Call<JsonObject?>, t: Throwable) {
+                    override fun onFailure(call: Call<GboardDetailResponse>, t: Throwable) {
                         Log.e("[GroupVm]", "모임글상세가져오기 onFailure: " + t.message)
                     }
                 })
