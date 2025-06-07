@@ -33,6 +33,7 @@ import jm.preversion.biblewith.R
 import jm.preversion.biblewith.rtc.RtcVm
 import jm.preversion.biblewith.rtc.ui.theme.CustomModifier
 import jm.preversion.biblewith.rtc.webrtc.StandardCommand
+import jm.preversion.biblewith.rtc.RtcUserDto
 
 
 val padding = 16.dp
@@ -41,13 +42,7 @@ val padding = 16.dp
 fun JoinRequestDialog(onDismiss: () -> Unit) {
     val contextForToast = LocalContext.current.applicationContext
     val rtcVm = viewModel<RtcVm>()
-    val _requestList by rtcVm.방장에게접속요청자목록.collectAsState()
-    //서버로부터 받아온 요청자목록을 List로 변환하여, view에 사용.
-    val requestList = _requestList.run {
-        map {
-            it.asJsonObject
-        }
-    }
+    val requestList by rtcVm.방장에게접속요청자목록.collectAsState()
 
 
     Dialog(
@@ -114,7 +109,7 @@ fun JoinRequestDialog(onDismiss: () -> Unit) {
 
                             Text(
                                 modifier = Modifier.padding(start = 16.dp, top = 16.dp, bottom = 16.dp),
-                                text = item["nick"].asString,
+                                text = item.nick ?: "",
                                 textAlign = TextAlign.Center,
                                 style = TextStyle(
                                     fontFamily = FontFamily(Font(R.font.binggraetaombold, FontWeight.Bold)),
@@ -135,11 +130,10 @@ fun JoinRequestDialog(onDismiss: () -> Unit) {
                                         // todo 여기서 수락시 서버로 해당하는 접속자에게 방에 참가하라는 명령을 보내줌.
                                         rtcVm.sessionManager.signalingClient.sendCommand(
                                             StandardCommand.방참가수락,
-                                            item.run {
-                                                deepCopy().also {
-                                                    it.addProperty("command", StandardCommand.방참가수락.name)
-                                                }
-                                            }
+                                            RtcCommandDto(
+                                                command = StandardCommand.방참가수락.name,
+                                                peerId = item.userId
+                                            )
                                         )
 
 

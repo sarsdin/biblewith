@@ -408,7 +408,7 @@ fun VideoCallScreen() {
 
 
         //방장일때 참가요청자가 있는지 확인해야함.
-        if ((rtcVm.접속한방정보읽기["makerId"].asString == MyApp.userInfo.user_email) && callMediaState.isRequestList
+        if ((rtcVm.접속한방정보읽기?.makerId == MyApp.userInfo.user_email) && callMediaState.isRequestList
             && 다이얼로그보여주기.value == "요청자목록"
         ){
             JoinRequestDialog { 다이얼로그닫기() }

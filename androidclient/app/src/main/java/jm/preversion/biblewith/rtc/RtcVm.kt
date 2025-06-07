@@ -7,8 +7,9 @@ import jm.preversion.biblewith.group.GroupVm
 import jm.preversion.biblewith.rtc.webrtc.sessions.ChatData
 import jm.preversion.biblewith.rtc.webrtc.sessions.WebRtcSessionManagerImpl
 import jm.preversion.biblewith.util.FileHelperV2
-import com.google.gson.JsonArray
-import com.google.gson.JsonObject
+import jm.preversion.biblewith.rtc.RtcRoomDto
+import jm.preversion.biblewith.rtc.RtcUserDto
+import jm.preversion.biblewith.rtc.RtcCommandDto
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
 
@@ -20,23 +21,23 @@ class RtcVm : ViewModel() {
     val fileHelper = FileHelperV2()
 
 
-    val 접속한방정보읽기: JsonObject
+    val 접속한방정보읽기: RtcRoomDto?
         get() = sessionManager.signalingClient._접속한방정보.value
 
-    val 접속한방정보: StateFlow<JsonObject>
+    val 접속한방정보: StateFlow<RtcRoomDto?>
         get() = sessionManager.signalingClient._접속한방정보
 
-    val 방참가시접속인원목록: StateFlow<JsonArray>
+    val 방참가시접속인원목록: StateFlow<List<RtcUserDto>>
         get() = sessionManager.signalingClient._방참가시접속인원목록
 
-    val 전달받은명령상태값: StateFlow<JsonObject>
+    val 전달받은명령상태값: StateFlow<RtcCommandDto?>
         get() = sessionManager.signalingClient._전달받은명령상태값
 
-    val 방장에게접속요청자목록: StateFlow<JsonArray>
+    val 방장에게접속요청자목록: StateFlow<List<RtcUserDto>>
         get() = sessionManager.signalingClient._방장에게접속요청자목록
 
     val 방장에게접속요청자목록size :Int
-        get() = sessionManager.signalingClient._방장에게접속요청자목록.value.size()
+        get() = sessionManager.signalingClient._방장에게접속요청자목록.value.size
 
 
 
