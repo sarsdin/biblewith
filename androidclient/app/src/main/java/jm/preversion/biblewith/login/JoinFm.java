@@ -22,7 +22,7 @@ import jm.preversion.biblewith.MyApp;
 import jm.preversion.biblewith.R;
 import jm.preversion.biblewith.databinding.LoginJoinFmBinding;
 import jm.preversion.biblewith.util.GmailSender;
-import com.google.gson.JsonObject;
+import jm.preversion.biblewith.login.dto.LoginResponseDto;
 
 import java.util.HashMap;
 
@@ -67,15 +67,15 @@ public class JoinFm extends Fragment {
         binding.joinEmailSendBt.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                loginVm.이메일중복검사통신(binding.joinEmailInput.getText().toString()).enqueue(new Callback<JsonObject>() {
+                loginVm.이메일중복검사통신(binding.joinEmailInput.getText().toString()).enqueue(new Callback<LoginResponseDto>() {
                     @Override
-                    public void onResponse(Call<JsonObject> call, Response<JsonObject> response) {
+                    public void onResponse(Call<LoginResponseDto> call, Response<LoginResponseDto> response) {
                         if (response.isSuccessful()) {
-                            JsonObject res = response.body();
+                            LoginResponseDto res = response.body();
                             Log.e("[JoinFm]", "이메일중복검사통신 onResponse: 통신성공, 결과는: "+ res.toString() );
 
                             //검사한 이메일이 존재하지않으면 인증메일을 바로보내고, 존재하면 toast 로 '사용중' 이라고 띄운다.
-                            if (res.get("result").getAsBoolean()){
+                            if (res.isResult()){
                                 Toast.makeText(getActivity(), "인증 메일을 보냈습니다.", Toast.LENGTH_SHORT).show();
                                 // todo: 인증메일 보내기 smtp
                                 인증메일보내기(binding.joinEmailInput.getText().toString());
@@ -94,7 +94,7 @@ public class JoinFm extends Fragment {
                         }
                     }
                     @Override
-                    public void onFailure(Call<JsonObject> call, Throwable t) {
+                    public void onFailure(Call<LoginResponseDto> call, Throwable t) {
                         Log.e("[JoinFm]", "이메일중복검사통신 onFailure: "+ t.getMessage() );
                     }
                 });
@@ -128,16 +128,16 @@ public class JoinFm extends Fragment {
             infoMap.put("user_pwdc",binding.joinPwVerifyInput.getText().toString());
             infoMap.put("user_nick",binding.joinNicknameInput.getText().toString());
             infoMap.put("user_name",binding.joinNameInput.getText().toString());
-            loginVm.회원가입(infoMap).enqueue(new Callback<JsonObject>() {
+            loginVm.회원가입(infoMap).enqueue(new Callback<LoginResponseDto>() {
                 @Override
-                public void onResponse(Call<JsonObject> call, Response<JsonObject> response) {
+                public void onResponse(Call<LoginResponseDto> call, Response<LoginResponseDto> response) {
                     Log.e("[JoinFm]", "회원가입 onResponse: 통신성공, code는: "+ response.code() );
                     if (response.isSuccessful()) {
-                        JsonObject res = response.body();
+                        LoginResponseDto res = response.body();
                         Log.e("[JoinFm]", "회원가입 onResponse: 통신성공, body는: "+ res.toString() );
 
-                        if (res.get("result").getAsBoolean()){
-                            Toast.makeText(getActivity(), res.get("msg").getAsString(), Toast.LENGTH_SHORT).show();
+                        if (res.isResult()){
+                            Toast.makeText(getActivity(), res.getMsg(), Toast.LENGTH_SHORT).show();
                             NavHostFragment.findNavController(JoinFm.this).navigate(R.id.action_global_loginMainFm);
 
                         } else {
@@ -148,7 +148,7 @@ public class JoinFm extends Fragment {
                 }
 
                 @Override
-                public void onFailure(Call<JsonObject> call, Throwable t) {
+                public void onFailure(Call<LoginResponseDto> call, Throwable t) {
                     Log.e("[JoinFm]", "이메일중복검사통신 onFailure: "+ t.getMessage() );
                 }
             });

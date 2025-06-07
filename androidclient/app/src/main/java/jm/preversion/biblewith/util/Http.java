@@ -6,6 +6,7 @@ import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
+import jm.preversion.biblewith.login.dto.LoginResponseDto;
 import com.localebro.okhttpprofiler.OkHttpProfilerInterceptor;
 
 import java.util.List;
@@ -71,11 +72,11 @@ public class Http {
     public interface HttpLogin{
         // 이메일 중복확인 통신
         @GET("home/isEmailRedundant")
-        Call<JsonObject> isEmailRedundant(@Query("user_email") String user_email );
+        Call<LoginResponseDto> isEmailRedundant(@Query("user_email") String user_email );
 
         //회원가입 버튼 클릭시 - 신청
         @GET("home/join")
-        Call<JsonObject> joinComplete(@Query("user_email") String user_email,
+        Call<LoginResponseDto> joinComplete(@Query("user_email") String user_email,
                                           @Query("user_pwd") String user_pwd,
                                           @Query("user_pwdc") String user_pwdc,
                                           @Query("user_nick") String user_nick,
@@ -84,20 +85,20 @@ public class Http {
 
         //비번찾기 이메일 인증번호 발송 버튼 클릭시 -
         @GET("home/findpwMailSend")
-        Call<JsonObject> findpwMailSend(@Query("user_name") String user_name,
+        Call<LoginResponseDto> findpwMailSend(@Query("user_name") String user_name,
                                         @Query("user_email") String user_email
         );
 
         //비번찾기 인증번호 확인 버튼 클릭시
         @GET("home/findpwMailVnumConfirm")
-        Call<JsonObject> findpwMailVnumConfirm(@Query("findpw_number") String findpw_number,
+        Call<LoginResponseDto> findpwMailVnumConfirm(@Query("findpw_number") String findpw_number,
                                                @Query("name") String name,
                                                @Query("email") String email
         );
 
         //새 비밀번호 설정 완료 버튼 클릭시
         @GET("home/findpwNewPw")
-        Call<JsonObject> findpwNewPw(@Query("user_email") String user_email, @Query("user_pwd") String user_pwd   );
+        Call<LoginResponseDto> findpwNewPw(@Query("user_email") String user_email, @Query("user_pwd") String user_pwd   );
 
         //로그인 버튼 클릭시
         @GET("home/login")
@@ -117,7 +118,7 @@ public class Http {
                                      @Part/*("group_main_image")*/ MultipartBody.Part userImage);
 
         @POST("home/nickModify")
-        Call<JsonObject> 유저닉네임수정( @Query("user_no") int user_no,
+        Call<LoginResponseDto> 유저닉네임수정( @Query("user_no") int user_no,
                                   @Query("user_nick") String user_nick
         );
     }
