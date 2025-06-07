@@ -7,6 +7,9 @@ import com.google.gson.GsonBuilder;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 import com.localebro.okhttpprofiler.OkHttpProfilerInterceptor;
+import jm.preversion.biblewith.group.dto.GroupListResponse;
+import jm.preversion.biblewith.group.dto.GroupDetailResponse;
+import jm.preversion.biblewith.group.dto.GboardDetailResponse;
 
 import java.util.List;
 import java.util.Map;
@@ -212,13 +215,13 @@ public class Http {
         //모임 목록 가져오기
         @Headers("content-type: application/json")
         @POST("group/getGroupL")
-        Call<JsonObject> getGroupL(@Query("user_no") int userNo, @Query("sortState") String sortState);
+        Call<GroupListResponse> getGroupL(@Query("user_no") int userNo, @Query("sortState") String sortState);
 
 
         //모임 상세 가져오기
         @Headers("content-type: application/json")
         @POST("group/getGroupIn")
-        Call<JsonObject> getGroupIn(@Query("group_no") int currentGroupIn, @Query("sortStateGroupIn") String sortStateGroupIn, @Query("user_no") int userNo);
+        Call<GroupDetailResponse> getGroupIn(@Query("group_no") int currentGroupIn, @Query("sortStateGroupIn") String sortStateGroupIn, @Query("user_no") int userNo);
 
         //모임 게시물 목록 가져오기
         @Headers("content-type: application/json")
@@ -245,7 +248,7 @@ public class Http {
         //모임 글 상세 가져오기
         @Headers("content-type: application/json")
         @POST("group/getGboardDetail")
-        Call<JsonObject> getGboardDetail(@Query("gboard_no") int gboard_no, @Query("whereIs") String whereIs, @Query("user_no") int userNo);
+        Call<GboardDetailResponse> getGboardDetail(@Query("gboard_no") int gboard_no, @Query("whereIs") String whereIs, @Query("user_no") int userNo);
 
         //모임 댓글 쓰기
         @Headers("content-type: application/json")
