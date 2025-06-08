@@ -1,4 +1,4 @@
-package jm.preversion.biblewith.group.dto
+package jm.preversion.biblewith.util
 
 import com.google.gson.annotations.SerializedName
 

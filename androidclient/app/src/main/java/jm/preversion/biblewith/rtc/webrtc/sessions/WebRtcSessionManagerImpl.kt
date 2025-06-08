@@ -184,7 +184,7 @@ class WebRtcSessionManagerImpl(
     /**
      * localVideoTrack가 초기화가 이상하게 잘 안되는 경우 재생성해서 플로우에 넣어줌.
      */
-    public fun reCreateLocalVideoTrack(): VideoTrack {
+    fun reCreateLocalVideoTrack(): VideoTrack {
         Log.e(tagName, "localVideoTrack 재생성 시작.")
         return peerConnectionFactory.makeVideoTrack(
             source = videoSource,
@@ -357,7 +357,12 @@ class WebRtcSessionManagerImpl(
             // 해당 시그널 상황에서 클라이언트가 해야할 작업들인 handle**() 메소드가 실행된다.
             //handleAnswer(), handleIce()내에서 peerConnection 객체를 사용함.
             signalingClient.signalingCommandFlow.collect { pair ->
+                //상태값의 키페어를 가져와 사용. second에는 보통 SPD 문자열이 담김.
                 when (pair.first) {
+                    //signalingCommandFlow의 state 값이 변할때마다 실행됨.
+                    // OFFER가 두개면 두번 실행됨. 예)peer B와 C가 이곳 A에게 OFFER주는 상황 등.
+                    // 이때, 이곳 A는 B와 C의 peerId를 확인하여 해당 아이디로
+                    // 이미 생성된 peerConnection 객체가 있는지 map에서 먼저 확인해야함.
                     SignalingCommand.OFFER -> handleOffer(pair.second.peerId ?: "", pair.second.sdp ?: "")
                     SignalingCommand.ANSWER -> handleAnswer(pair.second.peerId ?: "", pair.second.sdp ?: "")
                     SignalingCommand.ICE -> handleIce(pair.second.peerIdOf ?: "", pair.second.sdp ?: "")
@@ -366,8 +371,6 @@ class WebRtcSessionManagerImpl(
                 }
             }
 
-//            signalingClient.방접속시도시접속인원목록.collect { userIds ->
-//            }
         }
     }
 
@@ -397,7 +400,7 @@ class WebRtcSessionManagerImpl(
             //  주의: 최신 정보를 담고 있지는 않음. '참가' 버튼을 누르기까지 대기시간이 존재해서, 실제 방참가시 시간차가 있음.
             signalingClient.방참가시접속인원목록.value.forEach { userInfo ->
                 val peerId = userInfo.userId
-                if (peerId != MyApp.userInfo.user_email) {
+                if (peerId != MyApp.userInfo.user_email) { // 방접속원의 아이디가 본인이라면 오퍼 안해야함.
                     sendOffer(peerId)
                 }
             }

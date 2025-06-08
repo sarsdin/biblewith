@@ -36,21 +36,21 @@ class GroupVm : ViewModel() {
 
     var groupL: List<GroupInfoDto> = emptyList() //모임 목록 - 모임목록가져오기()
     var liveGroupL = MutableLiveData<List<GroupInfoDto>>()
-    var gboardL: List<GboardDto> = emptyList() //모임 상세페이지 게시물 목록 - 모임상세불러오기()
+    var gboardL: List<GboardDto> = emptyList() //모임 상세페이지 게시물 목록
     var liveGboardL = MutableLiveData<List<GboardDto>>()
-    var memberL: List<GroupMemberDto> = emptyList() //모임 상세페이지 멤버 목록
+    var memberL: List<GroupMemberDto> = emptyList() //모임 상세페이지 멤버 목록 - 모임상세불러오기(), 모임멤버목록로드(), 모임멤버추방,탈퇴,검색()
     var liveMemberL = MutableLiveData<List<GroupMemberDto>>()
-    var groupInfo: GroupInfoDto? = null //모임 상세페이지 모임요약 정보
+    var groupInfo: GroupInfoDto? = null //모임 상세페이지 모임요약 정보 - 모임상세불러오기()에서 불러옴
     var liveGroupInfo = MutableLiveData<GroupInfoDto>()
 
-    var gboardInfo: GboardDto? = null //모임 게시물 디테일 정보
+    var gboardInfo: GboardDto? = null //모임 게시물 디테일 정보 - 모임글상세가져오기() - 내용(글,좋아요수,히트수,) + 이미지목록 + 댓글 목록
     var liveGboardInfo = MutableLiveData<GboardDto>()
-    var gboardReplyL: List<GboardReplyDto> = emptyList() //모임 게시물 디테일 댓글 정보
+    var gboardReplyL: List<GboardReplyDto> = emptyList() //모임 게시물 디테일 댓글 정보 - 모임글상세가져오기()
     var liveGboardReplyL = MutableLiveData<List<GboardReplyDto>>()
 
 
-    var sortState = "name"  //모임목록페이지 정렬 초기값 모임이름순
-    var sortStateGroupIn = "board"  //모임상세페이지 게시물 정렬 초기값 최신게시물순(board) & 최신댓글순(reply)
+    val sortState = "name"  //모임목록페이지 정렬 초기값 모임이름순
+    val sortStateGroupIn = "board"  //모임상세페이지 게시물 정렬 초기값 최신게시물순(board) & 최신댓글순(reply)
     var clickedReplyNoGroupIn = 0  //모임상세페이지 게시물 댓글 클릭시 댓글번호 - 글상세에서 그댓글존재시 번호위치로 스크롤이동
     var currentGroupIn = 0  //현재 선택된 모임의 pk 번호
 

@@ -95,14 +95,12 @@ class SignalingClient(val groupVm: GroupVm) {
     var _방장에게접속요청자목록 = MutableStateFlow(emptyList<RtcUserDto>())
 
 
-
     /**
      *  현재 화면을 변경하는 함수를 추가.
      */
     fun setCurrentScreen(screen: RtcFm.ScreenState) {
         _currentScreen.value = screen
     }
-
 
 
 
@@ -114,7 +112,7 @@ class SignalingClient(val groupVm: GroupVm) {
             command = "ws_init",
             id = MyApp.userInfo.user_email,
             nick = MyApp.userInfo.user_nick,
-            groupId = groupVm.groupInfo.get("group_no").asInt
+            groupId = groupVm.groupInfo?.groupNo
         )
         logger.w { "[sendCommand Init] $jOut" }
         ws.send(gson.toJson(jOut))
@@ -173,7 +171,7 @@ class SignalingClient(val groupVm: GroupVm) {
                 val command = jin.command
 
                 when(command){
-                    "signalingCommand" -> {
+                    StandardCommand.signalingCommand.name -> {
                         val signalingCommand: String = jin.signalingCommand ?: return
                         // 각 응답의 내용에 따른 메소드를 호출함.
                         when {
@@ -183,28 +181,28 @@ class SignalingClient(val groupVm: GroupVm) {
                             //'STATE Creating'  << 서버에서 OFFER 명령을 받으면
                             //'STATE Active'  << 서버에서 ANSWER 명령을 받으면
                             //'STATE ICE'  << 서버에서 ICE 명령을 받으면
-                            signalingCommand.startsWith(SignalingCommand.STATE.toString(), true) ->
+                            signalingCommand.startsWith(SignalingCommand.STATE.name, true) ->
                                 handleStateMessage(jin)
 
 
                             //text의 앞글자가 OFFER, ANSWER, ICE 일때 실행.
                             //WebRtcSessionManagerImpl의 init{} 에서 SignalingCommand의 값을 collect하는 코루틴이 존재.
                             //거기서 handleOffer handleAnswer handleIce 등의 명령을 실행함.
-                            signalingCommand.startsWith(SignalingCommand.OFFER.toString(), true) ->{
+                            signalingCommand.startsWith(SignalingCommand.OFFER.name, true) ->{
                                 Log.e(tagName, "onMessage() OFFER: $text")
                                 handleSignalingCommand(SignalingCommand.OFFER, jin)
                             }
-                            signalingCommand.startsWith(SignalingCommand.ANSWER.toString(), true) ->{
+                            signalingCommand.startsWith(SignalingCommand.ANSWER.name, true) ->{
                                 Log.e(tagName, "onMessage() ANSWER: $text")
                                 handleSignalingCommand(SignalingCommand.ANSWER, jin)
                             }
 
                             // Observer.onIceCandidate()시 콜백을 실행하는데, 그 콜백에서 소켓으로 ice관련 명령을 보냄.
                             // onIceCandidateRequest <<< 이것임.
-                            signalingCommand.startsWith(SignalingCommand.ICE.toString(), true) ->
+                            signalingCommand.startsWith(SignalingCommand.ICE.name, true) ->
                                 handleSignalingCommand(SignalingCommand.ICE, jin)
 
-                            signalingCommand.startsWith(SignalingCommand.CLOSE.toString(), true) ->{
+                            signalingCommand.startsWith(SignalingCommand.CLOSE.name, true) ->{
                                 Log.e(tagName, "onMessage() CLOSE(특정 peer 접속종료): $text")
                                 handleSignalingCommand(SignalingCommand.CLOSE, jin)
                             }
@@ -222,7 +220,6 @@ class SignalingClient(val groupVm: GroupVm) {
                     }
                     StandardCommand.방만들기.name -> {
                         Log.e(tagName, "방만들기 jin: $jin")
-                        //map을 tojson으로 변환한건데 이게 JsonObject로 변환된건지 잘모르겠네.
 
                         signalingScope.launch {
                             //서버로부터 받아온 방목록을 업데이트 해주고,
@@ -260,7 +257,7 @@ class SignalingClient(val groupVm: GroupVm) {
                             sendCommand(
                                 StandardCommand.방접속,
                                 RtcCommandDto(
-                                    command = "방접속",
+                                    command = StandardCommand.방접속.name,
                                     makerId = jin.makerId
                                 )
                             )
@@ -410,6 +407,7 @@ enum class StandardCommand {
     방목록전달,
     방종료,
     접속해제,
-    방참가수락
+    방참가수락,
+    signalingCommand
 
 }
